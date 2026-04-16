@@ -39,13 +39,13 @@ import { isCI } from '../is-ci';
 import {
   RETRY_ATTEMPTS,
   RETRY_DELAY,
-  getPrintGraphMode,
   printDepGraph,
   printDepGraphJsonl,
   printDepGraphJsonlError,
   assembleQueryString,
   shouldPrintDepGraph,
   shouldPrintEffectiveDepGraph,
+  shouldPrintJsonlOutput,
   shouldPrintDepGraphWithErrors,
 } from './common';
 import config from '../config';
@@ -360,10 +360,9 @@ async function sendAndParseResults(
   }
 
   if (ecosystem && shouldPrintDepGraph(options)) {
-    const { jsonlOutput } = getPrintGraphMode(options);
     await spinner.clear<void>(spinnerLbl)();
     for (const job of depGraphPrintJobs) {
-      if (jsonlOutput) {
+      if (shouldPrintJsonlOutput(options)) {
         await printDepGraphJsonl(
           job.graph,
           job.normalisedTargetFile || job.legacyTargetLabel,
@@ -848,7 +847,7 @@ async function assembleLocalPayloads(
           );
         }
 
-        if (getPrintGraphMode(options).jsonlOutput) {
+        if (shouldPrintJsonlOutput(options)) {
           await printDepGraphJsonl(
             root.toJSON(),
             targetFile || '',

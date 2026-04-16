@@ -11,10 +11,10 @@ import { getPlugin } from './plugins';
 import { TestDependenciesResponse } from '../snyk-test/legacy';
 import {
   assembleQueryString,
-  getPrintGraphMode,
   printDepGraph,
   printDepGraphJsonl,
   shouldPrintDepGraph,
+  shouldPrintJsonlOutput,
 } from '../snyk-test/common';
 import { getAuthHeader } from '../api-token';
 import { resolveAndTestFacts } from './resolve-test-facts';
@@ -106,7 +106,7 @@ export async function printUnmanagedDepGraph(
   const [result] = await getUnmanagedDepGraph(results);
   const depGraph = convertDepGraph(result);
 
-  if (getPrintGraphMode(options).jsonlOutput) {
+  if (shouldPrintJsonlOutput(options)) {
     await printDepGraphJsonl(
       depGraph,
       target,

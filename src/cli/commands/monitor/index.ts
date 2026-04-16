@@ -72,7 +72,7 @@ import {
 } from '../../../lib/package-managers';
 import { normalizeTargetFile } from '../../../lib/normalize-target-file';
 import { getOrganizationID } from '../../../lib/organization';
-import { getPrintGraphMode } from '../../../lib/snyk-test/common';
+import { shouldPrintEffectiveDepGraph } from '../../../lib/snyk-test/common';
 
 const SEPARATOR = '\n-------------------------------------------------------\n';
 const debug = Debug('snyk');
@@ -217,11 +217,11 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
   let enableMavenDverboseExhaustiveDeps = false;
   try {
     const args = options['_doubleDashArgs'] || [];
-    const printGraphMode = getPrintGraphMode(options);
     const verboseEnabled =
       args.includes('-Dverbose') ||
       args.includes('-Dverbose=true') ||
-      printGraphMode.printGraphEnabled;
+      !!options['print-graph'] ||
+      shouldPrintEffectiveDepGraph(options);
     if (verboseEnabled) {
       enableMavenDverboseExhaustiveDeps = (await hasFeatureFlag(
         MAVEN_DVERBOSE_EXHAUSTIVE_DEPS_FF,

@@ -20,7 +20,7 @@ const {
 } = require('../package-managers');
 const { getOrganizationID } = require('../organization');
 const debug = require('debug')('snyk-test');
-const { getPrintGraphMode } = require('./common');
+const { shouldPrintEffectiveDepGraph } = require('./common');
 
 async function test(root, options, callback) {
   if (typeof options === 'function') {
@@ -54,11 +54,11 @@ async function executeTest(root, options) {
   let enableMavenDverboseExhaustiveDeps = false;
   try {
     const args = options['_doubleDashArgs'] || [];
-    const printGraphMode = getPrintGraphMode(options);
     const verboseEnabled =
       args.includes('-Dverbose') ||
       args.includes('-Dverbose=true') ||
-      printGraphMode.printGraphEnabled;
+      !!options['print-graph'] ||
+      shouldPrintEffectiveDepGraph(options);
     if (verboseEnabled) {
       enableMavenDverboseExhaustiveDeps = await hasFeatureFlag(
         MAVEN_DVERBOSE_EXHAUSTIVE_DEPS_FF,

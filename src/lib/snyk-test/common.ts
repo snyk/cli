@@ -80,50 +80,6 @@ export type FailOn = 'all' | 'upgradable' | 'patchable';
 export const RETRY_ATTEMPTS = 3;
 export const RETRY_DELAY = 500;
 
-export interface PrintGraphMode {
-  printGraphEnabled: boolean;
-  effectiveGraph: boolean;
-  jsonlOutput: boolean;
-  printErrors: boolean;
-}
-
-/**
- * getPrintGraphMode derives canonical print-graph behavior from both
- * the new flag set and legacy aliases during the migration window.
- */
-export function getPrintGraphMode(opts: Options): PrintGraphMode {
-  const legacyEffectiveGraph = !!opts['print-effective-graph'];
-  const legacyEffectiveGraphWithErrors =
-    !!opts['print-effective-graph-with-errors'];
-
-  const printGraphEnabled =
-    !!opts['print-graph'] ||
-    legacyEffectiveGraph ||
-    legacyEffectiveGraphWithErrors;
-
-  const effectiveGraph =
-    !!opts['effective-graph'] ||
-    legacyEffectiveGraph ||
-    legacyEffectiveGraphWithErrors;
-
-  const printErrors =
-    printGraphEnabled &&
-    (!!opts['print-errors'] || legacyEffectiveGraphWithErrors);
-
-  const jsonlOutput =
-    printGraphEnabled &&
-    (!!opts['jsonl-output'] ||
-      legacyEffectiveGraph ||
-      legacyEffectiveGraphWithErrors);
-
-  return {
-    printGraphEnabled,
-    effectiveGraph,
-    jsonlOutput,
-    printErrors,
-  };
-}
-
 /**
  * printDepGraph writes the given dep-graph and target name to the destination
  * stream as expected by the `depgraph` CLI workflow.
@@ -146,15 +102,18 @@ export async function printDepGraph(
 }
 
 export function shouldPrintDepGraph(opts: Options): boolean {
-  const mode = getPrintGraphMode(opts);
-  return mode.printGraphEnabled && !mode.effectiveGraph && !opts['print-deps'];
+  return (
+    (!!opts['print-graph'] || !!opts['allow-incomplete-sbom']) &&
+    !shouldPrintEffectiveDepGraph(opts) &&
+    !opts['print-deps']
+  );
 }
 
 /**
  * printDepGraphJsonl writes dep-graph metadata to the destination stream as one JSON object
  * per line (JSONL): depGraph, normalisedTargetFile, optional targetFileFromPlugin, optional target.
- * Used when --print-graph --jsonl-output is set for both complete and effective graphs; callers
- * supply the dep-graph payload (full or pruned) they want to serialize.
+ * Used for both complete (--allow-incomplete-sbom) and effective (--print-effective-graph*) graph paths.
+ * Callers supply the dep-graph payload (full or pruned) they want to serialize.
  */
 export async function printDepGraphJsonl(
   depGraph: DepGraphData,
@@ -181,8 +140,7 @@ export async function printDepGraphJsonl(
 /**
  * printDepGraphJsonlError writes a JSONL line for failed dependency graph resolution, shaped for
  * consumers that read the same stream as printDepGraphJsonl.
- * Used when graph output includes errors (e.g. legacy --print-effective-graph-with-errors or
- * --print-graph --print-errors) but resolution failed for a project.
+ * Used when --print-effective-graph-with-errors or --allow-incomplete-sbom is set.
  */
 export async function printDepGraphJsonlError(
   root: string,
@@ -212,19 +170,26 @@ export async function printDepGraphJsonlError(
 
 /**
  * Checks if either --print-effective-graph or --print-effective-graph-with-errors is set.
+ * These flags request the pruned (effective) dependency graph in JSONL format.
  */
 export function shouldPrintEffectiveDepGraph(opts: Options): boolean {
-  const mode = getPrintGraphMode(opts);
-  return mode.printGraphEnabled && mode.effectiveGraph;
+  return !!(opts['print-effective-graph'] || opts['print-effective-graph-with-errors']);
 }
 
 /**
- * shouldPrintDepGraphWithErrors returns true when dependency graph output
- * is requested and error entries should also be printed.
+ * shouldPrintJsonlOutput returns true when JSONL-format dependency graph output is
+ * requested — either via the effective-graph flags or via --allow-incomplete-sbom.
+ */
+export function shouldPrintJsonlOutput(opts: Options): boolean {
+  return shouldPrintEffectiveDepGraph(opts) || !!opts['allow-incomplete-sbom'];
+}
+
+/**
+ * shouldPrintDepGraphWithErrors returns true when error entries should also be included
+ * in the dependency graph output stream.
  */
 export function shouldPrintDepGraphWithErrors(opts: Options): boolean {
-  const mode = getPrintGraphMode(opts);
-  return mode.printGraphEnabled && mode.printErrors;
+  return !!(opts['print-effective-graph-with-errors'] || opts['allow-incomplete-sbom']);
 }
 
 /**
