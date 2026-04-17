@@ -681,20 +681,23 @@ func MainWithErrorCode() int {
 		// ignore
 	}
 
-	if err != nil {
-		errorList, err = processError(err, errorList)
+	outputError := err
+	allErrors := errorList
 
-		for _, tempError := range errorList {
+	if err != nil {
+		allErrors, outputError = processError(err, errorList)
+
+		for _, tempError := range allErrors {
 			if tempError != nil {
 				cliAnalytics.AddError(tempError)
 			}
 		}
 	}
 
-	displayError(err, globalEngine.GetUserInterface(), globalConfiguration, ctx)
+	displayError(outputError, globalEngine.GetUserInterface(), globalConfiguration, ctx)
 
-	exitCode := cliv2.DeriveExitCode(err)
-	globalLogger.Printf("Deriving Exit Code %d (cause: %v)", exitCode, err)
+	exitCode := cliv2.DeriveExitCode(outputError)
+	globalLogger.Printf("Deriving Exit Code %d (cause: %v)", exitCode, outputError)
 
 	updateInstrumentationDataBeforeSending(cliAnalytics, startTime, ua, exitCode)
 
@@ -711,7 +714,7 @@ func MainWithErrorCode() int {
 	}
 
 	if debugEnabled {
-		writeLogFooter(exitCode, errorList, globalConfiguration, networkAccess)
+		writeLogFooter(exitCode, allErrors, globalConfiguration, networkAccess)
 	}
 
 	return exitCode
@@ -719,30 +722,27 @@ func MainWithErrorCode() int {
 
 func processError(err error, errorList []error) ([]error, error) {
 	// ensure to use generic fallback error catalog error if no other is available
-	err = decorateError(err)
+	resultError := decorateError(err)
+	resultErrorList := errorList
 
 	// filter legacycli terminate errors since it is only used for internal purposes
-	if exitErr, isExitError := err.(*exec.ExitError); isExitError && exitErr.ExitCode() == constants.SNYK_EXIT_CODE_TS_CLI_TERMINATED {
-		err = nil
+	if exitErr, isExitError := resultError.(*exec.ExitError); isExitError && exitErr.ExitCode() == constants.SNYK_EXIT_CODE_TS_CLI_TERMINATED {
+		resultError = nil
 	}
 
-	// add all errors to analytics
-	if err != nil {
-		errorList = append([]error{err}, errorList...)
+	// ensure to have all errors in the list for analytics, determining the most relevant error to surface to the user ...
+	if resultError != nil {
+		resultErrorList = append([]error{resultError}, resultErrorList...)
 	}
 
-	// create a single error from all errors
-	if len(errorList) == 1 {
-		err = errorList[0]
-	} else if len(errorList) > 1 {
-		err = errors.Join(errorList...)
-	}
+	// determine the most relevant error to surface to the user and derive the exit code from
+	resultError = cli_errors.FindMostRelevantError(resultErrorList)
 
 	// ensure to apply exit code mapping based on errors
-	if exitCode := mapErrorToExitCode(err); exitCode != unsetExitCode {
-		err = createErrorWithExitCode(exitCode, err)
+	if exitCode := mapErrorToExitCode(resultError); exitCode != unsetExitCode {
+		resultError = createErrorWithExitCode(exitCode, resultError)
 	}
-	return errorList, err
+	return resultErrorList, resultError
 }
 
 func setTimeout(config configuration.Configuration, onTimeout func()) {
