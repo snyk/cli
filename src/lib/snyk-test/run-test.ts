@@ -368,6 +368,8 @@ async function sendAndParseResults(
           undefined,
           undefined,
           undefined,
+          undefined,
+          undefined,
           process.stdout,
         );
       } else {
@@ -853,7 +855,9 @@ async function assembleLocalPayloads(
             targetFile || '',
             project.plugin.targetFile,
             target,
-            undefined,
+            scannedProject.meta?.targetRuntime ?? project.plugin?.targetRuntime,
+            deps.plugin.name,
+            scannedProject.meta?.workspacePluginName,
             process.stdout,
           );
         } else {
