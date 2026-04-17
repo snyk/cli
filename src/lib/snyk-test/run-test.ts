@@ -397,7 +397,9 @@ export async function runTest(
     // dependency graph artifacts for printing.
     if (
       !options.docker &&
-      (shouldPrintDepGraph(options) || shouldPrintEffectiveDepGraph(options) || options['print-output-jsonl-with-errors'])
+      (shouldPrintDepGraph(options) ||
+        shouldPrintEffectiveDepGraph(options) ||
+        options['print-output-jsonl-with-errors'])
     ) {
       const results: TestResult[] = [];
       return results;
@@ -696,7 +698,10 @@ async function assembleLocalPayloads(
         failedResults,
       );
 
-      if (shouldPrintEffectiveDepGraphWithErrors(options) || options['print-output-jsonl-with-errors']) {
+      if (
+        shouldPrintEffectiveDepGraphWithErrors(options) ||
+        options['print-output-jsonl-with-errors']
+      ) {
         for (const failed of failedResults) {
           await printDepGraphError(root, failed, process.stdout);
         }
@@ -907,7 +912,10 @@ async function assembleLocalPayloads(
         depGraph = await pruneGraph(depGraph, packageManager, pruneIsRequired);
       }
 
-      if (shouldPrintEffectiveDepGraph(options) || options['print-output-jsonl-with-errors']) {
+      if (
+        shouldPrintEffectiveDepGraph(options) ||
+        options['print-output-jsonl-with-errors']
+      ) {
         spinner.clear<void>(spinnerLbl)();
         await printDepGraphJsonl(
           depGraph.toJSON(),

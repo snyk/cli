@@ -55,7 +55,10 @@ export async function testEcosystem(
   }
   spinner.clearAll();
 
-  if (isUnmanagedEcosystem(ecosystem) && (shouldPrintDepGraph(options) || options['print-output-jsonl-with-errors'])) {
+  if (
+    isUnmanagedEcosystem(ecosystem) &&
+    (shouldPrintDepGraph(options) || options['print-output-jsonl-with-errors'])
+  ) {
     const [target] = paths;
     return printUnmanagedDepGraph(results, target, process.stdout, options);
   }
@@ -106,7 +109,16 @@ export async function printUnmanagedDepGraph(
   const depGraph = convertDepGraph(result);
 
   if (options['print-output-jsonl-with-errors']) {
-    await printDepGraphJsonl(depGraph, target, undefined, undefined, undefined, undefined, undefined, destination);
+    await printDepGraphJsonl(
+      depGraph,
+      target,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      destination,
+    );
   } else {
     await printDepGraph(depGraph, target, destination);
   }

@@ -161,10 +161,7 @@ export async function printDepGraphJsonl(
       workspace: getWorkspaceInfo(pluginName, workspacePluginName),
     };
 
-    new ConcatStream(
-      new JsonStreamStringify(graphOutput),
-      Readable.from('\n'),
-    )
+    new ConcatStream(new JsonStreamStringify(graphOutput), Readable.from('\n'))
       .on('end', res)
       .on('error', rej)
       .pipe(destination);
@@ -194,10 +191,7 @@ export async function printDepGraphError(
       normalisedTargetFile,
     };
 
-    new ConcatStream(
-      new JsonStreamStringify(errorRecord),
-      Readable.from('\n'),
-    )
+    new ConcatStream(new JsonStreamStringify(errorRecord), Readable.from('\n'))
       .on('end', res)
       .on('error', rej)
       .pipe(destination);

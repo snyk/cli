@@ -1,7 +1,5 @@
 import * as path from 'path';
-import {
-  getDepsFromPlugin,
-} from '../../../src/lib/plugins/get-deps-from-plugin';
+import { getDepsFromPlugin } from '../../../src/lib/plugins/get-deps-from-plugin';
 import {
   getMultiPluginResult,
   MultiProjectResultCustom,
