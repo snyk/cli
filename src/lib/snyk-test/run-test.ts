@@ -401,8 +401,7 @@ export async function runTest(
         shouldPrintEffectiveDepGraph(options) ||
         options['print-output-jsonl-with-errors'])
     ) {
-      const results: TestResult[] = [];
-      return results;
+      return [];
     }
 
     return await sendAndParseResults(payloads, spinnerLbl, root, options);

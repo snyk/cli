@@ -58,7 +58,19 @@ export async function getDepsFromPlugin(
       targetFiles,
     );
     if (targetFiles.length === 0) {
-      throw NoSupportedManifestsFoundError([root]);
+      const error = NoSupportedManifestsFoundError([root]);
+      if (options['print-output-jsonl-with-errors']) {
+        return {
+          plugin: { name: 'custom-auto-detect' },
+          scannedProjects: [],
+          failedResults: [{ 
+            targetFile: options.file,
+            error,
+            errMessage: error.userMessage,
+          }],
+        } as MultiProjectResultCustom;
+      }
+      throw error;
     }
     // enable full sub-project scan for gradle
     options.allSubProjects = true;
@@ -100,7 +112,19 @@ export async function getDepsFromPlugin(
     options.file = options.file || detectPackageFile(root, featureFlags);
   }
   if (!options.docker && !(options.file || options.packageManager)) {
-    throw NoSupportedManifestsFoundError([...root]);
+    const error = NoSupportedManifestsFoundError([root]);
+    if (options['print-output-jsonl-with-errors']) {
+      return {
+        plugin: { name: 'custom-auto-detect' },
+        scannedProjects: [],
+        failedResults: [{
+          targetFile: options.file,
+          error,
+          errMessage: error.userMessage,
+        }],
+      } as MultiProjectResultCustom;
+    }
+    throw error;
   }
 
   let inspectRes: pluginApi.InspectResult;
