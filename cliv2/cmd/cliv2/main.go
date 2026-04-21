@@ -541,9 +541,9 @@ func initExtensions(engine workflow.Engine, config configuration.Configuration) 
 	engine.AddExtensionInitializer(workflows.InitConnectivityCheckWorkflow)
 	engine.AddExtensionInitializer(ignoreworkflow.InitIgnoreWorkflows)
 	engine.AddExtensionInitializer(agentscan.Init)
+	engine.AddExtensionInitializer(secrets.Init)
 
 	if config.GetBool(configuration.PREVIEW_FEATURES_ENABLED) {
-		engine.AddExtensionInitializer(secrets.Init)
 		config.Set("INTERNAL_USE_UFM_PRESENTER", true)
 	}
 }
