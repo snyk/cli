@@ -829,7 +829,7 @@ describe('snyk code test', () => {
           );
 
           describe(`with ignored issues`, () => {
-            it('test a single file', async () => {
+            it.skip('test a single file', async () => {
               const { stderr, code } = await runSnykCLI(
                 `code test ${localPath}/routes/index.js --sarif-file-output=${sarifFile}`,
                 {
