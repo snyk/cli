@@ -911,10 +911,7 @@ async function assembleLocalPayloads(
         depGraph = await pruneGraph(depGraph, packageManager, pruneIsRequired);
       }
 
-      if (
-        shouldPrintEffectiveDepGraph(options) ||
-        options['print-output-jsonl-with-errors']
-      ) {
+      if (shouldPrintEffectiveDepGraph(options)) {
         spinner.clear<void>(spinnerLbl)();
         await printDepGraphJsonl(
           depGraph.toJSON(),
