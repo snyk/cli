@@ -32,6 +32,7 @@ import {
 import { IaCErrorCodes } from './commands/test/iac/local-execution/types';
 import stripAnsi = require('strip-ansi');
 import { ExcludeFlagInvalidInputError } from '../lib/errors/exclude-flag-invalid-input';
+import { ExcludeRelativeFlagInvalidInputError } from '../lib/errors/exclude-relative-flag-invalid-input';
 import { modeValidation } from './modes';
 import { JsonFileOutputBadInputError } from '../lib/errors/json-file-output-bad-input-error';
 import {
@@ -444,6 +445,25 @@ function validateUnsupportedOptionCombinations(
     }
     if (options.exclude.indexOf(pathLib.sep) > -1) {
       throw new ExcludeFlagInvalidInputError();
+    }
+  }
+
+  if (options.excludeRelative) {
+    if (!(options.allProjects || options.yarnWorkspaces)) {
+      throw new MissingOptionError('--exclude-relative', [
+        '--yarn-workspaces',
+        '--all-projects',
+      ]);
+    }
+    if (typeof options.excludeRelative !== 'string') {
+      throw new ExcludeRelativeFlagInvalidInputError();
+    }
+    const paths = options.excludeRelative.split(',');
+    for (const p of paths) {
+      const normalized = pathLib.normalize(p);
+      if (pathLib.isAbsolute(normalized) || normalized.startsWith('..')) {
+        throw new ExcludeRelativeFlagInvalidInputError();
+      }
     }
   }
 }

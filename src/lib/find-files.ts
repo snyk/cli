@@ -54,6 +54,7 @@ const ignoreFolders = ['node_modules', '.build'];
 interface FindFilesConfig {
   path: string;
   ignore?: string[];
+  excludePaths?: string[];
   filter?: string[];
   levelsDeep?: number;
   featureFlags?: Set<string>;
@@ -62,6 +63,7 @@ interface FindFilesConfig {
 type DefaultFindConfig = {
   path: string;
   ignore: string[];
+  excludePaths: string[];
   filter: string[];
   levelsDeep: number;
   featureFlags: Set<string>;
@@ -70,6 +72,7 @@ type DefaultFindConfig = {
 const defaultFindConfig: DefaultFindConfig = {
   path: '',
   ignore: [],
+  excludePaths: [],
   filter: [],
   levelsDeep: 4,
   featureFlags: new Set<string>(),
@@ -156,6 +159,10 @@ async function findInDirectory(
   const files = await readDirectory(config.path);
   const toFind = files
     .filter((file) => !config.ignore.includes(file))
+    .filter((file) => {
+      const resolvedPath = pathLib.resolve(config.path, file);
+      return !config.excludePaths.includes(resolvedPath);
+    })
     .map((file) => {
       const resolvedPath = pathLib.resolve(config.path, file);
       if (!fs.existsSync(resolvedPath)) {

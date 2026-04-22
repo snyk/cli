@@ -413,6 +413,79 @@ describe('snyk test --all-projects (mocked server only)', () => {
     expect(code).toEqual(0);
   });
 
+  test('`test pnpm-workspace --all-projects --exclude-relative=shared/package.json` excludes only the specified file', async () => {
+    server.setFeatureFlag('enablePnpmCli', true);
+
+    const project = await createProjectFromFixture(
+      'pnpm-workspace-with-exclude-issue/workspace',
+    );
+
+    const { code, stdout } = await runSnykCLI(
+      'test --all-projects --exclude-relative=shared/package.json',
+      {
+        cwd: project.path(),
+        env,
+      },
+    );
+
+    const backendRequests = server.getRequests().filter((req: any) => {
+      return req.url.includes('/api/v1/test');
+    });
+
+    expect(backendRequests.length).toBe(3);
+    expect(stdout).not.toMatch(join('shared', 'package.json'));
+    expect(stdout).toMatch(join('app1', 'package.json'));
+    expect(stdout).toMatch(join('app2', 'package.json'));
+    expect(code).toEqual(0);
+  });
+
+  test('`test pnpm-workspace --all-projects --exclude-relative` with multiple paths excludes all specified files', async () => {
+    server.setFeatureFlag('enablePnpmCli', true);
+
+    const project = await createProjectFromFixture(
+      'pnpm-workspace-with-exclude-issue/workspace',
+    );
+
+    const { code, stdout } = await runSnykCLI(
+      'test --all-projects --exclude-relative=shared/package.json,app2/package.json',
+      {
+        cwd: project.path(),
+        env,
+      },
+    );
+
+    const backendRequests = server.getRequests().filter((req: any) => {
+      return req.url.includes('/api/v1/test');
+    });
+
+    expect(backendRequests.length).toBe(2);
+    expect(stdout).not.toMatch(join('shared', 'package.json'));
+    expect(stdout).not.toMatch(join('app2', 'package.json'));
+    expect(stdout).toMatch(join('app1', 'package.json'));
+    expect(code).toEqual(0);
+  });
+
+  test('`test pnpm-workspace --all-projects --exclude-relative=shared/package.json` does not affect other package.json files', async () => {
+    server.setFeatureFlag('enablePnpmCli', true);
+
+    const project = await createProjectFromFixture(
+      'pnpm-workspace-with-exclude-issue/workspace',
+    );
+
+    const { code, stdout } = await runSnykCLI(
+      'test --all-projects --exclude-relative=shared/package.json',
+      {
+        cwd: project.path(),
+        env,
+      },
+    );
+
+    expect(stdout).toMatch('package.json');
+    expect(stdout).toMatch(join('app1', 'package.json'));
+    expect(stdout).toMatch(join('app2', 'package.json'));
+    expect(code).toEqual(0);
+  });
+
   test('`test pnpm-workspace --all-projects --exclude=shared --detection-depth=2` excludes specified directory', async () => {
     server.setFeatureFlag('enablePnpmCli', true);
 

@@ -288,6 +288,45 @@ describe.each(userJourneyWorkflows)(
           expect(code).toEqual(2);
         });
 
+        test('snyk test --exclude-relative without --all-projects displays error message', async () => {
+          const { code, stdout } = await runSnykCLI(
+            `test --exclude-relative=packages/api/package.json`,
+            {
+              env,
+            },
+          );
+          expect(stdout).toContainText(
+            'The --exclude-relative option can only be used in combination with --all-projects or --yarn-workspaces.',
+          );
+          expect(code).toEqual(2);
+        });
+
+        test('snyk test --exclude-relative with absolute path displays error message', async () => {
+          const { code, stdout } = await runSnykCLI(
+            `test --all-projects --exclude-relative=/absolute/path/file.json`,
+            {
+              env,
+            },
+          );
+          expect(stdout).toContainText(
+            'The --exclude-relative argument must be a comma separated list of relative file or directory paths.',
+          );
+          expect(code).toEqual(2);
+        });
+
+        test('snyk test --exclude-relative with parent traversal displays error message', async () => {
+          const { code, stdout } = await runSnykCLI(
+            `test --all-projects --exclude-relative=../escape/package.json`,
+            {
+              env,
+            },
+          );
+          expect(stdout).toContainText(
+            'The --exclude-relative argument must be a comma separated list of relative file or directory paths.',
+          );
+          expect(code).toEqual(2);
+        });
+
         test('snyk iac test --exclude=path/to/dir displays error message', async () => {
           const exclude = path.normalize('path/to/dir');
           const { code, stdout } = await runSnykCLI(

@@ -45,10 +45,16 @@ export async function getDepsFromPlugin(
     const scanType = options.yarnWorkspaces ? 'yarnWorkspaces' : 'allProjects';
     const levelsDeep = options.detectionDepth;
     const ignore = options.exclude ? options.exclude.split(',') : [];
+    const excludePaths = options.excludeRelative
+      ? options.excludeRelative
+          .split(',')
+          .map((p) => pathLib.resolve(root, p))
+      : [];
 
     const { files: targetFiles, allFilesFound } = await find({
       path: root,
       ignore,
+      excludePaths,
       filter: multiProjectProcessors[scanType].files,
       featureFlags,
       levelsDeep,
@@ -77,6 +83,7 @@ export async function getDepsFromPlugin(
       ),
       levelsDeep,
       ignore,
+      excludePaths,
     };
     analytics.add(scanType, analyticData);
     debug(
