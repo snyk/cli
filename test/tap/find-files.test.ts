@@ -286,7 +286,11 @@ test('find excludes specific files by absolute path via excludePaths', async (t)
     path.join(testFixture, 'npm-with-lockfile', 'package.json'),
     path.join(testFixture, 'yarn', 'package.json'),
   ];
-  t.same(result.sort(), expected.sort(), 'should exclude only the specified file');
+  t.same(
+    result.sort(),
+    expected.sort(),
+    'should exclude only the specified file',
+  );
 });
 
 test('find excludePaths does not affect files with the same basename at different paths', async (t) => {
@@ -302,13 +306,12 @@ test('find excludePaths does not affect files with the same basename at differen
     'should still include npm/package.json',
   );
   t.ok(
-    result.includes(path.join(testFixture, 'npm-with-lockfile', 'package.json')),
+    result.includes(
+      path.join(testFixture, 'npm-with-lockfile', 'package.json'),
+    ),
     'should still include npm-with-lockfile/package.json',
   );
-  t.notOk(
-    result.includes(yarnPackageJson),
-    'should exclude yarn/package.json',
-  );
+  t.notOk(result.includes(yarnPackageJson), 'should exclude yarn/package.json');
 });
 
 test('find excludePaths can exclude directories', async (t) => {

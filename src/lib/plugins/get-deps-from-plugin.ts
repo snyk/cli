@@ -46,9 +46,7 @@ export async function getDepsFromPlugin(
     const levelsDeep = options.detectionDepth;
     const ignore = options.exclude ? options.exclude.split(',') : [];
     const excludePaths = options.excludeRelative
-      ? options.excludeRelative
-          .split(',')
-          .map((p) => pathLib.resolve(root, p))
+      ? options.excludeRelative.split(',').map((p) => pathLib.resolve(root, p))
       : [];
 
     const { files: targetFiles, allFilesFound } = await find({
