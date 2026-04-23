@@ -907,7 +907,7 @@ async function assembleLocalPayloads(
 
       const pruneIsRequired = options.pruneRepeatedSubdependencies;
 
-      if (packageManager) {
+      if (packageManager && !options['print-output-jsonl-with-errors']) {
         depGraph = await pruneGraph(depGraph, packageManager, pruneIsRequired);
       }
 
