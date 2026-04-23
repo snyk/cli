@@ -78,8 +78,7 @@ export async function getDepsFromPlugin(
     if (excludePaths.length > 0) {
       inspectRes.scannedProjects = inspectRes.scannedProjects.filter(
         (project) => {
-          const targetFile =
-            project.meta?.targetFile || project.targetFile;
+          const targetFile = project.meta?.targetFile || project.targetFile;
           if (!targetFile) return true;
           const resolved = pathLib.resolve(root, targetFile);
           return !excludePaths.includes(resolved);
