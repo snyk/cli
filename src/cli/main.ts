@@ -458,7 +458,7 @@ function validateUnsupportedOptionCombinations(
     if (typeof options.excludeRelative !== 'string') {
       throw new ExcludeRelativeFlagInvalidInputError();
     }
-    const paths = options.excludeRelative.split(',');
+    const paths = options.excludeRelative.split(',').map((p) => p.trim());
     for (const p of paths) {
       const normalized = pathLib.normalize(p);
       if (pathLib.isAbsolute(normalized) || normalized.startsWith('..')) {

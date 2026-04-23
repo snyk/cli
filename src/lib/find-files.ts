@@ -140,6 +140,17 @@ export async function find(findConfig: FindFilesConfig): Promise<FindFilesRes> {
   }
 }
 
+function isExcludedPath(resolvedPath: string, excludePaths: string[]): boolean {
+  if (excludePaths.length === 0) {
+    return false;
+  }
+  if (process.platform === 'win32') {
+    const lowerPath = resolvedPath.toLowerCase();
+    return excludePaths.some((ep) => ep.toLowerCase() === lowerPath);
+  }
+  return excludePaths.includes(resolvedPath);
+}
+
 function findFile(path: string, filter: string[] = []): string | null {
   if (filter.length > 0) {
     const filename = pathLib.basename(path);
@@ -159,21 +170,16 @@ async function findInDirectory(
   const files = await readDirectory(config.path);
   const toFind = files
     .filter((file) => !config.ignore.includes(file))
-    .filter((file) => {
-      const resolvedPath = pathLib.resolve(config.path, file);
-      return !config.excludePaths.includes(resolvedPath);
-    })
-    .map((file) => {
-      const resolvedPath = pathLib.resolve(config.path, file);
+    .map((file) => pathLib.resolve(config.path, file))
+    .filter(
+      (resolvedPath) => !isExcludedPath(resolvedPath, config.excludePaths),
+    )
+    .map((resolvedPath) => {
       if (!fs.existsSync(resolvedPath)) {
-        debug('File does not seem to exist, skipping: ', file);
+        debug('File does not seem to exist, skipping: ', resolvedPath);
         return { files: [], allFilesFound: [] };
       }
-      const findconfig = {
-        ...config,
-        path: resolvedPath,
-      };
-      return find(findconfig);
+      return find({ ...config, path: resolvedPath });
     });
 
   const found = await Promise.all(toFind);
