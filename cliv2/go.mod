@@ -13,15 +13,15 @@ require (
 	github.com/snyk/cli-extension-agent-scan v0.0.0-20260312152423-bc36193ecaa8
 	github.com/snyk/cli-extension-ai-bom v0.0.0-20260319140413-ac7392950603
 	github.com/snyk/cli-extension-ai-redteam v0.0.0-20260331152502-ce341aeaff9e
-	github.com/snyk/cli-extension-dep-graph v0.32.3
+	github.com/snyk/cli-extension-dep-graph v1.4.0
 	github.com/snyk/cli-extension-iac v0.0.0-20260206082514-00c443ccee80
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20260206080712-9cbb5f95465d
-	github.com/snyk/cli-extension-os-flows v0.0.0-20260407123134-f9617cb05038
-	github.com/snyk/cli-extension-sbom v0.0.0-20260327120356-9befea04c9b0
+	github.com/snyk/cli-extension-os-flows v0.0.0-20260423112219-b7ba9dd68e57
+	github.com/snyk/cli-extension-sbom v0.0.0-20260423112228-5d124dd8c9b0
 	github.com/snyk/cli-extension-secrets v0.0.0-20260421112643-c8c29ed060b9
 	github.com/snyk/code-client-go v1.26.2
 	github.com/snyk/container-cli v0.0.0-20260213211631-cd2b2cf8f3ea
-	github.com/snyk/error-catalog-golang-public v0.0.0-20260316131845-f02d7f42046b
+	github.com/snyk/error-catalog-golang-public v0.0.0-20260410094451-50af33399e90
 	github.com/snyk/go-application-framework v0.0.0-20260422120642-828033ca5788
 	github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65
 	github.com/snyk/snyk-iac-capture v0.6.5
