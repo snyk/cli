@@ -74,6 +74,19 @@ export async function getDepsFromPlugin(
       targetFiles,
       featureFlags,
     );
+
+    if (excludePaths.length > 0) {
+      inspectRes.scannedProjects = inspectRes.scannedProjects.filter(
+        (project) => {
+          const targetFile =
+            project.meta?.targetFile || project.targetFile;
+          if (!targetFile) return true;
+          const resolved = pathLib.resolve(root, targetFile);
+          return !excludePaths.includes(resolved);
+        },
+      );
+    }
+
     const scannedProjects = inspectRes.scannedProjects;
     const analyticData = {
       scannedProjects: scannedProjects.length,
