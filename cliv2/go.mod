@@ -10,7 +10,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.34.0
-	github.com/snyk/cli-extension-agent-scan v0.0.0-20260312152423-bc36193ecaa8
+	github.com/snyk/cli-extension-agent-scan v0.0.0-20260423170155-f094d5d5a2f1
 	github.com/snyk/cli-extension-ai-bom v0.0.0-20260319140413-ac7392950603
 	github.com/snyk/cli-extension-ai-redteam v0.0.0-20260331152502-ce341aeaff9e
 	github.com/snyk/cli-extension-dep-graph v1.4.0
