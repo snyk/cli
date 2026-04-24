@@ -1,9 +1,6 @@
 import { selectAndExecuteTestStrategy } from '../../../../../src/lib/ecosystems/test';
 import * as request from '../../../../../src/lib/request/promise';
-import {
-  ScanResult,
-  TestResult,
-} from '../../../../../src/lib/ecosystems/types';
+import { ScanResult } from '../../../../../src/lib/ecosystems/types';
 import { TestDependenciesResponse } from '../../../../../src/lib/snyk-test/legacy';
 
 describe('ecosystems test flow', () => {
@@ -65,11 +62,7 @@ describe('ecosystems test flow', () => {
 
     expect(
       testResults.map((result) => result.depGraphData.graph.rootNodeId),
-    ).toEqual([
-      'os',
-      'app-1',
-      'app-2',
-    ]);
+    ).toEqual(['os', 'app-1', 'app-2']);
   });
 
   it('keeps going for non-4xx errors and returns per-scan error entries', async () => {
@@ -95,10 +88,7 @@ describe('ecosystems test flow', () => {
 
     expect(
       testResults.map((result) => result.depGraphData.graph.rootNodeId),
-    ).toEqual([
-      'os',
-      'app-2',
-    ]);
+    ).toEqual(['os', 'app-2']);
     expect(errors).toEqual(['Could not test dependencies in /workspace/image']);
   });
 
@@ -137,7 +127,9 @@ function createScanResult(targetFile: string): ScanResult {
   };
 }
 
-function createTestDependenciesResponse(identity: string): TestDependenciesResponse {
+function createTestDependenciesResponse(
+  identity: string,
+): TestDependenciesResponse {
   return {
     result: {
       issues: [],
