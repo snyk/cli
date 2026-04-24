@@ -63,7 +63,9 @@ describe('ecosystems test flow', () => {
     expect(secondRequestStartedBeforeFirstResolved).toBe(false);
     expect(thirdRequestStartedBeforeFirstResolved).toBe(false);
 
-    expect(testResults.map((result) => result.depGraphData.graphId)).toEqual([
+    expect(
+      testResults.map((result) => result.depGraphData.graph.rootNodeId),
+    ).toEqual([
       'os',
       'app-1',
       'app-2',
@@ -91,7 +93,9 @@ describe('ecosystems test flow', () => {
       {} as any,
     );
 
-    expect(testResults.map((result) => result.depGraphData.graphId)).toEqual([
+    expect(
+      testResults.map((result) => result.depGraphData.graph.rootNodeId),
+    ).toEqual([
       'os',
       'app-2',
     ]);
@@ -139,7 +143,29 @@ function createTestDependenciesResponse(identity: string): TestDependenciesRespo
       issues: [],
       issuesData: {},
       depGraphData: {
-        graphId: identity,
+        schemaVersion: '1.2.0',
+        pkgManager: {
+          name: 'deb',
+        },
+        pkgs: [
+          {
+            id: `${identity}@1.0.0`,
+            info: {
+              name: identity,
+              version: '1.0.0',
+            },
+          },
+        ],
+        graph: {
+          rootNodeId: identity,
+          nodes: [
+            {
+              nodeId: identity,
+              pkgId: `${identity}@1.0.0`,
+              deps: [],
+            },
+          ],
+        },
       },
     },
     meta: {
