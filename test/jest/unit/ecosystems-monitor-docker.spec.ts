@@ -285,4 +285,89 @@ describe('monitorEcosystem docker/container', () => {
     );
     expect(parsedOutput.projectName).not.toBe('my-custom-project-name');
   });
+
+  it('should monitor base scan result first and then parallelize remaining requests', async () => {
+    const baseScanResult = {
+      ...readJsonFixture('container-deb-scan-result.json'),
+      identity: {
+        type: 'deb',
+        targetFile: 'base-os',
+      },
+    } as ScanResult;
+    const appScanResultOne = {
+      ...readJsonFixture('maven-project-0-dependencies-scan-result.json'),
+      identity: {
+        type: 'maven',
+        targetFile: 'app-1',
+      },
+    } as ScanResult;
+    const appScanResultTwo = {
+      ...readJsonFixture('maven-project-0-dependencies-scan-result.json'),
+      identity: {
+        type: 'maven',
+        targetFile: 'app-2',
+      },
+    } as ScanResult;
+
+    jest.spyOn(dockerPlugin, 'scan').mockResolvedValue({
+      scanResults: [baseScanResult, appScanResultOne, appScanResultTwo],
+    });
+
+    const requestsByIdentity: string[] = [];
+    let baseRequestResolved = false;
+    let appOneStartedBeforeBaseResolved = false;
+    let appTwoStartedBeforeBaseResolved = false;
+
+    jest.spyOn(request, 'makeRequest').mockImplementation((payload: any) => {
+      const identity = payload.body.scanResult.identity.targetFile as string;
+      requestsByIdentity.push(identity);
+      const baseResponse = readJsonFixture(
+        'monitor-dependencies-response-with-project-name.json',
+      ) as ecosystemsTypes.MonitorDependenciesResponse;
+      const responseForIdentity = {
+        ...baseResponse,
+        id: `${identity}-id`,
+        projectName: identity,
+      };
+
+      return new Promise((resolve) => {
+        if (identity === 'base-os') {
+          setTimeout(() => {
+            baseRequestResolved = true;
+            resolve(responseForIdentity);
+          }, 25);
+          return;
+        }
+
+        if (identity === 'app-1' && !baseRequestResolved) {
+          appOneStartedBeforeBaseResolved = true;
+        }
+        if (identity === 'app-2' && !baseRequestResolved) {
+          appTwoStartedBeforeBaseResolved = true;
+        }
+
+        resolve(responseForIdentity);
+      });
+    });
+
+    const [monitorResults, monitorErrors] = await ecosystems.monitorEcosystem(
+      'docker',
+      ['/srv'],
+      {
+        path: '/srv',
+        docker: true,
+        org: 'my-org',
+      },
+    );
+
+    expect(monitorErrors).toEqual([]);
+    expect(requestsByIdentity).toEqual(['base-os', 'app-1', 'app-2']);
+    expect(appOneStartedBeforeBaseResolved).toBe(false);
+    expect(appTwoStartedBeforeBaseResolved).toBe(false);
+    expect(monitorResults.map((result) => result.projectName)).toEqual([
+      'base-os',
+      'app-1',
+      'app-2',
+    ]);
+  });
 });
