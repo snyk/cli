@@ -1,0 +1,31 @@
+{
+  "name": "with-vulnerable-lodash-dep",
+  "$schema": "./node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npm run build"
+      },
+      "inputs": ["default"],
+      "outputs": ["{projectRoot}/dist"]
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npm test"
+      },
+      "inputs": ["default"]
+    },
+    "lint": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npm run lint"
+      },
+      "inputs": ["default"]
+    }
+  },
+  "tags": []
+}

@@ -28,9 +28,8 @@ func decorateError(err error) error {
 
 	var errorCatalogError snyk_errors.Error
 	if !errors.As(err, &errorCatalogError) {
-		genericError := cli.NewGeneralCLIFailureError(err.Error())
-		genericError.StatusCode = 0
-		err = errors.Join(err, genericError)
+		genericError := cli.NewGeneralCLIFailureError(err.Error(), snyk_errors.WithCause(err))
+		return genericError
 	}
 	return err
 }

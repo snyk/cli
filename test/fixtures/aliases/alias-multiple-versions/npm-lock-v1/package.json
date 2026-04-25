@@ -1,0 +1,8 @@
+{
+    "name": "script",
+    "version": "1.0.0",
+    "dependencies": {
+      "hello-world-npm": "npm:hello-world-npm@=1.1.0",
+      "hello-world-npm-v1_1_1": "npm:hello-world-npm@=1.1.1"
+    }
+  }

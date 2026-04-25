@@ -111,4 +111,27 @@ describe('snyk test --yarn-workspaces (mocked server only)', () => {
     expect(stdout).toMatch('Could not detect supported target files');
     expect(stderr).toEqual('');
   });
+
+  test('`test yarn-v2-aliases-and-patches` handles npm aliases', async () => {
+    const project = await createProjectFromWorkspace(
+      'yarn-v2-aliases-and-patches',
+    );
+
+    const { code, stdout, stderr } = await runSnykCLI('test', {
+      cwd: project.path(),
+      env,
+    });
+
+    expect(code).toEqual(0);
+
+    // Verify the test completes without "Dependency not found" or "Invalid depGraph" errors
+    expect(stdout).toMatch('Package manager:   yarn');
+    expect(stdout).toMatch('Project name:      yarn-v2-aliases-and-patches');
+    expect(stdout).toMatch('Tested 3 dependencies');
+
+    // Verify no errors related to the fixes
+    expect(stdout).not.toMatch(/Dependency.*was not found in yarn\.lock/);
+    expect(stdout).not.toMatch(/Invalid depGraph/);
+    expect(stderr).toEqual('');
+  });
 });

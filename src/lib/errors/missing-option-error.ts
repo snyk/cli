@@ -3,7 +3,7 @@ import { CustomError } from './custom-error';
 
 export class MissingOptionError extends CustomError {
   constructor(option: string, required: string[]) {
-    const msg = `The ${option} option can only be use in combination with ${required
+    const msg = `The ${option} option can only be used in combination with ${required
       .sort()
       .join(' or ')}.`;
     super(msg);

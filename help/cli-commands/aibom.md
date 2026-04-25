@@ -1,29 +1,40 @@
 # AI-BOM
 
-**Note**: AI-BOM is an experimental feature and is subject to breaking changes without notice.
-
 ## Prerequisites
 
-- The `snyk aibom` feature requires an internet connection.&#x20;
-- Install the Snyk CLI from the [preview release](../../../snyk-cli/releases-and-channels-for-the-snyk-cli.md#preview) channel.
-- Your Project must be Python and with a [package manager](../../../supported-languages-package-managers-and-frameworks/python/) supported by Snyk.
+- The `snyk aibom` feature requires an internet connection.
+- Snyk CLI v1.1298.3 (or later).
 
 ## Usage
 
-`$ snyk aibom --experimental [<OPTION>]`
+`$ snyk aibom [<OPTION>]`
+
+**See also:** [`snyk aibom test`](aibom-test.md) — generate an AI-BOM and test it against your tenant's policies.
 
 ## Description
 
-The `snyk aibom` command generates an AI-BOM for a local software project that is written in Python. You can use the `snyk aibom` command to identify AI models, datasets, and map the AI supply chain, including connections to external tools and services using the Model Context Protocol (MCP).
+The `snyk aibom` command generates an AI-BOM for a local software Project that is written in Python. You can use the `snyk aibom` command to identify AI models, datasets, and map the AI supply chain, including connections to external tools and services using the Model Context Protocol (MCP).
 
 The supported format is CycloneDX v1.6 (JSON).
 
 In the JSON file, you can see the following AI dependencies and components:
 
-- **Models:** You can see your usage of foundational models (such as GPT-4) and open source models (such as Llama-4). Where possible, the information surfaced also refers to model card, license, and other information.
+- **Models:** You can see your usage of foundational models (such as GPT-4) and open-source models (such as Llama-4). Where possible, the information surfaced also refers to model card, license, and other information.
 - **Agents:** Identified based on popular AI agent libraries.
 - **Tools:** Identified based on popular patterns of tool calling.
 - **MCPs:** Identified based on the official MCP SDK, in addition to other popular ways of building MCPs.
+
+## Exit codes
+
+Possible exit codes and their meaning:
+
+**0**: success (scan completed), AI-BOM created successfully.\
+**2**: failure, try to re-run the command. Use `-d` to output the debug logs.\
+**3**: failure, unable to find any supported files for the scan.
+
+## Debug
+
+Use the `-d` or `--debug` option to output the debug logs.
 
 ## MCP and your AI-BOM
 
@@ -43,11 +54,11 @@ When you run `snyk aibom`, the output shows these dependencies clearly. For exam
 
 ### `--experimental`
 
-Required. Use experimental command features. This option is required because the command is in its experimental phase.
+**Deprecated**. The command still accepts this flag for backwards compatibility, but as of Snyk CLI v1.1304.0 it is no longer required to run `snyk aibom`.
 
 ### `--org=<ORG_ID>`
 
-Specify the `<ORG_ID>`to run Snyk commands tied to a specific Snyk Organization. The `<ORG_ID>` influences private test limits.
+Specify the `<ORG_ID>` to run Snyk commands tied to a specific Snyk Organization. The `<ORG_ID>` influences private test limits.
 
 If you have multiple Organizations, you can set a default from the CLI using:
 
@@ -59,8 +70,22 @@ Default: `<ORG_ID>` that is the current preferred Organization in your [Account 
 
 ### `--html`
 
-Optional. Embed the AI-BOM into an HTML visualization of the AI-BOM components and their relationships.
+**Optional**. Embed the AIBOM into an HTML visualization of the AIBOM components and their relationships.
 
 ### `[--json-file-output]`
 
-Optional. Save the AI-BOM output as a JSON data structure directly to the specified file.
+**Optional**. Save the AIBOM output as a JSON data structure directly to the specified file.
+
+#### Available in 1.1303.0
+
+### `--upload`
+
+**Optional**. Persist the AIBOM into your Snyk Organization. This flag requires the [`--repo`](aibom.md#repo) flag. It enables you to view your AI-BOM for the repository in the Evo web interface.
+
+### `--repo`
+
+**Optional**. Specify the repository to use when persisting the AI-BOM. Required when you use the [`--upload`](aibom.md#upload) flag.
+
+```bash
+snyk aibom --upload --repo https://github.com/[owner]/[repo]
+```

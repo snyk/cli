@@ -11,52 +11,62 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/rs/zerolog"
+	"github.com/snyk/cli-extension-agent-scan/pkg/agentscan"
 	"github.com/snyk/cli-extension-ai-bom/pkg/aibom"
+	"github.com/snyk/cli-extension-ai-redteam/pkg/redteam"
 	"github.com/snyk/cli-extension-dep-graph/pkg/depgraph"
 	"github.com/snyk/cli-extension-iac-rules/iacrules"
 	"github.com/snyk/cli-extension-iac/pkg/iac"
 	"github.com/snyk/cli-extension-os-flows/pkg/osflows"
 	"github.com/snyk/cli-extension-sbom/pkg/sbom"
+	"github.com/snyk/cli-extension-secrets/pkg/secrets"
+	"github.com/snyk/code-client-go/pkg/code"
 	"github.com/snyk/container-cli/pkg/container"
 	"github.com/snyk/error-catalog-golang-public/cli"
+	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
+
+	"github.com/snyk/go-application-framework/pkg/ui/consoleui"
+
 	"github.com/snyk/go-application-framework/pkg/analytics"
 	"github.com/snyk/go-application-framework/pkg/app"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	"github.com/snyk/go-application-framework/pkg/instrumentation"
-	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
+	"github.com/snyk/go-application-framework/pkg/logging"
+
+	"github.com/snyk/cli/cliv2/cmd/cliv2/behavior/legacy"
+	"github.com/snyk/cli/cliv2/internal/cliv2"
+	"github.com/snyk/cli/cliv2/internal/constants"
+
+	cliv2utils "github.com/snyk/cli/cliv2/internal/utils"
 
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/config_utils"
+	"github.com/snyk/go-application-framework/pkg/local_workflows/network_utils"
+
+	"github.com/snyk/go-httpauth/pkg/httpauth"
+	"github.com/snyk/snyk-iac-capture/pkg/capture"
 
 	workflows "github.com/snyk/go-application-framework/pkg/local_workflows/connectivity_check_extension"
-	"github.com/snyk/go-application-framework/pkg/local_workflows/content_type"
 
 	ignoreworkflow "github.com/snyk/go-application-framework/pkg/local_workflows/ignore_workflow"
-	"github.com/snyk/go-application-framework/pkg/local_workflows/json_schemas"
-	"github.com/snyk/go-application-framework/pkg/local_workflows/network_utils"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/output_workflow"
 	"github.com/snyk/go-application-framework/pkg/networking"
-
+	"github.com/snyk/go-application-framework/pkg/networking/middleware"
 	"github.com/snyk/go-application-framework/pkg/runtimeinfo"
 	"github.com/snyk/go-application-framework/pkg/ui"
 	"github.com/snyk/go-application-framework/pkg/utils"
 	"github.com/snyk/go-application-framework/pkg/workflow"
-	"github.com/snyk/go-httpauth/pkg/httpauth"
-	"github.com/snyk/snyk-iac-capture/pkg/capture"
 
 	snykls "github.com/snyk/snyk-ls/ls_extension"
-
-	"github.com/snyk/cli/cliv2/internal/cliv2"
-	"github.com/snyk/cli/cliv2/internal/constants"
-
-	snykmcp "github.com/snyk/snyk-ls/mcp_extension"
+	"github.com/snyk/studio-mcp/pkg/mcp"
 
 	cli_errors "github.com/snyk/cli/cliv2/internal/errors"
 	"github.com/snyk/cli/cliv2/pkg/basic_workflows"
@@ -69,13 +79,15 @@ var helpProvided bool
 
 var noopLogger zerolog.Logger = zerolog.New(io.Discard)
 var globalLogger *zerolog.Logger = &noopLogger
+var scrubbedLogger logging.ScrubbingLogWriter
 var interactionId = instrumentation.AssembleUrnFromUUID(uuid.NewString())
 
 const (
-	unknownCommandMessage  string = "unknown command"
-	disable_analytics_flag string = "DISABLE_ANALYTICS"
-	debug_level_flag       string = "log-level"
-	integrationNameFlag    string = "integration-name"
+	unknownCommandMessage     string = "unknown command"
+	disable_analytics_flag    string = "DISABLE_ANALYTICS"
+	debug_level_flag          string = "log-level"
+	integrationNameFlag       string = "integration-name"
+	maxNetworkRequestAttempts string = "max-attempts"
 )
 
 type JsonErrorStruct struct {
@@ -93,8 +105,7 @@ const (
 )
 
 func main() {
-	errorCode, errs := MainWithErrorCode()
-	writeLogFooter(errorCode, errs)
+	errorCode := MainWithErrorCode()
 	os.Exit(errorCode)
 }
 
@@ -109,6 +120,7 @@ func initApplicationConfiguration(config configuration.Configuration) {
 	config.AddAlternativeKeys(configuration.PREVIEW_FEATURES_ENABLED, []string{"snyk_preview"})
 	config.AddAlternativeKeys(configuration.LOG_LEVEL, []string{debug_level_flag})
 	config.AddAlternativeKeys(configuration.INTEGRATION_NAME, []string{integrationNameFlag})
+	config.AddAlternativeKeys(middleware.ConfigurationKeyRequestAttempts, []string{"snyk_max_attempts", maxNetworkRequestAttempts})
 }
 
 func getFullCommandString(cmd *cobra.Command) string {
@@ -143,7 +155,7 @@ func updateConfigFromParameter(config configuration.Configuration, args []string
 
 	// only consider the first positional argument as input directory if it is not behind a double dash.
 	if len(args) > 0 && !utils.Contains(doubleDashArgs, args[0]) {
-		config.Set(configuration.INPUT_DIRECTORY, args[0])
+		config.Set(configuration.INPUT_DIRECTORY, args)
 		config.Set(localworkflows.ConfigurationNewAuthenticationToken, args[0])
 	}
 }
@@ -160,6 +172,14 @@ func runMainWorkflow(config configuration.Configuration, cmd *cobra.Command, arg
 		globalLogger.Print("Failed to add flags", err)
 		return err
 	}
+
+	// init UI
+	errorUI := consoleui.WithErrorOutput(os.Stdout)
+	if output_workflow.DefaultOutputIsStructured(config) {
+		errorUI = consoleui.WithErrorOutput(os.Stderr)
+	}
+	mainUI := consoleui.New(consoleui.WithInput(os.Stdin), consoleui.WithOutput(os.Stdout), consoleui.WithProgressWriter(os.Stderr), errorUI)
+	globalEngine.SetUserInterface(mainUI)
 
 	// global handling of experimental commands
 	if config_utils.IsExperimental(cmd.Flags()) {
@@ -184,64 +204,21 @@ func runWorkflowAndProcessData(engine workflow.Engine, logger *zerolog.Logger, n
 
 	output, err := engine.Invoke(workflow.NewWorkflowIdentifier(name), workflow.WithInstrumentationCollector(ic))
 	if err != nil {
-		logger.Print("Failed to execute the command!", err)
+		logger.Print("Failed to execute the command! ", err)
 		return err
 	}
 
-	output, err = engine.Invoke(localworkflows.WORKFLOWID_FILTER_FINDINGS, workflow.WithInput(output), workflow.WithInstrumentationCollector(ic))
+	outputFiltered, err := engine.Invoke(localworkflows.WORKFLOWID_FILTER_FINDINGS, workflow.WithInput(output), workflow.WithInstrumentationCollector(ic))
 	if err != nil {
 		logger.Err(err).Msg(err.Error())
 		return err
 	}
 
-	output, err = engine.Invoke(localworkflows.WORKFLOWID_OUTPUT_WORKFLOW, workflow.WithInput(output), workflow.WithInstrumentationCollector(ic))
+	_, err = engine.Invoke(localworkflows.WORKFLOWID_OUTPUT_WORKFLOW, workflow.WithInput(outputFiltered), workflow.WithInstrumentationCollector(ic))
 	if err == nil {
-		err = getErrorFromWorkFlowData(engine, output)
+		err = getErrorFromWorkFlowData(engine, outputFiltered)
 	}
 	return err
-}
-
-func getErrorFromWorkFlowData(engine workflow.Engine, data []workflow.Data) error {
-	for i := range data {
-		mimeType := data[i].GetContentType()
-		if strings.EqualFold(mimeType, content_type.TEST_SUMMARY) {
-			singleData, ok := data[i].GetPayload().([]byte)
-			if !ok {
-				return fmt.Errorf("invalid payload type: %T", data[i].GetPayload())
-			}
-
-			summary := json_schemas.TestSummary{}
-
-			err := json.Unmarshal(singleData, &summary)
-			if err != nil {
-				return fmt.Errorf("failed to parse test summary payload: %w", err)
-			}
-
-			engine.GetAnalytics().GetInstrumentation().SetTestSummary(summary)
-
-			// We are missing an understanding of ignored issues here
-			// this should be supported in the future
-			for _, result := range summary.Results {
-				if result.Open > 0 {
-					return &cli_errors.ErrorWithExitCode{
-						ExitCode: constants.SNYK_EXIT_CODE_VULNERABILITIES_FOUND,
-					}
-				}
-			}
-
-			dataErrors := data[i].GetErrorList()
-			for _, dataError := range dataErrors {
-				if dataError.ErrorCode == "SNYK-CODE-0006" {
-					return errors.Join(dataError, &cli_errors.ErrorWithExitCode{
-						ExitCode: constants.SNYK_EXIT_CODE_UNSUPPORTED_PROJECTS,
-					})
-				}
-			}
-
-			return nil
-		}
-	}
-	return nil
 }
 
 func sendAnalytics(analytics analytics.Analytics, debugLogger *zerolog.Logger) {
@@ -254,7 +231,7 @@ func sendAnalytics(analytics analytics.Analytics, debugLogger *zerolog.Logger) {
 		debugLogger.Err(err).Msg("Failed to send Analytics")
 		return
 	}
-	defer res.Body.Close()
+	defer func() { _ = res.Body.Close() }()
 
 	successfullySend := 200 <= res.StatusCode && res.StatusCode < 300
 	if successfullySend {
@@ -274,6 +251,15 @@ func sendInstrumentation(eng workflow.Engine, instrumentor analytics.Instrumenta
 	if !shallSendInstrumentation(eng.GetConfiguration(), instrumentor) {
 		logger.Print("This CLI call is not instrumented!")
 		return
+	}
+
+	// add temporary static nodejs binary flag, remove once linuxstatic is official
+	staticNodeJsBinaryBool, parseErr := strconv.ParseBool(constants.StaticNodeJsBinary)
+	if parseErr != nil {
+		logger.Print("Failed to parse staticNodeJsBinary:", parseErr)
+	} else {
+		// the legacycli:: prefix is added to maintain compatibility with our monitoring dashboard
+		instrumentor.AddExtension("legacycli::static-nodejs-binary", staticNodeJsBinaryBool)
 	}
 
 	logger.Print("Sending Instrumentation")
@@ -322,7 +308,7 @@ func defaultCmd(args []string) error {
 	return err
 }
 
-func runCodeTestCommand(cmd *cobra.Command, args []string) error {
+func runTestCommandWithSarifEqualJson(cmd *cobra.Command, args []string, templateFiles []string) error {
 	// ensure legacy behavior, where sarif and json can be used interchangeably
 	globalConfiguration.AddAlternativeKeys(output_workflow.OUTPUT_CONFIG_KEY_SARIF, []string{output_workflow.OUTPUT_CONFIG_KEY_JSON})
 
@@ -330,19 +316,33 @@ func runCodeTestCommand(cmd *cobra.Command, args []string) error {
 		{
 			NameConfigKey:     output_workflow.OUTPUT_CONFIG_KEY_SARIF_FILE,
 			MimeType:          output_workflow.SARIF_MIME_TYPE,
-			TemplateFiles:     output_workflow.ApplicationSarifTemplates,
+			TemplateFiles:     templateFiles,
 			WriteEmptyContent: true,
 		},
 		{
 			NameConfigKey:     output_workflow.OUTPUT_CONFIG_KEY_JSON_FILE,
 			MimeType:          output_workflow.SARIF_MIME_TYPE,
-			TemplateFiles:     output_workflow.ApplicationSarifTemplates,
+			TemplateFiles:     templateFiles,
 			WriteEmptyContent: false,
 		},
 	}
 	globalConfiguration.Set(output_workflow.OUTPUT_CONFIG_KEY_FILE_WRITERS, fileWriters)
 
+	// ensure that json is translated to sarif for the default writer as well
+	defaultWriterLookup := map[string]string{
+		output_workflow.JSON_MIME_TYPE: output_workflow.SARIF_MIME_TYPE,
+	}
+	globalConfiguration.Set(output_workflow.OUTPUT_CONFIG_KEY_DEFAULT_WRITER_LUT, defaultWriterLookup)
+
 	return runCommand(cmd, args)
+}
+
+func runCodeTestCommand(cmd *cobra.Command, args []string) error {
+	return runTestCommandWithSarifEqualJson(cmd, args, output_workflow.ApplicationSarifTemplates)
+}
+
+func runSecretsTestCommand(cmd *cobra.Command, args []string) error {
+	return runTestCommandWithSarifEqualJson(cmd, args, output_workflow.ApplicationSarifTemplatesUfm)
 }
 
 func runAuthCommand(cmd *cobra.Command, args []string) error {
@@ -363,6 +363,7 @@ func getGlobalFLags() *pflag.FlagSet {
 	globalFLags.Bool(disable_analytics_flag, false, "")
 	globalFLags.String(debug_level_flag, "debug", "")
 	globalFLags.String(integrationNameFlag, "", "")
+	globalFLags.Int(maxNetworkRequestAttempts, -1, "Maximum total network attempts, including the initial request (minimum: 1)")
 	return globalFLags
 }
 
@@ -413,19 +414,24 @@ func createCommandsForWorkflows(rootCommand *cobra.Command, engine workflow.Engi
 		parentCommand.DisableFlagParsing = false
 
 		// special case for snyk code test
-		if currentCommandString == "code test" {
+		switch currentCommandString {
+		case "code test":
 			// to preserve backwards compatibility we will need to relax flag validation
 			parentCommand.FParseErrWhitelist.UnknownFlags = true
 
 			// use the special run command to ensure that the non-standard behavior of the command can be kept
 			parentCommand.RunE = runCodeTestCommand
-		} else if currentCommandString == "test" {
-			// to preserve backwards compatibility we will need to relax flag validation
-			parentCommand.SetFlagErrorFunc(func(command *cobra.Command, err error) error {
-				return emptyCommandFunction(command, []string{})
-			})
-		} else if currentCommandString == "auth" {
+		case "secrets test":
+			// use the special run command to ensure that the non-standard behavior of the command can be kept
+			parentCommand.RunE = runSecretsTestCommand
+		case "test", "monitor":
+			legacy.SetupTestMonitorCommand(parentCommand)
+		case "auth":
 			parentCommand.RunE = runAuthCommand
+		case "agent-scan":
+			// to preserve backwards compatibility we will need to relax flag validation
+			parentCommand.FParseErrWhitelist.UnknownFlags = true
+			parentCommand.Aliases = []string{"mcp-scan"}
 		}
 	}
 }
@@ -505,7 +511,7 @@ func displayError(err error, userInterface ui.UserInterface, config configuratio
 			}
 
 			jsonErrorBuffer, _ := json.MarshalIndent(jsonError, "", "  ")
-			userInterface.Output(string(jsonErrorBuffer))
+			_ = userInterface.OutputError(fmt.Errorf("%s", jsonErrorBuffer))
 		} else {
 			if errors.Is(err, context.DeadlineExceeded) {
 				err = fmt.Errorf("command timed out")
@@ -518,7 +524,31 @@ func displayError(err error, userInterface ui.UserInterface, config configuratio
 	}
 }
 
-func MainWithErrorCode() (int, []error) {
+func initExtensions(engine workflow.Engine, config configuration.Configuration) {
+	engine.AddExtensionInitializer(basic_workflows.Init)
+	engine.AddExtensionInitializer(osflows.Init)
+	engine.AddExtensionInitializer(iac.Init)
+	engine.AddExtensionInitializer(sbom.Init)
+	engine.AddExtensionInitializer(aibom.Init)
+	engine.AddExtensionInitializer(redteam.Init)
+	engine.AddExtensionInitializer(depgraph.Init)
+	engine.AddExtensionInitializer(capture.Init)
+	engine.AddExtensionInitializer(iacrules.Init)
+	engine.AddExtensionInitializer(snykls.Init)
+	engine.AddExtensionInitializer(mcp.Init)
+	engine.AddExtensionInitializer(container.Init)
+	engine.AddExtensionInitializer(code.Init)
+	engine.AddExtensionInitializer(workflows.InitConnectivityCheckWorkflow)
+	engine.AddExtensionInitializer(ignoreworkflow.InitIgnoreWorkflows)
+	engine.AddExtensionInitializer(agentscan.Init)
+	engine.AddExtensionInitializer(secrets.Init)
+
+	if config.GetBool(configuration.PREVIEW_FEATURES_ENABLED) {
+		config.Set("INTERNAL_USE_UFM_PRESENTER", true)
+	}
+}
+
+func MainWithErrorCode() int {
 	initDebugBuild()
 
 	errorList := []error{}
@@ -529,7 +559,8 @@ func MainWithErrorCode() (int, []error) {
 	rInfo := runtimeinfo.New(runtimeinfo.WithName("snyk-cli"), runtimeinfo.WithVersion(cliv2.GetFullVersion()))
 
 	rootCommand := prepareRootCommand()
-	_ = rootCommand.ParseFlags(os.Args)
+	// omit the first arg which is always `snyk`
+	_ = rootCommand.ParseFlags(os.Args[1:])
 
 	// create engine
 	globalConfiguration = configuration.NewWithOpts(
@@ -547,8 +578,8 @@ func MainWithErrorCode() (int, []error) {
 	initApplicationConfiguration(globalConfiguration)
 
 	debugEnabled := globalConfiguration.GetBool(configuration.DEBUG)
-	globalLogger = initDebugLogger(globalConfiguration)
 
+	globalLogger, scrubbedLogger = initDebugLogger(globalConfiguration)
 	globalEngine = app.CreateAppEngineWithOptions(app.WithZeroLogger(globalLogger), app.WithConfiguration(globalConfiguration), app.WithRuntimeInfo(rInfo))
 
 	globalConfiguration.AddDefaultValue(configuration.FF_OAUTH_AUTH_FLOW_ENABLED, defaultOAuthFF(globalConfiguration))
@@ -558,45 +589,13 @@ func MainWithErrorCode() (int, []error) {
 		globalConfiguration.Set(configuration.PROXY_AUTHENTICATION_MECHANISM, httpauth.StringFromAuthenticationMechanism(httpauth.NoAuth))
 	}
 
-	// initialize the extensions -> they register themselves at the engine
-	globalEngine.AddExtensionInitializer(basic_workflows.Init)
-	globalEngine.AddExtensionInitializer(osflows.Init)
-	globalEngine.AddExtensionInitializer(iac.Init)
-	globalEngine.AddExtensionInitializer(sbom.Init)
-	globalEngine.AddExtensionInitializer(aibom.Init)
-	globalEngine.AddExtensionInitializer(depgraph.Init)
-	globalEngine.AddExtensionInitializer(capture.Init)
-	globalEngine.AddExtensionInitializer(iacrules.Init)
-	globalEngine.AddExtensionInitializer(snykls.Init)
-	globalEngine.AddExtensionInitializer(snykmcp.Init)
-	globalEngine.AddExtensionInitializer(container.Init)
-	globalEngine.AddExtensionInitializer(workflows.InitConnectivityCheckWorkflow)
-	globalEngine.AddExtensionInitializer(localworkflows.InitCodeWorkflow)
-	globalEngine.AddExtensionInitializer(ignoreworkflow.InitIgnoreWorkflows)
-
-	// init engine
-	err = globalEngine.Init()
-	if err != nil {
-		globalLogger.Print("Failed to init Workflow Engine!", err)
-		return constants.SNYK_EXIT_CODE_ERROR, errorList
-	}
-
-	// init context
-	ctx := context.Background()
-	ctx = context.WithValue(ctx, networking.InteractionIdKey, instrumentation.AssembleUrnFromUUID(interactionId))
-
-	// add output flags as persistent flags
-	outputWorkflow, _ := globalEngine.GetWorkflow(localworkflows.WORKFLOWID_OUTPUT_WORKFLOW)
-	outputFlags := workflow.FlagsetFromConfigurationOptions(outputWorkflow.GetConfigurationOptions())
-	rootCommand.PersistentFlags().AddFlagSet(outputFlags)
-
-	// add workflows as commands
-	createCommandsForWorkflows(rootCommand, globalEngine)
-
 	// init NetworkAccess
 	ua := networking.UserAgent(networking.UaWithConfig(globalConfiguration), networking.UaWithRuntimeInfo(rInfo), networking.UaWithOS(internalOS))
 	networkAccess := globalEngine.GetNetworkAccess()
 	networkAccess.AddErrorHandler(func(err error, ctx context.Context) error {
+		if err == nil {
+			return nil
+		}
 		errorListMutex.Lock()
 		defer errorListMutex.Unlock()
 
@@ -614,6 +613,37 @@ func MainWithErrorCode() (int, []error) {
 	if debugEnabled {
 		writeLogHeader(globalConfiguration, networkAccess)
 	}
+
+	// initialize the extensions -> they register themselves at the engine
+	initExtensions(globalEngine, globalConfiguration)
+
+	// init engine
+	err = globalEngine.Init()
+
+	// We want to scrub the debug log of sensitive information. Since we have a list of commands we know can occur, we can intersect that with arguments we don't recognize, and automatically scrub all those from the logs.
+	if debugEnabled {
+		knownTerms, _ := instrumentation.GetKnownCommandsAndFlags(globalEngine)
+		knownTerms = append(knownTerms, globalConfiguration.GetString(configuration.API_URL), globalConfiguration.GetString(configuration.ORGANIZATION), globalConfiguration.GetString(configuration.ORGANIZATION_SLUG))
+		termsToRedact := cliv2utils.GetUnknownParameters(os.Args[1:], os.Environ(), knownTerms)
+		scrubbedLogger.AddTermsToReplace(termsToRedact)
+	}
+
+	if err != nil {
+		globalLogger.Print("Failed to init Workflow Engine!", err)
+		return constants.SNYK_EXIT_CODE_ERROR
+	}
+
+	// init context
+	ctx := context.Background()
+	ctx = context.WithValue(ctx, networking.InteractionIdKey, instrumentation.AssembleUrnFromUUID(interactionId))
+
+	// add output flags as persistent flags
+	outputWorkflow, _ := globalEngine.GetWorkflow(localworkflows.WORKFLOWID_OUTPUT_WORKFLOW)
+	outputFlags := workflow.FlagsetFromConfigurationOptions(outputWorkflow.GetConfigurationOptions())
+	rootCommand.PersistentFlags().AddFlagSet(outputFlags)
+
+	// add workflows as commands
+	createCommandsForWorkflows(rootCommand, globalEngine)
 
 	// init Analytics
 	cliAnalytics := globalEngine.GetAnalytics()
@@ -635,50 +665,41 @@ func MainWithErrorCode() (int, []error) {
 
 	// fallback to the legacy cli or show help
 	handleErrorResult := handleError(err)
-	if handleErrorResult == handleErrorFallbackToLegacyCLI {
+	switch handleErrorResult {
+	case handleErrorFallbackToLegacyCLI:
 		// when falling back to TS cli, make sure the
 		_ = rootCommand.ParseFlags(os.Args)
-		globalConfiguration.AddFlagSet(rootCommand.LocalFlags())
+		if err := globalConfiguration.AddFlagSet(rootCommand.LocalFlags()); err != nil {
+			globalLogger.Printf("failed to add flagset: %v", err)
+		}
 
 		globalLogger.Printf("Using Legacy CLI to serve the command. (reason: %v)", err)
 		err = defaultCmd(os.Args[1:])
-	} else if handleErrorResult == handleErrorShowHelp {
+	case handleErrorShowHelp:
 		err = help(nil, []string{})
+	case handleErrorUnhandled:
+		// ignore
 	}
+
+	outputError := err
+	allErrors := errorList
 
 	if err != nil {
-		err = decorateError(err)
+		allErrors, outputError = processError(err, errorList)
 
-		errorList = append(errorList, err)
-		for _, tempError := range errorList {
-			cliAnalytics.AddError(tempError)
+		for _, tempError := range allErrors {
+			if tempError != nil {
+				cliAnalytics.AddError(tempError)
+			}
 		}
-
-		err = legacyCLITerminated(err, errorList)
 	}
 
-	displayError(err, globalEngine.GetUserInterface(), globalConfiguration, ctx)
+	displayError(outputError, globalEngine.GetUserInterface(), globalConfiguration, ctx)
 
-	exitCode := cliv2.DeriveExitCode(err)
-	globalLogger.Printf("Deriving Exit Code %d (cause: %v)", exitCode, err)
+	exitCode := cliv2.DeriveExitCode(outputError)
+	globalLogger.Printf("Deriving Exit Code %d (cause: %v)", exitCode, outputError)
 
-	targetId, targetIdError := instrumentation.GetTargetId(globalConfiguration.GetString(configuration.INPUT_DIRECTORY), instrumentation.AutoDetectedTargetId, instrumentation.WithConfiguredRepository(globalConfiguration))
-	if targetIdError != nil {
-		globalLogger.Printf("Failed to derive target id, %v", targetIdError)
-	}
-	cliAnalytics.GetInstrumentation().SetTargetId(targetId)
-
-	if cliAnalytics.GetInstrumentation().GetDuration() == 0 {
-		cliAnalytics.GetInstrumentation().SetDuration(time.Since(startTime))
-	}
-
-	addRuntimeDetails(cliAnalytics.GetInstrumentation(), ua)
-	addNetworkingDetails(cliAnalytics.GetInstrumentation(), globalConfiguration)
-
-	cliAnalytics.GetInstrumentation().AddExtension("exitcode", exitCode)
-	if exitCode == 2 {
-		cliAnalytics.GetInstrumentation().SetStatus(analytics.Failure)
-	}
+	updateInstrumentationDataBeforeSending(cliAnalytics, startTime, ua, exitCode)
 
 	if !globalConfiguration.GetBool(configuration.ANALYTICS_DISABLED) {
 		sendAnalytics(cliAnalytics, globalLogger)
@@ -692,16 +713,36 @@ func MainWithErrorCode() (int, []error) {
 		globalLogger.Printf("Failed to cleanup %v", err)
 	}
 
-	return exitCode, errorList
+	if debugEnabled {
+		writeLogFooter(exitCode, allErrors, globalConfiguration, networkAccess)
+	}
+
+	return exitCode
 }
 
-func legacyCLITerminated(err error, errorList []error) error {
-	exitErr, isExitError := err.(*exec.ExitError)
-	if isExitError && exitErr.ExitCode() == constants.SNYK_EXIT_CODE_TS_CLI_TERMINATED {
-		errorList = append([]error{err}, errorList...)
-		err = errors.Join(errorList...)
+func processError(err error, errorList []error) ([]error, error) {
+	// ensure to use generic fallback error catalog error if no other is available
+	resultError := decorateError(err)
+	resultErrorList := errorList
+
+	// filter legacycli terminate errors since it is only used for internal purposes
+	if exitErr, isExitError := resultError.(*exec.ExitError); isExitError && exitErr.ExitCode() == constants.SNYK_EXIT_CODE_TS_CLI_TERMINATED {
+		resultError = nil
 	}
-	return err
+
+	// ensure to have all errors in the list for analytics, determining the most relevant error to surface to the user ...
+	if resultError != nil {
+		resultErrorList = append([]error{resultError}, resultErrorList...)
+	}
+
+	// determine the most relevant error to surface to the user and derive the exit code from
+	resultError = cli_errors.FindMostRelevantError(resultErrorList)
+
+	// ensure to apply exit code mapping based on errors
+	if exitCode := mapErrorToExitCode(resultError); exitCode != unsetExitCode {
+		resultError = createErrorWithExitCode(exitCode, resultError)
+	}
+	return resultErrorList, resultError
 }
 
 func setTimeout(config configuration.Configuration, onTimeout func()) {
@@ -713,7 +754,7 @@ func setTimeout(config configuration.Configuration, onTimeout func()) {
 	go func() {
 		const gracePeriodForSubProcesses = 3
 		<-time.After(time.Duration(timeout+gracePeriodForSubProcesses) * time.Second)
-		fmt.Fprintf(os.Stdout, "command timed out")
+		_, _ = fmt.Fprintf(os.Stdout, "command timed out")
 		onTimeout()
 	}()
 }

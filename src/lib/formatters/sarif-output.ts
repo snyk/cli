@@ -15,10 +15,17 @@ export function createSarifOutputForContainers(
     runs: [],
   };
 
-  testResults.forEach((testResult) => {
+  testResults.forEach((testResult, index) => {
+    const projectName = testResult.projectName;
+    const projectIdentifier = projectName
+      ? `${projectName}/${index}/`
+      : `${index}/`;
     sarifRes.runs.push({
       tool: getTool(testResult),
       results: getResults(testResult),
+      automationDetails: {
+        id: `Snyk/Container/${projectIdentifier}${new Date().toISOString()}`,
+      },
     });
   });
 

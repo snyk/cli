@@ -1,0 +1,8 @@
+[project]
+name = "demo-dev"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = ["six>=1.16"]
+
+[dependency-groups]
+dev = ["colorama>=0.4"]

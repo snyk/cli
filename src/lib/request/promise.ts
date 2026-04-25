@@ -7,7 +7,7 @@ import * as request from './index';
 export async function makeRequest<T>(payload: any): Promise<T> {
   return new Promise((resolve, reject) => {
     request.makeRequest(payload, (error, res, body) => {
-      if (res.headers[headerSnykTsCliTerminate] == 'true') {
+      if (res?.headers?.[headerSnykTsCliTerminate] == 'true') {
         process.exit(EXIT_CODES.EX_TERMINATE);
       }
 

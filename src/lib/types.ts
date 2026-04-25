@@ -54,7 +54,10 @@ export interface Options {
   'dry-run'?: boolean;
   allSubProjects?: boolean;
   mavenAggregateProject?: boolean;
+  mavenSkipWrapper?: boolean;
   mavenVerboseIncludeAllVersions?: boolean;
+  includeProvenance?: boolean;
+  fingerprintAlgorithm?: string;
   'project-name'?: string;
   'show-vulnerable-paths'?: string;
   packageManager?: SupportedPackageManagers;
@@ -65,6 +68,8 @@ export interface Options {
   'print-deps'?: boolean;
   'print-tree'?: boolean;
   'print-dep-paths'?: boolean;
+  'print-effective-graph'?: boolean;
+  'print-effective-graph-with-errors'?: boolean;
   'remote-repo-url'?: string;
   criticality?: string;
   scanAllUnmanaged?: boolean;
@@ -126,7 +131,14 @@ export interface Options {
   'exclude-unmanaged'?: boolean;
 
   // Feature Flags
-  useImprovedDotnetWithoutPublish?: boolean;
+  disableContainerMonitorProjectNameFix?: boolean;
+
+  // Plugin configuration options
+  configuration?: {
+    // Used only with the Go plugin.
+    // TODO: remove once UNIFY-891 is done.
+    useReplaceName?: boolean;
+  };
 }
 
 // TODO(kyegupov): catch accessing ['undefined-properties'] via noImplicitAny
@@ -154,6 +166,7 @@ export interface MonitorOptions {
   initScript?: string;
   yarnWorkspaces?: boolean;
   'max-depth'?: number;
+  'reachability-id'?: string;
 }
 
 export interface MonitorMeta {
@@ -166,6 +179,7 @@ export interface MonitorMeta {
   'remote-repo-url'?: string;
   targetReference?: string;
   assetsProjectName?: boolean;
+  reachabilityScanId?: string;
 }
 
 export interface Tag {
@@ -271,6 +285,9 @@ export type SupportedUserReachableFacingCliArgs =
   | 'trust-policies'
   | 'yarn-workspaces'
   | 'maven-aggregate-project'
+  | 'maven-skip-wrapper'
+  | 'include-provenance'
+  | 'fingerprint-algorithm'
   | 'gradle-normalize-deps';
 
 export enum SupportedCliCommands {

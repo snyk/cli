@@ -22,4 +22,5 @@ export interface TestConfig {
   experimental?: boolean;
   iacNewEngine?: boolean;
   iacTestOutputFile?: string;
+  exclude?: string;
 }

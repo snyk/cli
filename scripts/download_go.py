@@ -98,8 +98,8 @@ def init_argparse():
         choices=["amd64", "arm64", "armv6l"],
         required=True)
     parser.add_argument("--base_url",
-        help="Base URL to download from (e.g., https://storage.googleapis.com/golang/)",
-        default="https://storage.googleapis.com/golang/")
+    help="Base URL to download from (e.g., https://dl.google.com/go/)",
+        default="https://dl.google.com/go/")
     parser.add_argument("--extraction_path",
         help="Path to download the file to (e.g., /tmp)",
         default=os.getcwd())

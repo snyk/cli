@@ -6,10 +6,7 @@ import * as groupBy from 'lodash.groupby';
 import * as assign from 'lodash.assign';
 import { detectPackageManagerFromFile } from './detect';
 import * as debugModule from 'debug';
-import {
-  PNPM_FEATURE_FLAG,
-  SUPPORTED_MANIFEST_FILES,
-} from './package-managers';
+import { SUPPORTED_MANIFEST_FILES } from './package-managers';
 
 const debug = debugModule('snyk:find-files');
 
@@ -189,12 +186,6 @@ function filterForDefaultManifests(
   files: string[],
   featureFlags: Set<string> = new Set<string>(),
 ): string[] {
-  // take all the files in the same dir & filter out
-  // based on package Manager
-  if (files.length <= 1) {
-    return files;
-  }
-
   const filteredFiles: string[] = [];
 
   const beforeSort = files
@@ -232,7 +223,6 @@ function filterForDefaultManifests(
       const defaultManifestFileName = chooseBestManifest(
         filesPerPackageManager,
         packageManager,
-        featureFlags,
       );
       if (defaultManifestFileName) {
         const shouldSkip = shouldSkipAddingFile(
@@ -256,10 +246,7 @@ function detectProjectTypeFromFile(
 ): string | null {
   try {
     const packageManager = detectPackageManagerFromFile(file, featureFlags);
-    if (['yarn', 'npm'].includes(packageManager)) {
-      return 'node';
-    }
-    if (featureFlags.has(PNPM_FEATURE_FLAG) && packageManager === 'pnpm') {
+    if (['yarn', 'npm', 'pnpm'].includes(packageManager)) {
       return 'node';
     }
     return packageManager;
@@ -293,17 +280,14 @@ function shouldSkipAddingFile(
 function chooseBestManifest(
   files: Array<{ base: string; path: string }>,
   projectType: string,
-  featureFlags: Set<string> = new Set<string>([]),
 ): string | null {
   switch (projectType) {
     case 'node': {
       const nodeLockfiles = [
         SUPPORTED_MANIFEST_FILES.PACKAGE_LOCK_JSON as string,
         SUPPORTED_MANIFEST_FILES.YARN_LOCK as string,
+        SUPPORTED_MANIFEST_FILES.PNPM_LOCK as string,
       ];
-      if (featureFlags.has(PNPM_FEATURE_FLAG)) {
-        nodeLockfiles.push(SUPPORTED_MANIFEST_FILES.PNPM_LOCK as string);
-      }
       const lockFile = files.filter((path) =>
         nodeLockfiles.includes(path.base),
       )[0];

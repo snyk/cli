@@ -2,15 +2,15 @@
 
 ## Prerequisites
 
-**Feature availability:** This feature is available to customers on Snyk Enterprise plans.
+**Feature availability:** This feature is available only to customers on Snyk Enterprise plans.
 
-**Note:** In order to use the SBOM generation feature, you must use a minimum of CLI version 1.1071.0.
+**Note:** In order to use the SBOM generation feature, you must use the minimum CLI version 1.1071.0.
 
 The `snyk sbom` feature requires an internet connection.
 
 ## Usage
 
-`$ snyk sbom --format=<cyclonedx1.4+json|cyclonedx1.4+xml|cyclonedx1.5+json|cyclonedx1.5+xml|cyclonedx1.6+json|cyclonedx1.6+xml|spdx2.3+json> [--org=<ORG_ID>] [--file=<FILE>] [--unmanaged] [--dev] [--all-projects] [--name=<NAME>] [--version=<VERSION>] [--exclude=<NAME>[,<NAME>...]] [--detection-depth=<DEPTH>] [--prune-repeated-subdependencies|-p] [--maven-aggregate-project] [--scan-unmanaged] [--scan-all-unmanaged] [--sub-project=<NAME>] [--gradle-sub-project=<NAME>] [--all-sub-projects] [--configuration-matching=<CONFIGURATION_REGEX>] [--configuration-attributes=<ATTRIBUTE>[,<ATTRIBUTE>]] [--init-script=<FILE>] [--json-file-output=<OUTPUT_FILE_PATH>] [<TARGET_DIRECTORY>]`
+`$ snyk sbom --format=<cyclonedx1.4+json|cyclonedx1.4+xml|cyclonedx1.5+json|cyclonedx1.5+xml|cyclonedx1.6+json|cyclonedx1.6+xml|spdx2.3+json> [--org=<ORG_ID>] [--file=<FILE>] [--unmanaged] [--dev] [--all-projects] [--name=<NAME>] [--version=<VERSION>] [--exclude=<NAME>[,<NAME>...]] [--detection-depth=<DEPTH>] [--prune-repeated-subdependencies|-p] [--maven-aggregate-project] [--scan-unmanaged] [--scan-all-unmanaged] [--sub-project=<NAME>] [--gradle-sub-project=<NAME>] [--all-sub-projects] [--configuration-matching=<CONFIGURATION_REGEX>] [--configuration-attributes=<ATTRIBUTE>[,<ATTRIBUTE>]] [--init-script=<FILE>] [--json-file-output=<OUTPUT_FILE_PATH>] [--include-provenance] [--go-module-level] [<TARGET_DIRECTORY>]`
 
 ## Description
 
@@ -134,6 +134,12 @@ When scanning these types of projects, Snyk performs a compile to ensure all mod
 
 Be sure to run the scan in the same directory as the root pom.xml file.
 
+### `--maven-skip-wrapper`
+
+Forces the use of a globally installed `mvn` command, even when a Maven wrapper (i.e. `mvnw` or `mvnw.cmd`) is present in the project.
+
+Some projects include a Maven wrapper but users may prefer (or be required by their CI environment) to use a globally installed `mvn` instead. This option gives an explicit escape hatch without having to remove the wrapper from the project.
+
 ### `--scan-unmanaged`
 
 To scan individual JAR, WAR, or AAR files, use the following:
@@ -145,6 +151,12 @@ To scan individual JAR, WAR, or AAR files, use the following:
 Auto-detect Maven, JAR, WAR, and AAR files recursively from the current folder.
 
 **Note**: Custom-built JAR files, even with open-source dependencies, are not supported.
+
+### `--include-provenance`
+
+**Experimental:** Enable provenance generation for Maven artifacts during analysis. This generates cryptographic fingerprints for scanned artifacts to help with vulnerability matching and supply chain security.
+
+**Note:** This requires the dependency artifacts to be present in your local Maven repository, using `mvn clean install` or similar commands.
 
 ## Options for Gradle projects
 
@@ -254,7 +266,7 @@ Skip packages that cannot be found in the environment, for example, private pack
 
 ### `--file=<filename>`
 
-For a Python project, specify a particular file to test.&#x20;
+For a Python project, specify a particular file to test.
 
 Default: Snyk scans the `requirements.txt` file at the top level of the project.
 
@@ -265,6 +277,16 @@ When setting this option for Python values, it is required to also set the `--pa
 Add `--package-manager=pip` to your command if the file name is not `requirements.txt`.
 
 This option is mandatory if you specify a value for the `--file` parameter that is not to a `requirements.txt` file. The SBOM generation fails without this parameter. Specify this parameter with the value `pip`.
+
+## Options for Go projects
+
+### `--go-module-level`
+
+Consolidate Go package-level dependencies into module-level components in the generated SBOM.
+
+This option applies only when generating SBOM documents for Go projects that use a `go.mod` file.
+
+Default: false
 
 ## Options for scanning using `--unmanaged`
 

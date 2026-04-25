@@ -1,0 +1,17 @@
+{
+  "name": "npm-package-with-override-alias",
+  "version": "1.0.0",
+  "description": "Test fixture for npm overrides with alias syntax",
+  "main": "index.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "keycloak-connect": "^26.1.1"
+  },
+  "overrides": {
+    "elliptic": "npm:dry-uninstall@0.3.0"
+  }
+}
+
+

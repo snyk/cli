@@ -1,10 +1,13 @@
+import { mkdir, rm, writeFile } from 'fs/promises';
+import { tmpdir } from 'os';
+import { join } from 'path';
+import { fakeServer } from '../../../acceptance/fake-server';
 import {
   createProjectFromFixture,
   createProjectFromWorkspace,
 } from '../../util/createProject';
-import { runSnykCLI } from '../../util/runSnykCLI';
-import { fakeServer } from '../../../acceptance/fake-server';
 import { getServerPort } from '../../util/getServerPort';
+import { runSnykCLI } from '../../util/runSnykCLI';
 
 jest.setTimeout(1000 * 60);
 
@@ -52,12 +55,14 @@ describe('snyk test --all-projects (mocked server only)', () => {
 
     expect(stdout).toMatch('Tested 2 projects, no vulnerable paths were found');
 
-    // detected only the workspace root
+    // detected only the workspace packages (apples, tomatoes)
     expect(stdout).toMatch('Package manager:   yarn');
     expect(stdout).toMatch('Project name:      tomatoes');
     expect(stdout).toMatch('Project name:      apples');
+    // 4 potential projects discovered: root, apples, tomatoes, deeply_nested
+    // 2 fail: root (out of sync) + deeply_nested (not in workspace, missing node_modules)
     expect(stderr).toMatch(
-      '✗ 1/3 potential projects failed to get dependencies',
+      '✗ 2/4 potential projects failed to get dependencies',
     );
     expect(stderr).toMatch(
       `Dependency snyk@1.320.0 was not found in yarn.lock. Your package.json and yarn.lock are probably out of sync. Please run "yarn install" and try again.`,
@@ -79,8 +84,10 @@ describe('snyk test --all-projects (mocked server only)', () => {
     expect(code).toEqual(2);
 
     expect(stdout).toContainText('SNYK-CLI-0000');
+    // 4 potential projects discovered: root, apples, tomatoes, deeply_nested
+    // 2 fail: root (out of sync) + deeply_nested (not in workspace, missing node_modules)
     expect(stderr).toMatch(
-      '✗ 1/3 potential projects failed to get dependencies',
+      '✗ 2/4 potential projects failed to get dependencies',
     );
     expect(stderr).toMatch(
       `Dependency snyk@1.320.0 was not found in yarn.lock. Your package.json and yarn.lock are probably out of sync. Please run "yarn install" and try again.`,
@@ -134,7 +141,11 @@ describe('snyk test --all-projects (mocked server only)', () => {
     // workspaces themselves detected too
     expect(stdout).toMatch('Project name:      tomatoes');
     expect(stdout).toMatch('Project name:      apples');
-    expect(stderr).toMatch('');
+    // The deeply nested package fails with missing node_modules
+    expect(stderr).toMatch('Missing node_modules folder');
+    expect(stderr).toMatch(
+      '✗ 1/4 potential projects failed to get dependencies',
+    );
   });
 
   test('`test ruby-app --all-projects`', async () => {
@@ -260,36 +271,27 @@ describe('snyk test --all-projects (mocked server only)', () => {
     expect(stderr).toEqual('');
   });
 
-  test('`test node workspaces --all-projects`', async () => {
-    server.setFeatureFlag('enablePnpmCli', false);
-    const project = await createProjectFromFixture('workspace-multi-type');
+  test('`test npm NX Build Platform --all-projects --print-graph --json --fail-fast`', async () => {
+    const project = await createProjectFromFixture('npm-nx-build-platform');
 
-    const { code, stdout } = await runSnykCLI('test --all-projects', {
-      cwd: project.path(),
-      env,
-    });
+    const { code } = await runSnykCLI(
+      'test --print-graph --json --all-projects --fail-fast',
+      {
+        cwd: project.path(),
+        env,
+      },
+    );
 
     const backendRequests = server.getRequests().filter((req: any) => {
       return req.url.includes('/api/v1/test');
     });
 
-    expect(backendRequests).toHaveLength(6);
-    backendRequests.forEach((req: any) => {
-      expect(req.method).toEqual('POST');
-      expect(req.headers['x-snyk-cli-version']).not.toBeUndefined();
-      expect(req.url).toMatch('/api/v1/test');
-    });
+    expect(backendRequests).toHaveLength(0);
 
     expect(code).toEqual(0);
-
-    expect(stdout).toMatch('Package manager:   npm');
-    expect(stdout).toMatch('Package manager:   yarn');
-    expect(stdout).not.toMatch('Package manager:   pnpm');
   });
 
-  test('`test node workspaces --all-projects with `enablePnpmCli` feature flag`', async () => {
-    server.setFeatureFlag('enablePnpmCli', true);
-
+  test('`test node workspaces --all-projects`', async () => {
     const project = await createProjectFromFixture('workspace-multi-type');
 
     const { code, stdout } = await runSnykCLI('test --all-projects', {
@@ -313,5 +315,148 @@ describe('snyk test --all-projects (mocked server only)', () => {
     expect(stdout).toMatch('Package manager:   npm');
     expect(stdout).toMatch('Package manager:   yarn');
     expect(stdout).toMatch('Package manager:   pnpm');
+  });
+
+  test('`test one project with an invalid manifest file displays error details`', async () => {
+    const tempDirName = `tempDir-${Date.now()}`;
+    const tempDirPath = join(tmpdir(), tempDirName);
+    await mkdir(tempDirPath, { recursive: true });
+
+    const packageJsonPath = join(tempDirPath, 'package.json');
+    await writeFile(packageJsonPath, '{{}}');
+
+    const { code, stdout } = await runSnykCLI('test --all-projects', {
+      cwd: tempDirPath,
+      env,
+    });
+
+    expect(code).toEqual(2);
+    expect(stdout).toContain('SNYK-CLI-0000');
+    expect(stdout).toContain(
+      'Failed to get dependencies for all 1 potential projects.',
+    );
+    expect(stdout).toContain('package.json');
+
+    // cleanup
+    try {
+      await rm(tempDirPath, { recursive: true, force: true });
+    } catch {
+      console.warn('teardown failed');
+    }
+  });
+
+  test('`test multiple projects with different invalid manifest files displays specific error details`', async () => {
+    const tempDirName = `tempDir-${Date.now()}`;
+    const tempDirPath = join(tmpdir(), tempDirName);
+    await mkdir(tempDirPath, { recursive: true });
+
+    const project1Path = join(tempDirPath, 'project1');
+    const project2Path = join(tempDirPath, 'project2');
+    await mkdir(project1Path, { recursive: true });
+    await mkdir(project2Path, { recursive: true });
+
+    const packageJson1Path = join(project1Path, 'package.json');
+    await writeFile(packageJson1Path, '{ invalid json }');
+
+    const packageJson2Path = join(project2Path, 'package.json');
+    await writeFile(packageJson2Path, '{"name":}');
+
+    const { code, stdout } = await runSnykCLI('test --all-projects', {
+      cwd: tempDirPath,
+      env,
+    });
+
+    expect(code).toEqual(2);
+    expect(stdout).toContain('SNYK-CLI-0000');
+    expect(stdout).toContain(
+      'Failed to get dependencies for all 2 potential projects.',
+    );
+
+    expect(stdout).toContain(join('project1', 'package.json'));
+    expect(stdout).toContain(join('project2', 'package.json'));
+
+    // cleanup
+    try {
+      await rm(tempDirPath, { recursive: true, force: true });
+    } catch {
+      console.warn('teardown failed');
+    }
+  });
+
+  test('`test pnpm-workspace --all-projects --exclude=shared` excludes specified directory', async () => {
+    server.setFeatureFlag('enablePnpmCli', true);
+
+    const project = await createProjectFromFixture(
+      'pnpm-workspace-with-exclude-issue/workspace',
+    );
+
+    const { code, stdout } = await runSnykCLI(
+      'test --all-projects --exclude=shared',
+      {
+        cwd: project.path(),
+        env,
+      },
+    );
+
+    const backendRequests = server.getRequests().filter((req: any) => {
+      return req.url.includes('/api/v1/test');
+    });
+
+    const sharedPath = join('shared', 'package.json');
+    const app1Path = join('app1', 'package.json');
+    const app2Path = join('app2', 'package.json');
+
+    expect(backendRequests.length).toBe(3);
+    expect(stdout).not.toMatch(sharedPath);
+    expect(stdout).toMatch(app1Path);
+    expect(stdout).toMatch(app2Path);
+    expect(code).toEqual(0);
+  });
+
+  test('`test pnpm-workspace --all-projects --exclude=shared --detection-depth=2` excludes specified directory', async () => {
+    server.setFeatureFlag('enablePnpmCli', true);
+
+    const project = await createProjectFromFixture(
+      'pnpm-workspace-with-exclude-issue/workspace',
+    );
+
+    const { code, stdout } = await runSnykCLI(
+      'test --all-projects --exclude=shared --detection-depth=2',
+      {
+        cwd: project.path(),
+        env,
+      },
+    );
+
+    const backendRequests = server.getRequests().filter((req: any) => {
+      return req.url.includes('/api/v1/test');
+    });
+
+    expect(backendRequests.length).toBe(3);
+    expect(stdout).not.toMatch(join('shared', 'package.json'));
+    expect(code).toEqual(0);
+  });
+
+  test('`test pnpm-workspace --all-projects` scans all workspace projects', async () => {
+    server.setFeatureFlag('enablePnpmCli', true);
+
+    const project = await createProjectFromFixture(
+      'pnpm-workspace-with-exclude-issue/workspace',
+    );
+
+    const { code, stdout } = await runSnykCLI('test --all-projects', {
+      cwd: project.path(),
+      env,
+    });
+
+    const backendRequests = server.getRequests().filter((req: any) => {
+      return req.url.includes('/api/v1/test');
+    });
+
+    expect(backendRequests.length).toBe(4);
+    expect(stdout).toMatch(join('app1', 'package.json'));
+    expect(stdout).toMatch(join('app2', 'package.json'));
+    expect(stdout).toMatch(join('shared', 'package.json'));
+    expect(code).toEqual(0);
   });
 });

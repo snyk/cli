@@ -12,8 +12,8 @@ export async function maybePrintDepGraph(
   // TODO @boost: remove this logic once we get a valid depGraph print format
   const graphPathsCount = countPathsToGraphRoot(depGraph);
   const hasTooManyPaths = graphPathsCount > config.PRUNE_DEPS_THRESHOLD;
-
-  if (!hasTooManyPaths) {
+  const hasAliases = isDepGraphWithAliases(depGraph);
+  if (!hasTooManyPaths && !hasAliases) {
     const depTree = (await depGraphLib.legacy.graphToDepTree(
       depGraph,
       depGraph.pkgManager.name,
@@ -29,11 +29,30 @@ export async function maybePrintDepGraph(
         console.log(jsonStringifyLargeObject(depGraph.toJSON()));
       } else {
         console.warn(
-          '--print-deps option not yet supported for large projects. Try with --json.',
+          '--print-deps option not yet supported for large projects or with aliases. Try with --json.',
         );
       }
     }
   }
+}
+
+function isDepGraphWithAliases(depGraph: depGraphLib.DepGraph): boolean {
+  const depGraphJson = depGraph.toJSON();
+  for (const node of depGraphJson.graph.nodes) {
+    if (node.info?.labels?.alias) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function isDepTreeWithAliases(depTree: legacyApi.DepTree): boolean {
+  if (!depTree.dependencies) {
+    return false;
+  }
+  return Object.values(depTree.dependencies).some(
+    (dependency) => dependency.labels?.alias,
+  );
 }
 
 // This option is still experimental and might be deprecated.
@@ -47,7 +66,13 @@ export function maybePrintDepTree(
       // Will produce 2 JSON outputs, one for the deps, one for the vuln scan.
       console.log(jsonStringifyLargeObject(rootPackage));
     } else {
-      printDepsForTree({ [rootPackage.name!]: rootPackage });
+      if (isDepTreeWithAliases(rootPackage)) {
+        console.warn(
+          '--print-deps option not yet supported for large projects or with aliases. Try with --json.',
+        );
+      } else {
+        printDepsForTree({ [rootPackage.name!]: rootPackage });
+      }
     }
   }
 }

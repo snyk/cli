@@ -89,6 +89,8 @@ Save test output in SARIF format directly to the \<OUTPUT_FILE_PATH> file, regar
 
 This is especially useful if you want to display the human-readable test output using stdout and at the same time save the SARIF format output to a file.
 
+When running multiple scans, such as SCA and Code scans, the SARIF output includes data only from the most recently completed scan. If you run multiple scans sequentially and specify the same `--sarif-file-output` file path, each subsequent scan overwrites the previous SARIF file. To keep results separate, save each scan to a different SARIF output file.
+
 Note: If you use an option that sets project attributes and your role lacks permission to edit project attributes the `iac test` command fails. For instructions on how to proceed see [Permissions required to edit Project attributes from the Snyk CLI](https://docs.snyk.io/snyk-admin/user-roles/user-role-management#permissions-required-to-edit-project-attributes-from-the-snyk-cli)
 
 ### `--project-business-criticality=<BUSINESS_CRITICALITY>[,<BUSINESS_CRITICALITY>]...>`
@@ -131,7 +133,7 @@ Example: `--project-tags=department=finance,team=alpha`
 
 To clear the project tags set `--project-tags=`
 
-For more information including allowable characters see [Project tags](../../../snyk-admin/introduction-to-snyk-projects/project-tags.md)
+For more information including allowable characters see [Project tags](../../../snyk-platform-administration/snyk-projects/project-tags.md)
 
 ### `--remote-repo-url=<URL>`
 
@@ -143,7 +145,7 @@ Can be used in combination with the `--report` option.
 
 ### `--report`
 
-**NEW** option: Share results with the Snyk Web UI.
+Share results with the Snyk Web UI.
 
 This creates a project in your Snyk account with a snapshot of the current configuration issues or appends the snapshot to an existing project.
 

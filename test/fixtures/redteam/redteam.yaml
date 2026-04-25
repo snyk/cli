@@ -1,0 +1,18 @@
+target:
+  name: Test App
+  type: api
+  context:
+    purpose: "Security testing of AI chat endpoint"
+  settings:
+    url: "https://demo-app.com/api/chat"
+    headers:
+      - name: "Authorization"
+        value: "Bearer some-very-secret-token"
+
+    response_selector: "response"
+    request_body_template: '{"message": "{{prompt}}"}'
+
+options:
+  vuln_definitions:
+    exclude:
+      - "system_prompt_exfiltration"

@@ -9,6 +9,7 @@ import * as rimraf from 'rimraf';
 import { processHTMLOutput } from '../../../../src/lib/iac/drift';
 import { DescribeOptions } from '../../../../src/lib/iac/types';
 import { driftctlVersion } from '../../../../src/lib/iac/drift/driftctl';
+import { isWindowsOperatingSystem } from '../../../utils';
 
 const paths = envPaths('snyk');
 
@@ -61,7 +62,7 @@ describe('iac describe', () => {
     expect(exitCode).toBe(2);
   });
 
-  if (os.platform() === 'win32') {
+  if (isWindowsOperatingSystem()) {
     return; // skip following tests
   }
 

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.1.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.1.0 
+         http://maven.apache.org/xsd/maven-4.1.0.xsd">
+  <modelVersion>4.1.0</modelVersion>
+
+  <groupId>com.example</groupId>
+  <artifactId>maven4-aggregate</artifactId>
+  <version>1.0.0</version>
+  <packaging>pom</packaging>
+
+  <name>Maven 4 Aggregate Project</name>
+  <description>Maven 4 aggregate project using new subprojects element and BOM</description>
+
+  <properties>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.release>17</maven.compiler.release>
+  </properties>
+
+  <!-- New subprojects element instead of modules -->
+  <subprojects>
+    <subproject>maven4-service</subproject>
+    <subproject>maven4-web</subproject>
+  </subprojects>
+
+  <dependencyManagement>
+    <dependencies>
+      <!-- Simple dependency management without BOM for Maven 4 testing -->
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-framework-bom</artifactId>
+        <version>6.1.0</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+</project>

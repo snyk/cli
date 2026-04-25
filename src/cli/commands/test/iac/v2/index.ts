@@ -107,6 +107,7 @@ async function prepareTestConfig(
   const insecure = options.insecure;
   const customRules = options['custom-rules'];
   const experimental = options.experimental;
+  const exclude = getFlag(options, 'exclude') as string | undefined;
 
   return {
     paths: relativePaths,
@@ -129,5 +130,6 @@ async function prepareTestConfig(
     customRules,
     experimental,
     iacNewEngine,
+    exclude,
   };
 }

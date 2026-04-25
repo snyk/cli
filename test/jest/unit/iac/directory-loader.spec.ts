@@ -16,6 +16,7 @@ import {
   level3FileStub,
   nonIacFileStub,
 } from './file-loader.fixtures';
+import { createPathExclusionMatcher } from '../../../../src/cli/commands/test/iac/local-execution/file-utils';
 
 describe('getAllDirectoriesForPath', () => {
   afterEach(() => {
@@ -222,4 +223,43 @@ describe('shouldBeParsed', () => {
       expect(shouldBeParsed(filepath)).toBe(expectedResult);
     },
   );
+});
+
+describe('Exclusion Logic in Directory Loader', () => {
+  beforeEach(() => {
+    mockFs({
+      project: {
+        'main.tf': 'variable "a" {}',
+        'variables.tf': 'variable "b" {}',
+        node_modules: {
+          'provider.tf': '...',
+        },
+      },
+    });
+  });
+
+  afterEach(() => {
+    mockFs.restore();
+  });
+
+  it('getFilesForDirectory should exclude exact file basenames', () => {
+    const isExcluded = createPathExclusionMatcher('variables.tf');
+
+    const files = getFilesForDirectory('project', 'project', isExcluded);
+
+    expect(files).toContain(path.join('project', 'main.tf'));
+    expect(files).not.toContain(path.join('project', 'variables.tf'));
+  });
+
+  it('getFilesForDirectory should exclude directory basenames and their contents', () => {
+    const isExcluded = createPathExclusionMatcher('node_modules');
+
+    const files = getFilesForDirectory(
+      'project',
+      path.join('project', 'node_modules'),
+      isExcluded,
+    );
+
+    expect(files).toEqual([]);
+  });
 });

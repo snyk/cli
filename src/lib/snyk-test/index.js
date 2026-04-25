@@ -2,16 +2,24 @@ module.exports = test;
 
 const detect = require('../detect');
 const { runTest } = require('./run-test');
-const chalk = require('chalk');
 const pm = require('../package-managers');
 const { UnsupportedPackageManagerError } = require('../errors');
 const { isMultiProjectScan } = require('../is-multi-project-scan');
-const { hasFeatureFlag } = require('../feature-flags');
 const {
-  PNPM_FEATURE_FLAG,
-  DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG,
+  SHOW_MAVEN_BUILD_SCOPE,
+  SHOW_NPM_SCOPE,
+  CLI_DOTNET_RUNTIME_RESOLUTION,
+  hasFeatureFlag,
+  isFeatureFlagSupportedForOrg,
+  hasFeatureFlagOrDefault,
+} = require('../feature-flags');
+const {
   MAVEN_DVERBOSE_EXHAUSTIVE_DEPS_FF,
+  INCLUDE_GO_STANDARD_LIBRARY_DEPS_FEATURE_FLAG,
+  DISABLE_GO_PACKAGE_URLS_IN_CLI_FEATURE_FLAG,
 } = require('../package-managers');
+const { getOrganizationID } = require('../organization');
+const debug = require('debug')('snyk-test');
 
 async function test(root, options, callback) {
   if (typeof options === 'function') {
@@ -33,24 +41,16 @@ async function test(root, options, callback) {
 }
 
 async function executeTest(root, options) {
-  let hasPnpmSupport = false;
-  let hasImprovedDotnetWithoutPublish = false;
-  let enableMavenDverboseExhaustiveDeps = false;
-  try {
-    hasPnpmSupport = await hasFeatureFlag(PNPM_FEATURE_FLAG, options);
-    if (options['dotnet-runtime-resolution']) {
-      hasImprovedDotnetWithoutPublish = await hasFeatureFlag(
-        DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG,
-        options,
-      );
-      if (hasImprovedDotnetWithoutPublish) {
-        options.useImprovedDotnetWithoutPublish = true;
-      }
-    }
-  } catch (err) {
-    hasPnpmSupport = false;
-  }
+  const includeGoStandardLibraryDeps = await hasFeatureFlagOrDefault(
+    INCLUDE_GO_STANDARD_LIBRARY_DEPS_FEATURE_FLAG,
+    options,
+  );
+  const disableGoPackageUrls = await hasFeatureFlagOrDefault(
+    DISABLE_GO_PACKAGE_URLS_IN_CLI_FEATURE_FLAG,
+    options,
+  );
 
+  let enableMavenDverboseExhaustiveDeps = false;
   try {
     const args = options['_doubleDashArgs'] || [];
     const verboseEnabled =
@@ -72,9 +72,40 @@ async function executeTest(root, options) {
   }
 
   try {
-    const featureFlags = hasPnpmSupport
-      ? new Set([PNPM_FEATURE_FLAG])
-      : new Set([]);
+    const featureFlags = new Set();
+
+    if (includeGoStandardLibraryDeps) {
+      featureFlags.add(INCLUDE_GO_STANDARD_LIBRARY_DEPS_FEATURE_FLAG);
+    }
+
+    if (disableGoPackageUrls) {
+      featureFlags.add(DISABLE_GO_PACKAGE_URLS_IN_CLI_FEATURE_FLAG);
+    }
+
+    const showMavenScope = await isFeatureFlagSupportedForOrg(
+      SHOW_MAVEN_BUILD_SCOPE,
+      getOrganizationID(),
+    );
+    if (showMavenScope.ok) {
+      featureFlags.add(SHOW_MAVEN_BUILD_SCOPE);
+    }
+
+    const showScope = await isFeatureFlagSupportedForOrg(
+      SHOW_NPM_SCOPE,
+      getOrganizationID(),
+    );
+    if (showScope.ok) {
+      featureFlags.add(SHOW_NPM_SCOPE);
+    }
+
+    const dotnetRuntimeResolution = await isFeatureFlagSupportedForOrg(
+      CLI_DOTNET_RUNTIME_RESOLUTION,
+      getOrganizationID(),
+    );
+    if (dotnetRuntimeResolution.ok) {
+      debug('cliDotnetRuntimeResolution feature flag is enabled');
+      featureFlags.add(CLI_DOTNET_RUNTIME_RESOLUTION);
+    }
 
     if (!options.allProjects) {
       options.packageManager = detect.detectPackageManager(
@@ -98,23 +129,19 @@ async function executeTest(root, options) {
       return results;
     });
   } catch (error) {
-    return Promise.reject(
-      chalk.red.bold(error.message ? error.message : error),
-    );
+    // Preserve the error object to maintain properties like errorCatalog, code, userMessage, etc.
+    // The error will be formatted later in formatTestError if needed
+    return Promise.reject(error);
   }
 }
 
 function run(root, options, featureFlags) {
   const projectType = options.packageManager;
-  validateProjectType(options, projectType, featureFlags);
+  validateProjectType(options, projectType);
   return runTest(projectType, root, options, featureFlags);
 }
 
-function validateProjectType(options, projectType, featureFlags) {
-  if (projectType === 'pnpm' && !featureFlags.has(PNPM_FEATURE_FLAG)) {
-    throw new UnsupportedPackageManagerError(projectType);
-  }
-
+function validateProjectType(options, projectType) {
   if (
     !(
       options.docker ||

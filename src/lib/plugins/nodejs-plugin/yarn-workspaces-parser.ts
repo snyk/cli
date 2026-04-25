@@ -20,6 +20,7 @@ export async function processYarnWorkspaces(
     strictOutOfSync?: boolean;
     dev?: boolean;
     yarnWorkspaces?: boolean;
+    showNpmScope?: boolean;
   },
   targetFiles: string[],
 ): Promise<MultiProjectResultCustom> {
@@ -117,6 +118,8 @@ export async function processYarnWorkspaces(
                 settings.strictOutOfSync === undefined
                   ? true
                   : settings.strictOutOfSync,
+
+              showNpmScope: settings.showNpmScope,
             },
           );
           break;
@@ -132,6 +135,7 @@ export async function processYarnWorkspaces(
                 settings.strictOutOfSync === undefined
                   ? true
                   : settings.strictOutOfSync,
+              showNpmScope: settings.showNpmScope,
             },
             {
               isWorkspacePkg: true,
@@ -215,7 +219,7 @@ export function packageJsonBelongsToWorkspace(
   const match = micromatch.isMatch(
     packageJsonFileName.replace(/\\/g, '/'),
     workspacesGlobs.map((p) =>
-      pathUtil.normalize(pathUtil.join(p, '**')).replace(/\\/g, '/'),
+      pathUtil.normalize(pathUtil.join(p, 'package.json')).replace(/\\/g, '/'),
     ),
   );
   return match;

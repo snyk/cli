@@ -16,7 +16,7 @@ import {
   AUTO_DETECTABLE_FILES,
   detectPackageManagerFromFile,
 } from '../detect';
-import analytics = require('../analytics');
+import * as analytics from '../analytics';
 import { convertSingleResultToMultiCustom } from './convert-single-splugin-res-to-multi-custom';
 import { convertMultiResultToMultiCustom } from './convert-multi-plugin-res-to-multi-custom';
 import { processYarnWorkspaces } from './nodejs-plugin/yarn-workspaces-parser';
@@ -102,7 +102,12 @@ export async function getDepsFromPlugin(
   if (!options.docker && !(options.file || options.packageManager)) {
     throw NoSupportedManifestsFoundError([...root]);
   }
-  const inspectRes = await getSinglePluginResult(root, options);
+  const inspectRes = await getSinglePluginResult(
+    root,
+    options,
+    '',
+    featureFlags,
+  );
 
   if (!pluginApi.isMultiResult(inspectRes)) {
     if (!inspectRes.package && !inspectRes.dependencyGraph) {

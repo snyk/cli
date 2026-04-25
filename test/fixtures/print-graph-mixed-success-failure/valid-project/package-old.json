@@ -1,0 +1,6 @@
+{
+  "name": "valid-project",
+  "version": "1.0.0",
+  "description": "A valid npm project for testing",
+  "main": "index.js"
+}

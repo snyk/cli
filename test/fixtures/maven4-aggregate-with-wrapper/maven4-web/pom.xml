@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.1.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.1.0 
+         http://maven.apache.org/xsd/maven-4.1.0.xsd">
+  <modelVersion>4.1.0</modelVersion>
+
+  <parent>
+    <groupId>com.example</groupId>
+    <artifactId>maven4-aggregate</artifactId>
+    <version>1.0.0</version>
+  </parent>
+
+  <artifactId>maven4-web</artifactId>
+  <packaging>war</packaging>
+
+  <name>Maven 4 Web</name>
+  <description>Web module using BOM for dependency management</description>
+
+  <dependencies>
+    <!-- Service dependency -->
+    <dependency>
+      <groupId>com.example</groupId>
+      <artifactId>maven4-service</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    
+    <!-- Web dependencies managed by Spring Framework BOM -->
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-webmvc</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.13.2</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+</project>

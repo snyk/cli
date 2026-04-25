@@ -31,6 +31,9 @@ export function convertEngineToSarifResults(scanResult: TestOutput): sarif.Log {
     },
   };
 
+  const projectName = scanResult.results?.metadata?.projectName;
+  const projectIdentifier = projectName ? `${projectName}/` : '';
+
   return {
     $schema:
       'https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json',
@@ -49,7 +52,7 @@ export function convertEngineToSarifResults(scanResult: TestOutput): sarif.Log {
 
         tool,
         automationDetails: {
-          id: 'snyk-iac',
+          id: `Snyk/IaC/${projectIdentifier}${new Date().toISOString()}`,
         },
         results: mapSnykIacTestResultsToSarifResults(scanResult.results),
       },

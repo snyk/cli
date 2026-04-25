@@ -16,12 +16,14 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/snyk/error-catalog-golang-public/code"
 	"github.com/snyk/error-catalog-golang-public/snyk_errors"
+	"github.com/snyk/go-application-framework/pkg/apiclients/testapi"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/content_type"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/json_schemas"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/local_models"
 	"github.com/snyk/go-application-framework/pkg/mocks"
+	"github.com/snyk/go-application-framework/pkg/utils/ufm"
 	"github.com/snyk/go-application-framework/pkg/workflow"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -45,7 +47,7 @@ func Test_MainWithErrorCode(t *testing.T) {
 	os.Args = []string{"snyk", "--version"}
 	defer func() { os.Args = oldArgs }()
 
-	errCode, _ := MainWithErrorCode()
+	errCode := MainWithErrorCode()
 	assert.False(t, globalConfiguration.GetBool(configuration.CONFIG_CACHE_DISABLED))
 	assert.Equal(t, configuration.NoCacheExpiration, globalConfiguration.GetDuration(configuration.CONFIG_CACHE_TTL))
 
@@ -60,18 +62,8 @@ func Test_MainWithErrorCode(t *testing.T) {
 			os.Args = oldArgs
 		}()
 
-		errCode, errs := MainWithErrorCode()
+		errCode := MainWithErrorCode()
 		assert.Equal(t, 2, errCode)
-
-		unauthorizedErrorCode := "SNYK-0005"
-		var actualErrorCodes []string
-		for _, err := range errs {
-			var snykError snyk_errors.Error
-			if errors.As(err, &snykError) {
-				actualErrorCodes = append(actualErrorCodes, snykError.ErrorCode)
-			}
-		}
-		assert.Contains(t, actualErrorCodes, unauthorizedErrorCode)
 	})
 }
 
@@ -263,81 +255,99 @@ func Test_runMainWorkflow_unknownargs(t *testing.T) {
 
 func Test_getErrorFromWorkFlowData(t *testing.T) {
 	engine := workflow.NewWorkFlowEngine(configuration.New())
-	engine.Init()
+	assert.NoError(t, engine.Init())
 
-	t.Run("nil error", func(t *testing.T) {
-		err := getErrorFromWorkFlowData(engine, nil)
-		assert.Nil(t, err)
+	ufmTestResultNothing, err := ufm.NewSerializableTestResultFromBytes([]byte(`[{"testId": "f47ac10b-58cc-4372-a567-0e02b2c3d479", "findings": []}]`))
+	assert.NoError(t, err)
+	ufmDataNothing := ufm.CreateWorkflowDataFromTestResults(workflow.NewWorkflowIdentifier("test"), ufmTestResultNothing)
+
+	ufmTestResultFail, err := ufm.NewSerializableTestResultFromBytes([]byte(`[{"testId": "f47ac10b-58cc-4372-a567-0e02b2c3d479", "passFail": "` + testapi.Pass + `", "findings": []}, {"testId": "f47ac10b-58cc-4372-a567-0e02b2c3d479", "passFail": "` + testapi.Fail + `", "findings": []}]`))
+	assert.NoError(t, err)
+	ufmDataFail := ufm.CreateWorkflowDataFromTestResults(workflow.NewWorkflowIdentifier("test"), ufmTestResultFail)
+
+	ufmTestResultPass, err := ufm.NewSerializableTestResultFromBytes([]byte(`[{"testId": "f47ac10b-58cc-4372-a567-0e02b2c3d479", "passFail": "` + testapi.Pass + `", "findings": []}]`))
+	assert.NoError(t, err)
+	ufmDataPass := ufm.CreateWorkflowDataFromTestResults(workflow.NewWorkflowIdentifier("test"), ufmTestResultPass)
+
+	testSummaryBytesFail, err := json.Marshal(json_schemas.TestSummary{
+		Results: []json_schemas.TestSummaryResult{{
+			Severity: "critical",
+			Total:    99,
+			Open:     97,
+			Ignored:  2,
+		}},
+		Type: "sast",
 	})
-	t.Run("workflow error", func(t *testing.T) {
+	assert.Nil(t, err)
+	testSummaryDataFail := workflow.NewData(workflow.NewTypeIdentifier(workflow.NewWorkflowIdentifier("output"), "output"), content_type.TEST_SUMMARY, testSummaryBytesFail)
+
+	testSummaryBytesPass, err := json.Marshal(json_schemas.TestSummary{
+		Results: []json_schemas.TestSummaryResult{{
+			Severity: "critical",
+			Total:    0,
+			Open:     0,
+			Ignored:  0,
+		}},
+		Type: "sast",
+	})
+	assert.Nil(t, err)
+	testSummaryDataPass := workflow.NewData(workflow.NewTypeIdentifier(workflow.NewWorkflowIdentifier("output"), "output"), content_type.TEST_SUMMARY, testSummaryBytesPass)
+
+	t.Run("Nil data = no exit code", func(t *testing.T) {
+		tErr := getErrorFromWorkFlowData(engine, nil)
+		assert.NoError(t, tErr)
+	})
+	t.Run("Unhandled data = no exit code", func(t *testing.T) {
 		workflowId := workflow.NewWorkflowIdentifier("output")
 		workflowIdentifier := workflow.NewTypeIdentifier(workflowId, "output")
 		data := workflow.NewData(workflowIdentifier, "application/json", []byte(`{"error": "test error"}`))
-		err := getErrorFromWorkFlowData(engine, []workflow.Data{data})
-		assert.Nil(t, err)
+		tErr := getErrorFromWorkFlowData(engine, []workflow.Data{nil, data})
+		assert.NoError(t, tErr)
 	})
-	t.Run("workflow with test findings", func(t *testing.T) {
-		workflowId := workflow.NewWorkflowIdentifier("output")
-		workflowIdentifier := workflow.NewTypeIdentifier(workflowId, "output")
-		payload, err := json.Marshal(json_schemas.TestSummary{
-			Results: []json_schemas.TestSummaryResult{{
-				Severity: "critical",
-				Total:    99,
-				Open:     97,
-				Ignored:  2,
-			}},
-			Type: "sast",
-		})
-		assert.Nil(t, err)
-		data := workflow.NewData(workflowIdentifier, content_type.TEST_SUMMARY, payload)
-		err = getErrorFromWorkFlowData(engine, []workflow.Data{data})
-		require.NotNil(t, err)
+	t.Run("TestSummary with vulnerabilities = exit code 1", func(t *testing.T) {
+		tErr := getErrorFromWorkFlowData(engine, []workflow.Data{nil, testSummaryDataFail})
+		require.NotNil(t, tErr)
 		var expectedError *clierrors.ErrorWithExitCode
-		assert.ErrorAs(t, err, &expectedError)
+		assert.ErrorAs(t, tErr, &expectedError)
 		assert.Equal(t, constants.SNYK_EXIT_CODE_VULNERABILITIES_FOUND, expectedError.ExitCode)
 	})
 
-	t.Run("workflow with zero count test summary", func(t *testing.T) {
-		workflowId := workflow.NewWorkflowIdentifier("output")
-		workflowIdentifier := workflow.NewTypeIdentifier(workflowId, "output")
-		d, err := json.Marshal(json_schemas.TestSummary{
-			Results: []json_schemas.TestSummaryResult{{
-				Severity: "critical",
-				Total:    0,
-				Open:     0,
-				Ignored:  0,
-			}},
-			Type: "sast",
-		})
-		assert.Nil(t, err)
-		data := workflow.NewData(workflowIdentifier, content_type.TEST_SUMMARY, d)
-		err = getErrorFromWorkFlowData(engine, []workflow.Data{data})
-		assert.Nil(t, err)
+	t.Run("TestSummary with no vulnerabilities = exit code 0", func(t *testing.T) {
+		tErr := getErrorFromWorkFlowData(engine, []workflow.Data{nil, testSummaryDataPass})
+		assert.Nil(t, tErr)
 	})
 
-	t.Run("workflow with empty test summary and unsupported error annotation", func(t *testing.T) {
+	t.Run("TestSummary without and UFM with vulnerabilities = exit code 1", func(t *testing.T) {
+		tErr := getErrorFromWorkFlowData(engine, []workflow.Data{nil, testSummaryDataPass, ufmDataFail})
+		assert.Error(t, tErr)
+		var actualError *clierrors.ErrorWithExitCode
+		assert.ErrorAs(t, tErr, &actualError)
+		assert.Equal(t, constants.SNYK_EXIT_CODE_VULNERABILITIES_FOUND, actualError.ExitCode)
+	})
+
+	t.Run("TestSummary with unsupported project error annotation = exit code 3", func(t *testing.T) {
 		workflowId := workflow.NewWorkflowIdentifier("output")
 		workflowIdentifier := workflow.NewTypeIdentifier(workflowId, "output")
-		d, err := json.Marshal(json_schemas.NewTestSummary("sast", "/path"))
-		assert.Nil(t, err)
+		d, tErr := json.Marshal(json_schemas.NewTestSummary("sast", "/path"))
+		assert.Nil(t, tErr)
 		data := workflow.NewData(workflowIdentifier, content_type.TEST_SUMMARY, d)
 		expectedCodeErr := code.NewUnsupportedProjectError("")
 		data.AddError(expectedCodeErr)
-		err = getErrorFromWorkFlowData(engine, []workflow.Data{data})
+		tErr = getErrorFromWorkFlowData(engine, []workflow.Data{nil, data})
 
 		var actualError *clierrors.ErrorWithExitCode
 		var actualSnykCatalogError snyk_errors.Error
-		assert.ErrorAs(t, err, &actualError)
-		assert.ErrorAs(t, err, &actualSnykCatalogError)
+		assert.ErrorAs(t, tErr, &actualError)
+		assert.ErrorAs(t, tErr, &actualSnykCatalogError)
 
 		assert.Equal(t, expectedCodeErr, actualSnykCatalogError)
 		assert.Equal(t, constants.SNYK_EXIT_CODE_UNSUPPORTED_PROJECTS, actualError.ExitCode)
 	})
 
-	t.Run("workflow with empty testing and misc error annotation", func(t *testing.T) {
+	t.Run("TestSummary with misc error annotation = exit code 0", func(t *testing.T) {
 		workflowId := workflow.NewWorkflowIdentifier("output")
 		workflowIdentifier := workflow.NewTypeIdentifier(workflowId, "output")
-		d, err := json.Marshal(json_schemas.TestSummary{
+		d, tErr := json.Marshal(json_schemas.TestSummary{
 			Results: []json_schemas.TestSummaryResult{{
 				Severity: "critical",
 				Total:    0,
@@ -347,11 +357,34 @@ func Test_getErrorFromWorkFlowData(t *testing.T) {
 			Artifacts: 0,
 			Type:      "sast",
 		})
-		assert.Nil(t, err)
+		assert.Nil(t, tErr)
 		data := workflow.NewData(workflowIdentifier, content_type.TEST_SUMMARY, d)
 		data.AddError(code.NewAnalysisFileCountLimitExceededError(""))
-		err = getErrorFromWorkFlowData(engine, []workflow.Data{data})
-		assert.NoError(t, err)
+		tErr = getErrorFromWorkFlowData(engine, []workflow.Data{nil, data})
+		assert.NoError(t, tErr)
+	})
+
+	t.Run("Ufm with vulnerabilities = exit code 1", func(t *testing.T) {
+		tErr := getErrorFromWorkFlowData(engine, []workflow.Data{nil, testSummaryDataFail, ufmDataPass, ufmDataFail})
+		assert.Error(t, tErr)
+
+		var actualError *clierrors.ErrorWithExitCode
+		assert.ErrorAs(t, tErr, &actualError)
+		assert.Equal(t, constants.SNYK_EXIT_CODE_VULNERABILITIES_FOUND, actualError.ExitCode)
+	})
+
+	t.Run("Ufm with no vulnerabilities = exit code 0", func(t *testing.T) {
+		tErr := getErrorFromWorkFlowData(engine, []workflow.Data{nil, testSummaryDataFail, ufmDataPass})
+		assert.NoError(t, tErr)
+	})
+
+	t.Run("Ufm without and TestSummary with vulnerabilities = exit code 1", func(t *testing.T) {
+		tErr := getErrorFromWorkFlowData(engine, []workflow.Data{nil, testSummaryDataFail, ufmDataNothing})
+		assert.Error(t, tErr)
+
+		var actualError *clierrors.ErrorWithExitCode
+		assert.ErrorAs(t, tErr, &actualError)
+		assert.Equal(t, constants.SNYK_EXIT_CODE_VULNERABILITIES_FOUND, actualError.ExitCode)
 	})
 }
 
@@ -593,6 +626,130 @@ type wrErr struct{ wraps error }
 
 func (e *wrErr) Error() string { return "something went wrong" }
 func (e *wrErr) Unwrap() error { return e.wraps }
+
+func Test_processError(t *testing.T) {
+	t.Run("nil error returns nil", func(t *testing.T) {
+		errorList, err := processError(nil, nil)
+		assert.Nil(t, err)
+		assert.Empty(t, errorList)
+	})
+
+	t.Run("ExitError with exit code 1 preserves exit code", func(t *testing.T) {
+		// Create a real exec.ExitError by running a command that fails
+		cmd := exec.Command("sh", "-c", "exit 1")
+		exitErr := cmd.Run()
+		require.Error(t, exitErr)
+
+		errorList, err := processError(exitErr, nil)
+		assert.NotNil(t, err)
+		assert.Len(t, errorList, 1)
+
+		// The exit code should be preserved through DeriveExitCode
+		exitCode := cliv2.DeriveExitCode(err)
+		assert.Equal(t, 1, exitCode)
+	})
+
+	t.Run("ExitError with TS_CLI_TERMINATED is filtered out", func(t *testing.T) {
+		// Create a real exec.ExitError with the terminate code
+		cmd := exec.Command("sh", "-c", fmt.Sprintf("exit %d", constants.SNYK_EXIT_CODE_TS_CLI_TERMINATED))
+		exitErr := cmd.Run()
+		require.Error(t, exitErr)
+
+		errorList, err := processError(exitErr, nil)
+		assert.Nil(t, err)
+		assert.Empty(t, errorList)
+	})
+
+	t.Run("ErrorWithExitCode is preserved", func(t *testing.T) {
+		inputErr := &clierrors.ErrorWithExitCode{ExitCode: 1}
+		errorList, err := processError(inputErr, nil)
+
+		assert.NotNil(t, err)
+		assert.Len(t, errorList, 1)
+
+		var resultExitCode *clierrors.ErrorWithExitCode
+		assert.True(t, errors.As(err, &resultExitCode))
+		assert.Equal(t, 1, resultExitCode.ExitCode)
+
+		exitCode := cliv2.DeriveExitCode(err)
+		assert.Equal(t, 1, exitCode)
+	})
+
+	t.Run("multiple errors are joined and exit code is preserved", func(t *testing.T) {
+		// Create a real exec.ExitError
+		cmd := exec.Command("sh", "-c", "exit 1")
+		exitErr := cmd.Run()
+		require.Error(t, exitErr)
+
+		otherErr := fmt.Errorf("some other error")
+		errorList := []error{otherErr}
+
+		resultList, err := processError(exitErr, errorList)
+		assert.NotNil(t, err)
+		assert.Len(t, resultList, 2)
+
+		// The exit code should still be derivable
+		exitCode := cliv2.DeriveExitCode(err)
+		assert.Equal(t, 1, exitCode)
+	})
+
+	t.Run("snyk_errors.Error without special mapping gets exit code 2", func(t *testing.T) {
+		// A snyk_errors.Error that's not in the exit code mapping
+		snykErr := snyk_errors.Error{
+			Title:     "Some Error",
+			ErrorCode: "SNYK-9999",
+			Level:     "error",
+		}
+
+		errorList, err := processError(snykErr, nil)
+		assert.NotNil(t, err)
+		assert.Len(t, errorList, 1)
+
+		// This should result in exit code 2 since it's not mapped
+		exitCode := cliv2.DeriveExitCode(err)
+		assert.Equal(t, constants.SNYK_EXIT_CODE_ERROR, exitCode)
+	})
+
+	t.Run("maintenance error gets mapped to EX_TEMPFAIL", func(t *testing.T) {
+		maintenanceErr := snyk_errors.Error{
+			Title:     "Maintenance",
+			ErrorCode: "SNYK-0099",
+			Level:     "error",
+		}
+
+		errorList, err := processError(maintenanceErr, nil)
+		assert.NotNil(t, err)
+		assert.Len(t, errorList, 1)
+
+		// Should be mapped to EX_TEMPFAIL (75)
+		exitCode := cliv2.DeriveExitCode(err)
+		assert.Equal(t, constants.SNYK_EXIT_CODE_EX_TEMPFAIL, exitCode)
+	})
+
+	t.Run("maintenance error in error list takes priority", func(t *testing.T) {
+		// Create a real exec.ExitError with exit code 1
+		cmd := exec.Command("sh", "-c", "exit 1")
+		exitErr := cmd.Run()
+		require.Error(t, exitErr)
+
+		maintenanceErr := snyk_errors.Error{
+			Title:     "Maintenance",
+			ErrorCode: "SNYK-0099",
+			Level:     "error",
+		}
+
+		// Pass exitErr as the main error, maintenance error in the list
+		errorList := []error{maintenanceErr}
+		resultList, err := processError(exitErr, errorList)
+
+		assert.NotNil(t, err)
+		assert.Len(t, resultList, 2)
+
+		// Maintenance error should take priority, resulting in EX_TEMPFAIL
+		exitCode := cliv2.DeriveExitCode(err)
+		assert.Equal(t, constants.SNYK_EXIT_CODE_EX_TEMPFAIL, exitCode)
+	})
+}
 
 func loadJsonFile(t *testing.T, filename string) []byte {
 	t.Helper()

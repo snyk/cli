@@ -1,3 +1,4 @@
+import { join } from 'path';
 import { startMockServer, isValidJSONString } from './helpers';
 import { FakeServer } from '../../../acceptance/fake-server';
 
@@ -104,7 +105,9 @@ describe('Terraform plan scanning for IaCV2', () => {
       `snyk iac test ./iac/terraform-plan/tf-plan-create.json`,
     );
 
-    expect(stdout).toContain('File:    iac/terraform-plan/tf-plan-create.json');
+    expect(stdout).toContain(
+      `File:    ${join('iac', 'terraform-plan', 'tf-plan-create.json')}`,
+    );
     expect(stdout).toContain('S3 bucket versioning is disabled');
     expect(stdout).toContain('resource > aws_s3_bucket[terra_ci] > versioning');
     expect(exitCode).toBe(1);

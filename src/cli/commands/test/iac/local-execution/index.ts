@@ -33,6 +33,7 @@ import { getErrorStringCode } from './error-utils';
 import { NoFilesToScanError } from './file-loader';
 import { Tag } from '../../../../../lib/types';
 import { CLI } from '@snyk/error-catalog-nodejs-public';
+import { createPathExclusionMatcher } from './file-utils';
 
 // this method executes the local processing engine and then formats the results to adapt with the CLI output.
 // this flow is the default GA flow for IAC scanning.
@@ -49,12 +50,14 @@ export async function test(
   const attributes = parseAttributes(options);
 
   const policy = await findAndLoadPolicy(pathToScan, 'iac', options);
+  const isPathExcluded = createPathExclusionMatcher(options.exclude || '');
 
   let allParsedFiles: IacFileParsed[] = [],
     allFailedFiles: IacFileParseFailure[] = [];
   const allDirectories = getAllDirectoriesForPath(
     pathToScan,
     options.detectionDepth,
+    isPathExcluded,
   );
 
   // we load and parse files directory by directory
@@ -63,6 +66,7 @@ export async function test(
     const filePathsInDirectory = getFilesForDirectory(
       pathToScan,
       currentDirectory,
+      isPathExcluded,
     );
     if (
       currentDirectory === pathToScan &&

@@ -10,8 +10,6 @@ The `snyk monitor` command creates a project in your Snyk account to be continuo
 
 Use the `monitor` command before integrating a project into production, to take a snapshot of the code to be monitored in order to avoid pushing vulnerabilities into production. Choose a test frequency in your Settings if you want to change the frequency from the default, which is daily.
 
-A PR check will also do a test.
-
 After running the `snyk monitor` command, log in to the Snyk website and view your projects to see the monitor.
 
 If you make changes to your code, you must run the `monitor` command again.
@@ -45,6 +43,12 @@ Use the `-d` option to output the debug logs.
 ## Options
 
 See also subsequent sections for options for specific build environments, package managers, languages and `[<CONTEXT-SPECIFIC OPTIONS>]` which you specify last.
+
+### `--reachability=<true|false>`
+
+Perform reachability analysis during the scan. This feature is currently in Snyk Preview. For more information, refer to [Reachability analysis](../../../manage-risk/prioritize-issues-for-fixing/reachability-analysis.md).
+
+Default: `false`
 
 ### `--all-projects`
 
@@ -143,6 +147,10 @@ Example: `$ snyk monitor --file=req.txt --package-manager=pip`
 
 For more information, see [Options for Python projects](https://docs.snyk.io/snyk-cli/commands/monitor#options-for-python-projects)
 
+### `--source-dir=<PATH_TO_SOURCE_CODE>`
+
+Specify a directory of source code to be analyzed. Use with `--reachability`.
+
 ### `--unmanaged`
 
 For C++ only, scan all files for known open source dependencies.
@@ -225,13 +233,19 @@ This is an alias for `--project-tags`
 
 Use `--maven-aggregate-project` instead of `--all-projects` when scanning Maven aggregate projects, that is, projects that use modules and inheritance.
 
-Using `--maven-aggregate-project` instructs Snyk to perform a compilation step to ensure all modules within the project are resolvable by the Maven reactor. This ensures a comprehensive scan that includes dependencies of all sub-modules.
+Use `--maven-aggregate-project` to instruct Snyk to perform a compilation step to ensure all modules within the project are resolvable by the Maven reactor. This ensures a comprehensive scan that includes dependencies of all sub-modules.
 
 Be sure to run the scan in the same directory as the root `pom.xml` file.
 
 Snyk reports the test results per individual `pom.xml` file within the aggregate project.
 
 **Note:** You can use `--all-projects` when scanning Maven aggregate projects, but you cannot use `--all-projects` with `--maven-aggregate-project`.
+
+### `--maven-skip-wrapper`
+
+Forces the use of a globally installed `mvn` command, even when a Maven wrapper (i.e. `mvnw` or `mvnw.cmd`) is present in the project.
+
+Some projects include a Maven wrapper but users may prefer (or be required by their CI environment) to use a globally installed `mvn` instead. This option gives an explicit escape hatch without having to remove the wrapper from the project.
 
 ### `--scan-unmanaged`
 
@@ -250,6 +264,14 @@ Auto-detect Maven, JAR, WAR, and AAR files recursively from the current folder.
 ```
 
 **Note**: Custom-built JAR files, even with open-source dependencies, are not supported.
+
+### Maven-specific options
+
+Add the `--` option for Maven-specific options, followed by the Maven option.&#x20;
+
+The following examples are not all-inclusive. For more details, see [Maven CLI options](https://maven.apache.org/ref/3.9.11/maven-embedder/cli.html)
+
+Examples: `-- -Dpkg_version=1.4` ; `-- -Dprofile=my-profile` ; `-- -s path/to/settings.xml`
 
 ## Options for Gradle projects
 
@@ -315,7 +337,7 @@ This is useful when you have multiple projects with the same name in other `.sln
 
 **Note:** This option in in Early Access and may change until it is released.
 
-Required. You must use this option when you test .NET projects using [Runtime Resolution Scanning](../../../supported-languages-package-managers-and-frameworks/.net/improved-.net-scanning.md)
+Required. You must use this option when you test .NET projects using Runtime Resolution Scanning.
 
 Example: `snyk test --dotnet-runtime-resolution`
 
@@ -346,8 +368,6 @@ Control monitoring out-of-sync lockfiles.
 Default: true
 
 ## Options for pnpm projects
-
-**Snyk CLI pnpm support is in Early Access**. To enable it, in your Snyk account navigate to Settings, select Snyk Preview, and install CLI v1.1293.0 or above.
 
 **Note**: You can use the following options with pnpm projects:
 

@@ -7,6 +7,5 @@ brew 'convco'
 brew 'python'
 brew 'gnupg'
 brew 'gh'
-brew 'tsh'
 
 cask 'github'

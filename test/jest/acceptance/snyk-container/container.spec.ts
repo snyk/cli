@@ -1,24 +1,28 @@
 import * as os from 'os';
 import { startSnykCLI, TestCLI } from '../../util/startSnykCLI';
 import { runSnykCLI } from '../../util/runSnykCLI';
-import { FakeServer, fakeServer } from '../../../acceptance/fake-server';
+import {
+  FakeServer,
+  fakeServer,
+  getFirstIPv4Address,
+} from '../../../acceptance/fake-server';
 import { RunCommandOptions, RunCommandResult } from '../../util/runCommand';
-import { getServerPort } from '../../util/getServerPort';
+import { getAvailableServerPort } from '../../util/getServerPort';
+import { describeIf, isWindowsOperatingSystem } from '../../../utils';
 
-jest.setTimeout(1000 * 60);
+jest.setTimeout(1000 * 300);
 
 describe('snyk container', () => {
-  if (os.platform() === 'win32') {
-    // eslint-disable-next-line jest/no-focused-tests
-    it.only('Windows not yet supported', () => {
-      console.warn(
-        "Skipping as we don't have a Windows-compatible image to test against.",
-      );
-    });
-  }
+  const isWindows = isWindowsOperatingSystem();
 
-  const TEST_DISTROLESS_STATIC_IMAGE =
-    'gcr.io/distroless/static@sha256:7198a357ff3a8ef750b041324873960cf2153c11cc50abb9d8d5f8bb089f6b4e';
+  const TEST_DISTROLESS_STATIC_IMAGE_NAME = 'gcr.io/distroless/static';
+  const TEST_DISTROLESS_STATIC_IMAGE = `${TEST_DISTROLESS_STATIC_IMAGE_NAME}@sha256:7198a357ff3a8ef750b041324873960cf2153c11cc50abb9d8d5f8bb089f6b4e`;
+  const TEST_OS_PACKAGES_AND_APP_VULNS_TAR =
+    'test/fixtures/container-projects/os-packages-and-app-vulns.tar';
+  const TEST_MULTI_PROJECT_IMAGE_TAR =
+    'test/fixtures/container-projects/multi-project-image.tar';
+  const TEST_PYTHON_WITH_PIP_DEPENDENCIES_TAR =
+    'test/fixtures/container-projects/python-with-pip-dependencies.tar';
   const TEST_DISTROLESS_STATIC_IMAGE_DEPGRAPH = {
     schemaVersion: '1.3.0',
     pkgManager: {
@@ -108,7 +112,24 @@ describe('snyk container', () => {
     jest.resetAllMocks();
   });
 
-  describe('test', () => {
+  describe('cross-platform tests', () => {
+    it('container test finds pip-installed python packages in an archived image', async () => {
+      const { code, stdout } = await runSnykCLI(
+        `container test ${TEST_PYTHON_WITH_PIP_DEPENDENCIES_TAR} --json --app-vulns`,
+      );
+
+      expect(code).toEqual(1);
+      const jsonOutput = JSON.parse(stdout);
+      expect(jsonOutput.applications).toBeDefined();
+      const pipApp = jsonOutput.applications.find(
+        (app) => app.packageManager === 'pip',
+      );
+      expect(pipApp).toBeDefined();
+      expect(jsonOutput.dependencyCount).toBeGreaterThan(0);
+    });
+  });
+
+  describeIf(!isWindows)('test', () => {
     it('finds dependencies in rpm sqlite databases', async () => {
       cli = await startSnykCLI(
         'container test amazonlinux:2022.0.20220504.1 --print-deps',
@@ -146,7 +167,7 @@ describe('snyk container', () => {
 
     it('container test scan when the archive type is not specified in the .tar path prefix', async () => {
       const { code, stdout } = await runSnykCLI(
-        `container test test/fixtures/container-projects/os-packages-and-app-vulns.tar --json`,
+        `container test ${TEST_OS_PACKAGES_AND_APP_VULNS_TAR} --json`,
       );
       const jsonOutput = JSON.parse(stdout);
 
@@ -154,6 +175,40 @@ describe('snyk container', () => {
       expect(jsonOutput.uniqueCount).toBeGreaterThan(0);
       expect(code).toEqual(1);
     }, 30000);
+
+    it('detects stripped Go binaries and reports fleet-server dependencies', async () => {
+      const { code, stdout } = await runSnykCLI(
+        `container test docker-archive:test/fixtures/container-projects/stripped-go-binaries-minimal.tar.gz --json`,
+      );
+      const jsonOutput = JSON.parse(stdout);
+
+      const goModulesResults = jsonOutput.applications?.find((app) =>
+        app.targetFile?.includes('fleet-server'),
+      );
+      expect(code).toEqual(1);
+      expect(goModulesResults).toBeDefined();
+    });
+
+    it('detects Go stdlib dependencies in container with Go binaries', async () => {
+      const { code, stdout, stderr } = await runSnykCLIWithDebug(
+        `container test docker-archive:test/fixtures/container-projects/stripped-go-binaries-minimal.tar.gz --print-deps`,
+      );
+
+      assertCliExitCode(code, 1, stderr);
+      expect(stdout).toContain('stdlib @ 1.25.1');
+    });
+
+    it('should correctly scan an OCI image with manifest missing platform field', async () => {
+      const image = 'snykgoof/oci-goof:ociNoPlatformTag';
+      const { code, stdout } = await runSnykCLI(
+        `container test ${image} --json`,
+      );
+      const jsonOutput = JSON.parse(stdout);
+      expect(code).toEqual(1);
+      expect(jsonOutput).toBeDefined();
+      expect(jsonOutput.vulnerabilities).toBeDefined();
+      expect(Array.isArray(jsonOutput.vulnerabilities)).toBe(true);
+    }, 180000);
 
     it('npm depGraph is generated in an npm image with lockfiles', async () => {
       const { code, stdout, stderr } = await runSnykCLIWithDebug(
@@ -205,6 +260,44 @@ describe('snyk container', () => {
       expect(stdout).toContain('Package manager:   npm');
     });
 
+    it('pnpm depGraph is generated in an image with pnpm-lock.yaml v6', async () => {
+      const { code, stdout } = await runSnykCLIWithDebug(
+        `container test docker-archive:test/fixtures/container-projects/pnpmlockv6.tar --print-deps`,
+      );
+
+      // Exit code can be 0 (no vulns) or 1 (vulns found), both are valid
+      expect([0, 1]).toContain(code);
+      expect(stdout).toContain('Package manager:   pnpm');
+    });
+
+    it('pnpm depGraph is generated in an image with pnpm-lock.yaml v9', async () => {
+      const { code, stdout } = await runSnykCLIWithDebug(
+        `container test docker-archive:test/fixtures/container-projects/pnpmlockv9.tar --print-deps`,
+      );
+
+      // Exit code can be 0 (no vulns) or 1 (vulns found), both are valid
+      expect([0, 1]).toContain(code);
+      expect(stdout).toContain('Package manager:   pnpm');
+    });
+
+    it('pnpm project target file is found in container image', async () => {
+      const { code, stdout } = await runSnykCLI(
+        `container test docker-archive:test/fixtures/container-projects/pnpmlockv6.tar --json`,
+      );
+      const jsonOutput = JSON.parse(stdout);
+
+      // Exit code can be 0 (no vulns) or 1 (vulns found), both are valid
+      expect([0, 1]).toContain(code);
+      expect(jsonOutput.applications).toBeDefined();
+      expect(jsonOutput.applications.length).toBeGreaterThanOrEqual(1);
+
+      const pnpmApp = jsonOutput.applications.find(
+        (app) => app.packageManager === 'pnpm',
+      );
+      expect(pnpmApp).toBeDefined();
+      expect(pnpmApp.targetFile).toContain('package.json');
+    });
+
     it('finds dependencies in oci image (library/ubuntu)', async () => {
       cli = await startSnykCLI(
         'container test library/ubuntu@sha256:7a57c69fe1e9d5b97c5fe649849e79f2cfc3bf11d10bbd5218b4eb61716aebe6 --print-deps',
@@ -216,7 +309,7 @@ describe('snyk container', () => {
 
     it('prints dep graph with --print-graph flag', async () => {
       const { code, stdout, stderr } = await runSnykCLIWithDebug(
-        `container test --print-graph docker-archive:test/fixtures/container-projects/multi-project-image.tar`,
+        `container test --print-graph docker-archive:${TEST_MULTI_PROJECT_IMAGE_TAR}`,
       );
 
       assertCliExitCode(code, 0, stderr);
@@ -239,9 +332,222 @@ DepGraph end`,
 
       expect(payloads).toMatchSnapshot();
     });
+
+    it('includes OS field with prettyName under docker element in JSON output for container tests when OS info is available', async () => {
+      const { stdout } = await runSnykCLI(
+        `container test library/ubuntu@sha256:7a57c69fe1e9d5b97c5fe649849e79f2cfc3bf11d10bbd5218b4eb61716aebe6 --json`,
+      );
+      const jsonOutput = JSON.parse(stdout);
+      expect(jsonOutput.docker).toBeDefined();
+      expect(jsonOutput.docker.os).toBeDefined();
+      expect(jsonOutput.docker.os.prettyName).toBeDefined();
+      expect(jsonOutput.docker.os.prettyName).toBe('Ubuntu 22.04.2 LTS');
+    });
+
+    it('successfully scans a local docker image with private tag', async () => {
+      if (os.platform() === 'darwin') {
+        console.warn(
+          'Skipping container test - Docker not available on macOS CI',
+        );
+        return;
+      }
+
+      const tarPath = 'test/fixtures/container-projects/node-slim-image.tar';
+      const privateTag = 'private-registry.local/test-node-slim:latest';
+      const { exec } = await import('child_process');
+      const { promisify } = await import('util');
+      const execAsync = promisify(exec);
+
+      try {
+        const loadResult = await execAsync(`docker load -i ${tarPath}`);
+
+        const loadOutput = loadResult.stdout || loadResult.stderr;
+        const imageMatch = loadOutput.match(/Loaded image.*?:\s*(.+)/);
+
+        if (!imageMatch) {
+          throw new Error(
+            `Could not extract image name from docker load output: ${loadOutput}`,
+          );
+        }
+
+        const loadedImageName = imageMatch[1].trim();
+
+        await execAsync(`docker tag ${loadedImageName} ${privateTag}`);
+
+        const { code, stdout } = await runSnykCLI(
+          `container test ${privateTag} --json`,
+        );
+
+        // Validate the scan was successful (exit code 0 or 1 are both valid - 1 means vulns found)
+        expect([0, 1]).toContain(code);
+
+        let jsonOutput;
+        try {
+          jsonOutput = JSON.parse(stdout);
+        } catch (e) {
+          throw new Error(`Failed to parse JSON output: ${e.message}.`);
+        }
+
+        expect(jsonOutput).toBeDefined();
+        expect(jsonOutput.packageManager).toBeDefined();
+        expect(jsonOutput.applications).toBeDefined();
+        expect(jsonOutput.applications).toHaveLength(3);
+      } finally {
+        try {
+          await execAsync(`docker rmi ${privateTag}`);
+        } catch (cleanupError) {
+          console.warn(
+            `Failed to cleanup image ${privateTag}:`,
+            cleanupError.message,
+          );
+        }
+      }
+    });
+
+    it('successfully scans container with an executable file larger than the node.js max file size', async () => {
+      if (os.platform() === 'darwin') {
+        console.warn(
+          'Skipping container test - Docker not available on macOS CI',
+        );
+        return;
+      }
+
+      const { exec } = await import('child_process');
+      const { promisify } = await import('util');
+      const execAsync = promisify(exec);
+
+      // Build the test image from the Dockerfile with large ELF file
+      const dockerfilePath =
+        'test/fixtures/container-projects/Dockerfile-large-elf-vulns';
+      const testImageName = 'snyk-test-large-elf:latest';
+
+      try {
+        console.log('Building test image with large ELF file...');
+        const buildResult = await execAsync(
+          `docker build -f ${dockerfilePath} -t ${testImageName} test/fixtures/container-projects/`,
+        );
+
+        console.log('Docker build completed:', buildResult.stdout);
+
+        // Run snyk container test on the built image
+        console.log('Running snyk container test...');
+        const { code, stdout, stderr } = await runSnykCLI(
+          `container test ${testImageName} --json`,
+        );
+
+        // The test should complete without throwing errors
+        // We expect to find vulnerabilities with alpine:3.10.1, so exit code should be 1
+        expect(code).toBe(1);
+
+        // Parse and validate JSON output
+        let jsonOutput;
+        try {
+          jsonOutput = JSON.parse(stdout);
+        } catch (e) {
+          throw new Error(
+            `Failed to parse JSON output: ${e.message}. Output: ${stdout}`,
+          );
+        }
+
+        // Verify the scan completed successfully
+        expect(jsonOutput).toBeDefined();
+        expect(jsonOutput.packageManager).toBeDefined();
+
+        // Verify no errors occurred - any error should cause test failure
+        if (stderr && stderr.trim()) {
+          throw new Error(
+            `Unexpected errors during container scan:\n${stderr}`,
+          );
+        }
+
+        console.log(
+          'Container test completed successfully with large ELF file',
+        );
+      } finally {
+        // Cleanup: remove the test image
+        try {
+          await execAsync(`docker rmi ${testImageName}`);
+          console.log('Cleaned up test image');
+        } catch (cleanupError) {
+          console.warn(
+            `Failed to cleanup image ${testImageName}:`,
+            cleanupError.message,
+          );
+        }
+      }
+    }, 300000); // 5 minute timeout for this test
+
+    it('successfully scans image with empty history array', async () => {
+      const { code, stdout, stderr } = await runSnykCLI(
+        `container test public.ecr.aws/bottlerocket/bottlerocket-kernel-kit:v4.5.1 --json`,
+      );
+
+      const jsonOutput = JSON.parse(stdout);
+      expect([0, 1]).toContain(code);
+
+      expect(jsonOutput).toBeDefined();
+      expect(jsonOutput.packageManager).toBeDefined();
+
+      expect(stderr).not.toContain('Cannot read properties of undefined');
+      expect(stderr).not.toContain("reading 'created'");
+    });
+
+    it('detects sub-packages in n8n container image', async () => {
+      const { code, stdout, stderr } = await runSnykCLI(
+        `container test n8nio/n8n:1.120.3 --json`,
+      );
+
+      // authentication error, this is mainly here for helping people who are running the tests locally
+      if (code === 2) {
+        throw new Error(
+          `Authentication required. Please run 'snyk auth' or set TEST_SNYK_TOKEN environment variable. Stderr: ${stderr}`,
+        );
+      }
+
+      // Exit code should be 1 (vulns found) for this package
+      expect(1).toBe(code);
+
+      let jsonOutput;
+      try {
+        jsonOutput = JSON.parse(stdout);
+      } catch (e) {
+        throw new Error(
+          `Failed to parse JSON output: ${e.message}. Exit code: ${code}. Stdout: ${stdout.substring(0, 500)}. Stderr: ${stderr?.substring(0, 500)}`,
+        );
+      }
+
+      expect(jsonOutput).toBeDefined();
+      expect(jsonOutput.applications).toBeDefined();
+      expect(Array.isArray(jsonOutput.applications)).toBe(true);
+      expect(jsonOutput.applications.length).toBeGreaterThan(0);
+
+      // make sure that sub-packages are detected in the scan
+      // n8n-nodes-langchain should be discovered as a sub-package of n8n
+      // As long as vulnerabilities from that package are being reported, the test passes
+
+      // Find the n8n application
+      const n8nApp = jsonOutput.applications.find(
+        (app: any) =>
+          app.projectName === 'n8n' ||
+          app.targetFile?.includes('n8n/package.json'),
+      );
+
+      expect(n8nApp).toBeDefined();
+
+      // @n8n/n8n-nodes-langchain package should be detected by checking
+      // if vulnerabilities from that package are being reported
+      const hasLangchainVuln =
+        n8nApp?.vulnerabilities?.some(
+          (vuln: any) =>
+            vuln.moduleName === '@n8n/n8n-nodes-langchain' ||
+            vuln.moduleName?.includes('n8n-nodes-langchain'),
+        ) || false;
+
+      expect(hasLangchainVuln).toBe(true);
+    }, 180000);
   });
 
-  describe('depgraph', () => {
+  describeIf(!isWindows)('depgraph', () => {
     it('should print depgraph for image as JSON', async () => {
       const { code, stdout, stderr } = await runSnykCLIWithDebug(
         `container depgraph ${TEST_DISTROLESS_STATIC_IMAGE}`,
@@ -257,33 +563,32 @@ DepGraph end`,
     });
   });
 
-  describe('sbom (mock export-sbom service)', () => {
+  describeIf(!isWindows)('sbom (mock export-sbom service)', () => {
     let server: FakeServer;
     let env: Record<string, string>;
 
-    beforeAll((done) => {
-      const port = process.env.PORT || process.env.SNYK_PORT || '58584';
+    beforeAll(async () => {
+      const port = await getAvailableServerPort(process);
+      const ipAddress = getFirstIPv4Address();
       const baseApi = '/api/v1';
       env = {
         ...process.env,
-        SNYK_API: 'http://localhost:' + port + baseApi,
+        SNYK_API: `http://${ipAddress}:${port}${baseApi}`,
+        SNYK_HOST: `http://${ipAddress}:${port}`,
         SNYK_TOKEN: '123456789',
+        SNYK_HTTP_PROTOCOL_UPGRADE: '0',
         SNYK_DISABLE_ANALYTICS: '1',
       };
       server = fakeServer(baseApi, env.SNYK_TOKEN);
-      server.listen(port, () => {
-        done();
-      });
+      await server.listenPromise(port);
     });
 
     afterEach(() => {
       server.restore();
     });
 
-    afterAll((done) => {
-      server.close(() => {
-        done();
-      });
+    afterAll(async () => {
+      await server.closePromise();
     });
 
     it('should print sbom for image - spdx', async () => {
@@ -409,9 +714,205 @@ DepGraph end`,
         TEST_DISTROLESS_STATIC_IMAGE_DEPGRAPH.pkgs.length,
       );
     });
+
+    it('finds go binaries on windows with complex paths', async () => {
+      const { code, stdout } = await runSnykCLI(
+        'container test test/fixtures/container-projects/go-binaries.tar --json',
+        { env },
+      );
+
+      const jsonOutput = JSON.parse(stdout);
+
+      // Should succeed and find Go binaries (including esbuild)
+      expect([0, 1]).toContain(code); // 0 = no vulns, 1 = vulns found
+      expect(jsonOutput).toHaveProperty('applications');
+      expect(jsonOutput.applications).toBeInstanceOf(Array);
+      expect(jsonOutput.applications.length).toBeGreaterThanOrEqual(1);
+
+      // Verify esbuild binary was actually detected by the real container scan
+      const esbuildApp = jsonOutput.applications.find(
+        (app) => app.targetFile && app.targetFile.includes('esbuild'),
+      );
+      expect(esbuildApp).toBeDefined();
+      expect(esbuildApp.targetFile).toBe(
+        '/app/node_modules/.pnpm/@esbuild+linux-x64@0.23.1/node_modules/@esbuild/linux-x64/bin/esbuild',
+      );
+
+      // Verify the complex pnpm path structure is handled correctly
+      expect(esbuildApp.targetFile).toMatch(/@esbuild\+linux-x64@0\.23\.1/);
+      expect(esbuildApp.targetFile).toContain('.pnpm');
+      expect(esbuildApp.targetFile).toContain('node_modules');
+      expect(esbuildApp.packageManager).toBe('gomodules');
+    });
+
+    it('should generate sbom for docker-archive tar input', async () => {
+      server.setCustomResponse({
+        result: {
+          issues: [],
+          issuesData: {},
+          depGraphData: TEST_DISTROLESS_STATIC_IMAGE_DEPGRAPH,
+        },
+        meta: { org: 'test-org', isPublic: false },
+      });
+
+      const { code, stdout, stderr } = await runSnykCLIWithDebug(
+        `container sbom --org=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee --format=cyclonedx1.6+json docker-archive:${TEST_OS_PACKAGES_AND_APP_VULNS_TAR}`,
+        { env },
+      );
+
+      assertCliExitCode(code, 0, stderr);
+
+      let sbom: any;
+      expect(() => {
+        sbom = JSON.parse(stdout);
+      }).not.toThrow();
+
+      expect(sbom.specVersion).toEqual('1.6');
+      expect(sbom['$schema']).toEqual(
+        'http://cyclonedx.org/schema/bom-1.6.schema.json',
+      );
+      expect(sbom.metadata.component.name).toEqual(
+        'os-packages-and-app-vulns.tar',
+      );
+      expect(sbom.components.length).toBeGreaterThan(0);
+    });
+
+    it('should generate sbom for bare .tar file path', async () => {
+      server.setCustomResponse({
+        result: {
+          issues: [],
+          issuesData: {},
+          depGraphData: TEST_DISTROLESS_STATIC_IMAGE_DEPGRAPH,
+        },
+        meta: { org: 'test-org', isPublic: false },
+      });
+
+      const { code, stdout, stderr } = await runSnykCLIWithDebug(
+        `container sbom --org=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee --format=spdx2.3+json ${TEST_OS_PACKAGES_AND_APP_VULNS_TAR}`,
+        { env },
+      );
+
+      assertCliExitCode(code, 0, stderr);
+
+      let sbom: any;
+      expect(() => {
+        sbom = JSON.parse(stdout);
+      }).not.toThrow();
+
+      expect(sbom.spdxVersion).toEqual('SPDX-2.3');
+      expect(sbom.name).toEqual('os-packages-and-app-vulns.tar');
+      expect(sbom.packages.length).toBeGreaterThan(0);
+    });
+
+    it('--exclude-node-modules should reduce sbom components on image with node_modules', async () => {
+      server.setCustomResponse({
+        result: {
+          issues: [],
+          issuesData: {},
+          depGraphData: TEST_DISTROLESS_STATIC_IMAGE_DEPGRAPH,
+        },
+        meta: { org: 'test-org', isPublic: false },
+      });
+
+      // Run without --exclude-node-modules to establish a baseline
+      const withoutFlag = await runSnykCLIWithDebug(
+        `container sbom --org=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee --format=cyclonedx1.6+json docker-archive:${TEST_MULTI_PROJECT_IMAGE_TAR}`,
+        { env },
+      );
+
+      assertCliExitCode(withoutFlag.code, 0, withoutFlag.stderr);
+      const sbomWithoutFlag = JSON.parse(withoutFlag.stdout);
+
+      server.restore();
+      server.setCustomResponse({
+        result: {
+          issues: [],
+          issuesData: {},
+          depGraphData: TEST_DISTROLESS_STATIC_IMAGE_DEPGRAPH,
+        },
+        meta: { org: 'test-org', isPublic: false },
+      });
+
+      // Run with --exclude-node-modules
+      const withFlag = await runSnykCLIWithDebug(
+        `container sbom --org=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee --format=cyclonedx1.6+json --exclude-node-modules docker-archive:${TEST_MULTI_PROJECT_IMAGE_TAR}`,
+        { env },
+      );
+
+      assertCliExitCode(withFlag.code, 0, withFlag.stderr);
+      const sbomWithFlag = JSON.parse(withFlag.stdout);
+
+      // The image contains node_modules; excluding them should produce fewer components
+      expect(sbomWithFlag.components.length).toBeLessThan(
+        sbomWithoutFlag.components.length,
+      );
+    });
+
+    // --username and --password are for private registry auth; behavioral testing
+    // would require a private registry, so we verify they are accepted and passed
+    // through to the underlying container analysis via the debug log.
+    it('should pass --username and --password to the underlying container analysis', async () => {
+      server.setCustomResponse({
+        result: {
+          issues: [],
+          issuesData: {},
+          depGraphData: TEST_DISTROLESS_STATIC_IMAGE_DEPGRAPH,
+        },
+        meta: { org: 'test-org', isPublic: false },
+      });
+
+      const { code, stdout, stderr } = await runSnykCLIWithDebug(
+        `container sbom --org=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee --format=cyclonedx1.6+json --username=testuser --password=testpass ${TEST_DISTROLESS_STATIC_IMAGE}`,
+        { env },
+      );
+
+      assertCliExitCode(code, 0, stderr);
+
+      let sbom: any;
+      expect(() => {
+        sbom = JSON.parse(stdout);
+      }).not.toThrow();
+
+      expect(sbom.specVersion).toEqual('1.6');
+      expect(sbom.components).toHaveLength(
+        TEST_DISTROLESS_STATIC_IMAGE_DEPGRAPH.pkgs.length,
+      );
+
+      // Credentials are redacted in debug output
+      expect(stderr).toContain('--username=***');
+      expect(stderr).toContain('--password=***');
+    });
+
+    it('should pass --nested-jars-depth to the underlying container analysis', async () => {
+      server.setCustomResponse({
+        result: {
+          issues: [],
+          issuesData: {},
+          depGraphData: TEST_DISTROLESS_STATIC_IMAGE_DEPGRAPH,
+        },
+        meta: { org: 'test-org', isPublic: false },
+      });
+
+      const { code, stdout, stderr } = await runSnykCLIWithDebug(
+        `container sbom --org=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee --format=cyclonedx1.6+json --nested-jars-depth=5 docker-archive:${TEST_OS_PACKAGES_AND_APP_VULNS_TAR}`,
+        { env },
+      );
+
+      assertCliExitCode(code, 0, stderr);
+
+      let sbom: any;
+      expect(() => {
+        sbom = JSON.parse(stdout);
+      }).not.toThrow();
+
+      expect(sbom.specVersion).toEqual('1.6');
+      expect(sbom.components.length).toBeGreaterThan(0);
+
+      expect(stderr).toContain('--nested-jars-depth=5');
+    });
   });
 
-  describe('snyk container monitor --json output', () => {
+  describeIf(!isWindows)('snyk container monitor --json output', () => {
     it('snyk container monitor json produces expected output for a single depgraph', async () => {
       const { code, stdout } = await runSnykCLI(
         `container monitor --platform=linux/amd64 --json ${TEST_DISTROLESS_STATIC_IMAGE}`,
@@ -422,6 +923,7 @@ DepGraph end`,
         expect.objectContaining({
           ok: true,
           packageManager: 'deb',
+          projectName: `docker-image|${TEST_DISTROLESS_STATIC_IMAGE_NAME}`,
           manageUrl: expect.stringContaining('://'),
           scanResult: expect.objectContaining({
             facts: expect.arrayContaining([
@@ -456,6 +958,7 @@ DepGraph end`,
           expect.objectContaining({
             ok: true,
             packageManager: 'deb',
+            projectName: 'docker-image|snyk/snyk',
             manageUrl: expect.stringContaining('://'),
             scanResult: expect.objectContaining({
               facts: expect.arrayContaining([
@@ -478,6 +981,7 @@ DepGraph end`,
           expect.objectContaining({
             ok: true,
             packageManager: 'gomodules',
+            projectName: 'docker-image|snyk/snyk:/usr/local/bin/snyk',
             manageUrl: expect.stringContaining('://'),
             scanResult: expect.objectContaining({
               facts: expect.arrayContaining([
@@ -495,54 +999,140 @@ DepGraph end`,
         ]),
       );
     });
+
+    it('snyk container monitor json returns custom projectName when --project-name is provided', async () => {
+      const customProjectName = 'my-custom-project-name';
+      const { code, stdout } = await runSnykCLI(
+        `container monitor --platform=linux/amd64 --project-name=${customProjectName} --json ${TEST_DISTROLESS_STATIC_IMAGE}`,
+      );
+      expect(code).toEqual(0);
+      const result = JSON.parse(stdout);
+
+      // projectName should match the --project-name flag value
+      expect(result.projectName).toBe(customProjectName);
+    });
   });
 
-  describe('snyk container monitor supports --target-reference', () => {
+  describeIf(!isWindows)(
+    'snyk container monitor supports --target-reference',
+    () => {
+      let server: ReturnType<typeof fakeServer>;
+      let env: Record<string, string>;
+
+      beforeAll(async () => {
+        const port = await getAvailableServerPort(process);
+        const ipAddress = getFirstIPv4Address();
+        const baseApi = '/api/v1';
+        env = {
+          ...process.env,
+          SNYK_API: `http://${ipAddress}:${port}${baseApi}`,
+          SNYK_HOST: `http://${ipAddress}:${port}`,
+          SNYK_TOKEN: '123456789',
+          SNYK_HTTP_PROTOCOL_UPGRADE: '0',
+          SNYK_DISABLE_ANALYTICS: '1',
+          DEBUG: 'snyk*',
+        };
+        server = fakeServer(baseApi, env.SNYK_TOKEN);
+        await server.listenPromise(port);
+      });
+
+      afterEach(() => {
+        server.restore();
+      });
+
+      afterAll(async () => {
+        await server.closePromise();
+      });
+
+      it('forwards value of target-reference to monitor-dependencies endpoint', async () => {
+        const { code } = await runSnykCLI(
+          `container monitor ${TEST_DISTROLESS_STATIC_IMAGE} --target-reference=test-target-ref`,
+          {
+            env,
+          },
+        );
+        expect(code).toEqual(0);
+
+        const monitorRequests = server
+          .getRequests()
+          .filter((request) => request.url?.includes('/monitor-dependencies'));
+
+        expect(monitorRequests.length).toBeGreaterThanOrEqual(1);
+        monitorRequests.forEach((request) => {
+          expect(request.body.scanResult.targetReference).toBe(
+            'test-target-ref',
+          );
+        });
+      });
+    },
+  );
+
+  describeIf(!isWindows)('container test deprecation warnings', () => {
     let server: ReturnType<typeof fakeServer>;
     let env: Record<string, string>;
 
-    beforeAll((done) => {
-      const port = getServerPort(process);
+    beforeAll(async () => {
+      const port = await getAvailableServerPort(process);
+      const ipAddress = getFirstIPv4Address();
       const baseApi = '/api/v1';
       env = {
         ...process.env,
-        SNYK_API: 'http://localhost:' + port + baseApi,
-        SNYK_HOST: 'http://localhost:' + port,
+        SNYK_API: `http://${ipAddress}:${port}${baseApi}`,
+        SNYK_HOST: `http://${ipAddress}:${port}`,
         SNYK_TOKEN: '123456789',
+        SNYK_HTTP_PROTOCOL_UPGRADE: '0',
         SNYK_DISABLE_ANALYTICS: '1',
-        DEBUG: 'snyk*',
       };
       server = fakeServer(baseApi, env.SNYK_TOKEN);
-      server.listen(port, () => {
-        done();
-      });
+      await server.listenPromise(port);
     });
 
     afterEach(() => {
       server.restore();
     });
 
-    afterAll((done) => {
-      server.close(() => done());
+    afterAll(async () => {
+      await server.closePromise();
     });
 
-    it('forwards value of target-reference to monitor-dependencies endpoint', async () => {
-      const { code } = await runSnykCLI(
-        `container monitor ${TEST_DISTROLESS_STATIC_IMAGE} --target-reference=test-target-ref`,
-        {
-          env,
+    it('should show deprecation warning for --shaded-jars-depth', async () => {
+      server.setCustomResponse({
+        result: {
+          issues: [],
+          issuesData: {},
+          depGraphData: TEST_DISTROLESS_STATIC_IMAGE_DEPGRAPH,
         },
-      );
-      expect(code).toEqual(0);
-
-      const monitorRequests = server
-        .getRequests()
-        .filter((request) => request.url?.includes('/monitor-dependencies'));
-
-      expect(monitorRequests.length).toBeGreaterThanOrEqual(1);
-      monitorRequests.forEach((request) => {
-        expect(request.body.scanResult.targetReference).toBe('test-target-ref');
+        meta: { org: 'test-org', isPublic: false },
       });
+
+      const { stderr } = await runSnykCLI(
+        `container test docker-archive:${TEST_OS_PACKAGES_AND_APP_VULNS_TAR} --shaded-jars-depth=3`,
+        { env },
+      );
+
+      expect(stderr).toContain(
+        '--shaded-jars-depth is deprecated, use --nested-jars-depth instead',
+      );
+    });
+
+    it('should show warning for non-numeric --nested-jars-depth', async () => {
+      server.setCustomResponse({
+        result: {
+          issues: [],
+          issuesData: {},
+          depGraphData: TEST_DISTROLESS_STATIC_IMAGE_DEPGRAPH,
+        },
+        meta: { org: 'test-org', isPublic: false },
+      });
+
+      const { stderr } = await runSnykCLI(
+        `container test docker-archive:${TEST_OS_PACKAGES_AND_APP_VULNS_TAR} --nested-jars-depth=true`,
+        { env },
+      );
+
+      expect(stderr).toContain(
+        'Non-numeric inputs for --nested-jars-depth are deprecated, replace with a numeric input',
+      );
     });
   });
 

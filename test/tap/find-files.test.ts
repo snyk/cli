@@ -12,13 +12,6 @@ test('find all files in test fixture', async (t) => {
     levelsDeep: 6,
   });
   const expected = [
-    path.join(
-      testFixture,
-      'golang',
-      'golang-app-govendor',
-      'vendor',
-      'vendor.json',
-    ),
     path.join(testFixture, 'golang', 'golang-app', 'Gopkg.lock'),
     path.join(testFixture, 'golang', 'golang-gomodules', 'go.mod'),
     path.join(testFixture, 'gradle', 'build.gradle'),
@@ -61,11 +54,14 @@ test('find all files in test fixture', async (t) => {
     path.join(testFixture, 'mvn', 'test.txt'),
     path.join(testFixture, 'npm', 'test.txt'),
     path.join(testFixture, 'ruby', 'test.txt'),
+    path.join(testFixture, 'no-manifests', 'not-a-manifest.txt'),
   ];
   t.same(result.length, expected.length, 'should be the same length');
   t.same(result.sort(), expected.sort(), 'should return all files');
   t.same(
-    allFilesFound.filter((f) => !f.endsWith('broken-symlink')).sort(),
+    allFilesFound
+      .filter((f) => !f.endsWith('broken-symlink') && !f.includes('/.gradle/'))
+      .sort(),
     [...filteredOut, ...expected].sort(),
     'should return all unfiltered files',
   );
@@ -79,13 +75,6 @@ test('find all files in test fixture ignoring node_modules', async (t) => {
     levelsDeep: 6,
   });
   const expected = [
-    path.join(
-      testFixture,
-      'golang',
-      'golang-app-govendor',
-      'vendor',
-      'vendor.json',
-    ),
     path.join(testFixture, 'golang', 'golang-app', 'Gopkg.lock'),
     path.join(testFixture, 'golang', 'golang-gomodules', 'go.mod'),
     path.join(testFixture, 'gradle', 'build.gradle'),
@@ -263,4 +252,24 @@ test('find path is empty string', async (t) => {
       'throws expected exception',
     );
   }
+});
+
+test('find returns empty when directory contains no valid manifests', async (t) => {
+  const noManifestsPath = path.join(testFixture, 'no-manifests');
+  const { files: result } = await find({
+    path: noManifestsPath,
+    levelsDeep: 1,
+  });
+  t.same(result, [], 'should return no files');
+});
+
+test('find returns a single valid manifest after filtering', async (t) => {
+  const mavenPath = path.join(testFixture, 'maven');
+  const { files: result } = await find({
+    path: mavenPath,
+    filter: ['pom.xml'],
+    levelsDeep: 1,
+  });
+  const expected = [path.join(mavenPath, 'pom.xml')];
+  t.same(result, expected, 'should return the single manifest');
 });

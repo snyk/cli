@@ -119,7 +119,7 @@ def download_with_retry(retries, base_url):
             + str(retries)
         )
         download_status = download_snyk_cli(args.version, base_url)
-        
+
         # download failed - retry
         if download_status == 1:
             sleep_time = retry * 10
@@ -129,7 +129,7 @@ def download_with_retry(retries, base_url):
                 + " seconds..."
             )
             time.sleep(sleep_time)
-        
+
         # download ok && 'abort' failures
         else:
             break
@@ -143,6 +143,9 @@ def get_filename(arch_type, os_type):
 
     if os_type == "linux" and arch_type == "arm64":
         filename = "snyk-linux-arm64"
+        stat_result = os.path.exists("/lib/ld-musl-aarch64.so.1")
+        if stat_result:
+            filename = "snyk-alpine-arm64"
     if os_type == "linux" and arch_type == "amd64":
         filename = "snyk-linux"
         stat_result = os.path.exists("/lib/ld-musl-x86_64.so.1")

@@ -1,0 +1,99 @@
+{
+  "result": {
+    "affectedPkgs": {
+      "com.google.guava:guava:jar@18.0": {
+        "pkg": {
+          "name": "com.google.guava:guava",
+          "version": "18.0"
+        },
+        "issues": {
+          "SNYK-JAVA-COMGOOGLEGUAVA-32236": {
+            "issueId": "SNYK-JAVA-COMGOOGLEGUAVA-32236",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [
+                {
+                  "path": [
+                    {
+                      "name": "subproj",
+                      "version": "unspecified"
+                    },
+                    {
+                      "name": "com.google.guava:guava",
+                      "version": "18.0",
+                      "newVersion": "24.1.1"
+                    }
+                  ]
+                }
+              ],
+              "isPinnable": false
+            }
+          }
+        }
+      }
+    },
+    "issuesData": {
+      "SNYK-JAVA-COMGOOGLEGUAVA-32236": {
+        "CVSSv3": "CVSS:3.0/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:H",
+        "alternativeIds": [],
+        "creationTime": "2018-04-26T13:17:20.267000Z",
+        "credit": [
+          "Unknown"
+        ],
+        "cvssScore": 5.9,
+        "description": "## Overview\n[com.google.guava:guava](https://github.com/google/guava) is a set of core libraries.\n\nAffected versions of this package are vulnerable to Denial of Service (DoS).",
+        "disclosureTime": "2018-04-26T13:17:20.267000Z",
+        "functions": [],
+        "id": "SNYK-JAVA-COMGOOGLEGUAVA-32236",
+        "identifiers": {
+          "CVE": [
+            "CVE-2018-10237"
+          ],
+          "CWE": [
+            "CWE-770"
+          ]
+        },
+        "language": "java",
+        "modificationTime": "2018-04-26T13:17:20.267000Z",
+        "moduleName": "com.google.guava:guava",
+        "packageManager": "maven",
+        "packageName": "com.google.guava:guava",
+        "patches": [],
+        "proprietary": false,
+        "publicationTime": "2018-04-26T13:17:20.267000Z",
+        "references": [],
+        "semver": {
+          "vulnerable": [
+            "[11.0,24.1.1)"
+          ]
+        },
+        "severity": "medium",
+        "severityWithCritical": "medium",
+        "title": "Denial of Service (DoS)"
+      }
+    },
+    "remediation": {
+      "unresolved": [],
+      "upgrade": {
+        "com.google.guava:guava:jar@18.0": {
+          "upgradeTo": "com.google.guava:guava@24.1.1",
+          "upgrades": [
+            "com.google.guava:guava:jar@18.0"
+          ],
+          "vulns": [
+            "SNYK-JAVA-COMGOOGLEGUAVA-32236"
+          ]
+        }
+      },
+      "patch": {},
+      "ignore": {},
+      "pin": {}
+    }
+  },
+  "meta": {
+    "isPrivate": true,
+    "isLicensesEnabled": false,
+    "org": "test-org",
+    "policy": ""
+  }
+}

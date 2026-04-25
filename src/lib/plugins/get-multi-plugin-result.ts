@@ -8,10 +8,10 @@ import * as debugModule from 'debug';
 import { TestOptions, Options, MonitorOptions } from '../types';
 import { detectPackageManagerFromFile } from '../detect';
 import {
-  PNPM_FEATURE_FLAG,
   SUPPORTED_MANIFEST_FILES,
   SupportedPackageManagers,
 } from '../package-managers';
+import { SHOW_NPM_SCOPE } from '../feature-flags';
 import { getSinglePluginResult } from './get-single-plugin-result';
 import { convertSingleResultToMultiCustom } from './convert-single-splugin-res-to-multi-custom';
 import { convertMultiResultToMultiCustom } from './convert-multi-plugin-res-to-multi-custom';
@@ -30,7 +30,7 @@ export interface ScannedProjectCustom
   callGraph?: CallGraph;
 }
 
-interface FailedProjectScanError {
+export interface FailedProjectScanError {
   targetFile?: string;
   error?: Error;
   errMessage: string;
@@ -74,12 +74,25 @@ export async function getMultiPluginResult(
   // the files need to be proceeded together as they provide context to each other
   let unprocessedFilesfromWorkspaces = targetFiles;
 
-  if (featureFlags.has(PNPM_FEATURE_FLAG)) {
-    const { scannedProjects: scannedPnpmResults, unprocessedFiles } =
-      await processWorkspacesProjects(root, options, targetFiles, 'pnpm');
-    unprocessedFilesfromWorkspaces = unprocessedFiles;
-    allResults.push(...scannedPnpmResults);
-  }
+  const {
+    scannedProjects: scannedPnpmResults,
+    unprocessedFiles: unprocessedFilesFromPnpm,
+  } = await processWorkspacesProjects(
+    root,
+    options,
+    targetFiles,
+    'pnpm',
+    featureFlags,
+  );
+  unprocessedFilesfromWorkspaces = unprocessedFilesFromPnpm;
+  // Annotate each scanned project with the workspace plugin name for later identification
+  scannedPnpmResults.forEach((project) => {
+    if (!project.meta) {
+      project.meta = {};
+    }
+    project.meta.workspacePluginName = 'snyk-nodejs-pnpm-workspaces';
+  });
+  allResults.push(...scannedPnpmResults);
 
   const {
     scannedProjects: scannedYarnResults,
@@ -89,7 +102,15 @@ export async function getMultiPluginResult(
     options,
     unprocessedFilesfromWorkspaces,
     'yarn',
+    featureFlags,
   );
+  // Annotate each scanned project with the workspace plugin name for later identification
+  scannedYarnResults.forEach((project) => {
+    if (!project.meta) {
+      project.meta = {};
+    }
+    project.meta.workspacePluginName = 'snyk-nodejs-yarn-workspaces';
+  });
   allResults.push(...scannedYarnResults);
 
   const { scannedProjects: scannedNpmResults, unprocessedFiles } =
@@ -98,7 +119,15 @@ export async function getMultiPluginResult(
       options,
       unprocessedFilesFromYarn,
       'npm',
+      featureFlags,
     );
+  // Annotate each scanned project with the workspace plugin name for later identification
+  scannedNpmResults.forEach((project) => {
+    if (!project.meta) {
+      project.meta = {};
+    }
+    project.meta.workspacePluginName = 'snyk-nodejs-npm-workspaces';
+  });
   allResults.push(...scannedNpmResults);
 
   debug(`Not part of a workspace: ${unprocessedFiles.join(', ')}}`);
@@ -116,6 +145,7 @@ export async function getMultiPluginResult(
         root,
         optionsClone,
         optionsClone.file,
+        featureFlags,
       );
       let resultWithScannedProjects: cliInterface.legacyPlugin.MultiProjectResult;
 
@@ -144,6 +174,18 @@ export async function getMultiPluginResult(
 
       allResults.push(...pluginResultWithCustomScannedProjects.scannedProjects);
     } catch (error) {
+      if (
+        error.name === 'NotSupportedEcosystem' ||
+        error.constructor?.name === 'NotSupportedEcosystem'
+      ) {
+        debug(
+          chalk.bold.yellow(
+            `\n${icon.INFO} Skipping unsupported ecosystem for ${targetFile}: ${error.message}`,
+          ),
+        );
+        continue;
+      }
+
       const errMessage =
         error.message ?? 'Something went wrong getting dependencies';
       // TODO: propagate this all the way back and include in --json output
@@ -161,11 +203,19 @@ export async function getMultiPluginResult(
   }
 
   if (!allResults.length) {
-    throw new FailedToRunTestError(
-      errorMessageWithRetry(
-        `Failed to get dependencies for all ${targetFiles.length} potential projects.`,
-      ),
-    );
+    // No projects were scanned successfully
+    let message = `Failed to get dependencies for all ${targetFiles.length} potential projects.\n`;
+
+    if (failedResults.length > 0) {
+      const errorDetails = failedResults
+        .map((result) => `${result.targetFile}:\n${result.errMessage}`)
+        .join('\n\n');
+      message += `\n${errorDetails}`;
+    } else {
+      message = errorMessageWithRetry(message);
+    }
+
+    throw new FailedToRunTestError(message);
   }
 
   return {
@@ -182,6 +232,7 @@ async function processWorkspacesProjects(
   options: Options & (TestOptions | MonitorOptions),
   targetFiles: string[],
   packageManager: 'npm' | 'yarn' | 'pnpm',
+  featureFlags: Set<string> = new Set<string>(),
 ): Promise<{
   scannedProjects: ScannedProjectCustom[];
   unprocessedFiles: string[];
@@ -194,6 +245,8 @@ async function processWorkspacesProjects(
       {
         strictOutOfSync: options.strictOutOfSync,
         dev: options.dev,
+        exclude: options.exclude,
+        showNpmScope: featureFlags.has(SHOW_NPM_SCOPE),
       },
       targetFiles,
     );

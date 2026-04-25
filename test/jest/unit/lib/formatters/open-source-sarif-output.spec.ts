@@ -1,6 +1,8 @@
 import { createSarifOutputForOpenSource } from '../../../../../src/lib/formatters/open-source-sarif-output';
 import { SEVERITY, TestResult } from '../../../../../src/lib/snyk-test/legacy';
 
+jest.useFakeTimers().setSystemTime(new Date('2025-01-01T00:00:00.000Z'));
+
 describe('createSarifOutputForOpenSource', () => {
   it('general', () => {
     const testFile = getTestResult(

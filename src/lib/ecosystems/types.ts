@@ -156,4 +156,5 @@ export interface MonitorDependenciesRequest {
   method?: 'cli';
   tags?: Tag[];
   attributes?: ProjectAttributes;
+  pruneRepeatedSubdependencies?: boolean;
 }

@@ -3,7 +3,13 @@ import chalk from 'chalk';
 import config from '../config';
 import { isCI } from '../is-ci';
 import { makeRequest } from '../request/promise';
-import { Contributor, MonitorResult, Options, PolicyOptions } from '../types';
+import {
+  Contributor,
+  MonitorOptions,
+  MonitorResult,
+  Options,
+  PolicyOptions,
+} from '../types';
 import { spinner } from '../../lib/spinner';
 import { getPlugin } from './plugins';
 import { BadResult, GoodResult } from '../../cli/commands/monitor/types';
@@ -32,7 +38,7 @@ import {
   validateProjectAttributes,
   validateTags,
 } from '../../cli/commands/monitor';
-import { isUnmanagedEcosystem } from './common';
+import { isUnmanagedEcosystem, filterDockerFacts } from './common';
 import { findAndLoadPolicy } from '../policy';
 
 const SEPARATOR = '\n-------------------------------------------------------\n';
@@ -54,7 +60,12 @@ export async function monitorEcosystem(
       await spinner(`Analyzing dependencies in ${path}`);
       options.path = path;
       const pluginResponse = await plugin.scan(options);
-      scanResultsByPath[path] = pluginResponse.scanResults;
+      const filteredResponse = await filterDockerFacts(
+        pluginResponse,
+        ecosystem,
+        options,
+      );
+      scanResultsByPath[path] = filteredResponse.scanResults;
 
       const policy = await findAndLoadPolicy(path, 'cpp', options);
       if (policy) {
@@ -101,7 +112,7 @@ async function selectAndExecuteMonitorStrategy(
 
 export async function generateMonitorDependenciesRequest(
   scanResult: ScanResult,
-  options: Options,
+  options: Options & MonitorOptions,
 ): Promise<MonitorDependenciesRequest> {
   // WARNING! This mutates the payload. The project name logic should be handled in the plugin.
   scanResult.name =
@@ -119,6 +130,7 @@ export async function generateMonitorDependenciesRequest(
     projectName: options['project-name'] || config.PROJECT_NAME || undefined,
     tags: generateTags(options),
     attributes: generateProjectAttributes(options),
+    pruneRepeatedSubdependencies: options.pruneRepeatedSubdependencies,
   };
 }
 
@@ -126,7 +138,7 @@ async function monitorDependencies(
   scans: {
     [dir: string]: ScanResult[];
   },
-  options: Options,
+  options: Options & MonitorOptions,
 ): Promise<[EcosystemMonitorResult[], EcosystemMonitorError[]]> {
   const results: EcosystemMonitorResult[] = [];
   const errors: EcosystemMonitorError[] = [];
@@ -211,7 +223,10 @@ export async function getFormattedMonitorOutput(
       ok: true,
       data: monOutput,
       path: monitorResult.path,
-      projectName: monitorResult.id,
+      // Use correct projectName by default; feature flag reverts to legacy behavior (id)
+      projectName: options.disableContainerMonitorProjectNameFix
+        ? monitorResult.id
+        : monitorResult.projectName,
     });
   }
   for (const monitorError of errors) {

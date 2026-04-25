@@ -52,7 +52,7 @@ describe('analytics module', () => {
     expect(code).toBe(0);
 
     const requests = server.getRequests().filter((value) => {
-      return value.url == '/api/v1/analytics/cli';
+      return value.url.startsWith('/api/v1/analytics/cli');
     });
 
     // in this case an extra analytics event is being sent, which needs to be dropped
@@ -126,7 +126,7 @@ describe('analytics module', () => {
     expect(code).toBe(1);
 
     const requests = server.getRequests().filter((value) => {
-      return value.url == '/api/v1/analytics/cli';
+      return value.url.startsWith('/api/v1/analytics/cli');
     });
 
     // in this case an extra analytics event is being sent, which needs to be dropped
@@ -202,7 +202,7 @@ describe('analytics module', () => {
     expect(code).toBe(2);
 
     const requests = server.getRequests().filter((value) => {
-      return value.url == '/api/v1/analytics/cli';
+      return value.url.startsWith('/api/v1/analytics/cli');
     });
 
     // in this case an extra analytics event is being sent, which needs to be dropped
@@ -345,7 +345,7 @@ describe('analytics module', () => {
     expect(code).toBe(0);
 
     const requests = server.getRequests().filter((value) => {
-      return value.url == '/api/v1/analytics/cli';
+      return value.url.startsWith('/api/v1/analytics/cli');
     });
 
     // in this case an extra analytics event is being sent, which needs to be dropped
@@ -403,7 +403,7 @@ describe('analytics module', () => {
     expect(code).toBe(0);
 
     const requests = server.getRequests().filter((value) => {
-      return value.url == '/api/v1/analytics/cli';
+      return value.url.startsWith('/api/v1/analytics/cli');
     });
     const lastRequest = requests.at(-1);
 
@@ -466,7 +466,7 @@ describe('analytics module', () => {
     expect(code).toBe(0);
 
     const requests = server.getRequests().filter((value) => {
-      return value.url == '/api/v1/analytics/cli';
+      return value.url.startsWith('/api/v1/analytics/cli');
     });
 
     const lastRequest = requests.pop();
@@ -483,7 +483,7 @@ describe('analytics module', () => {
     expect(code).toBe(0);
 
     const requests = server.getRequests().filter((value) => {
-      return value.url == '/api/v1/analytics/cli';
+      return value.url.startsWith('/api/v1/analytics/cli');
     });
 
     const lastRequest = requests.pop();
@@ -513,7 +513,7 @@ describe('analytics module', () => {
     expect(code).toBe(0);
 
     const requests = server.getRequests().filter((value) => {
-      return value.url == '/api/v1/analytics/cli';
+      return value.url.startsWith('/api/v1/analytics/cli');
     });
 
     const lastRequest = requests.pop();
@@ -527,7 +527,7 @@ describe('analytics module', () => {
     expect(code).toBe(0);
 
     const requests = server.getRequests().filter((value) => {
-      return value.url == '/api/v1/analytics/cli';
+      return value.url.startsWith('/api/v1/analytics/cli');
     });
 
     expect(requests.length).toBe(0);

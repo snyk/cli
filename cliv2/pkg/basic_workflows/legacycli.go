@@ -3,14 +3,21 @@ package basic_workflows
 import (
 	"bufio"
 	"bytes"
+	"fmt"
+	"io"
 	"os"
+	"os/exec"
+	"runtime"
+	"strconv"
 
 	"github.com/snyk/cli/cliv2/internal/proxy/interceptor"
+	"github.com/snyk/cli/cliv2/internal/utils"
+	"github.com/snyk/error-catalog-golang-public/snyk"
+	"github.com/snyk/error-catalog-golang-public/snyk_errors"
 
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 	"github.com/snyk/go-application-framework/pkg/configuration"
-	"github.com/snyk/go-application-framework/pkg/logging"
 	pkg_utils "github.com/snyk/go-application-framework/pkg/utils"
 	"github.com/snyk/go-application-framework/pkg/workflow"
 	"github.com/spf13/pflag"
@@ -24,7 +31,9 @@ var WORKFLOWID_LEGACY_CLI workflow.Identifier = workflow.NewWorkflowIdentifier("
 var DATATYPEID_LEGACY_CLI_STDOUT workflow.Identifier = workflow.NewTypeIdentifier(WORKFLOWID_LEGACY_CLI, "stdout")
 
 const (
-	PROXY_NOAUTH string = "proxy-noauth"
+	PROXY_NOAUTH                  string = "proxy-noauth"
+	MIN_GLIBC_VERSION_LINUX_AMD64 string = "2.28"
+	MIN_GLIBC_VERSION_LINUX_ARM64 string = "2.31"
 )
 
 func initLegacycli(engine workflow.Engine) error {
@@ -66,12 +75,21 @@ func legacycliWorkflow(
 	output = []workflow.Data{}
 	var outBuffer bytes.Buffer
 	var outWriter *bufio.Writer
-	var errWriter *bufio.Writer
 
 	config := invocation.GetConfiguration()
 	debugLogger := invocation.GetEnhancedLogger() // uses zerolog
 	debugLoggerDefault := invocation.GetLogger()  // uses log
 	ri := invocation.GetRuntimeInfo()
+
+	staticNodeJsBinaryBool, parseErr := strconv.ParseBool(constants.StaticNodeJsBinary)
+	if parseErr != nil {
+		debugLogger.Print("Failed to parse staticNodeJsBinary:", parseErr)
+	}
+
+	err = ValidateGlibcVersion(debugLogger, utils.DefaultGlibcVersion(), runtime.GOOS, runtime.GOARCH, staticNodeJsBinaryBool)
+	if err != nil {
+		return output, err
+	}
 
 	args := config.GetStringSlice(configuration.RAW_CMD_ARGS)
 	useStdIo := config.GetBool(configuration.WORKFLOW_USE_STDIO)
@@ -103,23 +121,25 @@ func legacycliWorkflow(
 	if len(apiToken) == 0 {
 		apiToken = "random"
 	}
-	cli.AppendEnvironmentVariables([]string{constants.SNYK_API_TOKEN_ENV + "=" + apiToken})
+	cli.AppendEnvironmentVariables([]string{constants.SNYK_API_TOKEN_ENV + "=" + apiToken, "DEBUG_HIDE_DATE=true"})
 
 	err = cli.Init()
 	if err != nil {
 		return output, err
 	}
 
-	scrubDict := logging.GetScrubDictFromConfig(config)
-	scrubbedStderr := logging.NewScrubbingIoWriter(os.Stderr, scrubDict)
+	// if debug is enabled, stderr will be directly using the debuglogger otherwise, stderr will be stderr
+	var stderr io.Writer = os.Stderr
+	if config.GetBool(configuration.DEBUG) {
+		stderr = debugLogger
+	}
 
 	if !useStdIo {
 		in := bytes.NewReader([]byte{})
 		outWriter = bufio.NewWriter(&outBuffer)
-		errWriter = bufio.NewWriter(scrubbedStderr)
-		cli.SetIoStreams(in, outWriter, errWriter)
+		cli.SetIoStreams(in, outWriter, stderr)
 	} else {
-		cli.SetIoStreams(os.Stdin, os.Stdout, scrubbedStderr)
+		cli.SetIoStreams(os.Stdin, os.Stdout, stderr)
 	}
 
 	wrapperProxy, err := createInternalProxy(
@@ -136,16 +156,22 @@ func legacycliWorkflow(
 	err = cli.Execute(proxyInfo, finalizeArguments(args, config.GetStringSlice(configuration.UNKNOWN_ARGS)))
 
 	if !useStdIo {
-		outWriter.Flush()
-		errWriter.Flush()
+		_ = outWriter.Flush()
 
 		contentType := "text/plain"
-		if pkg_utils.Contains(args, "--json") || pkg_utils.Contains(args, "--sarif") {
+		if pkg_utils.Contains(args, "--json") {
+			contentType = "application/json; schema=legacy-cli"
+		} else if pkg_utils.Contains(args, "--sarif") {
 			contentType = "application/json"
 		}
 
 		data := workflow.NewData(DATATYPEID_LEGACY_CLI_STDOUT, contentType, outBuffer.Bytes())
 		output = append(output, data)
+	}
+
+	var exitError *exec.ExitError
+	if errors.As(err, &exitError) {
+		invocation.GetAnalytics().AddExtensionIntegerValue("exitcode", exitError.ExitCode())
 	}
 
 	return output, err
@@ -163,6 +189,7 @@ func createInternalProxy(config configuration.Configuration, debugLogger *zerolo
 	}
 
 	wrapperProxy.RegisterInterceptor(interceptor.NewV1AnalyticsInterceptor(invocation))
+	wrapperProxy.RegisterInterceptor(interceptor.NewLegacyFeatureFlagInterceptor(invocation))
 	// The networkinjector intercepts all requests from the legacy CLI and re-routes them to the existing networking
 	// layer. It should therefore be kept as the last interceptor in the chain, as it circuit breaks goproxy's own
 	// routing. Any interceptor added later will not be called.
@@ -174,4 +201,36 @@ func createInternalProxy(config configuration.Configuration, debugLogger *zerolo
 	}
 
 	return wrapperProxy, nil
+}
+
+// ValidateGlibcVersion checks if the glibc version is supported and returns an Error Catalog error if it is not.
+// This check only applies to glibc-based Linux systems (amd64, arm64).
+func ValidateGlibcVersion(debugLogger *zerolog.Logger, glibcVersion string, os string, arch string, staticNodeJsBinaryBool bool) error {
+	// Skip validation on linuxstatic, non-Linux, or if glibc not detected
+	if glibcVersion == "" || os != "linux" || staticNodeJsBinaryBool {
+		return nil
+	}
+
+	var minVersion string
+	switch arch {
+	case "arm64":
+		minVersion = MIN_GLIBC_VERSION_LINUX_ARM64
+	case "amd64":
+		minVersion = MIN_GLIBC_VERSION_LINUX_AMD64
+	default:
+		return nil
+	}
+
+	res := utils.SemverCompare(glibcVersion, minVersion)
+
+	if res < 0 {
+		return snyk.NewRequirementsNotMetError(
+			fmt.Sprintf("The installed glibc version, %s is not supported. Upgrade to a version of glibc >= %s", glibcVersion, minVersion),
+			snyk_errors.WithLinks([]string{"https://docs.snyk.io/developer-tools/snyk-cli/releases-and-channels-for-the-snyk-cli#runtime-requirements"}),
+		)
+	}
+
+	// We currently do not fail on Linux when glibc is not detected, which could lead to an ungraceful failure.
+	// Failing here would require detectGlibcVersion to always return a valid version, which is not the case.
+	return nil
 }

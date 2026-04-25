@@ -1,0 +1,82 @@
+{
+  "result": {
+    "affectedPkgs": {
+      "github.com/gorilla/mux@1.8.1": {
+        "pkg": {
+          "name": "github.com/gorilla/mux",
+          "version": "1.8.1"
+        },
+        "issues": {
+          "SNYK-GOLANG-GITHUBCOMGORILLAMUX-000001": {
+            "issueId": "SNYK-GOLANG-GITHUBCOMGORILLAMUX-000001",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [
+                {
+                  "path": [
+                    { "name": "app", "version": "" },
+                    {
+                      "name": "github.com/gorilla/mux",
+                      "version": "1.8.1",
+                      "newVersion": "1.8.2"
+                    }
+                  ]
+                }
+              ],
+              "isRuntime": false,
+              "isPinnable": false
+            }
+          }
+        }
+      }
+    },
+    "issuesData": {
+      "SNYK-GOLANG-GITHUBCOMGORILLAMUX-000001": {
+        "alternativeIds": [],
+        "creationTime": "2020-01-01T00:00:00.000000Z",
+        "credit": [],
+        "cvssScore": 5.0,
+        "description": "## Overview\nFixture vulnerability for acceptance tests.\n",
+        "disclosureTime": "2020-01-01T00:00:00Z",
+        "exploit": "Not Defined",
+        "fixedIn": ["1.8.2"],
+        "functions": [],
+        "functions_new": [],
+        "id": "SNYK-GOLANG-GITHUBCOMGORILLAMUX-000001",
+        "identifiers": { "CVE": [], "CWE": [] },
+        "language": "golang",
+        "modificationTime": "2020-01-01T00:00:00.000000Z",
+        "moduleName": "github.com/gorilla/mux",
+        "packageManager": "gomodules",
+        "packageName": "github.com/gorilla/mux",
+        "patches": [],
+        "publicationTime": "2020-01-01T00:00:00Z",
+        "references": [],
+        "semver": { "vulnerable": ["<1.8.2"] },
+        "severity": "medium",
+        "title": "Fixture issue for import path normalization tests"
+      }
+    },
+    "remediation": {
+      "unresolved": [],
+      "upgrade": {
+        "github.com/gorilla/mux@1.8.1": {
+          "upgradeTo": "github.com/gorilla/mux@1.8.2",
+          "upgrades": ["github.com/gorilla/mux@1.8.1"],
+          "vulns": ["SNYK-GOLANG-GITHUBCOMGORILLAMUX-000001"]
+        }
+      },
+      "patch": {},
+      "ignore": {},
+      "pin": {}
+    }
+  },
+  "meta": {
+    "isPrivate": true,
+    "isLicensesEnabled": false,
+    "licensesPolicy": { "severities": {}, "orgLicenseRules": {} },
+    "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.\nversion: v1.14.1\nignore: {}\npatch: {}\n",
+    "ignoreSettings": null,
+    "org": "test-org"
+  }
+}

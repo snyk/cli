@@ -1,12 +1,10 @@
 import { test } from 'tap';
 import * as requestLib from 'needle';
-import * as path from 'path';
-
-const isEmpty = require('lodash.isempty');
+import * as isEmpty from 'lodash.isempty';
 import * as sinon from 'sinon';
 
 import * as cli from '../../src/cli/commands';
-import subProcess = require('../../src/lib/sub-process');
+import * as subProcess from '../../src/lib/sub-process';
 import { fakeServer } from '../acceptance/fake-server';
 
 const apiKey = '123456789';
@@ -48,7 +46,11 @@ test('Make sure that target is sent correctly', async (t) => {
     .resolves('master');
 
   const { data } = await getFakeServerRequestBody();
-  t.ok(requestSpy.calledTwice, 'needle.request was not called twice');
+  t.equal(
+    requestSpy.callCount,
+    7,
+    `needle.request was called ${requestSpy.callCount} times`,
+  );
   t.ok(!isEmpty(data.target), 'target passed to request');
   t.ok(
     !isEmpty(data.targetFileRelativePath),
@@ -62,7 +64,7 @@ test('Make sure that target is sent correctly', async (t) => {
   );
   t.match(
     data.targetFileRelativePath,
-    'snyk' + path.sep + 'package-lock.json',
+    'package-lock.json',
     'correct relative target file path passed to request',
   );
 
@@ -75,11 +77,15 @@ test("Make sure it's not failing monitor for non git projects", async (t) => {
   const requestSpy = sinon.spy(requestLib, 'request');
   const { data } = await getFakeServerRequestBody();
 
-  t.ok(requestSpy.calledTwice, 'needle.request was not called twice');
+  t.equal(
+    requestSpy.callCount,
+    7,
+    `needle.request was called ${requestSpy.callCount} times`,
+  );
   t.ok(isEmpty(data.target), 'empty target passed to request');
   t.match(
     data.targetFileRelativePath,
-    'snyk' + path.sep + 'package-lock.json',
+    'package-lock.json',
     'targetFileRelativePath passed to request',
   );
 
@@ -92,11 +98,15 @@ test("Make sure it's not failing if there is no remote configured", async (t) =>
   const requestSpy = sinon.spy(requestLib, 'request');
   const { data } = await getFakeServerRequestBody();
 
-  t.ok(requestSpy.calledTwice, 'needle.request was not called twice');
+  t.equal(
+    requestSpy.callCount,
+    7,
+    `needle.request was called ${requestSpy.callCount} times`,
+  );
   t.ok(isEmpty(data.target), 'empty target passed to request');
   t.match(
     data.targetFileRelativePath,
-    'snyk' + path.sep + 'package-lock.json',
+    'package-lock.json',
     'targetFileRelativePath passed to request',
   );
   subProcessStub.restore();

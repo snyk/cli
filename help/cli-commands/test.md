@@ -35,6 +35,12 @@ Use the `-d` option to output the debug logs.
 
 See also subsequent sections for options for specific build environments, package managers, languages, and `[<CONTEXT-SPECIFIC OPTIONS>]` which you specify last.
 
+### `--reachability=<true|false>`
+
+Perform reachability analysis during the scan. This feature is currently in Snyk Preview. For more information, refer to [Reachability analysis](../../../manage-risk/prioritize-issues-for-fixing/reachability-analysis.md).
+
+Default: `false`
+
 ### `--all-projects`
 
 Auto-detect all projects in the working directory, including Yarn workspaces.
@@ -134,6 +140,10 @@ Example: `$ snyk test --file=req.txt --package-manager=pip`
 
 For more information see [Options for Python projects](https://docs.snyk.io/snyk-cli/commands/test#options-for-python-projects)
 
+### `--source-dir=<PATH_TO_SOURCE_CODE>`
+
+Specify a directory of source code to be analyzed. Use with `--reachability`.
+
 ### `--unmanaged`
 
 For C++ only, scan all files for known open source dependencies.
@@ -204,6 +214,8 @@ Save test output in SARIF format directly to the \<OUTPUT_FILE_PATH> file, regar
 
 This is especially useful if you want to display the human-readable test output using stdout and at the same time save the SARIF format output to a file.
 
+When running multiple scans, such as SCA and Code scans, the SARIF output includes data only from the most recently completed scan. If you run multiple scans sequentially and specify the same `--sarif-file-output` file path, each subsequent scan overwrites the previous SARIF file. To keep results separate, save each scan to a different SARIF output file.
+
 ### `--severity-threshold=<low|medium|high|critical>`
 
 Report only vulnerabilities at the specified level or higher.
@@ -219,6 +231,12 @@ Fail only when there are vulnerabilities that can be fixed. Use one of the value
 To fail on any Snyk-discoverable vulnerability (the default behavior), do not use the `--fail-on` option. If vulnerabilities do not have a Snyk-computed fix and this option is being used, tests pass.
 
 **Note**: If you test code constrained by metadata that Snyk cannot respect with `snyk test`, Snyk will not propose a fix, in order to avoid breaking your code. You may be able to identify and apply a fix manually.
+
+### `--reachability-filter=<reachable|no-info|not-applicable>`
+
+Filter the findings to show only reachable or non-reachable (`no-info`) vulnerabilities, or vulnerabilities where reachability analysis could not be performed (`not-applicable`).
+
+Requires `--reachability=true`.
 
 ## Options for Maven projects
 
@@ -236,6 +254,12 @@ Snyk reports the test results per individual `pom.xml` file within the aggregate
 
 **Note:** You can use `--all-projects` when scanning Maven aggregate projects, but you cannot use `--all-projects` with `--maven-aggregate-project`.
 
+### `--maven-skip-wrapper`
+
+Forces the use of a globally installed `mvn` command, even when a Maven wrapper (i.e. `mvnw` or `mvnw.cmd`) is present in the project.
+
+Some projects include a Maven wrapper but users may prefer (or be required by their CI environment) to use a globally installed `mvn` instead. This option gives an explicit escape hatch without having to remove the wrapper from the project.
+
 ### `--scan-unmanaged`
 
 To test individual JAR, WAR, and AAR files, use the following:
@@ -249,6 +273,20 @@ Auto-detect Maven, JAR, WAR, and AAR files recursively from the current folder.
 `--scan-all-unmanaged`
 
 **Note**: Custom-built JAR files, even with open-source dependencies, are not supported.
+
+### `--include-provenance`
+
+**Experimental:** Enable provenance generation for Maven artifacts during analysis. This generates cryptographic fingerprints for scanned artifacts to help with vulnerability matching and supply chain security.
+
+**Note:** This requires the dependency artifacts to be present in your local Maven repository, using `mvn clean install` or similar commands.
+
+### Maven-specific options
+
+Add the `--` option for Maven-specific options, followed by the Maven option.&#x20;
+
+The following examples are not all-inclusive. For more details, see [Maven CLI options](https://maven.apache.org/ref/3.9.11/maven-embedder/cli.html).
+
+Examples: `-- -Dpkg_version=1.4`; `-- -Dprofile=my-profile`; `-- -s path/to/settings.xml` &#x20;
 
 ## Options for Gradle projects
 
@@ -332,17 +370,7 @@ This is useful when you have multiple projects with the same name in other `.sln
 
 ## Options for .NET projects
 
-### `--dotnet-runtime-resolution`
-
-**Note:** This option in Early Access and may change until it is released.
-
-Required. You must use this option when you test .NET projects using [Runtime Resolution Scanning](../../../supported-languages-package-managers-and-frameworks/.net/improved-.net-scanning.md)
-
-Example: `snyk test --dotnet-runtime-resolution`
-
 ### `--dotnet-target-framework`
-
-**Note:** This option in Early Access and may change until it is released.
 
 Optional. You may use this option if your solution contains multiple `<TargetFramework>` directives. If you do not specify the option `--dotnet-target-framework`, all supported Target Frameworks will be scanned.
 
@@ -371,8 +399,6 @@ If there are out-of-sync lockfiles in the project, the `test` command fails when
 Default: true
 
 ## Options for pnpm projects
-
-**Snyk CLI pnpm support is in Early Access**. To enable it, in your Snyk account, navigate to Settings, select Snyk Preview, and install CLI v1.1293.0 or above.
 
 **Note**: You can use the following options with pnpm projects:
 

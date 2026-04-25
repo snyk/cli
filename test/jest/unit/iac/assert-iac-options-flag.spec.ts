@@ -61,6 +61,7 @@ describe('assertIaCOptionsFlags()', () => {
       '--sarif',
       '--json-file-output',
       '--sarif-file-output',
+      '--exclude',
       '-v',
       '--version',
       '-h',
@@ -75,6 +76,20 @@ describe('assertIaCOptionsFlags()', () => {
 
   it('accepts an empty options object', () => {
     expect(() => assertIaCOptionsFlags([...command, ...files])).not.toThrow();
+  });
+
+  it('accepts the exclude flag with a value', () => {
+    const options = ['--exclude=test-dir'];
+    expect(() =>
+      assertIaCOptionsFlags([...command, ...options, ...files]),
+    ).not.toThrow();
+  });
+
+  it('accepts the exclude flag with multiple values', () => {
+    const options = ['--exclude=test-dir,ignored-dir'];
+    expect(() =>
+      assertIaCOptionsFlags([...command, ...options, ...files]),
+    ).not.toThrow();
   });
 
   it('throws an error if an unexpected flag is present', () => {

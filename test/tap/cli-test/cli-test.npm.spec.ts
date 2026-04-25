@@ -306,9 +306,9 @@ export const NpmTests: AcceptanceTests = {
         const req = params.server.popRequest();
         const depGraph = req.body.depGraph;
         t.same(
-          depGraph.pkgs.map((p) => p.id).includes('string-width-cjs@4.2.3'),
+          depGraph.pkgs.map((p) => p.id).includes('string-width@4.2.3'),
           true,
-          'npm prefixed subdep has a numbered version',
+          'npm prefixed subdep resolves to actual package with numbered version',
         );
       },
     '`test npm-lock-v2-with-simple-version-range-override` correctly completes test':

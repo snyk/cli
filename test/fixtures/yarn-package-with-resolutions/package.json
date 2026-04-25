@@ -1,0 +1,10 @@
+{
+  "name": "yarn-with-resolutions",
+  "version": "1.0.0",
+  "dependencies": {
+    "debug": "4.3.1"
+  },
+  "resolutions": {
+    "ms": "npm:dry-uninstall@0.3.0"
+  }
+}

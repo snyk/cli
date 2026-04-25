@@ -16,7 +16,7 @@ import {
 } from '../snyk-test/common';
 import { getAuthHeader } from '../api-token';
 import { resolveAndTestFacts } from './resolve-test-facts';
-import { isUnmanagedEcosystem } from './common';
+import { isUnmanagedEcosystem, filterDockerFacts } from './common';
 import { convertDepGraph, getUnmanagedDepGraph } from './unmanaged/utils';
 
 type ScanResultsByPath = { [dir: string]: ScanResult[] };
@@ -45,7 +45,12 @@ export async function testEcosystem(
     await spinner(`Scanning dependencies in ${path}`);
     options.path = path;
     const pluginResponse = await plugin.scan(options);
-    results[path] = pluginResponse.scanResults;
+    const filteredResponse = await filterDockerFacts(
+      pluginResponse,
+      ecosystem,
+      options,
+    );
+    results[path] = filteredResponse.scanResults;
   }
   spinner.clearAll();
 

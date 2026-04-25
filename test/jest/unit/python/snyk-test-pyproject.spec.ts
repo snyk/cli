@@ -49,28 +49,10 @@ describe('snyk test for python project', () => {
           },
         };
 
-        // this is for 'enablePnpmCli' feature flag
-        mockedMakeRequest.mockImplementationOnce(() => {
-          return Promise.resolve({
-            res: { statusCode: 200 } as NeedleResponse,
-            body: {
-              code: 200,
-              ok: false,
-            },
-          });
-        });
+        mockRequests();
+
         mockedLoadPlugin.mockImplementationOnce(() => {
           return plugin;
-        });
-        mockedMakeRequest.mockImplementationOnce(() => {
-          return Promise.resolve({
-            res: { statusCode: 200 } as NeedleResponse,
-            body: {
-              result: { issuesData: {}, affectedPkgs: {} },
-              meta: { org: 'test-org', isPublic: false },
-              filesystemPolicy: false,
-            },
-          });
         });
 
         const result: CommandResult = await test(fixturePath, {
@@ -82,7 +64,7 @@ describe('snyk test for python project', () => {
         expect(mockedLoadPlugin).toHaveBeenCalledTimes(1);
         expect(mockedLoadPlugin).toHaveBeenCalledWith('poetry');
 
-        expect(mockedMakeRequest).toHaveBeenCalledTimes(2);
+        expect(mockedMakeRequest).toHaveBeenCalledTimes(6);
         expect(mockedMakeRequest).toHaveBeenCalledWith(
           expect.objectContaining({
             body: expect.objectContaining({
@@ -136,28 +118,10 @@ describe('snyk test for python project', () => {
           },
         };
 
-        // this is for 'enablePnpmCli' feature flag
-        mockedMakeRequest.mockImplementationOnce(() => {
-          return Promise.resolve({
-            res: { statusCode: 200 } as NeedleResponse,
-            body: {
-              code: 200,
-              ok: false,
-            },
-          });
-        });
+        mockRequests();
+
         mockedLoadPlugin.mockImplementationOnce(() => {
           return plugin;
-        });
-        mockedMakeRequest.mockImplementationOnce(() => {
-          return Promise.resolve({
-            res: { statusCode: 200 } as NeedleResponse,
-            body: {
-              result: { issuesData: {}, affectedPkgs: {} },
-              meta: { org: 'test-org', isPublic: false },
-              filesystemPolicy: false,
-            },
-          });
         });
 
         const result: CommandResult = await test(fixturePath, {
@@ -169,7 +133,7 @@ describe('snyk test for python project', () => {
         expect(mockedLoadPlugin).toHaveBeenCalledTimes(1);
         expect(mockedLoadPlugin).toHaveBeenCalledWith('poetry');
 
-        expect(mockedMakeRequest).toHaveBeenCalledTimes(2);
+        expect(mockedMakeRequest).toHaveBeenCalledTimes(6);
         expect(mockedMakeRequest).toHaveBeenCalledWith(
           expect.objectContaining({
             body: expect.objectContaining({
@@ -227,28 +191,10 @@ describe('snyk test for python project', () => {
           },
         };
 
-        // this is for 'enablePnpmCli' feature flag
-        mockedMakeRequest.mockImplementationOnce(() => {
-          return Promise.resolve({
-            res: { statusCode: 200 } as NeedleResponse,
-            body: {
-              code: 200,
-              ok: false,
-            },
-          });
-        });
+        mockRequests();
+
         mockedLoadPlugin.mockImplementationOnce(() => {
           return plugin;
-        });
-        mockedMakeRequest.mockImplementationOnce(() => {
-          return Promise.resolve({
-            res: { statusCode: 200 } as NeedleResponse,
-            body: {
-              result: { issuesData: {}, affectedPkgs: {} },
-              meta: { org: 'test-org', isPublic: false },
-              filesystemPolicy: false,
-            },
-          });
         });
 
         const result: CommandResult = await test(fixturePath, {
@@ -261,7 +207,7 @@ describe('snyk test for python project', () => {
         expect(mockedLoadPlugin).toHaveBeenCalledTimes(1);
         expect(mockedLoadPlugin).toHaveBeenCalledWith('pip');
 
-        expect(mockedMakeRequest).toHaveBeenCalledTimes(2);
+        expect(mockedMakeRequest).toHaveBeenCalledTimes(6);
         expect(mockedMakeRequest).toHaveBeenCalledWith(
           expect.objectContaining({
             body: expect.objectContaining({
@@ -329,29 +275,11 @@ describe('snyk test for python project', () => {
           },
         };
 
-        // this is for 'enablePnpmCli' feature flag
-        mockedMakeRequest.mockImplementationOnce(() => {
-          return Promise.resolve({
-            res: { statusCode: 200 } as NeedleResponse,
-            body: {
-              code: 200,
-              ok: false,
-            },
-          });
-        });
+        mockRequests();
+
         mockedLoadPlugin
           .mockImplementationOnce(() => pipfilePythonPluginResponse)
           .mockImplementationOnce(() => pyprojectPythonPluginResponse);
-        mockedMakeRequest.mockImplementation(() => {
-          return Promise.resolve({
-            res: { statusCode: 200 } as NeedleResponse,
-            body: {
-              result: { issuesData: {}, affectedPkgs: {} },
-              meta: { org: 'test-org', isPublic: false },
-              filesystemPolicy: false,
-            },
-          });
-        });
 
         const result: CommandResult = await test(fixturePath, {
           allProjects: true,
@@ -364,7 +292,7 @@ describe('snyk test for python project', () => {
         expect(mockedLoadPlugin).toHaveBeenCalledWith('pip');
         expect(mockedLoadPlugin).toHaveBeenCalledWith('poetry');
 
-        expect(mockedMakeRequest).toHaveBeenCalledTimes(3);
+        expect(mockedMakeRequest).toHaveBeenCalledTimes(7);
         expect(mockedMakeRequest).toHaveBeenCalledWith(
           expect.objectContaining({
             body: expect.objectContaining({
@@ -442,4 +370,99 @@ describe('snyk test for python project', () => {
       });
     });
   });
+
+  describe('--dev flag is used', () => {
+    describe('project contains pyproject.toml file without dev-dependencies group', () => {
+      it('should scan poetry project successfully', async () => {
+        const fixturePath = getWorkspacePath('poetry-app');
+
+        const plugin = {
+          async inspect() {
+            return {
+              plugin: {
+                targetFile: 'pyproject.toml',
+                name: 'snyk-python-plugin',
+                runtime: 'Python',
+              },
+              package: {},
+            };
+          },
+        };
+
+        mockedLoadPlugin.mockImplementationOnce(() => {
+          return plugin;
+        });
+
+        const result: CommandResult = await test(fixturePath, {
+          dev: true,
+          json: true,
+          _: [],
+          _doubleDashArgs: [],
+        });
+
+        expect(mockedLoadPlugin).toHaveBeenCalledTimes(1);
+        expect(mockedLoadPlugin).toHaveBeenCalledWith('poetry');
+
+        expect(mockedMakeRequest).toHaveBeenCalledTimes(6);
+        expect(mockedMakeRequest).toHaveBeenCalledWith(
+          expect.objectContaining({
+            body: expect.objectContaining({
+              displayTargetFile: 'pyproject.toml',
+            }),
+          }),
+        );
+
+        const expectedResultObject = {
+          vulnerabilities: [],
+          ok: true,
+          dependencyCount: 0,
+          org: 'test-org',
+          policy: undefined,
+          isPrivate: true,
+          licensesPolicy: null,
+          packageManager: 'poetry',
+          projectId: undefined,
+          ignoreSettings: null,
+          docker: undefined,
+          summary: 'No known vulnerabilities',
+          severityThreshold: undefined,
+          remediation: undefined,
+          filesystemPolicy: false,
+          uniqueCount: 0,
+          targetFile: 'pyproject.toml',
+          projectName: undefined,
+          foundProjectCount: undefined,
+          displayTargetFile: 'pyproject.toml',
+          platform: undefined,
+          hasUnknownVersions: false,
+          path: fixturePath,
+        };
+        expect(result).toMatchObject({
+          result: JSON.stringify(expectedResultObject, null, 2),
+        });
+      });
+    });
+  });
 });
+
+function mockRequests(): void {
+  mockedMakeRequest.mockImplementation(async (req) => {
+    // Responses for feature flags
+    if (req.url.includes('/feature-flags/')) {
+      return {
+        res: { statusCode: 200 } as NeedleResponse,
+        body: { code: 200, ok: true },
+      };
+    }
+
+    // default response
+    return {
+      res: { statusCode: 200 } as NeedleResponse,
+      body: {
+        result: { issuesData: {}, affectedPkgs: {} },
+        meta: { org: 'test-org', isPublic: false },
+        filesystemPolicy: false,
+      },
+    };
+  });
+}

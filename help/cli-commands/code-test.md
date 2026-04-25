@@ -25,6 +25,50 @@ Use the `-d` option to output the debug logs.
 
 ## Options
 
+### `--report`
+
+Share results with the Snyk Web UI.
+
+This creates a project in your Snyk account with a snapshot of the current issues or appends the snapshot to an existing project.
+
+After using this option, log in to the Snyk website and view your projects to see the snapshot.
+
+**Note:** When using `--report`, the service account or user token must have the **View Project Ignores** permission enabled. This permission is required to access ignore information when reporting results to the Snyk Web UI. If you receive a 403 Forbidden error, ensure your service account role includes this permission.
+
+Example: `$ snyk code test --report`
+
+### `--project-name=<PROJECT_NAME>`
+
+**Required** when using `--report`. Specify a custom Snyk project name.
+
+Example: `$ snyk code test --report --project-name=my-project`
+
+### `--target-name=<TARGET_NAME>`
+
+This can be used in combination with the `--report` option.
+
+Set or override the target name for the project.
+
+### `--target-reference=<TARGET_REFERENCE>`
+
+This can be used in combination with the `--report` option.
+
+Specify a reference that differentiates this project, for example, a branch name or version. Projects having the same reference can be grouped based on that reference.
+
+Example of setting to the current Git branch:
+
+`snyk code test --report --target-reference="$(git branch --show-current)"`
+
+Example of setting to the latest Git tag:
+
+`snyk code test --report --target-reference="$(git describe --tags --abbrev=0)"`
+
+### `--remote-repo-url=<URL>`
+
+Set or override the remote URL for the repository.
+
+Example: `--remote-repo-url=https://gitlab.com/example/project` will create a target for given URL and on the UI it would be visible as `/example/project/` .
+
 ### `--org=<ORG_ID>`
 
 Specify the `<ORG_ID>`to run Snyk commands tied to a specific Snyk Organization. The `<ORG_ID>` influences private test limits.
@@ -67,9 +111,11 @@ Example: `$ snyk code test --sarif`
 
 ### `--sarif-file-output=<OUTPUT_FILE_PATH>`
 
-Save test output in SARIF format directly to the \<OUTPUT_FILE_PATH> file, regardless of whether or not you use the `--sarif` option.
+Save test output in SARIF format directly to the \<OUTPUT_FILE_PATH> file, regardless of whether or not you use the `--sarif` option.&#x20;
 
-Use to display the human-readable test output using stdout and, at the same time, save the SARIF format output to a file.
+Use to display the human-readable test output using stdout and, at the same time, save the SARIF format output to a file.\
+\
+When running multiple scans, such as SCA and Code scans, the SARIF output includes data only from the most recently completed scan. If you run multiple scans sequentially and specify the same `--sarif-file-output` file path, each subsequent scan overwrites the previous SARIF file. To keep results separate, save each scan to a different SARIF output file.
 
 ### `--severity-threshold=<low|medium|high>`
 

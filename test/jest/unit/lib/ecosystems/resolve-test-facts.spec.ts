@@ -17,6 +17,7 @@ import {
   getDepGraphResponseInProgress,
 } from './fixtures/get-dep-graph-response';
 import * as request from '../../../../../src/lib/request/promise';
+import * as snykPolicyLib from 'snyk-policy';
 
 describe('resolve and test facts', () => {
   beforeEach(() => {
@@ -233,5 +234,81 @@ describe('resolve and test facts', () => {
 
     expect(testResults).toEqual([]);
     expect(errors).toEqual(['Could not test dependencies in path']);
+  });
+
+  it('successfully filters ignored vulnerabilities and includes them in filtered.ignore for unmanaged projects', async () => {
+    const hasFeatureFlag: boolean | undefined = true;
+    jest
+      .spyOn(featureFlags, 'hasFeatureFlag')
+      .mockResolvedValueOnce(hasFeatureFlag);
+
+    jest.spyOn(common, 'delayNextStep').mockImplementation();
+
+    jest.spyOn(pollingTest, 'createDepGraph').mockResolvedValueOnce({
+      data: createDepgraphResponse,
+      jsonapi: { version: 'v1.0' } as JsonApi,
+      links: { self: '' } as Links,
+    });
+
+    jest.spyOn(pollingTest, 'getDepGraph').mockResolvedValue({
+      data: getDepGraphResponse,
+      jsonapi: { version: 'v1.0' } as JsonApi,
+      links: { self: '' } as Links,
+    });
+
+    // Use the existing issue response but mock getIssues to return it
+    jest.spyOn(pollingTest, 'getIssues').mockResolvedValueOnce({
+      data: issuesResponseData,
+      jsonapi: { version: 'v1.0' } as JsonApi,
+      links: { self: '' } as Links,
+    });
+
+    // Mock policy loading with a policy that ignores the existing vulnerability
+    const mockPolicy = await snykPolicyLib.loadFromText(`{
+      ignore: {
+        'SNYK-UNMANAGED-CPIO-2319543': [
+          {
+            '*': {
+              reason: 'Test ignore',
+              created: "${new Date().toISOString()}",
+              expires: "${new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()}",
+            },
+          },
+        ],
+      },
+    }`);
+
+    jest.spyOn(snykPolicyLib, 'load').mockResolvedValue(mockPolicy);
+
+    const [testResults, errors] = await resolveAndTestFacts(
+      'cpp',
+      scanResults,
+      { 'policy-path': '/fake/path' } as any,
+    );
+
+    expect(errors).toEqual([]);
+    expect(testResults).toHaveLength(1);
+
+    const result = testResults[0] as any;
+
+    // Since the only vulnerability in the fixture is ignored, vulnerabilities array should be empty
+    expect(result.vulnerabilities).toHaveLength(0);
+
+    // Verify the filtered.ignore array contains the ignored vulnerability
+    expect(result.filtered).toBeDefined();
+    expect(result.filtered.ignore).toBeDefined();
+    expect(result.filtered.ignore).toHaveLength(1);
+    expect(result.filtered.ignore[0].id).toBe('SNYK-UNMANAGED-CPIO-2319543');
+
+    // Verify the ignored vulnerability has the correct structure
+    expect(result.filtered.ignore[0]).toMatchObject({
+      id: 'SNYK-UNMANAGED-CPIO-2319543',
+      packageManager: 'Unmanaged (C/C++)',
+      from: ['https://ftp.gnu.org|cpio@2.12'],
+      name: 'https://ftp.gnu.org|cpio@2.12',
+      version: '2.12',
+      upgradePath: [false],
+      isPatchable: false,
+    });
   });
 });

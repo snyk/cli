@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"path/filepath"
 	"runtime"
 	"sort"
 	"testing"
@@ -29,6 +30,7 @@ import (
 	"github.com/snyk/cli/cliv2/internal/proxy"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 var discardLogger = log.New(io.Discard, "", 0)
@@ -44,6 +46,53 @@ func getCacheDir(t *testing.T) string {
 func getRuntimeInfo(t *testing.T) runtimeinfo.RuntimeInfo {
 	t.Helper()
 	return runtimeinfo.New(runtimeinfo.WithVersion(cliv1.CLIV1Version()))
+}
+
+func Test_NewCLIv2_SubprocessEnv_OverridesIfSet_AndDefaultsToOsEnv(t *testing.T) {
+	t.Run("uses configured subprocess environment if set", func(t *testing.T) {
+		cacheDir := getCacheDir(t)
+		config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
+		config.Set(configuration.CACHE_PATH, cacheDir)
+		config.Set(configuration.SUBPROCESS_ENVIRONMENT, []string{"FOO=bar"})
+
+		cli, err := cliv2.NewCLIv2(config, discardLogger, getRuntimeInfo(t))
+		assert.NoError(t, err)
+
+		cmd, err := cli.PrepareV1Command(
+			context.Background(),
+			"someExecutable",
+			[]string{"--help"},
+			getProxyInfoForTest(),
+			"name",
+			"version",
+		)
+		assert.NoError(t, err)
+		assert.Contains(t, cmd.Env, "FOO=bar")
+	})
+
+	t.Run("uses os.Environ when subprocess environment is not defined", func(t *testing.T) {
+		cacheDir := getCacheDir(t)
+		config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
+		config.Set(configuration.CACHE_PATH, cacheDir)
+
+		envKey := "SNYK_CLIV2_TEST_ENV"
+		envValue := "present"
+		t.Setenv(envKey, envValue)
+
+		cli, err := cliv2.NewCLIv2(config, discardLogger, getRuntimeInfo(t))
+		assert.NoError(t, err)
+
+		cmd, err := cli.PrepareV1Command(
+			context.Background(),
+			"someExecutable",
+			[]string{"--help"},
+			getProxyInfoForTest(),
+			"name",
+			"version",
+		)
+		assert.NoError(t, err)
+		assert.Contains(t, cmd.Env, envKey+"="+envValue)
+	})
 }
 
 func Test_PrepareV1EnvironmentVariables_Fill_and_Filter(t *testing.T) {
@@ -70,6 +119,7 @@ func Test_PrepareV1EnvironmentVariables_Fill_and_Filter(t *testing.T) {
 		"NPM_CONFIG_HTTP_PROXY=something",
 		"npm_config_no_proxy=something",
 		"ALL_PROXY=something",
+		"OPENSSL_CONF=/usr/local/ssl/openssl_fips.cnf",
 	}
 	expected := []string{"something=1",
 		"in=2",
@@ -83,6 +133,7 @@ func Test_PrepareV1EnvironmentVariables_Fill_and_Filter(t *testing.T) {
 		"SNYK_ERR_FILE=",
 		"SNYK_SYSTEM_HTTP_PROXY=httpProxy",
 		"SNYK_SYSTEM_HTTPS_PROXY=httpsProxy",
+		"SNYK_SYSTEM_OPENSSL_CONF=/usr/local/ssl/openssl_fips.cnf",
 		"SNYK_INTERNAL_ORGID=" + orgid,
 		"SNYK_CFG_ORG=" + orgid,
 		"SNYK_INTERNAL_PREVIEW_FEATURES=1",
@@ -123,6 +174,7 @@ func Test_PrepareV1EnvironmentVariables_DontOverrideExistingIntegration(t *testi
 		"SNYK_SYSTEM_NO_PROXY=",
 		"SNYK_SYSTEM_HTTP_PROXY=",
 		"SNYK_SYSTEM_HTTPS_PROXY=",
+		"SNYK_SYSTEM_OPENSSL_CONF=",
 		"SNYK_ERR_FILE=",
 		"SNYK_INTERNAL_ORGID=" + orgid,
 		"SNYK_CFG_ORG=" + orgid,
@@ -164,6 +216,7 @@ func Test_PrepareV1EnvironmentVariables_OverrideProxyAndCerts(t *testing.T) {
 		"SNYK_SYSTEM_HTTP_PROXY=exists",
 		"SNYK_ERR_FILE=",
 		"SNYK_SYSTEM_HTTPS_PROXY=already",
+		"SNYK_SYSTEM_OPENSSL_CONF=",
 		"SNYK_INTERNAL_ORGID=" + orgid,
 		"SNYK_CFG_ORG=" + orgid,
 		"SNYK_API=" + testapi,
@@ -313,6 +366,32 @@ func Test_prepareV1Command(t *testing.T) {
 	assert.Contains(t, snykCmd.Env, "NODE_EXTRA_CA_CERTS=certLocation")
 	assert.Equal(t, expectedArgs, snykCmd.Args[1:])
 	assert.Nil(t, err)
+}
+
+func Test_prepareV1Command_InjectsExecutablePath(t *testing.T) {
+	cacheDir := getCacheDir(t)
+	config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
+	config.Set(configuration.CACHE_PATH, cacheDir)
+	cli, err := cliv2.NewCLIv2(config, discardLogger, getRuntimeInfo(t))
+	assert.NoError(t, err)
+
+	snykCmd, err := cli.PrepareV1Command(
+		context.Background(),
+		"someExecutable",
+		[]string{"--help"},
+		getProxyInfoForTest(),
+		"name",
+		"version",
+	)
+	assert.NoError(t, err)
+
+	execPath, err := os.Executable()
+	require.NoError(t, err)
+
+	execPath, err = filepath.EvalSymlinks(execPath)
+	require.NoError(t, err)
+
+	assert.Contains(t, snykCmd.Env, fmt.Sprintf("%s=%s", constants.SNYK_INTERNAL_CLI_EXECUTABLE_PATH_ENV, execPath))
 }
 
 func Test_extractOnlyOnce(t *testing.T) {
@@ -514,9 +593,6 @@ func Test_setTimeout(t *testing.T) {
 	err = cli.Execute(getProxyInfoForTest(), []string{"2"})
 
 	assert.ErrorIs(t, err, context.DeadlineExceeded)
-
-	// ensure that -1 is correctly mapped if timeout is set
-	assert.Equal(t, constants.SNYK_EXIT_CODE_EX_UNAVAILABLE, cliv2.DeriveExitCode(err))
 }
 
 func TestDeriveExitCode(t *testing.T) {
@@ -527,7 +603,6 @@ func TestDeriveExitCode(t *testing.T) {
 	}{
 		{name: "no error", err: nil, expected: constants.SNYK_EXIT_CODE_OK},
 		{name: "error with exit code", err: &cli_errors.ErrorWithExitCode{ExitCode: 42}, expected: 42},
-		{name: "context.DeadlineExceeded", err: context.DeadlineExceeded, expected: constants.SNYK_EXIT_CODE_EX_UNAVAILABLE},
 		{name: "other error", err: errors.New("some other error"), expected: constants.SNYK_EXIT_CODE_ERROR},
 	}
 

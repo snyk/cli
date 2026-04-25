@@ -433,7 +433,7 @@ function validateUnsupportedOptionCombinations(
   }
 
   if (options.exclude) {
-    if (!(options.allProjects || options.yarnWorkspaces)) {
+    if (!options.iac && !(options.allProjects || options.yarnWorkspaces)) {
       throw new MissingOptionError('--exclude', [
         '--yarn-workspaces',
         '--all-projects',

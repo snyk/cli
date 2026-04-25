@@ -1,0 +1,6 @@
+{
+  "name": "pnpm-workspace-root",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Test fixture for pnpm workspace exclude bug"
+}

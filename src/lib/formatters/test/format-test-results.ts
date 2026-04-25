@@ -29,10 +29,23 @@ import {
   facts as dockerFacts,
 } from 'snyk-docker-plugin/dist';
 import { ScanResult } from '../../ecosystems/types';
+import { getOSFromTestResult } from '../format-test-meta';
 
 function createJsonResultOutput(jsonResult, options: Options) {
   const jsonResultClone = cloneDeep(jsonResult);
   delete jsonResultClone.scanResult;
+
+  // Add OS field under docker element for container tests
+  if (options.docker) {
+    const osInfo = getOSFromTestResult(jsonResult);
+    if (osInfo) {
+      // Ensure docker object exists
+      if (!jsonResultClone.docker) {
+        jsonResultClone.docker = {};
+      }
+      jsonResultClone.docker.os = osInfo;
+    }
+  }
 
   formatJsonVulnerabilityStructure(jsonResultClone, options);
   return jsonResultClone;

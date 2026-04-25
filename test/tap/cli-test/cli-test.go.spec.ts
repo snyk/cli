@@ -52,6 +52,14 @@ export const GoTests: AcceptanceTests = {
               path: 'golang-gomodules',
               showVulnPaths: 'some',
               maxVulnPaths: undefined,
+              showMavenBuildScope: false,
+              showNpmScope: false,
+              cliDotnetRuntimeResolutionEnabled: false,
+              configuration: {
+                includeGoStandardLibraryDeps: false,
+                includePackageUrls: true,
+                useReplaceName: true,
+              },
             },
             snykHttpClient,
           ],
@@ -105,6 +113,14 @@ export const GoTests: AcceptanceTests = {
               path: 'golang-gomodules',
               showVulnPaths: 'some',
               maxVulnPaths: undefined,
+              showMavenBuildScope: false,
+              showNpmScope: false,
+              cliDotnetRuntimeResolutionEnabled: false,
+              configuration: {
+                includeGoStandardLibraryDeps: false,
+                includePackageUrls: true,
+                useReplaceName: true,
+              },
             },
             snykHttpClient,
           ],
@@ -160,61 +176,14 @@ export const GoTests: AcceptanceTests = {
               path: 'golang-app',
               showVulnPaths: 'some',
               maxVulnPaths: undefined,
-            },
-            snykHttpClient,
-          ],
-          'calls golang plugin',
-        );
-      },
-
-    '`test golang-app --file=vendor/vendor.json`':
-      (params, utils, snykHttpClient) => async (t) => {
-        utils.chdirWorkspaces();
-        const plugin = {
-          async inspect() {
-            return {
-              package: {},
-              plugin: {
-                name: 'testplugin',
-                runtime: 'testruntime',
-                targetFile: 'vendor/vendor.json',
+              showMavenBuildScope: false,
+              showNpmScope: false,
+              cliDotnetRuntimeResolutionEnabled: false,
+              configuration: {
+                includeGoStandardLibraryDeps: false,
+                includePackageUrls: true,
+                useReplaceName: true,
               },
-            };
-          },
-        };
-        const spyPlugin = sinon.spy(plugin, 'inspect');
-
-        const loadPlugin = sinon.stub(params.plugins, 'loadPlugin');
-        t.teardown(loadPlugin.restore);
-        loadPlugin.withArgs('govendor').returns(plugin);
-
-        await params.cli.test('golang-app', {
-          file: 'vendor/vendor.json',
-        });
-        const req = params.server.popRequest();
-        t.equal(req.method, 'POST', 'makes POST request');
-        t.equal(
-          req.headers['x-snyk-cli-version'],
-          params.versionNumber,
-          'sends version number',
-        );
-        t.match(req.url, '/test-dep-graph', 'posts to correct url');
-        t.equal(req.body.depGraph.pkgManager.name, 'govendor');
-        t.equal(req.body.targetFile, 'vendor/vendor.json', 'specifies target');
-        t.same(
-          spyPlugin.getCall(0).args,
-          [
-            'golang-app',
-            'vendor/vendor.json',
-            {
-              args: null,
-              file: 'vendor/vendor.json',
-              org: null,
-              projectName: null,
-              packageManager: 'govendor',
-              path: 'golang-app',
-              showVulnPaths: 'some',
-              maxVulnPaths: undefined,
             },
             snykHttpClient,
           ],
@@ -268,54 +237,14 @@ export const GoTests: AcceptanceTests = {
               path: 'golang-app',
               showVulnPaths: 'some',
               maxVulnPaths: undefined,
-            },
-            snykHttpClient,
-          ],
-          'calls golang plugin',
-        );
-      },
-
-    '`test golang-app-govendor` auto-detects govendor':
-      (params, utils, snykHttpClient) => async (t) => {
-        utils.chdirWorkspaces();
-        const plugin = {
-          async inspect() {
-            return {
-              package: {},
-              plugin: { name: 'testplugin', runtime: 'testruntime' },
-            };
-          },
-        };
-        const spyPlugin = sinon.spy(plugin, 'inspect');
-
-        const loadPlugin = sinon.stub(params.plugins, 'loadPlugin');
-        t.teardown(loadPlugin.restore);
-        loadPlugin.withArgs('govendor').returns(plugin);
-
-        await params.cli.test('golang-app-govendor');
-        const req = params.server.popRequest();
-        t.equal(req.method, 'POST', 'makes POST request');
-        t.equal(
-          req.headers['x-snyk-cli-version'],
-          params.versionNumber,
-          'sends version number',
-        );
-        t.match(req.url, '/test-dep-graph', 'posts to correct url');
-        t.equal(req.body.depGraph.pkgManager.name, 'govendor');
-        t.same(
-          spyPlugin.getCall(0).args,
-          [
-            'golang-app-govendor',
-            'vendor/vendor.json',
-            {
-              args: null,
-              file: 'vendor/vendor.json',
-              org: null,
-              projectName: null,
-              packageManager: 'govendor',
-              path: 'golang-app-govendor',
-              showVulnPaths: 'some',
-              maxVulnPaths: undefined,
+              showMavenBuildScope: false,
+              showNpmScope: false,
+              cliDotnetRuntimeResolutionEnabled: false,
+              configuration: {
+                includeGoStandardLibraryDeps: false,
+                includePackageUrls: true,
+                useReplaceName: true,
+              },
             },
             snykHttpClient,
           ],

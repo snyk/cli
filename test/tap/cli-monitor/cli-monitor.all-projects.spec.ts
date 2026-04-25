@@ -261,39 +261,6 @@ export const AllProjectsTests: AcceptanceTests = {
           'same body for --all-projects and --file=mono-repo-go/hello-mod/go.mod',
         );
       },
-    '`monitor mono-repo-go/hello-vendor --all-projects sends same body as --file`':
-      (params, utils) => async (t) => {
-        utils.chdirWorkspaces();
-        // mock plugin becuase CI tooling doesn't have go installed
-        const mockPlugin = {
-          async inspect() {
-            return {
-              plugin: {
-                targetFile: 'vendor/vendor.json',
-                name: 'snyk-go-plugin',
-                runtime: 'go',
-              },
-              package: {},
-            };
-          },
-        };
-        const loadPlugin = sinon.stub(params.plugins, 'loadPlugin');
-        t.teardown(loadPlugin.restore);
-        loadPlugin.withArgs('govendor').returns(mockPlugin);
-        await params.cli.monitor('mono-repo-go/hello-vendor', {
-          allProjects: true,
-        });
-        const allProjectsBody = params.server.popRequest();
-        await params.cli.monitor('mono-repo-go/hello-vendor', {
-          file: 'vendor/vendor.json',
-        });
-        const fileBody = params.server.popRequest();
-        t.same(
-          allProjectsBody.body,
-          fileBody.body,
-          'same body for --all-projects and --file=mono-repo-go/hello-vendor/vendor/vendor.json',
-        );
-      },
     '`monitor mono-repo-go with --all-projects and --detection-depth=3`':
       (params, utils) => async (t) => {
         utils.chdirWorkspaces();
@@ -312,7 +279,6 @@ export const AllProjectsTests: AcceptanceTests = {
         t.teardown(loadPlugin.restore);
         loadPlugin.withArgs('golangdep').returns(mockPlugin);
         loadPlugin.withArgs('gomodules').returns(mockPlugin);
-        loadPlugin.withArgs('govendor').returns(mockPlugin);
         loadPlugin.callThrough(); // don't mock npm plugin
         const result = await params.cli.monitor('mono-repo-go', {
           allProjects: true,
@@ -333,21 +299,16 @@ export const AllProjectsTests: AcceptanceTests = {
           'npm/graph/some/project-id',
           'npm project was monitored',
         );
-        t.match(
-          result,
-          'govendor/some/project-id',
-          'vendor project was monitored',
-        );
 
         const requests = params.server
           .getRequests()
           .filter((req) => req.url.includes('/monitor/'));
-        t.equal(requests.length, 4, 'correct amount of monitor requests');
+        t.equal(requests.length, 3, 'correct amount of monitor requests');
 
         requests.forEach((req) => {
           t.match(
             req.url,
-            /\/api\/v1\/monitor\/(npm\/graph|golangdep|gomodules|govendor)/,
+            /\/api\/v1\/monitor\/(npm\/graph|golangdep|gomodules)/,
             'puts at correct url',
           );
           t.notOk(req.body.targetFile, "doesn't send the targetFile");

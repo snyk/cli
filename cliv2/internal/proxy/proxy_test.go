@@ -127,6 +127,12 @@ func Test_canGoThroughProxy(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	defer func() {
+		if res != nil && res.Body != nil {
+			_ = res.Body.Close()
+		}
+	}()
+
 	assert.Equal(t, 200, res.StatusCode)
 
 	wp.Close()
@@ -153,6 +159,11 @@ func Test_proxyRejectsWithoutBasicAuthHeader(t *testing.T) {
 
 	res, err := proxiedClient.Get("https://downloads.snyk.io/cli/latest/version")
 	assert.Nil(t, res)
+	defer func() {
+		if res != nil && res.Body != nil {
+			_ = res.Body.Close()
+		}
+	}()
 	assert.NotNil(t, err)
 	assert.Contains(t, err.Error(), "Proxy Authentication Required")
 
@@ -220,7 +231,7 @@ func Test_AddExtraCaCert(t *testing.T) {
 	loggerWrapper := log.New(&gafUtils.ToZeroLogDebug{Logger: &debugLogger}, "", 0)
 	certPem, _, err := certs.MakeSelfSignedCert("mycert", []string{"dns"}, loggerWrapper)
 	assert.NoError(t, err)
-	file, err := os.CreateTemp("", "")
+	file, err := os.CreateTemp(t.TempDir(), "")
 	assert.NoError(t, err)
 	_, err = file.Write(certPem)
 	assert.NoError(t, err)
@@ -242,5 +253,5 @@ func Test_AddExtraCaCert(t *testing.T) {
 	assert.Equal(t, 2, len(certsList))
 
 	// cleanup
-	os.Remove(file.Name())
+	_ = os.Remove(file.Name())
 }

@@ -5,9 +5,10 @@ GOOS = $(shell go env GOOS)
 GOARCH = $(shell go env GOARCH)
 GOHOSTOS = $(shell go env GOHOSTOS)
 GOHOSTARCH = $(shell go env GOHOSTARCH)
-LS_COMMIT_HASH = $(shell cat go.mod | grep snyk-ls | cut -d "-" -f 4)
+LS_COMMIT_HASH = $(shell cat go.mod | grep snyk-ls | cut -d "-" -f 4 | head -1)
 FIPS_CRYPTO_BACKEND_DEFAULT = systemcrypto
 FIPS_CRYPTO_BACKEND =
+MS_GO_NOSYSTEMCRYPTO ?= 1
 HASH = sha
 HASH_ALGORITHM = 256
 CLI_V1_VERSION_TAG = 0.0.0
@@ -16,10 +17,12 @@ USE_LEGACY_EXECUTABLE_NAME =
 LDFLAGS = -s -w
 SHASUM_CMD = shasum
 export LS_PROTOCOL_VERSION=
+STATIC_NODE_BINARY = false
+CGO_ENABLED = 1
 
 # Build tools
 GO_BIN := $(shell pwd)/.bin
-OVERRIDE_GOCI_LINT_V := v1.64.8
+OVERRIDE_GOCI_LINT_V := v2.9.0
 SHELL := env PATH=$(GO_BIN):$(PATH) $(SHELL)
 
 # Make directories per convention
@@ -85,6 +88,8 @@ V1_EMBEDDED_FILE_OUTPUT = embedded$(_SEPARATOR)$(V2_PLATFORM_STRING).go
 V1_WORKING_DIR = $(WORKING_DIR)/..
 V1_BUILD_TYPE = build:prod
 V1_BINARY_FOLDER = ts-cli-binaries
+# default to empty string, which means no subfolder
+V1_BINARY_SUBFOLDER =
 HASH_STRING = $(HASH)$(HASH_ALGORITHM)
 SIGN_SCRIPT = $(WORKING_DIR)/scripts/sign_$(_GO_OS).sh
 ISSIGNED_SCRIPT = $(WORKING_DIR)/scripts/issigned_$(_GO_OS).sh
@@ -114,12 +119,12 @@ $(V1_DIRECTORY)/$(V1_EMBEDDED_FILE_OUTPUT):
 	@sed -e 's/FILENAME/$(V1_EXECUTABLE_NAME)/g' $(V1_EMBEDDED_FILE_TEMPLATE) > $(V1_DIRECTORY)/$(V1_EMBEDDED_FILE_OUTPUT)
 
 $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME):
-	@echo "$(LOG_PREFIX) Copying cliv1 executable ( $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME) )"
-	@cp $(CLI_V1_LOCATION)/$(V1_EXECUTABLE_NAME) $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME)
+	@echo "$(LOG_PREFIX) Copying cliv1 executable to: ( $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME) )"
+	@cp $(CLI_V1_LOCATION)$(V1_EXECUTABLE_NAME) $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME)
 
 $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME).$(HASH_STRING): $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME)
 	@echo "$(LOG_PREFIX) Copying cliv1 checksum ( $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME).$(HASH_STRING) )"
-	@cp $(CLI_V1_LOCATION)/$(V1_EXECUTABLE_NAME).$(HASH_STRING) $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME).$(HASH_STRING)
+	@cp $(CLI_V1_LOCATION)$(V1_EXECUTABLE_NAME).$(HASH_STRING) $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME).$(HASH_STRING)
 
 .PHONY: _validate_sha_v1
 _validate_sha_v1: $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME).$(HASH_STRING)
@@ -135,6 +140,7 @@ summary:
 	@echo "$(LOG_PREFIX) Build Summary"
 	@echo "$(LOG_PREFIX)  Using Go installation:        $(shell which go)"
 	@echo "$(LOG_PREFIX)  Non-Standard Crypto-Backend:  $(FIPS_CRYPTO_BACKEND)"
+	@echo "$(LOG_PREFIX)  MS_GO_NOSYSTEMCRYPTO:         $(MS_GO_NOSYSTEMCRYPTO)"
 	@echo "$(LOG_PREFIX)  Building Binary:              $(BUILD_DIR)/$(V2_EXECUTABLE_NAME)"
 	@echo "$(LOG_PREFIX)  Building version:             $(CLI_V1_VERSION_TAG)"
 	@echo "$(LOG_PREFIX)  LS version:                   $(LS_COMMIT_HASH)"
@@ -149,16 +155,30 @@ summary:
 configure: summary $(CACHE_DIR) $(CACHE_DIR)/variables.mk $(V1_DIRECTORY)/$(V1_EMBEDDED_FILE_OUTPUT) dependencies $(CACHE_DIR)/prepare-3rd-party-licenses
 
 $(BUILD_DIR)/$(V2_EXECUTABLE_NAME): $(BUILD_DIR) $(SRCS) generate-ls-protocol-metadata
+	$(eval EXTRA_FLAGS := -X github.com/snyk/snyk-ls/application/config.Version=$(LS_COMMIT_HASH) -X github.com/snyk/snyk-ls/application/config.LsProtocolVersion=$(LS_PROTOCOL_VERSION)  -X main.internalOS=$(GOOS) -X github.com/snyk/cli/cliv2/internal/embedded/cliv1.snykCLIVersion=$(CLI_V1_VERSION_TAG) -X github.com/snyk/cli-extension-iac/internal/commands/iactest.internalRulesClientURL=$(IAC_RULES_URL) -X github.com/snyk/cli/cliv2/internal/constants.StaticNodeJsBinary=$(STATIC_NODE_BINARY))
 	@echo "$(LOG_PREFIX) Building ( $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) )"
+	@echo "$(LOG_PREFIX)  CGO_ENABLED: $(CGO_ENABLED)"
 	@echo "$(LOG_PREFIX)  LDFLAGS:     $(LDFLAGS)"
+	@echo "$(LOG_PREFIX)  EXTRA_FLAGS: "
+	@$(foreach flag,$(filter -X%,$(subst -X ,$(space)-X,$(EXTRA_FLAGS))),echo "$(LOG_PREFIX)    $(flag)";)
 	@echo "$(LOG_PREFIX)  GCFLAGS:     $(GCFLAGS)"
-	@GOEXPERIMENT=$(FIPS_CRYPTO_BACKEND) GOOS=$(_GO_OS) GOARCH=$(GOARCH) $(GOCMD) build -tags=application -ldflags="$(LDFLAGS) -X github.com/snyk/snyk-ls/application/config.Version=$(LS_COMMIT_HASH) -X github.com/snyk/snyk-ls/application/config.LsProtocolVersion=$(LS_PROTOCOL_VERSION)  -X main.internalOS=$(GOOS) -X github.com/snyk/cli/cliv2/internal/embedded/cliv1.snykCLIVersion=$(CLI_V1_VERSION_TAG) -X github.com/snyk/cli-extension-iac/internal/commands/iactest.internalRulesClientURL=$(IAC_RULES_URL)" $(GCFLAGS) -o $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) $(WORKING_DIR)/cmd/cliv2/*.go
+	@CGO_ENABLED=$(CGO_ENABLED)  GOEXPERIMENT=$(FIPS_CRYPTO_BACKEND) MS_GO_NOSYSTEMCRYPTO=$(MS_GO_NOSYSTEMCRYPTO) GOOS=$(_GO_OS) GOARCH=$(GOARCH) $(GOCMD) build -tags=application -ldflags="$(LDFLAGS) $(EXTRA_FLAGS)" $(GCFLAGS) -o $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) $(WORKING_DIR)/cmd/cliv2/*.go
 
 .PHONY: fips
 fips:
-# assign name of crypto backend to use
+	# CI uses Microsoft's Go toolchain for Linux and Windows builds. Since Microsoft Go enables
+	# `systemcrypto` by default, we explicitly disable it for the non-FIPS binaries.
+	# See https://github.com/microsoft/go/blob/microsoft/main/eng/doc/fips/README.md
+	$(eval MS_GO_NOSYSTEMCRYPTO := 0)
+	# assign name of crypto backend to use
 	$(eval FIPS_CRYPTO_BACKEND := $(FIPS_CRYPTO_BACKEND_DEFAULT))
 	@echo "$(LOG_PREFIX) FIPS"
+
+.PHONY: experimental
+experimental:
+# set the binary subfolder to the experimental folder
+	$(eval V1_BINARY_SUBFOLDER := experimental/)
+	@echo "$(LOG_PREFIX) EXPERIMENTAL"
 
 .PHONY: debug
 debug:
@@ -178,7 +198,9 @@ $(WORKING_DIR)/internal/httpauth/generated/spnego_generated_mock.go:
 
 $(CACHE_DIR)/prepare-3rd-party-licenses:
 	@echo "$(LOG_PREFIX) Preparing 3rd Party Licenses"
-	@GOOS=$(GOHOSTOS) GOARCH=$(GOHOSTARCH) scripts/prepare_licenses.sh > $(CACHE_DIR)/prepare-3rd-party-licenses 2> /dev/null
+	@GOOS=$(GOHOSTOS) GOARCH=$(GOHOSTARCH) $(GOCMD) run scripts/prepare_licenses.go > $(CACHE_DIR)/prepare-3rd-party-licenses 2> $(CACHE_DIR)/prepare-3rd-party-licenses.log \
+		|| (cat $(CACHE_DIR)/prepare-3rd-party-licenses.log && exit 1)
+	@echo "$(LOG_PREFIX) 3rd party licenses: ok"
 
 .PHONY: generate
 generate: $(WORKING_DIR)/internal/httpauth/generated/httpauth_generated_mock.go $(WORKING_DIR)/internal/httpauth/generated/spnego_generated_mock.go
@@ -219,15 +241,15 @@ sign: SIGN_SCRIPT ISSIGNED_SCRIPT
 test-signature: ISSIGNED_SCRIPT
 
 # Typescript CLI targets
-$(V1_WORKING_DIR)/$(V1_BINARY_FOLDER)/$(V1_EXECUTABLE_NAME):
+$(V1_WORKING_DIR)/$(V1_BINARY_FOLDER)/$(V1_BINARY_SUBFOLDER)$(V1_EXECUTABLE_NAME):
 	@echo "$(LOG_PREFIX) Building legacy CLI"
 	@cd $(V1_WORKING_DIR) && npm i && npm run $(V1_BUILD_TYPE)
-	@$(MAKE) -C $(V1_WORKING_DIR) $(V1_BINARY_FOLDER)/$(V1_EXECUTABLE_NAME) BINARY_RELEASES_FOLDER_TS_CLI=$(V1_BINARY_FOLDER)
+	@$(MAKE) -C $(V1_WORKING_DIR) $(V1_BINARY_FOLDER)/$(V1_BINARY_SUBFOLDER)$(V1_EXECUTABLE_NAME) BINARY_RELEASES_FOLDER_TS_CLI=$(V1_BINARY_FOLDER)
 
 .PHONY: build-ts-cli
-build-ts-cli: $(V1_WORKING_DIR)/$(V1_BINARY_FOLDER)/$(V1_EXECUTABLE_NAME)
+build-ts-cli: $(V1_WORKING_DIR)/$(V1_BINARY_FOLDER)/$(V1_BINARY_SUBFOLDER)$(V1_EXECUTABLE_NAME)
 	$(eval CLI_V1_VERSION_TAG := $(shell cat $(V1_WORKING_DIR)/$(V1_BINARY_FOLDER)/version))
-	$(eval CLI_V1_LOCATION := $(V1_WORKING_DIR)/$(V1_BINARY_FOLDER)/)
+	$(eval CLI_V1_LOCATION := $(V1_WORKING_DIR)/$(V1_BINARY_FOLDER)/$(V1_BINARY_SUBFOLDER))
 
 .PHONY: generate-ls-protocol-metadata
 generate-ls-protocol-metadata:
