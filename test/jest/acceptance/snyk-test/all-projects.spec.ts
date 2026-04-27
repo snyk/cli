@@ -465,6 +465,34 @@ describe('snyk test --all-projects (mocked server only)', () => {
     expect(code).toEqual(0);
   });
 
+  test('`test pnpm-workspace --all-projects --exclude-paths` accepts absolute paths', async () => {
+    server.setFeatureFlag('enablePnpmCli', true);
+
+    const project = await createProjectFromFixture(
+      'pnpm-workspace-with-exclude-issue/workspace',
+    );
+
+    const absolutePath = join(project.path(), 'shared', 'package.json');
+
+    const { code, stdout } = await runSnykCLI(
+      `test --all-projects --exclude-paths=${absolutePath}`,
+      {
+        cwd: project.path(),
+        env,
+      },
+    );
+
+    const backendRequests = server.getRequests().filter((req: any) => {
+      return req.url.includes('/api/v1/test');
+    });
+
+    expect(backendRequests.length).toBe(3);
+    expect(stdout).not.toMatch(join('shared', 'package.json'));
+    expect(stdout).toMatch(join('app1', 'package.json'));
+    expect(stdout).toMatch(join('app2', 'package.json'));
+    expect(code).toEqual(0);
+  });
+
   test('`test pnpm-workspace --all-projects --exclude-paths=shared/package.json` does not affect other package.json files', async () => {
     server.setFeatureFlag('enablePnpmCli', true);
 
