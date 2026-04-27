@@ -1,0 +1,10 @@
+<!--
+  Intentionally malformed POM used to trigger a per-project scan error
+  for the --allow-incomplete-sbom acceptance tests. The opening <project>
+  tag is never closed, so Maven cannot parse it.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>io.snyk.example</groupId>
+  <artifactId>maven-broken-project</artifactId>
+  <version>1.0-SNAPSHOT</version>
