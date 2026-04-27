@@ -76,7 +76,7 @@ export interface Options {
   allProjects?: boolean;
   detectionDepth?: number;
   exclude?: string;
-  excludeRelative?: string;
+  excludePaths?: string;
   strictOutOfSync?: boolean;
   // Used only with the IaC mode & Docker plugin. Allows requesting some experimental/unofficial features.
   experimental?: boolean;
@@ -289,7 +289,7 @@ export type SupportedUserReachableFacingCliArgs =
   | 'maven-skip-wrapper'
   | 'include-provenance'
   | 'fingerprint-algorithm'
-  | 'exclude-relative'
+  | 'exclude-paths'
   | 'gradle-normalize-deps';
 
 export enum SupportedCliCommands {

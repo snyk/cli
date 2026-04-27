@@ -219,7 +219,7 @@ export function args(rawArgv: string[]): Args {
     'include-provenance',
     'fingerprint-algorithm',
     'detection-depth',
-    'exclude-relative',
+    'exclude-paths',
     'init-script',
     'integration-name',
     'integration-version',

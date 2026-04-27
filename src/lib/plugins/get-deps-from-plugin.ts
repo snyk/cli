@@ -45,8 +45,8 @@ export async function getDepsFromPlugin(
     const scanType = options.yarnWorkspaces ? 'yarnWorkspaces' : 'allProjects';
     const levelsDeep = options.detectionDepth;
     const ignore = options.exclude ? options.exclude.split(',') : [];
-    const excludePaths = options.excludeRelative
-      ? options.excludeRelative
+    const excludePaths = options.excludePaths
+      ? options.excludePaths
           .split(',')
           .map((p) => pathLib.resolve(root, p.trim()))
       : [];

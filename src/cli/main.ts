@@ -32,7 +32,7 @@ import {
 import { IaCErrorCodes } from './commands/test/iac/local-execution/types';
 import stripAnsi = require('strip-ansi');
 import { ExcludeFlagInvalidInputError } from '../lib/errors/exclude-flag-invalid-input';
-import { ExcludeRelativeFlagInvalidInputError } from '../lib/errors/exclude-relative-flag-invalid-input';
+import { ExcludePathsFlagInvalidInputError } from '../lib/errors/exclude-paths-flag-invalid-input';
 import { modeValidation } from './modes';
 import { JsonFileOutputBadInputError } from '../lib/errors/json-file-output-bad-input-error';
 import {
@@ -448,22 +448,15 @@ function validateUnsupportedOptionCombinations(
     }
   }
 
-  if (options.excludeRelative) {
+  if (options.excludePaths) {
     if (!(options.allProjects || options.yarnWorkspaces)) {
-      throw new MissingOptionError('--exclude-relative', [
+      throw new MissingOptionError('--exclude-paths', [
         '--yarn-workspaces',
         '--all-projects',
       ]);
     }
-    if (typeof options.excludeRelative !== 'string') {
-      throw new ExcludeRelativeFlagInvalidInputError();
-    }
-    const paths = options.excludeRelative.split(',').map((p) => p.trim());
-    for (const p of paths) {
-      const normalized = pathLib.normalize(p);
-      if (pathLib.isAbsolute(normalized) || normalized.startsWith('..')) {
-        throw new ExcludeRelativeFlagInvalidInputError();
-      }
+    if (typeof options.excludePaths !== 'string') {
+      throw new ExcludePathsFlagInvalidInputError();
     }
   }
 }

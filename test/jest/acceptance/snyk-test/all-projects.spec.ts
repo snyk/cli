@@ -413,7 +413,7 @@ describe('snyk test --all-projects (mocked server only)', () => {
     expect(code).toEqual(0);
   });
 
-  test('`test pnpm-workspace --all-projects --exclude-relative=shared/package.json` excludes only the specified file', async () => {
+  test('`test pnpm-workspace --all-projects --exclude-paths=shared/package.json` excludes only the specified file', async () => {
     server.setFeatureFlag('enablePnpmCli', true);
 
     const project = await createProjectFromFixture(
@@ -421,7 +421,7 @@ describe('snyk test --all-projects (mocked server only)', () => {
     );
 
     const { code, stdout } = await runSnykCLI(
-      'test --all-projects --exclude-relative=shared/package.json',
+      'test --all-projects --exclude-paths=shared/package.json',
       {
         cwd: project.path(),
         env,
@@ -439,7 +439,7 @@ describe('snyk test --all-projects (mocked server only)', () => {
     expect(code).toEqual(0);
   });
 
-  test('`test pnpm-workspace --all-projects --exclude-relative` with multiple paths excludes all specified files', async () => {
+  test('`test pnpm-workspace --all-projects --exclude-paths` with multiple paths excludes all specified files', async () => {
     server.setFeatureFlag('enablePnpmCli', true);
 
     const project = await createProjectFromFixture(
@@ -447,7 +447,7 @@ describe('snyk test --all-projects (mocked server only)', () => {
     );
 
     const { code, stdout } = await runSnykCLI(
-      'test --all-projects --exclude-relative=shared/package.json,app2/package.json',
+      'test --all-projects --exclude-paths=shared/package.json,app2/package.json',
       {
         cwd: project.path(),
         env,
@@ -465,7 +465,7 @@ describe('snyk test --all-projects (mocked server only)', () => {
     expect(code).toEqual(0);
   });
 
-  test('`test pnpm-workspace --all-projects --exclude-relative=shared/package.json` does not affect other package.json files', async () => {
+  test('`test pnpm-workspace --all-projects --exclude-paths=shared/package.json` does not affect other package.json files', async () => {
     server.setFeatureFlag('enablePnpmCli', true);
 
     const project = await createProjectFromFixture(
@@ -473,7 +473,7 @@ describe('snyk test --all-projects (mocked server only)', () => {
     );
 
     const { code, stdout } = await runSnykCLI(
-      'test --all-projects --exclude-relative=shared/package.json',
+      'test --all-projects --exclude-paths=shared/package.json',
       {
         cwd: project.path(),
         env,
