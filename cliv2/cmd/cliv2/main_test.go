@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -466,7 +465,7 @@ func Test_runWorkflowAndProcessData(t *testing.T) {
 
 	// invoke method under test
 	logger := zerolog.New(os.Stderr)
-	err = runWorkflowAndProcessData(globalEngine, &logger, testCmnd)
+	err = runWorkflowAndProcessData(t.Context(), globalEngine, &logger, testCmnd)
 
 	var expectedError *clierrors.ErrorWithExitCode
 	assert.ErrorAs(t, err, &expectedError)
@@ -560,7 +559,7 @@ func Test_runWorkflowAndProcessData_with_Filtering(t *testing.T) {
 	assert.NoError(t, err)
 
 	logger := zerolog.New(os.Stderr)
-	err = runWorkflowAndProcessData(globalEngine, &logger, testCmnd)
+	err = runWorkflowAndProcessData(t.Context(), globalEngine, &logger, testCmnd)
 }
 
 func Test_setTimeout(t *testing.T) {
@@ -588,7 +587,7 @@ func Test_displayError(t *testing.T) {
 		userInterface.EXPECT().OutputError(err, gomock.Any()).Times(1)
 
 		config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
-		displayError(err, userInterface, config, context.Background())
+		displayError(err, userInterface, config, t.Context())
 	})
 
 	scenarios := []struct {
@@ -609,7 +608,7 @@ func Test_displayError(t *testing.T) {
 		t.Run(fmt.Sprintf("%s does not display anything", scenario.name), func(t *testing.T) {
 			config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
 			err := scenario.err
-			displayError(err, userInterface, config, context.Background())
+			displayError(err, userInterface, config, t.Context())
 		})
 	}
 
@@ -618,7 +617,7 @@ func Test_displayError(t *testing.T) {
 		userInterface.EXPECT().OutputError(err, gomock.Any()).Times(1)
 
 		config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
-		displayError(err, userInterface, config, context.Background())
+		displayError(err, userInterface, config, t.Context())
 	})
 }
 
