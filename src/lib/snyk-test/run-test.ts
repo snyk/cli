@@ -97,6 +97,29 @@ const debug = debugModule('snyk:run-test');
 // Controls the number of simultaneous test requests that can be in-flight.
 const MAX_CONCURRENCY = 5;
 
+export async function sendPayloadsWithFirstPriority<T>(
+  payloads: Payload[],
+  sendRequest: (payload: Payload) => Promise<T>,
+  options: Options & TestOptions,
+): Promise<T[]> {
+  // Preserve historical behavior for non-container flows.
+  if (!options.docker || payloads.length <= 1) {
+    return pMap(payloads, sendRequest, {
+      concurrency: MAX_CONCURRENCY,
+    });
+  }
+
+  // For container test requests, process the base OS project first
+  // (first payload from the docker plugin), then parallelize the rest.
+  const [firstPayload, ...remainingPayloads] = payloads;
+  const firstResponse = await sendRequest(firstPayload);
+  const remainingResponses = await pMap(remainingPayloads, sendRequest, {
+    concurrency: MAX_CONCURRENCY,
+  });
+
+  return [firstResponse, ...remainingResponses];
+}
+
 function prepareResponseForParsing(
   payload: Payload,
   response: TestDependenciesResponse,
@@ -292,9 +315,11 @@ async function sendAndParseResults(
     throw error;
   };
 
-  const responses = await pMap(payloads, sendRequest, {
-    concurrency: MAX_CONCURRENCY,
-  });
+  const responses = await sendPayloadsWithFirstPriority(
+    payloads,
+    sendRequest,
+    options,
+  );
 
   for (const { payload, originalPayload, response } of responses) {
     const {
