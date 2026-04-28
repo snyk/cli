@@ -63,11 +63,13 @@ export async function getDepsFromPlugin(
         return {
           plugin: { name: 'custom-auto-detect' },
           scannedProjects: [],
-          failedResults: [{ 
-            targetFile: options.file,
-            error,
-            errMessage: error.userMessage,
-          }],
+          failedResults: [
+            {
+              targetFile: options.file,
+              error,
+              errMessage: error.userMessage,
+            },
+          ],
         } as MultiProjectResultCustom;
       }
       throw error;
@@ -117,11 +119,13 @@ export async function getDepsFromPlugin(
       return {
         plugin: { name: 'custom-auto-detect' },
         scannedProjects: [],
-        failedResults: [{
-          targetFile: options.file,
-          error,
-          errMessage: error.userMessage,
-        }],
+        failedResults: [
+          {
+            targetFile: options.file,
+            error,
+            errMessage: error.userMessage,
+          },
+        ],
       } as MultiProjectResultCustom;
     }
     throw error;

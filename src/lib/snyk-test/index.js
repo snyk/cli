@@ -118,10 +118,14 @@ async function executeTest(root, options) {
         );
       } catch (error) {
         if (options['print-output-jsonl-with-errors']) {
-          await printDepGraphError(root, {
-            error,
-            errMessage: error.userMessage,
-          }, process.stdout);
+          await printDepGraphError(
+            root,
+            {
+              error,
+              errMessage: error.userMessage,
+            },
+            process.stdout,
+          );
           return [];
         }
         throw error;

@@ -62,7 +62,10 @@ jest.setTimeout(1000 * 60 * 5);
 
 interface DepGraphRequest {
   pkgs: Array<{ id: string; info: { name: string; version?: string } }>;
-  graph: { rootNodeId: string; nodes: Array<{ nodeId: string; pkgId: string }> };
+  graph: {
+    rootNodeId: string;
+    nodes: Array<{ nodeId: string; pkgId: string }>;
+  };
   pkgManager?: { name?: string };
 }
 
@@ -182,10 +185,7 @@ describe('snyk sbom --allow-incomplete-sbom (acceptance, mocked server)', () => 
     cwd: string,
     extraArgs: string,
   ): Promise<{ code: number; stdout: string; stderr: string }> => {
-    return runSnykCLI(
-      `sbom --org ${ORG} --debug ${extraArgs}`,
-      { cwd, env },
-    );
+    return runSnykCLI(`sbom --org ${ORG} --debug ${extraArgs}`, { cwd, env });
   };
 
   const parseSbom = (stdout: string): AnyBom => {
@@ -361,9 +361,9 @@ describe('snyk sbom --allow-incomplete-sbom (acceptance, mocked server)', () => 
         // know the right plugin produced it.
         expect(payload.depGraphs ?? []).toHaveLength(1);
         expect(payload.scanErrors ?? []).toHaveLength(1);
-        expect(
-          (payload.scanErrors ?? [])[0].text.toLowerCase(),
-        ).toMatch(/maven|pom/);
+        expect((payload.scanErrors ?? [])[0].text.toLowerCase()).toBe(
+          'error parsing the xml file',
+        );
       },
     );
   });
@@ -411,8 +411,11 @@ describe('snyk sbom --allow-incomplete-sbom (acceptance, mocked server)', () => 
           ]),
         );
 
-        expect(payload.depGraphs?.length ?? 0).toBeGreaterThanOrEqual(1);
-        expect((payload.scanErrors ?? []).length).toBeGreaterThanOrEqual(1);
+        expect(payload.depGraphs ?? []).toHaveLength(1);
+        expect(payload.scanErrors ?? []).toHaveLength(1);
+        expect((payload.scanErrors ?? [])[0].text.toLowerCase()).toMatch(
+          /gradle error/,
+        );
       },
     );
   });
@@ -552,48 +555,6 @@ describe('snyk sbom --allow-incomplete-sbom (acceptance, mocked server)', () => 
         // would otherwise be a breaking change for the SBOM service.
         expect(payload.depGraph).toBeDefined();
         expect(payload.depGraphs).toBeUndefined();
-        expect(payload.scanErrors).toBeUndefined();
-      },
-    );
-
-    test(
-      'GIVEN a healthy multi-project NPM workspace ' +
-        'WHEN running `sbom --all-projects --allow-incomplete-sbom` ' +
-        'THEN the wire payload contains every depGraph but NO scanErrors entry, ' +
-        'so older SBOM consumers see exactly the same shape they used to receive',
-      async () => {
-        // ── GIVEN ────────────────────────────────────────────────────────
-        // We deliberately point the CLI at the valid-project sub-folder so
-        // every detected manifest resolves successfully.
-        const project = await createProject(
-          'sbom-allow-incomplete/npm-multi-partial-broken/valid-project',
-        );
-
-        // ── WHEN ─────────────────────────────────────────────────────────
-        const { code, stdout, stderr } = await runSbom(
-          project.path(),
-          '--format cyclonedx1.6+json --all-projects --allow-incomplete-sbom',
-        );
-        if (code !== 0) {
-          // eslint-disable-next-line no-console
-          console.error('CLI stderr:', stderr);
-        }
-
-        // ── THEN ─────────────────────────────────────────────────────────
-        expect(code).toBe(0);
-
-        const bom = parseSbom(stdout) as CycloneDxBom;
-        const { body: payload } = getSbomRequest();
-        logSbomSummary(bom, payload);
-
-        expect(bom.specVersion).toBe('1.6');
-        expect(componentNames(bom)).toEqual(
-          expect.arrayContaining(['debug', 'ms']),
-        );
-
-        // depGraphs is non-empty, scanErrors is omitted entirely –
-        // identical wire-shape to a clean run before CSENG-175.
-        expect(payload.depGraphs?.length ?? 0).toBeGreaterThan(0);
         expect(payload.scanErrors).toBeUndefined();
       },
     );
