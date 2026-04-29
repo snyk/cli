@@ -387,7 +387,7 @@ describe('monitorEcosystem docker/container', () => {
       // Stagger response times in reverse so completion order != input order.
       jest
         .spyOn(request, 'makeRequest')
-        .mockImplementation((payload: any, i = 0) => {
+        .mockImplementation((payload: any) => {
           const identity = payload.body.scanResult.identity.targetFile;
           const delay =
             { os: 30, 'app-1': 20, 'app-2': 5, 'app-3': 25, 'app-4': 10 }[
