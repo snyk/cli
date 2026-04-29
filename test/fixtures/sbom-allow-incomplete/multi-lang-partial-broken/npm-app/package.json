@@ -1,0 +1,7 @@
+{
+  "name": "multi-lang-npm-app",
+  "version": "1.0.0",
+  "dependencies": {
+    "debug": "2.2.0"
+  }
+}

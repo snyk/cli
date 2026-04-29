@@ -1,0 +1,16 @@
+// log4j-core has transitive dependency on log4j-api, so the SBOM
+// contains both Gradle components plus the project itself.
+plugins {
+  id 'java'
+}
+
+group = 'io.snyk.example'
+version = '1.0.0'
+
+repositories {
+  mavenCentral()
+}
+
+dependencies {
+  implementation 'org.apache.logging.log4j:log4j-core:2.17.1'
+}

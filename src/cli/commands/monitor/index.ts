@@ -219,7 +219,8 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
     const verboseEnabled =
       args.includes('-Dverbose') ||
       args.includes('-Dverbose=true') ||
-      !!options['print-graph'];
+      !!options['print-graph'] ||
+      !!options['print-output-jsonl-with-errors'];
     if (verboseEnabled) {
       enableMavenDverboseExhaustiveDeps = (await hasFeatureFlag(
         MAVEN_DVERBOSE_EXHAUSTIVE_DEPS_FF,
