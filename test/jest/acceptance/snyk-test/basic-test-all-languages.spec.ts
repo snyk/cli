@@ -836,6 +836,12 @@ describe.each(userJourneyWorkflows)(
 
           expect(code).toEqual(2);
         });
+
+        test('run `snyk test xlsx` on npm package with redirect', async () => {
+          const { code } = await runSnykCLI('test xlsx');
+
+          expect([0, 1]).toContain(code);
+        });
       });
     });
   },
