@@ -39,6 +39,7 @@ import { isCI } from '../is-ci';
 import {
   RETRY_ATTEMPTS,
   RETRY_DELAY,
+  getRequestConcurrency,
   printDepGraph,
   printEffectiveDepGraph,
   printEffectiveDepGraphError,
@@ -93,9 +94,6 @@ import { headerSnykTsCliTerminate } from '../request/constants';
 import { ProblemError } from '@snyk/error-catalog-nodejs-public';
 
 const debug = debugModule('snyk:run-test');
-
-// Controls the number of simultaneous test requests that can be in-flight.
-const MAX_CONCURRENCY = 5;
 
 function prepareResponseForParsing(
   payload: Payload,
@@ -293,7 +291,7 @@ async function sendAndParseResults(
   };
 
   const responses = await pMap(payloads, sendRequest, {
-    concurrency: MAX_CONCURRENCY,
+    concurrency: getRequestConcurrency(),
   });
 
   for (const { payload, originalPayload, response } of responses) {

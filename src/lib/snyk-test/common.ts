@@ -111,6 +111,28 @@ export type FailOn = 'all' | 'upgradable' | 'patchable';
 export const RETRY_ATTEMPTS = 3;
 export const RETRY_DELAY = 500;
 
+const DEFAULT_REQUEST_CONCURRENCY = 10;
+const MIN_REQUEST_CONCURRENCY = 1;
+const MAX_REQUEST_CONCURRENCY = 50;
+
+/**
+ * Returns the maximum number of in-flight Snyk dependency-test or
+ * dependency-monitor HTTP requests permitted at once. Override with the
+ * SNYK_REQUEST_CONCURRENCY environment variable; values are clamped to
+ * [MIN_REQUEST_CONCURRENCY, MAX_REQUEST_CONCURRENCY].
+ */
+export function getRequestConcurrency(): number {
+  const raw = process.env.SNYK_REQUEST_CONCURRENCY;
+  if (!raw) {
+    return DEFAULT_REQUEST_CONCURRENCY;
+  }
+  const parsed = parseInt(raw, 10);
+  if (!Number.isFinite(parsed) || parsed < MIN_REQUEST_CONCURRENCY) {
+    return DEFAULT_REQUEST_CONCURRENCY;
+  }
+  return Math.min(parsed, MAX_REQUEST_CONCURRENCY);
+}
+
 /**
  * printDepGraph writes the given dep-graph and target name to the destination
  * stream as expected by the `depgraph` CLI workflow.
