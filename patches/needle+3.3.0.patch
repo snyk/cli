@@ -1,0 +1,13 @@
+diff --git a/node_modules/needle/lib/needle.js b/node_modules/needle/lib/needle.js
+index 543f7e5..e8b2a1d 100644
+--- a/node_modules/needle/lib/needle.js
++++ b/node_modules/needle/lib/needle.js
+@@ -559,6 +559,8 @@ Needle.prototype.send_request = function(count, method, uri, config, post_data,
+ 
+         var redirect_url = utils.resolve_url(headers.location, uri);
+         debug('Redirecting to ' +  redirect_url.toString());
++        // Consume the redirect response body to prevent socket hang
++        resp.resume();
+         return self.send_request(++count, method, redirect_url.toString(), config, post_data, out, callback);
+       } else if (config.follow_max > 0) {
+         return done(new Error('Max redirects reached. Possible loop in: ' + headers.location));
