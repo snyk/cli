@@ -1,8 +1,10 @@
 import { InspectResult } from '@snyk/cli-interface/legacy/plugin';
 import chalk from 'chalk';
+import * as pMap from 'p-map';
 import config from '../config';
 import { isCI } from '../is-ci';
 import { makeRequest } from '../request/promise';
+import { getRequestConcurrency } from '../snyk-test/common';
 import {
   Contributor,
   MonitorOptions,
@@ -142,52 +144,81 @@ async function monitorDependencies(
 ): Promise<[EcosystemMonitorResult[], EcosystemMonitorError[]]> {
   const results: EcosystemMonitorResult[] = [];
   const errors: EcosystemMonitorError[] = [];
+  const concurrency = getRequestConcurrency();
+
   for (const [path, scanResults] of Object.entries(scans)) {
     await spinner(`Monitoring dependencies in ${path}`);
-    for (const scanResult of scanResults) {
-      const monitorDependenciesRequest =
-        await generateMonitorDependenciesRequest(scanResult, options);
-
-      const configOrg = config.org ? decodeURIComponent(config.org) : undefined;
-
-      const payload = {
-        method: 'PUT',
-        url: `${config.API}/monitor-dependencies`,
-        json: true,
-        headers: {
-          'x-is-ci': isCI(),
-          authorization: getAuthHeader(),
-        },
-        body: monitorDependenciesRequest,
-        qs: {
-          org: options.org || configOrg,
-        },
-      };
-      try {
-        const response =
-          await makeRequest<MonitorDependenciesResponse>(payload);
-        results.push({
-          ...response,
-          path,
-          scanResult,
-        });
-      } catch (error) {
-        if (error.code === 401) {
-          throw AuthFailedError();
-        }
-        if (error.code >= 400 && error.code < 500) {
-          throw new MonitorError(error.code, error.message);
-        }
-        errors.push({
-          error: 'Could not monitor dependencies in ' + path,
-          path,
-          scanResult,
-        });
+    const perScanResults = await pMap(
+      scanResults,
+      (scanResult) => monitorOneScanResult(scanResult, options, path),
+      { concurrency },
+    );
+    for (const r of perScanResults) {
+      if (r.result) {
+        results.push(r.result);
+      }
+      if (r.error) {
+        errors.push(r.error);
       }
     }
     spinner.clearAll();
   }
   return [results, errors];
+}
+
+async function monitorOneScanResult(
+  scanResult: ScanResult,
+  options: Options & MonitorOptions,
+  path: string,
+): Promise<{
+  result?: EcosystemMonitorResult;
+  error?: EcosystemMonitorError;
+}> {
+  const monitorDependenciesRequest = await generateMonitorDependenciesRequest(
+    scanResult,
+    options,
+  );
+
+  const configOrg = config.org ? decodeURIComponent(config.org) : undefined;
+
+  const payload = {
+    method: 'PUT',
+    url: `${config.API}/monitor-dependencies`,
+    json: true,
+    headers: {
+      'x-is-ci': isCI(),
+      authorization: getAuthHeader(),
+    },
+    body: monitorDependenciesRequest,
+    qs: {
+      org: options.org || configOrg,
+    },
+  };
+
+  try {
+    const response = await makeRequest<MonitorDependenciesResponse>(payload);
+    return {
+      result: {
+        ...response,
+        path,
+        scanResult,
+      },
+    };
+  } catch (error) {
+    if (error.code === 401) {
+      throw AuthFailedError();
+    }
+    if (error.code >= 400 && error.code < 500) {
+      throw new MonitorError(error.code, error.message);
+    }
+    return {
+      error: {
+        error: 'Could not monitor dependencies in ' + path,
+        path,
+        scanResult,
+      },
+    };
+  }
 }
 
 export async function getFormattedMonitorOutput(
