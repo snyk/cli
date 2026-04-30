@@ -1,7 +1,10 @@
 import { CLI, ProblemError } from '@snyk/error-catalog-nodejs-public';
 import { CustomError } from '../../../../../src/lib/errors';
 import { FailedProjectScanError } from '../../../../../src/lib/plugins/get-multi-plugin-result';
-import { getOrCreateErrorCatalogError } from '../../../../../src/lib/snyk-test/common';
+import {
+  getOrCreateErrorCatalogError,
+  getRequestConcurrency,
+} from '../../../../../src/lib/snyk-test/common';
 
 describe('getOrCreateErrorCatalogError', () => {
   const defaultErrMessage = 'Default error message';
@@ -114,5 +117,62 @@ describe('getOrCreateErrorCatalogError', () => {
 
     expect(result).toBeInstanceOf(ProblemError);
     expect(result.detail).toBe(defaultErrMessage);
+  });
+});
+
+describe('getRequestConcurrency', () => {
+  const originalValue = process.env.SNYK_REQUEST_CONCURRENCY;
+
+  afterEach(() => {
+    if (originalValue === undefined) {
+      delete process.env.SNYK_REQUEST_CONCURRENCY;
+    } else {
+      process.env.SNYK_REQUEST_CONCURRENCY = originalValue;
+    }
+  });
+
+  it('returns the default of 10 when SNYK_REQUEST_CONCURRENCY is unset', () => {
+    delete process.env.SNYK_REQUEST_CONCURRENCY;
+    expect(getRequestConcurrency()).toBe(10);
+  });
+
+  it('returns the default of 10 when SNYK_REQUEST_CONCURRENCY is empty', () => {
+    process.env.SNYK_REQUEST_CONCURRENCY = '';
+    expect(getRequestConcurrency()).toBe(10);
+  });
+
+  it('returns the parsed value when SNYK_REQUEST_CONCURRENCY is a valid integer', () => {
+    process.env.SNYK_REQUEST_CONCURRENCY = '15';
+    expect(getRequestConcurrency()).toBe(15);
+  });
+
+  it('clamps to the maximum of 50 when SNYK_REQUEST_CONCURRENCY exceeds the cap', () => {
+    process.env.SNYK_REQUEST_CONCURRENCY = '500';
+    expect(getRequestConcurrency()).toBe(50);
+  });
+
+  it('returns the default when SNYK_REQUEST_CONCURRENCY is below the minimum', () => {
+    process.env.SNYK_REQUEST_CONCURRENCY = '0';
+    expect(getRequestConcurrency()).toBe(10);
+  });
+
+  it('returns the default when SNYK_REQUEST_CONCURRENCY is negative', () => {
+    process.env.SNYK_REQUEST_CONCURRENCY = '-5';
+    expect(getRequestConcurrency()).toBe(10);
+  });
+
+  it('returns the default when SNYK_REQUEST_CONCURRENCY is non-numeric', () => {
+    process.env.SNYK_REQUEST_CONCURRENCY = 'abc';
+    expect(getRequestConcurrency()).toBe(10);
+  });
+
+  it('honors the minimum boundary', () => {
+    process.env.SNYK_REQUEST_CONCURRENCY = '1';
+    expect(getRequestConcurrency()).toBe(1);
+  });
+
+  it('honors the maximum boundary', () => {
+    process.env.SNYK_REQUEST_CONCURRENCY = '50';
+    expect(getRequestConcurrency()).toBe(50);
   });
 });
