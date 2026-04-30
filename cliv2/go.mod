@@ -22,10 +22,10 @@ require (
 	github.com/snyk/code-client-go v1.26.2
 	github.com/snyk/container-cli v0.0.0-20260213211631-cd2b2cf8f3ea
 	github.com/snyk/error-catalog-golang-public v0.0.0-20260316131845-f02d7f42046b
-	github.com/snyk/go-application-framework v0.0.0-20260422125240-4b46b7117457
+	github.com/snyk/go-application-framework v0.0.0-20260428100528-9338b0ecfff5
 	github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65
 	github.com/snyk/snyk-iac-capture v0.6.5
-	github.com/snyk/snyk-ls v0.0.0-20260401163317-c1fe9ee766fd
+	github.com/snyk/snyk-ls v0.0.0-20260430165912-df2b4f1ad8fb
 	github.com/snyk/studio-mcp v1.9.1
 	github.com/spf13/cobra v1.9.1
 	github.com/spf13/pflag v1.0.10
