@@ -13,8 +13,8 @@ if (Test-Path $envScript) {
 }
 
 try {
-  $expectedNodeVersion = '20.11.1'
-  $expectedSha256 = 'c54f5f7e2416e826fd84e878f28e3b53363ae9c3f60a140af4434b2453b5ae89'
+  $expectedNodeVersion = '24.15.0'
+  $expectedSha256 = 'feffb8e5cb5ac47f793666636d496ef3e975be82c84c4da5d20e6aa8fa4eb806'
 
   # Resolve repo root from script location (script is in .circleci/windows)
   $repoRoot = Resolve-Path (Join-Path $PSScriptRoot '..\..')
