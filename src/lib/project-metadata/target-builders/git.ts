@@ -1,4 +1,3 @@
-import * as url from 'url';
 import subProcess = require('../../sub-process');
 import { GitTarget } from '../types';
 import * as debugModule from 'debug';
@@ -28,12 +27,23 @@ export async function getInfo({
     ).trim();
 
     if (origin) {
-      const { protocol, host, pathname = '' } = url.parse(origin);
+      let parsedOrigin: URL | undefined;
+      try {
+        parsedOrigin = new URL(origin);
+      } catch {
+        parsedOrigin = undefined;
+      }
 
       // Not handling git:// as it has no connection options
-      if (host && protocol && ['ssh:', 'http:', 'https:'].includes(protocol)) {
-        // same format for parseable URLs
-        target.remoteUrl = `http://${host}${pathname}`;
+      if (
+        parsedOrigin &&
+        parsedOrigin.host &&
+        parsedOrigin.protocol &&
+        ['ssh:', 'http:', 'https:'].includes(parsedOrigin.protocol)
+      ) {
+        const pathname = parsedOrigin.pathname || '';
+        // url.parse().host equivalent: hostname plus port if non-default
+        target.remoteUrl = `http://${parsedOrigin.host}${pathname}`;
       } else {
         const originRes = originRegex.exec(origin);
         if (originRes && originRes[2] && originRes[3]) {

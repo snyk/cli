@@ -32,9 +32,9 @@ export const colors: IacOutputColors = {
 
 export const contentPadding = ' '.repeat(2);
 
-export const maxLineWidth = process.stdout.columns
-  ? Math.min(process.stdout.columns, 80)
-  : 80;
+// Fixed width keeps IaC CLI output stable in logs/CI and matches unit tests.
+// (Using process.stdout.columns produced different wrap-ansi breaks under narrow terminals.)
+export const maxLineWidth = 80;
 
 export const countSuppressedIssues = (
   suppressedIssues: Record<string, string[]>,

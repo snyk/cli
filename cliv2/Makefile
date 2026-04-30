@@ -88,6 +88,12 @@ V1_EMBEDDED_FILE_OUTPUT = embedded$(_SEPARATOR)$(V2_PLATFORM_STRING).go
 V1_WORKING_DIR = $(WORKING_DIR)/..
 V1_BUILD_TYPE = build:prod
 V1_BINARY_FOLDER = ts-cli-binaries
+# Windows: workspace may include Linux node_modules from prepare-build; npm user cache can go stale after Node bumps (see npm/fs-minipass "Class extends undefined").
+ifeq ($(GOHOSTOS),windows)
+	V1_NPM_INSTALL = npm cache clean --force && rm -rf node_modules packages/*/node_modules && npm ci
+else
+	V1_NPM_INSTALL = npm ci
+endif
 # default to empty string, which means no subfolder
 V1_BINARY_SUBFOLDER =
 HASH_STRING = $(HASH)$(HASH_ALGORITHM)
@@ -243,7 +249,7 @@ test-signature: ISSIGNED_SCRIPT
 # Typescript CLI targets
 $(V1_WORKING_DIR)/$(V1_BINARY_FOLDER)/$(V1_BINARY_SUBFOLDER)$(V1_EXECUTABLE_NAME):
 	@echo "$(LOG_PREFIX) Building legacy CLI"
-	@cd $(V1_WORKING_DIR) && npm i && npm run $(V1_BUILD_TYPE)
+	@cd $(V1_WORKING_DIR) && $(V1_NPM_INSTALL) && npm run $(V1_BUILD_TYPE)
 	@$(MAKE) -C $(V1_WORKING_DIR) $(V1_BINARY_FOLDER)/$(V1_BINARY_SUBFOLDER)$(V1_EXECUTABLE_NAME) BINARY_RELEASES_FOLDER_TS_CLI=$(V1_BINARY_FOLDER)
 
 .PHONY: build-ts-cli

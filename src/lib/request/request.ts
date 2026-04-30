@@ -1,6 +1,5 @@
 import { debug as debugModule } from 'debug';
 import * as needle from 'needle';
-import { parse, format } from 'url';
 import * as querystring from 'querystring';
 import * as zlib from 'zlib';
 import config from '../config';
@@ -70,7 +69,7 @@ function setupRequest(payload: Payload) {
     payload.headers['content-length'] = data.length;
   }
 
-  const parsedUrl = parse(payload.url);
+  const parsedUrl = new URL(payload.url);
 
   if (
     parsedUrl.protocol === 'http:' &&
@@ -79,7 +78,7 @@ function setupRequest(payload: Payload) {
   ) {
     debug('forcing api request to https');
     parsedUrl.protocol = 'https:';
-    payload.url = format(parsedUrl);
+    payload.url = parsedUrl.toString();
   }
 
   // prefer config timeout unless payload specified

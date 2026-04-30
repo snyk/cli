@@ -1,7 +1,5 @@
 const assign = require('lodash.assign');
 import chalk from 'chalk';
-import * as url from 'url';
-
 import { MonitorResult } from '../types';
 import config from '../config';
 import { showMultiScanTip } from './show-multi-scan-tip';
@@ -85,13 +83,13 @@ export function formatMonitorOutput(
 }
 
 function buildManageUrl(resId: string, org?: string): string {
-  const endpoint = url.parse(config.API);
+  const endpoint = new URL(config.API);
   let leader = '';
   if (org) {
     leader = '/org/' + org;
   }
   endpoint.pathname = leader + '/manage';
-  const manageUrl = url.format(endpoint);
+  const manageUrl = endpoint.toString();
 
   // TODO: what was this meant to do?
   endpoint.pathname = leader + '/monitor/' + resId;

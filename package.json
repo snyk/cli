@@ -21,7 +21,7 @@
     "snyk": "bin/snyk"
   },
   "engines": {
-    "node": "^20"
+    "node": "^24"
   },
   "workspaces": [
     "packages/*"
@@ -61,7 +61,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@open-policy-agent/opa-wasm": "^1.6.0",
-    "@sentry/node": "^7.34.0",
+    "@sentry/node": "^7.120.4",
     "@snyk/cli-interface": "2.15.0",
     "@snyk/cloud-config-parser": "^1.14.5",
     "@snyk/code-client": "^4.23.5",
@@ -111,7 +111,7 @@
     "ora": "5.4.0",
     "os-name": "^5.1.0",
     "p-map": "^4.0.0",
-    "proxy-from-env": "^1.0.0",
+    "proxy-from-env": "^2.1.0",
     "rimraf": "^2.6.3",
     "semver": "^6.0.0",
     "snyk-config": "^5.0.0",
@@ -149,7 +149,7 @@
     "@types/sinon": "^7.5.0",
     "@typescript-eslint/eslint-plugin": "^4.30.0",
     "@typescript-eslint/parser": "^4.30.0",
-    "@yao-pkg/pkg": "5.16.1",
+    "@yao-pkg/pkg": "6.19.0",
     "ajv": "^8.18.0",
     "ajv-draft-04": "^1.0.0",
     "body-parser": "^1.19.0",
