@@ -69,6 +69,26 @@ Set or override the remote URL for the repository.
 
 Example: `--remote-repo-url=https://gitlab.com/example/project` will create a target for given URL and on the UI it would be visible as `/example/project/` .
 
+### `--project-tags=<KEY>=<VALUE>[,<KEY>=<VALUE>]...`
+
+Use with `--report` to attach project tags when publishing Code results (file-based scan). Format is comma-separated `key=value` pairs. For allowable characters, see [Project tags](https://docs.snyk.io/snyk-admin/snyk-projects/project-tags).
+
+To clear all tags on the project when reporting, pass `--project-tags=` (empty value).
+
+**Note:** Only one of `--project-tags` or `--tags` may be set.
+
+### `--tags=<KEY>=<VALUE>[,<KEY>=<VALUE>]...`
+
+Alias for `--project-tags`.
+
+### Example: report with tags
+
+Scan the current directory and publish to the Snyk Web UI with tags and branch as the target reference:
+
+`snyk code test --report --project-name=my-code-project --project-tags=env=dev,team=platform --target-reference="$(git branch --show-current)" .`
+
+Use a real path instead of `.` when scanning another folder.
+
 ### `--org=<ORG_ID>`
 
 Specify the `<ORG_ID>`to run Snyk commands tied to a specific Snyk Organization. The `<ORG_ID>` influences private test limits.
