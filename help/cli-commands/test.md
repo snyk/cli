@@ -78,6 +78,18 @@ This will exclude any directories and files named `dir1` and `file2` when scanni
 **Note**: `--exclude=dir1` will find both `./dir1`, and `./src/dir1`.\
 However, `--exclude=./src/dir1` will result in an error because it includes a path.
 
+### `--exclude-paths=<PATH>[,<PATH>]...>`
+
+Can be used with `--all-projects` and `--yarn-workspaces` to exclude specific files and directories by path. Must be comma-separated. Accepts both relative and absolute paths.
+
+Unlike `--exclude`, which matches by basename only, `--exclude-paths` allows targeting specific files without affecting same-named files at other locations.
+
+Example: `$ snyk test --all-projects --exclude-paths=packages/api/package.json`
+
+This will exclude only `packages/api/package.json` without affecting other `package.json` files in the project.
+
+Example: `$ snyk test --all-projects --exclude-paths=packages/api/package.json,packages/web/package.json`
+
 ### `--prune-repeated-subdependencies`, `-p`
 
 Prune dependency trees, removing duplicate sub-dependencies.

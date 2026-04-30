@@ -22,6 +22,7 @@ export { FeatureNotSupportedForOrgError } from './unsupported-feature-for-org-er
 export { MissingOptionError } from './missing-option-error';
 export { MissingArgError } from './missing-arg-error';
 export { ExcludeFlagBadInputError } from './exclude-flag-bad-input';
+export { ExcludePathsFlagInvalidInputError } from './exclude-paths-flag-invalid-input';
 export { UnsupportedOptionCombinationError } from './unsupported-option-combination-error';
 export { FeatureNotSupportedByPackageManagerError } from './feature-not-supported-by-package-manager-error';
 export { DockerImageNotFoundError } from './docker-image-not-found-error';

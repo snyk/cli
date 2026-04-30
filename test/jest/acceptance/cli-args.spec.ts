@@ -288,6 +288,19 @@ describe.each(userJourneyWorkflows)(
           expect(code).toEqual(2);
         });
 
+        test('snyk test --exclude-paths without --all-projects displays error message', async () => {
+          const { code, stdout } = await runSnykCLI(
+            `test --exclude-paths=packages/api/package.json`,
+            {
+              env,
+            },
+          );
+          expect(stdout).toContainText(
+            'The --exclude-paths option can only be used in combination with --all-projects or --yarn-workspaces.',
+          );
+          expect(code).toEqual(2);
+        });
+
         test('snyk iac test --exclude=path/to/dir displays error message', async () => {
           const exclude = path.normalize('path/to/dir');
           const { code, stdout } = await runSnykCLI(
