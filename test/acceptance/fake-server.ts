@@ -750,6 +750,123 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     },
   );
 
+  // ============================================
+  // Go code-client-go test API endpoints
+  // These endpoints support the new REST API used by code-client-go
+  // Use setEndpointResponses/setEndpointStatusCodes to configure responses
+  // ============================================
+
+  // POST /api/hidden/orgs/:orgId/tests - Create a test
+  app.post(
+    [`/hidden/orgs/:orgId/tests`, `/api/hidden/orgs/:orgId/tests`],
+    (req, res) => {
+      requests.push(req);
+      if (handleSpecificResponses(req, res)) return;
+
+      const codeTestId = 'a1b2c3d4-e5f6-7890-abcd-ef1234567890';
+
+      res.status(201);
+      res.setHeader('Content-Type', 'application/vnd.api+json');
+      res.send({
+        data: {
+          id: codeTestId,
+          type: 'test',
+        },
+        links: {
+          self: `/api/hidden/orgs/${req.params.orgId}/tests/${codeTestId}`,
+        },
+      });
+    },
+  );
+
+  // GET /api/hidden/orgs/:orgId/tests/:testId - Get test status
+  app.get(
+    [
+      `/hidden/orgs/:orgId/tests/:testId`,
+      `/api/hidden/orgs/:orgId/tests/:testId`,
+    ],
+    (req, res) => {
+      requests.push(req);
+      if (handleSpecificResponses(req, res)) return;
+
+      res.status(200);
+      res.setHeader('Content-Type', 'application/vnd.api+json');
+      res.send({
+        data: {
+          id: req.params.testId,
+          type: 'test',
+          attributes: {
+            status: 'completed',
+            result: 'passed',
+          },
+        },
+        jsonapi: { version: '1.0' },
+        links: {
+          self: `/api/hidden/orgs/${req.params.orgId}/tests/${req.params.testId}`,
+        },
+      });
+    },
+  );
+
+  // GET /api/hidden/orgs/:orgId/tests/:testId/components - Get test components
+  app.get(
+    [
+      `/hidden/orgs/:orgId/tests/:testId/components`,
+      `/api/hidden/orgs/:orgId/tests/:testId/components`,
+    ],
+    (req, res) => {
+      requests.push(req);
+      if (handleSpecificResponses(req, res)) return;
+
+      const addr = server?.address();
+      const port = addr && typeof addr === 'object' ? addr.port : 0;
+      res.status(200);
+      res.setHeader('Content-Type', 'application/vnd.api+json');
+      res.send({
+        data: [
+          {
+            id: 'component-1',
+            type: 'test_component',
+            attributes: {
+              type: 'sast',
+              success: true,
+              findings_document_type: 'sarif',
+              findings_document_url: `http://127.0.0.1:${port}/api/hidden/orgs/${req.params.orgId}/tests/${req.params.testId}/findings`,
+            },
+          },
+        ],
+        jsonapi: { version: '1.0' },
+      });
+    },
+  );
+
+  // GET /api/hidden/orgs/:orgId/tests/:testId/findings - Get SARIF findings
+  app.get(
+    [
+      `/hidden/orgs/:orgId/tests/:testId/findings`,
+      `/api/hidden/orgs/:orgId/tests/:testId/findings`,
+    ],
+    (req, res) => {
+      requests.push(req);
+      if (handleSpecificResponses(req, res)) return;
+
+      res.status(200);
+      res.setHeader('Content-Type', 'application/json');
+      if (sarifResponse) {
+        res.send(sarifResponse);
+        return;
+      }
+      res.send({
+        $schema:
+          'https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json',
+        version: '2.1.0',
+        runs: [
+          { tool: { driver: { name: 'SnykCode', rules: [] } }, results: [] },
+        ],
+      });
+    },
+  );
+
   app.get(`/api/rest/orgs/:orgId/ai_bom_jobs/:jobId`, (req, res) => {
     res.status(303);
     res.send({
