@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"iter"
 	"os/exec"
@@ -28,6 +29,11 @@ func decorateError(err error) error {
 
 	var errorCatalogError snyk_errors.Error
 	if !errors.As(err, &errorCatalogError) {
+		// decorate DeadlineExceeded with a more user-friendly error
+		if errors.Is(err, context.DeadlineExceeded) {
+			return cli.NewCommandTimeoutError("", snyk_errors.WithCause(err))
+		}
+
 		genericError := cli.NewGeneralCLIFailureError(err.Error(), snyk_errors.WithCause(err))
 		return genericError
 	}
