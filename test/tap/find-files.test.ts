@@ -273,3 +273,83 @@ test('find returns a single valid manifest after filtering', async (t) => {
   const expected = [path.join(mavenPath, 'pom.xml')];
   t.same(result, expected, 'should return the single manifest');
 });
+
+test('find excludes specific files by absolute path via excludePaths', async (t) => {
+  const npmPackageJson = path.join(testFixture, 'npm', 'package.json');
+  const { files: result } = await find({
+    path: testFixture,
+    filter: ['package.json'],
+    excludePaths: [npmPackageJson],
+    levelsDeep: 6,
+  });
+  const expected = [
+    path.join(testFixture, 'npm-with-lockfile', 'package.json'),
+    path.join(testFixture, 'yarn', 'package.json'),
+  ];
+  t.same(
+    result.sort(),
+    expected.sort(),
+    'should exclude only the specified file',
+  );
+});
+
+test('find excludePaths does not affect files with the same basename at different paths', async (t) => {
+  const yarnPackageJson = path.join(testFixture, 'yarn', 'package.json');
+  const { files: result } = await find({
+    path: testFixture,
+    filter: ['package.json'],
+    excludePaths: [yarnPackageJson],
+    levelsDeep: 6,
+  });
+  t.ok(
+    result.includes(path.join(testFixture, 'npm', 'package.json')),
+    'should still include npm/package.json',
+  );
+  t.ok(
+    result.includes(
+      path.join(testFixture, 'npm-with-lockfile', 'package.json'),
+    ),
+    'should still include npm-with-lockfile/package.json',
+  );
+  t.notOk(result.includes(yarnPackageJson), 'should exclude yarn/package.json');
+});
+
+test('find excludePaths can exclude directories', async (t) => {
+  const npmDir = path.join(testFixture, 'npm');
+  const { files: result } = await find({
+    path: testFixture,
+    filter: ['package.json'],
+    excludePaths: [npmDir],
+    levelsDeep: 6,
+  });
+  t.notOk(
+    result.includes(path.join(testFixture, 'npm', 'package.json')),
+    'should not include files from excluded directory',
+  );
+});
+
+test('find still recurses into nested subdirectories when excludePaths is set', async (t) => {
+  // Guards against regressions in findInDirectory's pipeline: the excludePaths
+  // filter must not short-circuit recursion. Using a non-matching exclusion
+  // path exercises the filter without actually excluding anything, then we
+  // assert that manifests several directories deep are still discovered.
+  const unrelatedExclusion = path.join(testFixture, 'does-not-exist');
+  const { files: result } = await find({
+    path: testFixture,
+    filter: ['build.gradle', 'Gopkg.lock', 'Package.swift'],
+    excludePaths: [unrelatedExclusion],
+    levelsDeep: 6,
+  });
+  const expectedNested = [
+    path.join(testFixture, 'gradle-multiple', 'gradle', 'build.gradle'),
+    path.join(testFixture, 'gradle-multiple', 'gradle-another', 'build.gradle'),
+    path.join(testFixture, 'golang', 'golang-app', 'Gopkg.lock'),
+    path.join(testFixture, 'swift', 'test.build', 'Package.swift'),
+  ];
+  for (const expectedFile of expectedNested) {
+    t.ok(
+      result.includes(expectedFile),
+      `should recurse and find ${path.relative(testFixture, expectedFile)}`,
+    );
+  }
+});
