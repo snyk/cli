@@ -18,7 +18,7 @@ Clone this repository with git.
 
 ```sh
 git clone git@github.com/snyk/cli.git
-cd snyk
+cd cli
 ```
 
 You will now be on our `main` branch. You should never commit to this branch, but you should keep it up-to-date to
