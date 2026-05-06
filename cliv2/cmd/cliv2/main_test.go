@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -562,20 +563,39 @@ func Test_runWorkflowAndProcessData_with_Filtering(t *testing.T) {
 	err = runWorkflowAndProcessData(t.Context(), globalEngine, &logger, testCmnd)
 }
 
-func Test_setTimeout(t *testing.T) {
-	exitedCh := make(chan struct{})
-	fakeExit := func() {
-		close(exitedCh)
-	}
+func Test_setContextTimeout(t *testing.T) {
 	config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
-	config.Set(configuration.TIMEOUT, 1)
-	setTimeout(config, fakeExit)
-	select {
-	case <-exitedCh:
-		break
-	case <-time.After(5 * time.Second):
-		t.Fatal("timeout func never executed")
-	}
+
+	t.Run("sets timeout on globalContext when configured", func(t *testing.T) {
+		// Save and restore globalContext
+		originalCtx := globalContext
+		globalContext = context.Background()
+		defer func() { globalContext = originalCtx }()
+
+		config.Set(configuration.TIMEOUT, 1)
+		cancel := setContextTimeout(config)
+		defer cancel()
+
+		// Verify the context has a deadline
+		deadline, ok := globalContext.Deadline()
+		assert.True(t, ok, "context should have a deadline")
+		assert.WithinDuration(t, time.Now().Add(1*time.Second), deadline, 100*time.Millisecond)
+	})
+
+	t.Run("returns no-op cancel when timeout is 0", func(t *testing.T) {
+		// Save and restore globalContext
+		originalCtx := globalContext
+		globalContext = context.Background()
+		defer func() { globalContext = originalCtx }()
+
+		config.Set(configuration.TIMEOUT, 0)
+		cancel := setContextTimeout(config)
+		cancel() // Should not panic
+
+		// Verify the context has no deadline
+		_, ok := globalContext.Deadline()
+		assert.False(t, ok, "context should not have a deadline")
+	})
 }
 
 func Test_displayError(t *testing.T) {

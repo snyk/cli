@@ -531,8 +531,6 @@ func MainWithErrorCode() int {
 	errorList := []error{}
 	errorListMutex := sync.Mutex{}
 	var finalExitCode int
-
-	// preparing the possibility to tearDown from different threads while ensure it is only called once
 	var tearDownOnce sync.Once
 
 	// init context
@@ -638,16 +636,9 @@ func MainWithErrorCode() int {
 	cliAnalytics.GetInstrumentation().SetStage(instrumentation.DetermineStage(cliAnalytics.IsCiEnvironment()))
 	cliAnalytics.GetInstrumentation().SetStatus(analytics.Success)
 
-	setTimeout(globalConfiguration, func() {
-		tearDownOnce.Do(func() {
-			errorListMutex.Lock()
-			errorListCopy := append([]error{}, errorList...)
-			errorListMutex.Unlock()
-
-			exitCode := tearDown(context.DeadlineExceeded, errorListCopy, startTime, ua, cliAnalytics, networkAccess)
-			os.Exit(exitCode)
-		})
-	})
+	// Set context timeout for graceful cancellation
+	cancelTimeout := setContextTimeout(globalConfiguration)
+	defer cancelTimeout()
 
 	// run the extensible cli
 	err = rootCommand.Execute()
@@ -706,15 +697,16 @@ func processError(err error, errorList []error) ([]error, error) {
 	return resultErrorList, resultError
 }
 
-func setTimeout(config configuration.Configuration, onTimeout func()) {
+// setContextTimeout sets a timeout on the global context if configured.
+// Returns a cancel function that should be deferred.
+func setContextTimeout(config configuration.Configuration) context.CancelFunc {
 	timeout := config.GetInt(configuration.TIMEOUT)
 	if timeout == 0 {
-		return
+		return func() {} // no-op cancel
 	}
 	globalLogger.Printf("Command timeout set for %d seconds", timeout)
-	go func() {
-		const gracePeriodForSubProcesses = 3
-		<-time.After(time.Duration(timeout+gracePeriodForSubProcesses) * time.Second)
-		onTimeout()
-	}()
+	var cancel context.CancelFunc
+	globalContext, cancel = context.WithTimeout(globalContext, time.Duration(timeout)*time.Second)
+	return cancel
 }
+

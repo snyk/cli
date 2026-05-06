@@ -17,7 +17,6 @@ import (
 	"regexp"
 	"slices"
 	"strings"
-	"time"
 
 	"github.com/gofrs/flock"
 	"github.com/google/uuid"
@@ -434,13 +433,6 @@ func (c *CLI) PrepareV1Command(
 }
 
 func (c *CLI) executeV1Default(ctx context.Context, proxyInfo *proxy.ProxyInfo, passThroughArgs []string) error {
-	timeout := c.globalConfig.GetInt(configuration.TIMEOUT)
-	var cancel context.CancelFunc
-	if timeout > 0 {
-		ctx, cancel = context.WithTimeout(ctx, time.Duration(timeout)*time.Second)
-		defer cancel()
-	}
-
 	filePath := filepath.Join(c.globalConfig.GetString(configuration.TEMP_DIR_PATH), fmt.Sprintf("err-file-%s", uuid.NewString()))
 	c.globalConfig.Set(configKeyErrFile, filePath)
 

@@ -578,7 +578,7 @@ func Test_clearCacheBigCache(t *testing.T) {
 	assert.FileExists(t, currentVersion)
 }
 
-func Test_setTimeout(t *testing.T) {
+func Test_contextTimeout(t *testing.T) {
 	if //goland:noinspection ALL
 	runtime.GOOS == "windows" {
 		t.Skip("Skipping test on windows")
@@ -586,11 +586,14 @@ func Test_setTimeout(t *testing.T) {
 	config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
 	cli, err := cliv2.NewCLIv2(config, discardLogger, getRuntimeInfo(t))
 	assert.NoError(t, err)
-	config.Set(configuration.TIMEOUT, 1)
 
-	// sleep for 2s
+	// Create a context with 1 second timeout
+	ctx, cancel := context.WithTimeout(t.Context(), 1*time.Second)
+	defer cancel()
+
+	// sleep for 2s - should be killed by context timeout
 	cli.SetV1BinaryLocation("/bin/sleep")
-	err = cli.Execute(t.Context(), getProxyInfoForTest(), []string{"2"})
+	err = cli.Execute(ctx, getProxyInfoForTest(), []string{"2"})
 
 	assert.ErrorIs(t, err, context.DeadlineExceeded)
 }
