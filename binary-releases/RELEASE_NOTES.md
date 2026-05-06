@@ -10,3 +10,4 @@ The Snyk CLI is being deployed to different deployment channels, users can selec
   - [SNYK-GOLANG-GITHUBCOMAWSAWSSDKGOV2AWSPROTOCOLEVENTSTREAM-16316402](https://security.snyk.io/vuln/SNYK-GOLANG-GITHUBCOMAWSAWSSDKGOV2AWSPROTOCOLEVENTSTREAM-16316402) ([3706eda](https://github.com/snyk/cli/commit/3706edad4aac991f40ba6ddfdbef7cf1d078f7c7))
   - [SNYK-GOLANG-GITHUBCOMAWSAWSSDKGOV2SERVICES3-16316411](https://security.snyk.io/vuln/SNYK-GOLANG-GITHUBCOMAWSAWSSDKGOV2SERVICES3-16316411) ([3706eda](https://github.com/snyk/cli/commit/3706edad4aac991f40ba6ddfdbef7cf1d078f7c7))
   - CVE-2026-39892 ([7e03e4f](https://github.com/snyk/cli/commit/7e03e4f5be5eece13ba9c7784732c740362bbb57))
+  - CVE-2026-33750 ([8b9bec7](https://github.com/snyk/cli/commit/8b9bec75b5528ac58ac72d521e1be734821663aa))
