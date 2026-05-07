@@ -1,6 +1,6 @@
 module github.com/snyk/cli/cliv2
 
-go 1.25.8
+go 1.26.2
 
 require (
 	github.com/elazarl/goproxy v1.7.2
@@ -13,19 +13,19 @@ require (
 	github.com/snyk/cli-extension-agent-scan v0.0.0-20260505093105-90d9442ea939
 	github.com/snyk/cli-extension-ai-bom v0.0.0-20260319140413-ac7392950603
 	github.com/snyk/cli-extension-ai-redteam v0.0.0-20260331152502-ce341aeaff9e
-	github.com/snyk/cli-extension-dep-graph v0.32.0
+	github.com/snyk/cli-extension-dep-graph v1.4.0
 	github.com/snyk/cli-extension-iac v0.0.0-20260206082514-00c443ccee80
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20260206080712-9cbb5f95465d
-	github.com/snyk/cli-extension-os-flows v0.0.0-20260330131038-f7539faafecf
-	github.com/snyk/cli-extension-sbom v0.0.0-20260327120356-9befea04c9b0
-	github.com/snyk/cli-extension-secrets v0.0.0-20260421112643-c8c29ed060b9
-	github.com/snyk/code-client-go v1.26.2
+	github.com/snyk/cli-extension-os-flows v0.0.0-20260423112219-b7ba9dd68e57
+	github.com/snyk/cli-extension-sbom v0.0.0-20260423112228-5d124dd8c9b0
+	github.com/snyk/cli-extension-secrets v0.0.0-20260505103358-cc205308a93e
+	github.com/snyk/code-client-go v1.26.7
 	github.com/snyk/container-cli v0.0.0-20260213211631-cd2b2cf8f3ea
-	github.com/snyk/error-catalog-golang-public v0.0.0-20260316131845-f02d7f42046b
-	github.com/snyk/go-application-framework v0.0.0-20260422125240-4b46b7117457
+	github.com/snyk/error-catalog-golang-public v0.0.0-20260505112649-a5103d411663
+	github.com/snyk/go-application-framework v0.0.0-20260504124159-e299fb4a44a1
 	github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65
 	github.com/snyk/snyk-iac-capture v0.6.5
-	github.com/snyk/snyk-ls v0.0.0-20260401163317-c1fe9ee766fd
+	github.com/snyk/snyk-ls v0.0.0-20260414093345-2a6d7434eb91
 	github.com/snyk/studio-mcp v1.9.2
 	github.com/spf13/cobra v1.9.1
 	github.com/spf13/pflag v1.0.10
@@ -96,7 +96,7 @@ require (
 	github.com/chzyer/readline v1.5.1 // indirect
 	github.com/clipperhouse/displaywidth v0.11.0 // indirect
 	github.com/clipperhouse/uax29/v2 v2.7.0 // indirect
-	github.com/cloudflare/circl v1.6.2 // indirect
+	github.com/cloudflare/circl v1.6.3 // indirect
 	github.com/cncf/xds/go v0.0.0-20251210132809-ee656c7534f5 // indirect
 	github.com/containerd/console v1.0.3 // indirect
 	github.com/creachadair/jrpc2 v1.3.0 // indirect
@@ -121,8 +121,8 @@ require (
 	github.com/gertd/go-pluralize v0.2.1 // indirect
 	github.com/getsentry/sentry-go v0.31.1 // indirect
 	github.com/go-git/gcfg v1.5.1-0.20230307220236-3a3c6141e376 // indirect
-	github.com/go-git/go-billy/v5 v5.7.0 // indirect
-	github.com/go-git/go-git/v5 v5.16.5 // indirect
+	github.com/go-git/go-billy/v5 v5.8.0 // indirect
+	github.com/go-git/go-git/v5 v5.18.0 // indirect
 	github.com/go-ini/ini v1.67.0 // indirect
 	github.com/go-jose/go-jose/v4 v4.1.4 // indirect
 	github.com/go-logr/logr v1.4.3 // indirect

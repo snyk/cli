@@ -76,7 +76,7 @@ describe('npm alias support', () => {
 
     expect(code).toEqual(0);
     expect(stdout).toContain('"pkgId": "@yao-pkg/pkg@6.5.0",');
-    expect(stdout).toContain('"nodeId": "pkg@6.5.0",');
+    expect(stdout).toContain('"nodeId": "@yao-pkg/pkg@6.5.0",');
 
     expect(stdout).toContain('"alias": "pkg=>@yao-pkg/pkg@6.5.0"');
   });
@@ -91,7 +91,7 @@ describe('npm alias support', () => {
 
     expect(code).toEqual(0);
     expect(stdout).toContain('"pkgId": "@yao-pkg/pkg@6.5.0",');
-    expect(stdout).toContain('"nodeId": "pkg@6.5.0",');
+    expect(stdout).toContain('"nodeId": "@yao-pkg/pkg@6.5.0",');
     expect(stdout).toContain('"alias": "pkg=>@yao-pkg/pkg@6.5.0"');
   });
 
@@ -129,7 +129,7 @@ describe('npm alias support', () => {
 
     expect(stdout).toContain('"pkgId": "hello-world-npm@1.1.0",');
     expect(stdout).toContain('"nodeId": "hello-world-npm@1.1.0",');
-    expect(stdout).toContain('"nodeId": "hello-world-npm-v1_1_1@1.1.1",');
+    expect(stdout).toContain('"nodeId": "hello-world-npm@1.1.1",');
     expect(stdout).toContain('"pkgId": "hello-world-npm@1.1.1",');
 
     expect(stdout).toContain(
@@ -153,7 +153,7 @@ describe('npm alias support', () => {
 
     expect(stdout).toContain('"pkgId": "hello-world-npm@1.1.0",');
     expect(stdout).toContain('"nodeId": "hello-world-npm@1.1.0",');
-    expect(stdout).toContain('"nodeId": "hello-world-npm-v1_1_1@1.1.1",');
+    expect(stdout).toContain('"nodeId": "hello-world-npm@1.1.1",');
     expect(stdout).toContain('"pkgId": "hello-world-npm@1.1.1",');
 
     expect(stdout).toContain(
