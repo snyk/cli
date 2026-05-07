@@ -39,6 +39,7 @@ import {
   validateTags,
 } from '../../cli/commands/monitor';
 import { isUnmanagedEcosystem, filterDockerFacts } from './common';
+import { extractAndApplyPluginAnalytics } from './plugin-analytics';
 import { findAndLoadPolicy } from '../policy';
 
 const SEPARATOR = '\n-------------------------------------------------------\n';
@@ -65,6 +66,11 @@ export async function monitorEcosystem(
         ecosystem,
         options,
       );
+
+      if (pluginResponse.analytics) {
+        extractAndApplyPluginAnalytics(pluginResponse.analytics);
+      }
+
       scanResultsByPath[path] = filteredResponse.scanResults;
 
       const policy = await findAndLoadPolicy(path, 'cpp', options);
