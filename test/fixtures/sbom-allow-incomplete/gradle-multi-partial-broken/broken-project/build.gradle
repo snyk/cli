@@ -1,0 +1,10 @@
+// Intentionally invalid Gradle script to trigger a per-project scan error
+// for the --allow-incomplete-sbom acceptance tests.
+plugins {
+  id 'java'
+}
+
+dependencies {
+  implementation 'this is :: not :: a :: valid :: gradle :: coordinate'
+  apply((((( // unbalanced parens / invalid groovy
+}
