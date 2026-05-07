@@ -78,6 +78,7 @@ export type FakeServer = {
     responses: Record<string, unknown>[],
   ) => void;
   setStatusCode: (c: number) => void;
+  setResponseDelay: (delayMs: number) => void;
   setLocalCodeEngineConfiguration: (next: Record<string, unknown>) => void;
   setFeatureFlag: (featureFlag: string, enabled: boolean) => void;
   setOrgSetting: (setting: string, enabled: boolean) => void;
@@ -122,6 +123,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
   let sarifResponse: Record<string, unknown> | undefined = undefined;
   let redteamNextCallCount: Record<string, number> = {};
   let server: http.Server | undefined = undefined;
+  let responseDelayMs = 0;
   const sockets = new Set();
 
   const getOrCreateEndpointConfig = (endpoint: string): EndpointConfig => {
@@ -151,6 +153,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     availableSettings = new Map();
     unauthorizedActions = new Map();
     redteamNextCallCount = {};
+    responseDelayMs = 0;
   };
 
   const getRequests = () => {
@@ -199,6 +202,10 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
 
   const setStatusCode = (code: number) => {
     statusCode = code;
+  };
+
+  const setResponseDelay = (delayMs: number) => {
+    responseDelayMs = delayMs;
   };
 
   const setGlobalResponse = (
@@ -360,6 +367,20 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
   app.use((req, res, next) => {
     requests.push(req);
     next();
+  });
+
+  // Apply response delay if configured (exclude analytics/instrumentation/init endpoints)
+  app.use((req, res, next) => {
+    const isExcludedEndpoint =
+      req.url?.includes('/analytics') ||
+      req.url?.includes('/instrumentation') ||
+      req.url?.includes('/v1/track') ||
+      req.url?.includes('/api/rest/orgs/');
+    if (responseDelayMs > 0 && !isExcludedEndpoint) {
+      global.setTimeout(() => next(), responseDelayMs);
+    } else {
+      next();
+    }
   });
 
   app.use((req, res, next) => {
@@ -1843,6 +1864,7 @@ ${componentsXml}
     setEndpointResponses,
     setGlobalResponse,
     setStatusCode,
+    setResponseDelay,
     setFeatureFlag,
     setOrgSetting,
     unauthorizeAction,
