@@ -707,8 +707,69 @@ workflows:
           requires:
             - prepare-build
 
+      # Unsigned builds for contributor branches (no signing context required)
       - build-artifact:
           name: build macOS amd64
+          go_target_os: darwin
+          go_os: darwin
+          go_arch: amd64
+          go_download_base_url: << pipeline.parameters.go_download_base_url >>
+          executor: macos-arm64-large
+          install_deps_extension: macos-build
+          context:
+            - iac-cli
+          requires:
+            - prepare-build
+          filters:
+            branches:
+              ignore:
+                - main
+                - '/release.*/'
+                - '/.*e2e.*/'
+
+      - build-artifact:
+          name: build macOS arm64
+          go_target_os: darwin
+          go_os: darwin
+          go_arch: arm64
+          go_download_base_url: << pipeline.parameters.go_download_base_url >>
+          executor: macos-arm64-large
+          install_deps_extension: macos-build
+          context:
+            - iac-cli
+          requires:
+            - prepare-build
+          filters:
+            branches:
+              ignore:
+                - main
+                - '/release.*/'
+                - '/.*e2e.*/'
+
+      - build-artifact:
+          name: build windows amd64
+          go_target_os: windows
+          go_os: windows
+          go_arch: amd64
+          go_download_base_url: << pipeline.parameters.fips_go_download_base_url >>
+          make_target: build clean-golang build-fips
+          install_deps_extension: windows-native-build
+          install_path: 'C:\'
+          executor: win-server2022-amd64
+          context:
+            - iac-cli
+          requires:
+            - prepare-build
+          filters:
+            branches:
+              ignore:
+                - main
+                - '/release.*/'
+                - '/.*e2e.*/'
+
+      # Signed builds for release branches (signing context required)
+      - build-artifact:
+          name: build macOS amd64 (signed)
           go_target_os: darwin
           go_os: darwin
           go_arch: amd64
@@ -720,9 +781,15 @@ workflows:
             - iac-cli
           requires:
             - prepare-build
+          filters:
+            branches:
+              only:
+                - main
+                - '/release.*/'
+                - '/.*e2e.*/'
 
       - build-artifact:
-          name: build macOS arm64
+          name: build macOS arm64 (signed)
           go_target_os: darwin
           go_os: darwin
           go_arch: arm64
@@ -734,9 +801,15 @@ workflows:
             - iac-cli
           requires:
             - prepare-build
+          filters:
+            branches:
+              only:
+                - main
+                - '/release.*/'
+                - '/.*e2e.*/'
 
       - build-artifact:
-          name: build windows amd64
+          name: build windows amd64 (signed)
           go_target_os: windows
           go_os: windows
           go_arch: amd64
@@ -750,6 +823,12 @@ workflows:
             - iac-cli
           requires:
             - prepare-build
+          filters:
+            branches:
+              only:
+                - main
+                - '/release.*/'
+                - '/.*e2e.*/'
 
       - acceptance-tests:
           name: acceptance-tests linux static arm64
@@ -900,6 +979,7 @@ workflows:
               ignore:
                 - main
                 - '/release.*/'
+                - '/.*e2e.*/'
           requires:
             - build macOS arm64
           executor: macos-arm64
@@ -920,6 +1000,7 @@ workflows:
               ignore:
                 - main
                 - '/release.*/'
+                - '/.*e2e.*/'
           requires:
             - build windows amd64
           executor: win-server2022-amd64
@@ -935,7 +1016,7 @@ workflows:
           name: sign windows amd64
           context: snyk-windows-signing
           requires:
-            - build windows amd64
+            - build windows amd64 (signed)
           go_os: windows
           go_arch: amd64
           make_target: sign sign-fips
@@ -952,7 +1033,7 @@ workflows:
           name: sign macos amd64
           context: snyk-macos-signing
           requires:
-            - build macOS amd64
+            - build macOS amd64 (signed)
           go_os: darwin
           go_arch: amd64
           executor: macos-arm64
@@ -968,7 +1049,7 @@ workflows:
           name: sign macos arm64
           context: snyk-macos-signing
           requires:
-            - build macOS arm64
+            - build macOS arm64 (signed)
           go_os: darwin
           go_arch: arm64
           executor: macos-arm64
