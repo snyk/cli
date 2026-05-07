@@ -1760,7 +1760,10 @@ jobs:
               pattern: '^linux.*'
               value: << parameters.executor >>
           steps:
-            - run: echo UTC > /etc/timezone && apt update && apt install -y sudo curl python3 python3-pip python3-requests
+            - run: |
+                export DEBIAN_FRONTEND=noninteractive   
+                ln -fs /usr/share/zoneinfo/UTC /etc/localtime
+                apt update && apt install -y sudo curl python3 python3-pip python3-requests
 
       - run:
           name: Checking Snyk CLI
