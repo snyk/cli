@@ -18,11 +18,22 @@ const (
 	nc     = "\033[0m" // No Color
 )
 
-// Configuration
+/*
+Parameters can be retrieved from https://github.com/snyk/cli/releases
+* version: the version of the snyk binary to download
+* platform: the platform of the snyk binary to download
+* sha256Hash: the sha256 hash of the snyk binary to download
+
+Linux static specific parameters are optional and only used when building for linux static targets
+* linuxstaticPlatform: the linux static platform of the snyk binary to download [snyk-linux, snyk-linux-arm64]
+* linuxstaticSha256Hash: the sha256 hash of the linuxstatic snyk binary to download. Retrieved from http://downloads.snyk.io/experimental/cli/<version>/<linuxstaticPlatform>.sha256
+*/
 const (
-	version    = "1.1298.2"
-	platform   = "snyk-macos-arm64"
-	sha256Hash = "0a5016d8ec007483fc3397ea06c4f655a3771c3bee34fb778b8bb12c5b19ed9a"
+	version               = "1.1304.2"
+	platform              = "snyk-linux-arm64"
+	sha256Hash            = "79391210b25e50297db2cec379ccf5ed16f484ce16076195c323c26a05c63d1c"
+	linuxstaticPlatform   = "snyk-linux-arm64"
+	linuxstaticSha256Hash = "7bc078339b4db675f4009257c0cb97713ff8e0c63add204200509832e3ad98b0"
 )
 
 // Logging functions
@@ -49,26 +60,26 @@ func getProjectRoot() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	
+
 	// Check if we're in the scripts directory
 	if filepath.Base(scriptDir) == "scripts" {
 		return filepath.Dir(scriptDir), nil
 	}
-	
+
 	// If not, try to find the project root by looking for key files
 	currentDir, err := os.Getwd()
 	if err != nil {
 		return "", fmt.Errorf("failed to get current directory: %w", err)
 	}
-	
+
 	// Walk up the directory tree to find the project root
 	for dir := currentDir; dir != filepath.Dir(dir); dir = filepath.Dir(dir) {
-		if fileExists(filepath.Join(dir, "package.json")) && 
-		   fileExists(filepath.Join(dir, "Makefile")) {
+		if fileExists(filepath.Join(dir, "package.json")) &&
+			fileExists(filepath.Join(dir, "Makefile")) {
 			return dir, nil
 		}
 	}
-	
+
 	return "", fmt.Errorf("could not find project root (no package.json and Makefile found)")
 }
 
@@ -82,19 +93,19 @@ func getScriptDir() (string, error) {
 		}
 		return filepath.Dir(filename), nil
 	}
-	
+
 	// If running as compiled binary, use os.Executable
 	executable, err := os.Executable()
 	if err != nil {
 		return "", fmt.Errorf("failed to get executable path: %w", err)
 	}
-	
+
 	// Resolve symlinks to get the actual path
 	resolvedPath, err := filepath.EvalSymlinks(executable)
 	if err != nil {
 		return "", fmt.Errorf("failed to resolve symlinks: %w", err)
 	}
-	
+
 	return filepath.Dir(resolvedPath), nil
 }
 
@@ -119,23 +130,23 @@ func dirExists(path string) bool {
 // Function to check if required tools are available
 func checkRequirements(projectRoot string) error {
 	logInfo("Checking requirements...")
-	
+
 	if !isCommandAvailable("npm") {
 		return fmt.Errorf("npm is not installed or not in PATH")
 	}
-	
+
 	if !isCommandAvailable("make") {
 		return fmt.Errorf("make is not installed or not in PATH")
 	}
-	
+
 	if !fileExists(filepath.Join(projectRoot, "package.json")) {
 		return fmt.Errorf("package.json not found in project root")
 	}
-	
+
 	if !fileExists(filepath.Join(projectRoot, "Makefile")) {
 		return fmt.Errorf("Makefile not found in project root")
 	}
-	
+
 	logSuccess("All requirements satisfied")
 	return nil
 }
@@ -143,11 +154,11 @@ func checkRequirements(projectRoot string) error {
 // Function to validate the project structure
 func validateProject(projectRoot string) error {
 	logInfo("Validating project structure...")
-	
+
 	if !dirExists(projectRoot) {
 		return fmt.Errorf("project root directory not found: %s", projectRoot)
 	}
-	
+
 	logSuccess("Project structure validated")
 	return nil
 }
@@ -157,70 +168,70 @@ func runCommand(name string, args ...string) error {
 	cmd := exec.Command(name, args...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	
+
 	logInfo(fmt.Sprintf("Running: %s %s", name, strings.Join(args, " ")))
-	
+
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("command failed: %w", err)
 	}
-	
+
 	return nil
 }
 
 // Write content to a file
 func writeFile(path, content string) error {
 	logInfo(fmt.Sprintf("Creating file: %s", path))
-	
+
 	if err := os.WriteFile(path, []byte(content), 0644); err != nil {
 		return fmt.Errorf("failed to write file %s: %w", path, err)
 	}
-	
+
 	return nil
 }
 
 // Create directory if it doesn't exist
 func createDir(path string) error {
 	logInfo(fmt.Sprintf("Creating directory: %s", path))
-	
+
 	if err := os.MkdirAll(path, 0755); err != nil {
 		return fmt.Errorf("failed to create directory %s: %w", path, err)
 	}
-	
+
 	return nil
 }
 
 // Main execution
 func main() {
 	logInfo("Starting build process...")
-	logWarning(fmt.Sprintf("This script assumes %s, please change it if needed!", platform))
-	
+	logWarning(fmt.Sprintf("This script assumes %s (linuxstatic: %s), please change it if needed!", platform, linuxstaticPlatform))
+
 	// Get project root
 	projectRoot, err := getProjectRoot()
 	if err != nil {
 		logError(fmt.Sprintf("Failed to get project root: %v", err))
 		os.Exit(1)
 	}
-	
+
 	logInfo(fmt.Sprintf("Project root determined: %s", projectRoot))
-	
+
 	// Validate environment
 	if err := validateProject(projectRoot); err != nil {
 		logError(err.Error())
 		os.Exit(1)
 	}
-	
+
 	if err := checkRequirements(projectRoot); err != nil {
 		logError(err.Error())
 		os.Exit(1)
 	}
-	
+
 	// Change to project root directory
 	logInfo(fmt.Sprintf("Changing to project root: %s", projectRoot))
 	if err := os.Chdir(projectRoot); err != nil {
 		logError(fmt.Sprintf("Failed to change directory: %v", err))
 		os.Exit(1)
 	}
-	
+
 	// Install dependencies
 	logInfo("Installing npm dependencies...")
 	if err := runCommand("npm", "ci"); err != nil {
@@ -228,21 +239,21 @@ func main() {
 		os.Exit(1)
 	}
 	logSuccess("Dependencies installed successfully")
-	
+
 	// Create binary-releases directory
 	binaryReleasesDir := "binary-releases"
 	if err := createDir(binaryReleasesDir); err != nil {
 		logError(err.Error())
 		os.Exit(1)
 	}
-	
+
 	// Create version file
 	versionFile := filepath.Join(binaryReleasesDir, "version")
 	if err := writeFile(versionFile, version); err != nil {
 		logError(err.Error())
 		os.Exit(1)
 	}
-	
+
 	// Create SHA256 file
 	sha256File := filepath.Join(binaryReleasesDir, platform+".sha256")
 	sha256Content := fmt.Sprintf("%s  %s", sha256Hash, platform)
@@ -250,7 +261,21 @@ func main() {
 		logError(err.Error())
 		os.Exit(1)
 	}
-	
+
+	// Create experimental directory and linuxstatic SHA256 file
+	experimentalDir := filepath.Join(binaryReleasesDir, "experimental")
+	if err := createDir(experimentalDir); err != nil {
+		logError(err.Error())
+		os.Exit(1)
+	}
+
+	sha256File2 := filepath.Join(experimentalDir, linuxstaticPlatform+".sha256")
+	sha256Content2 := fmt.Sprintf("%s  %s", linuxstaticSha256Hash, linuxstaticPlatform)
+	if err := writeFile(sha256File2, sha256Content2); err != nil {
+		logError(err.Error())
+		os.Exit(1)
+	}
+
 	// Build the binary
 	logInfo("Building binary release...")
 	if err := runCommand("make", "binary-releases/snyk.tgz"); err != nil {
@@ -258,4 +283,4 @@ func main() {
 		os.Exit(1)
 	}
 	logSuccess("Binary build completed successfully")
-} 
+}

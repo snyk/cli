@@ -143,7 +143,7 @@ describe('Configuration', () => {
     const config = new common.WrapperConfiguration(
       '1.2.3',
       'snyk-win.exe',
-      '1234abcdef',
+      ['1234abcdef'],
     );
 
     const actualDownloadLocation = config.getDownloadLocations().downloadUrl;
@@ -213,7 +213,7 @@ describe('Testing binary bootstrapper', () => {
   it('downloadExecutable() succesfull', async () => {
     const binaryName = 'snyk-macos';
     const shafileExtension = '.sha256';
-    const config = new common.WrapperConfiguration('1.1080.0', binaryName, '');
+    const config = new common.WrapperConfiguration('1.1080.0', binaryName, []);
     const shasumFile =
       config.getLocalLocation() + Math.random() + shafileExtension;
 
@@ -221,7 +221,7 @@ describe('Testing binary bootstrapper', () => {
     const shasumDownload = await common.downloadExecutable(
       config.getDownloadLocations().downloadUrl + shafileExtension,
       shasumFile,
-      '',
+      [],
     );
     expect(shasumDownload).toBeUndefined();
     expect(fs.existsSync(shasumFile)).toBeTruthy();
@@ -232,7 +232,7 @@ describe('Testing binary bootstrapper', () => {
     const binaryDownload = await common.downloadExecutable(
       downloadUrl,
       config.getLocalLocation(),
-      expectedShasum,
+      [expectedShasum],
     );
     expect(binaryDownload).toBeUndefined();
     expect(fs.existsSync(config.getLocalLocation())).toBeTruthy();
@@ -255,7 +255,7 @@ describe('Testing binary bootstrapper', () => {
   it('downloadWithBackup() succesfull', async () => {
     const binaryName = 'snyk-macos';
     const shafileExtension = '.sha256';
-    const config = new common.WrapperConfiguration('1.1080.0', binaryName, '');
+    const config = new common.WrapperConfiguration('1.1080.0', binaryName, []);
     const shasumFile =
       config.getLocalLocation() + Math.random() + shafileExtension;
     const { downloadUrl } = config.getDownloadLocations();
@@ -265,7 +265,7 @@ describe('Testing binary bootstrapper', () => {
       'https://notdownloads.snyk.io/cli/v1.1080.0/snyk-macos.sha256',
       downloadUrl + shafileExtension,
       shasumFile,
-      '',
+      [],
     );
     expect(shasumDownload).toBeUndefined();
     expect(fs.existsSync(shasumFile)).toBeTruthy();
@@ -276,7 +276,7 @@ describe('Testing binary bootstrapper', () => {
       'https://notdownloads.snyk.io/cli/v1.1080.0/snyk-macos',
       downloadUrl,
       config.getLocalLocation(),
-      expectedShasum,
+      [expectedShasum],
     );
     expect(binaryDownload).toBeUndefined();
     expect(fs.existsSync(config.getLocalLocation())).toBeTruthy();
@@ -300,7 +300,7 @@ describe('Testing binary bootstrapper', () => {
   it('downloadExecutable() fails due to incorrect shasum', async () => {
     const binaryName = 'snyk-macos';
     const shafileExtension = '.sha256';
-    const config = new common.WrapperConfiguration('1.1080.0', binaryName, '');
+    const config = new common.WrapperConfiguration('1.1080.0', binaryName, []);
     const shasumFile =
       config.getLocalLocation() + Math.random() + shafileExtension;
     const { downloadUrl } = config.getDownloadLocations();
@@ -309,7 +309,7 @@ describe('Testing binary bootstrapper', () => {
     const shasumDownload = await common.downloadExecutable(
       downloadUrl + shafileExtension,
       shasumFile,
-      'incorrect-shasum',
+      ['incorrect-shasum'],
     );
     expect(shasumDownload?.message).toContain('Shasum comparison failed');
     expect(fs.existsSync(shasumFile)).toBeFalsy();
@@ -318,7 +318,7 @@ describe('Testing binary bootstrapper', () => {
   it("downloadExecutable() try to download a file that doesn't exist", async () => {
     const binaryName = 'snyk-macos';
     const shafileExtension = '.shoe256';
-    const config = new common.WrapperConfiguration('1.1080.0', binaryName, '');
+    const config = new common.WrapperConfiguration('1.1080.0', binaryName, []);
     const shasumFile =
       config.getLocalLocation() + Math.random() + shafileExtension;
     const { downloadUrl } = config.getDownloadLocations();
@@ -327,7 +327,7 @@ describe('Testing binary bootstrapper', () => {
     const shasumDownload = await common.downloadExecutable(
       downloadUrl + shafileExtension,
       shasumFile,
-      'incorrect-shasum',
+      ['incorrect-shasum'],
     );
     expect(shasumDownload?.message).toContain(
       'Download failed! Server Response:',
@@ -340,7 +340,7 @@ describe('Testing binary bootstrapper', () => {
     const shasumDownload = await common.downloadExecutable(
       'https://notaurl',
       '',
-      '',
+      [],
     );
     expect(shasumDownload).toBeDefined();
   });

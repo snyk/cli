@@ -1,7 +1,15 @@
 import * as common from '../../src/common';
 import * as child_process from 'child_process';
 import * as path from 'path';
-import { copyFileSync, mkdirSync, rmdirSync, writeFileSync } from 'fs';
+import {
+  appendFileSync,
+  copyFileSync,
+  mkdirSync,
+  readFileSync,
+  rmdirSync,
+  unlinkSync,
+  writeFileSync,
+} from 'fs';
 
 export class TestEnvironmentSetup {
   constructor(
@@ -71,8 +79,25 @@ export class TestEnvironmentSetup {
     await common.downloadExecutable(
       'https://downloads.snyk.io/cli/v' + version + '/sha256sums.txt.asc',
       shasumFile,
-      '',
+      [],
     );
+
+    const experimentalShasumFile = shasumFile + '.experimental';
+    await common.downloadExecutable(
+      'https://downloads.snyk.io/experimental/cli/v' +
+        version +
+        '/sha256sums.txt.asc',
+      experimentalShasumFile,
+      [],
+    );
+
+    const experimentalLines = readFileSync(experimentalShasumFile, 'utf8')
+      .split('\n')
+      .filter((line: string) => /^[a-zA-Z0-9]/.test(line))
+      .map((line: string) => line.replace(/(\s+\*?)(\S+)$/, '$1experimental/$2'))
+      .join('\n');
+    appendFileSync(shasumFile, '\n' + experimentalLines);
+    unlinkSync(experimentalShasumFile);
   }
 }
 

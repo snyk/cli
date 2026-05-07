@@ -13,5 +13,9 @@
   "linux": {
     "amd64": "snyk-linux",
     "arm64": "snyk-linux-arm64"
+  },
+  "linuxstatic": {
+    "amd64": "experimental/snyk-linux",
+    "arm64": "experimental/snyk-linux-arm64"
   }
 }

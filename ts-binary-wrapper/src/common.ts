@@ -26,16 +26,16 @@ export const integrationName = 'TS_BINARY_WRAPPER';
 export class WrapperConfiguration {
   private version: string;
   private binaryName: string;
-  private expectedSha256sum: string;
+  private expectedSha256sums: string[];
 
   public constructor(
     version: string,
     binaryName: string,
-    expectedSha256sum: string,
+    expectedSha256sums: string[],
   ) {
     this.version = version;
     this.binaryName = binaryName;
-    this.expectedSha256sum = expectedSha256sum;
+    this.expectedSha256sums = expectedSha256sums;
   }
 
   public getVersion(): string {
@@ -61,8 +61,8 @@ export class WrapperConfiguration {
     return path.join(currentFolder, this.binaryName);
   }
 
-  public getShasumFile(): string {
-    return this.expectedSha256sum;
+  public getShasumFile(): string[] {
+    return this.expectedSha256sums;
   }
 }
 
@@ -150,8 +150,28 @@ export function getCurrentSha256sum(
 export function getCurrentConfiguration(): WrapperConfiguration {
   const binaryName = determineBinaryName(os.platform(), os.arch());
   const version = getCurrentVersion(versionFile);
-  const expectedSha256sum = getCurrentSha256sum(binaryName, shasumFile);
-  return new WrapperConfiguration(version, binaryName, expectedSha256sum);
+  const expectedSha256sums: string[] = [
+    getCurrentSha256sum(binaryName, shasumFile),
+  ];
+
+  const supportedPlatforms = require(binaryDeploymentsFilePath);
+  const linuxstaticPlatform = supportedPlatforms['linuxstatic'];
+  if (linuxstaticPlatform) {
+    const archname =
+      os.arch() === 'x64' || os.arch() === 'amd64' ? 'amd64' : os.arch();
+    const linuxstaticBinaryName = linuxstaticPlatform[archname];
+    if (linuxstaticBinaryName && linuxstaticBinaryName !== binaryName) {
+      const linuxstaticShasum = getCurrentSha256sum(
+        linuxstaticBinaryName,
+        shasumFile,
+      );
+      if (!linuxstaticShasum.startsWith('unknown-shasum-')) {
+        expectedSha256sums.push(linuxstaticShasum);
+      }
+    }
+  }
+
+  return new WrapperConfiguration(version, binaryName, expectedSha256sums);
 }
 
 export function getCliArguments(inputArgv: string[]): string[] {
@@ -255,7 +275,7 @@ export function formatErrorMessage(message: string): boolean {
 export function downloadExecutable(
   downloadUrl: string,
   filename: string,
-  filenameShasum: string,
+  filenameShasum: string[],
 ): Promise<Error | undefined> {
   return new Promise<Error | undefined>(function (resolve) {
     logErrorWithTimeStamps('Starting download');
@@ -263,6 +283,7 @@ export function downloadExecutable(
     const temp = path.join(__dirname, Date.now().toString());
     const fileStream = fs.createWriteStream(temp);
     const shasum = createHash('sha256').setEncoding('hex');
+    const expectedShasums = filenameShasum;
 
     const cleanupAfterError = (error: Error) => {
       try {
@@ -283,9 +304,9 @@ export function downloadExecutable(
         'Shasums:\n- actual:   ' +
         actualShasum +
         '\n- expected: ' +
-        filenameShasum;
+        expectedShasums.join(' or ');
 
-      if (filenameShasum && actualShasum != filenameShasum) {
+      if (expectedShasums.some(Boolean) && !expectedShasums.includes(actualShasum)) {
         cleanupAfterError(Error('Shasum comparison failed!\n' + debugMessage));
       } else {
         logErrorWithTimeStamps(debugMessage);
@@ -343,7 +364,7 @@ export async function downloadWithBackup(
   downloadUrl: string,
   backupUrl: string,
   filename: string,
-  filenameShasum: string,
+  filenameShasum: string[],
 ): Promise<Error | undefined> {
   try {
     const error = await downloadExecutable(

@@ -197,9 +197,12 @@ $(BINARY_WRAPPER_DIR)/src/generated/version: $(BINARY_WRAPPER_DIR)/src/generated
 $(BINARY_WRAPPER_DIR)/src/generated/sha256sums.txt:
 	@echo "-- Generating $(@F)"
 	@cat $(BINARY_OUTPUT_FOLDER)/*.sha256 > $(BINARY_WRAPPER_DIR)/src/generated/sha256sums.txt
+	@for f in $(BINARY_OUTPUT_FOLDER)/experimental/*.sha256; do \
+		sed "s|  \(.*\)|  experimental/\1|" "$$f"; \
+	done >> $(BINARY_WRAPPER_DIR)/src/generated/sha256sums.txt
 
 .PHONY: build-binary-wrapper
-build-binary-wrapper: pre-build-binary-wrapper $(BINARY_WRAPPER_DIR)/src/generated/version $(BINARY_WRAPPER_DIR)/src/generated/sha256sums.txt
+build-binary-wrapper: pre-build-binary-wrapper $(BINARY_WRAPPER_DIR)/src/generated/version $(BINARY_WRAPPER_DIR)/src/generated/sha256sums.txt $(BINARY_RELEASES_FOLDER_TS_CLI)/experimental/snyk-linux $(BINARY_RELEASES_FOLDER_TS_CLI)/experimental/snyk-linux-arm64
 	@echo "-- Building Typescript Binary Wrapper ($(BINARY_WRAPPER_DIR)/dist/)"
 	@cd $(BINARY_WRAPPER_DIR); npm run build
 
