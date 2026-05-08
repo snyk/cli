@@ -9,10 +9,10 @@ jest.setTimeout(1000 * 60); // 60 seconds - tests involve timeouts
 // SNYK_TIMEOUT_SECS=5, server delay=10s, grace period=3s
 // Expected: CLI should timeout around 8s (5+3), definitely before server responds at 10s
 const TIMEOUT_SECS = 5;
-const GRACE_PERIOD_SECS = 3;
+const GRACE_PERIOD_SECS = 5;
 const SERVER_DELAY_MS = 10000;
-const EXPECTED_MIN_MS = TIMEOUT_SECS; // At least the timeout duration
-const EXPECTED_MAX_MS = (TIMEOUT_SECS + GRACE_PERIOD_SECS + 2) * 1000; // Timeout + grace + buffer
+const EXPECTED_MIN_MS = TIMEOUT_SECS * 1000; // At least the timeout duration
+const EXPECTED_MAX_MS = (TIMEOUT_SECS + GRACE_PERIOD_SECS) * 1000; // Timeout + grace
 const orgId = '11111111-2222-3333-4444-555555555555';
 
 describe('timeout behavior [exit code 69]', () => {
@@ -76,6 +76,11 @@ describe('timeout behavior [exit code 69]', () => {
       const duration = Date.now() - startTime;
 
       console.log(stdout);
+
+      // print duration and min and max in seconds
+      console.log(
+        `Duration: ${duration / 1000} seconds, Min: ${EXPECTED_MIN_MS / 1000} seconds, Max: ${EXPECTED_MAX_MS / 1000} seconds`,
+      );
 
       // Should return exit code 69 for timeout
       expect(code).toEqual(EXIT_CODES.EX_UNAVAILABLE);

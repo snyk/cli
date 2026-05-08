@@ -1,11 +1,21 @@
 import { runSnykCLI } from '../util/runSnykCLI';
+import * as path from 'path';
 import { pathToFileURL } from 'url';
 import { sleep } from '../../../src/lib/common';
 import * as cp from 'child_process';
 import * as rpc from 'vscode-jsonrpc/node';
 import { withFipsEnvIfNeeded } from '../util/fipsTestHelper';
+import { requireSnykToken } from '../util/requireSnykToken';
 
 jest.setTimeout(1000 * 120);
+
+/** snyk-ls v25+ wire type: only entries with `changed: true` are applied (see ConfigSetting in snyk-ls). */
+function lspConfigSetting(value: unknown): {
+  value: unknown;
+  changed: boolean;
+} {
+  return { value, changed: true };
+}
 
 describe('Language Server Extension', () => {
   it('get ls licenses', async () => {
@@ -30,9 +40,15 @@ describe('Language Server Extension', () => {
   });
 
   it('run and wait for diagnostics', async () => {
+    const token = requireSnykToken();
     let cmd = '';
     if (process.env.TEST_SNYK_COMMAND !== undefined) {
       cmd = process.env.TEST_SNYK_COMMAND;
+    }
+    if (!cmd) {
+      throw new Error(
+        'Set TEST_SNYK_COMMAND to the built CLI binary (e.g. ./binary-releases/snyk-macos-arm64).',
+      );
     }
 
     const cli = cp.spawn(cmd, ['language-server'], {
@@ -51,6 +67,33 @@ describe('Language Server Extension', () => {
       new rpc.StreamMessageWriter(cli.stdin),
     );
 
+    const workspaceFixture = path.resolve(
+      path.join(__dirname, '../../fixtures/npm/with-vulnerable-lodash-dep'),
+    );
+    const cliPathResolved = cmd !== '' ? path.resolve(cmd) : '';
+
+    // Keys are internal/pflag names (e.g. internal/types/ldx_sync_config.go in snyk-ls).
+    const initOptions = {
+      settings: {
+        api_endpoint: lspConfigSetting(process.env.TEST_SNYK_API),
+        token: lspConfigSetting(token),
+        authentication_method: lspConfigSetting('token'),
+        automatic_authentication: lspConfigSetting(false),
+        trust_enabled: lspConfigSetting(true),
+        trusted_folders: lspConfigSetting([workspaceFixture]),
+        snyk_oss_enabled: lspConfigSetting(true),
+        snyk_code_enabled: lspConfigSetting(false),
+        snyk_iac_enabled: lspConfigSetting(false),
+        snyk_secrets_enabled: lspConfigSetting(false),
+        automatic_download: lspConfigSetting(false),
+        cli_path: lspConfigSetting(cliPathResolved),
+        scan_automatic: lspConfigSetting(true),
+        send_error_reports: lspConfigSetting(false),
+      },
+      integrationName: 'MyFakePlugin',
+      integrationVersion: '1.2.3',
+    };
+
     // create an RPC endpoint for the process
     connection.listen();
 
@@ -68,25 +111,11 @@ describe('Language Server Extension', () => {
       workspaceFolders: [
         {
           name: 'workspace',
-          uri: pathToFileURL('./test/fixtures/npm/with-vulnerable-lodash-dep')
-            .href,
+          uri: pathToFileURL(workspaceFixture).href,
         },
       ],
       rootUri: null,
-      initializationOptions: {
-        activateSnykCodeSecurity: 'false',
-        activateSnykCodeQuality: 'false',
-        activateSnykOpenSource: 'true',
-        activateSnykIac: 'false',
-        endpoint: process.env.TEST_SNYK_API,
-        token: process.env.TEST_SNYK_TOKEN,
-        manageBinariesAutomatically: 'false',
-        enableTrustedFoldersFeature: 'false',
-        integrationName: 'MyFakePlugin',
-        integrationVersion: '1.2.3',
-        enableTelemetry: 'false',
-        cliPath: cmd,
-      },
+      initializationOptions: initOptions,
     });
 
     let diagnosticCount = 0;

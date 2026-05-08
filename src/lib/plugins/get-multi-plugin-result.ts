@@ -203,6 +203,16 @@ export async function getMultiPluginResult(
   }
 
   if (!allResults.length) {
+    if (options['print-output-jsonl-with-errors']) {
+      return {
+        plugin: {
+          name: 'custom-auto-detect',
+        },
+        scannedProjects: allResults,
+        failedResults,
+      };
+    }
+
     // No projects were scanned successfully
     let message = `Failed to get dependencies for all ${targetFiles.length} potential projects.\n`;
 
