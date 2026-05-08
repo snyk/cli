@@ -9,6 +9,7 @@ export type FindingType = 'iacIssue';
 
 export interface PluginResponse {
   scanResults: ScanResult[];
+  analytics?: Analytics[];
 }
 
 export interface GitTarget {
