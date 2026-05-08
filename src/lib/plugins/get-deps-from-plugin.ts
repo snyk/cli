@@ -3,7 +3,7 @@ import * as pathLib from 'path';
 import chalk from 'chalk';
 import { icon } from '../theme';
 import { legacyPlugin as pluginApi } from '@snyk/cli-interface';
-import { find } from '../find-files';
+import { find, isExcludedPath } from '../find-files';
 import { Options, TestOptions, MonitorOptions } from '../types';
 import { NoSupportedManifestsFoundError } from '../errors';
 import {
@@ -45,10 +45,16 @@ export async function getDepsFromPlugin(
     const scanType = options.yarnWorkspaces ? 'yarnWorkspaces' : 'allProjects';
     const levelsDeep = options.detectionDepth;
     const ignore = options.exclude ? options.exclude.split(',') : [];
+    const excludePaths = options.excludePaths
+      ? options.excludePaths
+          .split(',')
+          .map((p) => pathLib.resolve(root, p.trim()))
+      : [];
 
     const { files: targetFiles, allFilesFound } = await find({
       path: root,
       ignore,
+      excludePaths,
       filter: multiProjectProcessors[scanType].files,
       featureFlags,
       levelsDeep,
@@ -82,6 +88,22 @@ export async function getDepsFromPlugin(
       targetFiles,
       featureFlags,
     );
+
+    if (excludePaths.length > 0) {
+      // Workspace parsers (e.g. pnpm) discover projects by reading workspace
+      // config files rather than walking the filesystem, so they bypass the
+      // exclusion in find(). Re-apply isExcludedPath here so both code paths
+      // share the same matching semantics (including Windows case handling).
+      inspectRes.scannedProjects = inspectRes.scannedProjects.filter(
+        (project) => {
+          const targetFile = project.meta?.targetFile || project.targetFile;
+          if (!targetFile) return true;
+          const resolved = pathLib.resolve(root, targetFile);
+          return !isExcludedPath(resolved, excludePaths);
+        },
+      );
+    }
+
     const scannedProjects = inspectRes.scannedProjects;
     const analyticData = {
       scannedProjects: scannedProjects.length,
@@ -91,6 +113,7 @@ export async function getDepsFromPlugin(
       ),
       levelsDeep,
       ignore,
+      excludePaths,
     };
     analytics.add(scanType, analyticData);
     debug(
