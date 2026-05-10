@@ -19,7 +19,7 @@ require (
 	github.com/snyk/cli-extension-os-flows v0.0.0-20260423112219-b7ba9dd68e57
 	github.com/snyk/cli-extension-sbom v0.0.0-20260428131356-48881c6270fa
 	github.com/snyk/cli-extension-secrets v0.0.0-20260505103358-cc205308a93e
-	github.com/snyk/code-client-go v1.26.7
+	github.com/snyk/code-client-go v1.27.0
 	github.com/snyk/container-cli v0.0.0-20260213211631-cd2b2cf8f3ea
 	github.com/snyk/error-catalog-golang-public v0.0.0-20260505112649-a5103d411663
 	github.com/snyk/go-application-framework v0.0.0-20260506111235-cca3157b9435
