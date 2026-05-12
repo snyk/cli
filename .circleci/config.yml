@@ -602,7 +602,7 @@ workflows:
           go_target_os: linux
           go_os: linux
           go_arch: amd64
-          static_binary: false # TODO: set to true when we have confidence for v1.1304.0 release
+          static_binary: true
           go_download_base_url: << pipeline.parameters.go_download_base_url >>
           executor: docker-amd64-xl
           requires:
@@ -645,7 +645,7 @@ workflows:
           go_target_os: linux
           go_os: linux
           go_arch: arm64
-          static_binary: false # TODO: set to true when we have confidence for v1.1304.0 release
+          static_binary: true
           go_download_base_url: << pipeline.parameters.go_download_base_url >>
           executor: docker-arm64-xl
           requires:
@@ -1144,6 +1144,20 @@ workflows:
                 - '/release.*/'
                 - '/.*e2e.*/'
 
+      - test-release-static:
+          name: e2e snyk-linux tests (scratch-container-amd64)
+          context:
+            - team_hammerhead-cli
+          requires:
+            - upload version
+          cli_download_base_url: << pipeline.parameters.cli_download_base_url >>
+          filters:
+            branches:
+              only:
+                - main
+                - '/release.*/'
+                - '/.*e2e.*/'
+
       - noop:
           name: Start Deployments
           requires:
@@ -1166,6 +1180,7 @@ workflows:
             - e2e fips tests (win-server2022-amd64)
             - e2e experimental tests (linux-static-amd64)
             - e2e experimental tests (scratch-container-amd64)
+            - e2e snyk-linux tests (scratch-container-amd64)
           filters:
             branches:
               only:
