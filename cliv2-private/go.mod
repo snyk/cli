@@ -1,36 +1,10 @@
-module github.com/snyk/cli/cliv2
+module github.com/snyk/cli/cliv2-private
 
 go 1.26.3
 
 require (
-	github.com/elazarl/goproxy v1.7.2
-	github.com/elazarl/goproxy/ext v0.0.0-20230808193330-2592e75ae04a
-	github.com/gofrs/flock v0.13.0
-	github.com/golang/mock v1.6.0
-	github.com/google/uuid v1.6.0
-	github.com/pkg/errors v0.9.1
-	github.com/rs/zerolog v1.34.0
-	github.com/snyk/cli-extension-agent-scan v0.0.0-20260505093105-90d9442ea939
-	github.com/snyk/cli-extension-ai-bom v0.0.0-20260319140413-ac7392950603
-	github.com/snyk/cli-extension-ai-redteam v0.0.0-20260331152502-ce341aeaff9e
-	github.com/snyk/cli-extension-dep-graph v1.22.1
-	github.com/snyk/cli-extension-iac v0.0.0-20260515092252-505c498f1077
-	github.com/snyk/cli-extension-iac-rules v0.0.0-20260515141409-fb475901bb8e
-	github.com/snyk/cli-extension-os-flows v0.0.0-20260526152725-59c9ce00d48b
-	github.com/snyk/cli-extension-sbom v0.0.0-20260428131356-48881c6270fa
-	github.com/snyk/cli-extension-secrets v0.0.0-20260519130658-5bc07275ad09
-	github.com/snyk/code-client-go v1.27.0
-	github.com/snyk/container-cli v0.0.0-20260213211631-cd2b2cf8f3ea
-	github.com/snyk/error-catalog-golang-public v0.0.0-20260505112649-a5103d411663
-	github.com/snyk/go-application-framework v0.0.0-20260521100148-fa5bb2f17d49
-	github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65
-	github.com/snyk/snyk-iac-capture v0.6.5
-	github.com/snyk/snyk-ls v0.0.0-20260521200407-f9b48c0d538f
-	github.com/snyk/studio-mcp v1.11.0
-	github.com/spf13/cobra v1.9.1
-	github.com/spf13/pflag v1.0.10
-	github.com/stretchr/testify v1.11.1
-	golang.org/x/mod v0.35.0
+	github.com/snyk/cli/cliv2 v0.0.0
+	github.com/snyk/remy-cli-extension v1.0.1
 )
 
 require (
@@ -54,7 +28,9 @@ require (
 	github.com/adrg/xdg v0.5.3 // indirect
 	github.com/agext/levenshtein v1.2.3 // indirect
 	github.com/agnivade/levenshtein v1.2.0 // indirect
+	github.com/alecthomas/chroma/v2 v2.20.0 // indirect
 	github.com/alexbrainman/sspi v0.0.0-20250919150558-7d374ff0d59e // indirect
+	github.com/anthropics/anthropic-sdk-go v1.37.0 // indirect
 	github.com/apapsch/go-jsonmerge/v2 v2.0.0 // indirect
 	github.com/apparentlymart/go-cidr v1.1.0 // indirect
 	github.com/apparentlymart/go-textseg/v15 v15.0.0 // indirect
@@ -80,6 +56,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sts v1.41.9 // indirect
 	github.com/aws/smithy-go v1.24.2 // indirect
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
+	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bgentry/go-netrc v0.0.0-20140422174119-9fd32a8b3d3d // indirect
 	github.com/bmatcuk/doublestar v1.3.4 // indirect
@@ -89,9 +66,11 @@ require (
 	github.com/charmbracelet/bubbles v0.14.0 // indirect
 	github.com/charmbracelet/bubbletea v0.23.1 // indirect
 	github.com/charmbracelet/colorprofile v0.4.2 // indirect
+	github.com/charmbracelet/glamour v1.0.0 // indirect
 	github.com/charmbracelet/lipgloss v1.1.1-0.20250404203927-76690c660834 // indirect
 	github.com/charmbracelet/x/ansi v0.11.6 // indirect
 	github.com/charmbracelet/x/cellbuf v0.0.15 // indirect
+	github.com/charmbracelet/x/exp/slice v0.0.0-20250327172914-2fdc97757edf // indirect
 	github.com/charmbracelet/x/term v0.2.2 // indirect
 	github.com/chzyer/readline v1.5.1 // indirect
 	github.com/clipperhouse/displaywidth v0.11.0 // indirect
@@ -101,6 +80,7 @@ require (
 	github.com/containerd/console v1.0.3 // indirect
 	github.com/creachadair/jrpc2 v1.3.0 // indirect
 	github.com/creachadair/mds v0.23.0 // indirect
+	github.com/creack/pty v1.1.24 // indirect
 	github.com/cyphar/filepath-securejoin v0.6.1 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/denisbrodbeck/machineid v1.0.1 // indirect
@@ -108,6 +88,8 @@ require (
 	github.com/docker/distribution v2.8.2+incompatible // indirect
 	github.com/dop251/goja v0.0.0-20251008123653-cf18d89f3cf6 // indirect
 	github.com/dop251/goja_nodejs v0.0.0-20250409162600-f7acab6894b0 // indirect
+	github.com/elazarl/goproxy v1.7.2 // indirect
+	github.com/elazarl/goproxy/ext v0.0.0-20230808193330-2592e75ae04a // indirect
 	github.com/elliotchance/orderedmap/v3 v3.1.0 // indirect
 	github.com/emirpasic/gods v1.18.1 // indirect
 	github.com/envoyproxy/go-control-plane/envoy v1.36.0 // indirect
@@ -132,17 +114,20 @@ require (
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-playground/validator/v10 v10.14.1 // indirect
 	github.com/go-sourcemap/sourcemap v2.1.4+incompatible // indirect
-	github.com/go-test/deep v1.0.8 // indirect
 	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect
 	github.com/gobwas/glob v0.2.3 // indirect
+	github.com/gofrs/flock v0.13.0 // indirect
 	github.com/golang/groupcache v0.0.0-20241129210726-2c02b8208cf8 // indirect
+	github.com/golang/mock v1.6.0 // indirect
 	github.com/gomarkdown/markdown v0.0.0-20260417124207-7d523f7318df // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/google/pprof v0.0.0-20250403155104-27863c87afa6 // indirect
 	github.com/google/s2a-go v0.1.9 // indirect
+	github.com/google/uuid v1.6.0 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.3.14 // indirect
 	github.com/googleapis/gax-go/v2 v2.17.0 // indirect
+	github.com/gorilla/css v1.0.1 // indirect
 	github.com/gorilla/mux v1.8.1 // indirect
 	github.com/gosimple/hashdir v1.0.2 // indirect
 	github.com/hashicorp/aws-sdk-go-base/v2 v2.0.0-beta.72 // indirect
@@ -179,6 +164,7 @@ require (
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-localereader v0.0.1 // indirect
 	github.com/mattn/go-runewidth v0.0.20 // indirect
+	github.com/microcosm-cc/bluemonday v1.0.27 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/mitchellh/go-wordwrap v1.0.1 // indirect
 	github.com/muesli/ansi v0.0.0-20221106050444-61f0cd9a192a // indirect
@@ -189,6 +175,7 @@ require (
 	github.com/oapi-codegen/runtime v1.1.2 // indirect
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
 	github.com/open-policy-agent/opa v0.69.0 // indirect
+	github.com/openai/openai-go v1.12.0 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/otiai10/copy v1.14.1 // indirect
 	github.com/otiai10/mint v1.6.3 // indirect
@@ -197,6 +184,7 @@ require (
 	github.com/peterh/liner v1.2.2 // indirect
 	github.com/pjbgf/sha1cd v0.6.0 // indirect
 	github.com/pkg/browser v0.0.0-20240102092130-5ac0b6a4141c // indirect
+	github.com/pkg/errors v0.9.1 // indirect
 	github.com/planetscale/vtprotobuf v0.6.1-0.20240319094008-0393e58bdf10 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/prometheus/client_golang v1.20.4 // indirect
@@ -207,6 +195,7 @@ require (
 	github.com/puzpuzpuz/xsync/v3 v3.5.1 // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
+	github.com/rs/zerolog v1.34.0 // indirect
 	github.com/sabhiram/go-gitignore v0.0.0-20210923224102-525f6e181f06 // indirect
 	github.com/sagikazarmark/locafero v0.7.0 // indirect
 	github.com/samber/lo v1.53.0 // indirect
@@ -214,16 +203,40 @@ require (
 	github.com/shirou/gopsutil v3.21.11+incompatible // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/skeema/knownhosts v1.3.2 // indirect
+	github.com/snyk/cli-extension-agent-scan v0.0.0-20260505093105-90d9442ea939 // indirect
+	github.com/snyk/cli-extension-ai-bom v0.0.0-20260319140413-ac7392950603 // indirect
+	github.com/snyk/cli-extension-ai-redteam v0.0.0-20260331152502-ce341aeaff9e // indirect
+	github.com/snyk/cli-extension-dep-graph v1.22.1 // indirect
+	github.com/snyk/cli-extension-iac v0.0.0-20260515092252-505c498f1077 // indirect
+	github.com/snyk/cli-extension-iac-rules v0.0.0-20260515141409-fb475901bb8e // indirect
+	github.com/snyk/cli-extension-os-flows v0.0.0-20260526152725-59c9ce00d48b // indirect
+	github.com/snyk/cli-extension-sbom v0.0.0-20260428131356-48881c6270fa // indirect
+	github.com/snyk/cli-extension-secrets v0.0.0-20260519130658-5bc07275ad09 // indirect
+	github.com/snyk/code-client-go v1.27.0 // indirect
+	github.com/snyk/container-cli v0.0.0-20260213211631-cd2b2cf8f3ea // indirect
 	github.com/snyk/dep-graph/go v0.0.0-20260127160647-c836da762c62 // indirect
+	github.com/snyk/error-catalog-golang-public v0.0.0-20260505112649-a5103d411663 // indirect
+	github.com/snyk/go-application-framework v0.0.0-20260521100148-fa5bb2f17d49 // indirect
+	github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65 // indirect
 	github.com/snyk/policy-engine v1.1.4 // indirect
+	github.com/snyk/snyk-iac-capture v0.6.5 // indirect
+	github.com/snyk/snyk-ls v0.0.0-20260521200407-f9b48c0d538f // indirect
+	github.com/snyk/studio-mcp v1.11.0 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/sourcegraph/go-lsp v0.0.0-20240223163137-f80c5dd31dfd // indirect
 	github.com/spf13/afero v1.14.0 // indirect
 	github.com/spf13/cast v1.7.1 // indirect
+	github.com/spf13/cobra v1.9.1 // indirect
+	github.com/spf13/pflag v1.0.10 // indirect
 	github.com/spf13/viper v1.20.1 // indirect
 	github.com/spiffe/go-spiffe/v2 v2.6.0 // indirect
+	github.com/stretchr/testify v1.11.1 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
 	github.com/tchap/go-patricia/v2 v2.3.1 // indirect
+	github.com/tidwall/gjson v1.18.0 // indirect
+	github.com/tidwall/match v1.1.1 // indirect
+	github.com/tidwall/pretty v1.2.1 // indirect
+	github.com/tidwall/sjson v1.2.5 // indirect
 	github.com/tklauser/go-sysconf v0.3.14 // indirect
 	github.com/tklauser/numcpus v0.8.0 // indirect
 	github.com/ulikunitz/xz v0.5.15 // indirect
@@ -236,6 +249,8 @@ require (
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
 	github.com/yashtewari/glob-intersection v0.2.0 // indirect
 	github.com/yosida95/uritemplate/v3 v3.0.2 // indirect
+	github.com/yuin/goldmark v1.7.13 // indirect
+	github.com/yuin/goldmark-emoji v1.0.6 // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
 	github.com/zclconf/go-cty v1.14.0 // indirect
 	github.com/zclconf/go-cty-yaml v1.0.3 // indirect
@@ -252,6 +267,7 @@ require (
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/crypto v0.52.0 // indirect
 	golang.org/x/exp v0.0.0-20260410095643-746e56fc9e2f // indirect
+	golang.org/x/mod v0.35.0 // indirect
 	golang.org/x/net v0.54.0 // indirect
 	golang.org/x/oauth2 v0.36.0 // indirect
 	golang.org/x/sync v0.20.0 // indirect
@@ -271,26 +287,5 @@ require (
 	sigs.k8s.io/yaml v1.4.0 // indirect
 )
 
-// version 2491eb6c1c75 contains a valid license
-replace github.com/mattn/go-localereader v0.0.1 => github.com/mattn/go-localereader v0.0.2-0.20220822084749-2491eb6c1c75
-
-//replace github.com/snyk/go-application-framework => ../../go-application-framework
-
-//replace github.com/snyk/snyk-ls => ../../snyk-ls
-//replace github.com/snyk/code-client-go => ../../code-client-go
-
-//replace github.com/snyk/cli-extension-iac => ../../cli-extension-iac
-
-//replace github.com/snyk/cli-extension-os-flows => ../../cli-extension-os-flows
-
-// replace github.com/snyk/cli-extension-ai-bom => ../../cli-extension-ai-bom
-
-// replace github.com/snyk/cli-extension-ai-redteam => ../../cli-extension-ai-redteam
-
-// replace github.com/snyk/studio-mcp => ../../studio-mcp
-
-// replace github.com/snyk/cli-extension-agent-scan => ../../cli-extension-agent-scan
-
-// replace github.com/snyk/cli-extension-sbom => ../../cli-extension-sbom
-
-//replace github.com/snyk/cli-extension-secrets => ../../cli-extension-secrets
+// For local development, point to the sibling public module:
+replace github.com/snyk/cli/cliv2 => ../cliv2
