@@ -64,6 +64,7 @@ import (
 	"github.com/snyk/go-application-framework/pkg/workflow"
 
 	snykls "github.com/snyk/snyk-ls/ls_extension"
+	"github.com/snyk/remy-cli-extension/pkg/remy"
 	"github.com/snyk/studio-mcp/pkg/mcp"
 
 	cli_errors "github.com/snyk/cli/cliv2/internal/errors"
@@ -475,6 +476,7 @@ func initExtensions(engine workflow.Engine, config configuration.Configuration) 
 	engine.AddExtensionInitializer(ignoreworkflow.InitIgnoreWorkflows)
 	engine.AddExtensionInitializer(agentscan.Init)
 	engine.AddExtensionInitializer(secrets.Init)
+	engine.AddExtensionInitializer(remy.Init)
 
 	if config.GetBool(configuration.PREVIEW_FEATURES_ENABLED) {
 		config.Set("INTERNAL_USE_UFM_PRESENTER", true)
