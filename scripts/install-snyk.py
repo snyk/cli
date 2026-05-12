@@ -141,6 +141,15 @@ def download_with_retry(retries, base_url, os_type, arch_type):
 
     return download_status
 
+def is_alpine():
+    try:
+        with open("/etc/os-release", "r") as f:
+            content = f.read().lower()
+            return "id=alpine" in content
+    except Exception:
+        return False
+
+
 def get_filename(arch_type, os_type):
     filename = ""
     output_filename = "snyk"
@@ -148,13 +157,11 @@ def get_filename(arch_type, os_type):
 
     if os_type == "linux" and arch_type == "arm64":
         filename = "snyk-linux-arm64"
-        stat_result = os.path.exists("/lib/ld-musl-aarch64.so.1")
-        if stat_result:
+        if is_alpine():
             filename = "snyk-alpine-arm64"
     if os_type == "linux" and arch_type == "amd64":
         filename = "snyk-linux"
-        stat_result = os.path.exists("/lib/ld-musl-x86_64.so.1")
-        if stat_result:
+        if is_alpine():
             filename = "snyk-alpine"
     if os_type == "windows" and arch_type == "amd64":
         filename = "snyk-win"
