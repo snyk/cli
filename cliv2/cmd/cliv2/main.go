@@ -122,6 +122,7 @@ func initApplicationConfiguration(config configuration.Configuration) {
 	config.AddAlternativeKeys(configuration.LOG_LEVEL, []string{debug_level_flag})
 	config.AddAlternativeKeys(configuration.INTEGRATION_NAME, []string{integrationNameFlag})
 	config.AddAlternativeKeys(middleware.ConfigurationKeyRequestAttempts, []string{"snyk_max_attempts", maxNetworkRequestAttempts})
+	config.AddAlternativeKeys(cliv2.ConfigKeyRequestConcurrency, []string{"snyk_request_concurrency"})
 }
 
 func getFullCommandString(cmd *cobra.Command) string {

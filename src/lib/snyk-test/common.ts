@@ -111,18 +111,20 @@ export type FailOn = 'all' | 'upgradable' | 'patchable';
 export const RETRY_ATTEMPTS = 3;
 export const RETRY_DELAY = 500;
 
-const DEFAULT_REQUEST_CONCURRENCY = 10;
+const DEFAULT_REQUEST_CONCURRENCY = 5;
 const MIN_REQUEST_CONCURRENCY = 1;
 const MAX_REQUEST_CONCURRENCY = 50;
 
 /**
  * Returns the maximum number of in-flight Snyk dependency-test or
- * dependency-monitor HTTP requests permitted at once. Override with the
- * SNYK_REQUEST_CONCURRENCY environment variable; values are clamped to
+ * dependency-monitor HTTP requests permitted at once. The wrapping Go CLI
+ * resolves the user-facing SNYK_REQUEST_CONCURRENCY env var (and any future
+ * config-file/flag sources) and forwards the resolved value via the internal
+ * SNYK_INTERNAL_REQUEST_CONCURRENCY env var read here. Values are clamped to
  * [MIN_REQUEST_CONCURRENCY, MAX_REQUEST_CONCURRENCY].
  */
 export function getRequestConcurrency(): number {
-  const raw = process.env.SNYK_REQUEST_CONCURRENCY;
+  const raw = process.env.SNYK_INTERNAL_REQUEST_CONCURRENCY;
   if (!raw) {
     return DEFAULT_REQUEST_CONCURRENCY;
   }

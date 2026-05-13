@@ -66,6 +66,13 @@ const (
 const (
 	configKeyErrFile         = "INTERNAL_ERR_FILE_PATH"
 	ERROR_HAS_BEEN_DISPLAYED = "hasBeenDisplayed"
+	// ConfigKeyRequestConcurrency is the configuration key holding the
+	// resolved maximum number of concurrent in-flight Snyk dependency-test
+	// or dependency-monitor HTTP requests issued by the legacy CLI. The
+	// user-facing SNYK_REQUEST_CONCURRENCY env var feeds this key (registered
+	// in main.go via AddAlternativeKeys); the resolved value is forwarded to
+	// the legacy CLI process via constants.SNYK_INTERNAL_REQUEST_CONCURRENCY_ENV.
+	ConfigKeyRequestConcurrency = "internal_request_concurrency"
 )
 
 var (
@@ -355,6 +362,7 @@ func PrepareV1EnvironmentVariables(
 			constants.SNYK_NPM_ALL_PROXY,
 			constants.SNYK_OPENSSL_CONF,
 			constants.SNYK_INTERNAL_PREVIEW_FEATURES_ENABLED,
+			constants.SNYK_INTERNAL_REQUEST_CONCURRENCY_ENV,
 			constants.DEBUG_CONST,
 		}
 
@@ -390,6 +398,10 @@ func fillEnvironmentFromConfig(inputAsMap map[string]string, config configuratio
 	inputAsMap[constants.SNYK_INTERNAL_ORGID_ENV] = config.GetString(configuration.ORGANIZATION)
 	inputAsMap[constants.SNYK_INTERNAL_ERR_FILE] = config.GetString(configKeyErrFile)
 	inputAsMap[constants.SNYK_TEMP_PATH] = config.GetString(configuration.TEMP_DIR_PATH)
+
+	if config.IsSet(ConfigKeyRequestConcurrency) {
+		inputAsMap[constants.SNYK_INTERNAL_REQUEST_CONCURRENCY_ENV] = config.GetString(ConfigKeyRequestConcurrency)
+	}
 
 	if config.GetBool(configuration.PREVIEW_FEATURES_ENABLED) {
 		inputAsMap[constants.SNYK_INTERNAL_PREVIEW_FEATURES_ENABLED] = "1"
