@@ -21,7 +21,7 @@
     "snyk": "bin/snyk"
   },
   "engines": {
-    "node": "^20"
+    "node": "^22"
   },
   "workspaces": [
     "packages/*"
@@ -61,7 +61,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@open-policy-agent/opa-wasm": "^1.6.0",
-    "@sentry/node": "^7.34.0",
+    "@sentry/node": "^7.120.4",
     "@snyk/cli-interface": "2.15.0",
     "@snyk/cloud-config-parser": "^1.14.5",
     "@snyk/code-client": "^4.23.5",
@@ -111,18 +111,18 @@
     "ora": "5.4.0",
     "os-name": "^5.1.0",
     "p-map": "^4.0.0",
-    "proxy-from-env": "^1.0.0",
+    "proxy-from-env": "^2.1.0",
     "rimraf": "^2.6.3",
     "semver": "^6.0.0",
     "snyk-config": "^5.0.0",
     "snyk-cpp-plugin": "^2.24.3",
-    "snyk-docker-plugin": "9.6.5",
+    "snyk-docker-plugin": "9.7.0",
     "snyk-go-plugin": "2.1.1",
-    "snyk-gradle-plugin": "5.1.1",
+    "snyk-gradle-plugin": "6.0.0",
     "snyk-module": "3.1.0",
-    "snyk-mvn-plugin": "^4.6.1",
-    "snyk-nodejs-lockfile-parser": "2.6.1",
-    "snyk-nodejs-plugin": "^1.6.1",
+    "snyk-mvn-plugin": "^4.7.0",
+    "snyk-nodejs-lockfile-parser": "2.7.1",
+    "snyk-nodejs-plugin": "^2.0.0",
     "snyk-nuget-plugin": "4.2.0",
     "snyk-php-plugin": "1.12.1",
     "snyk-policy": "^4.1.6",
@@ -149,7 +149,7 @@
     "@types/sinon": "^7.5.0",
     "@typescript-eslint/eslint-plugin": "^4.30.0",
     "@typescript-eslint/parser": "^4.30.0",
-    "@yao-pkg/pkg": "5.16.1",
+    "@yao-pkg/pkg": "6.19.0",
     "ajv": "^8.18.0",
     "ajv-draft-04": "^1.0.0",
     "body-parser": "^1.19.0",

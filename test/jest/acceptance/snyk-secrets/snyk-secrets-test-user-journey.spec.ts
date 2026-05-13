@@ -31,8 +31,6 @@ let TEMP_LOCAL_PATH: string;
 const env = {
   ...process.env,
   INTERNAL_SNYK_FEATURE_FLAG_IS_SECRETS_ENABLED: 'true',
-  SNYK_API: process.env.TEST_SNYK_API_DEV,
-  SNYK_TOKEN: process.env.TEST_SNYK_TOKEN_DEV,
 };
 
 beforeAll(async () => {

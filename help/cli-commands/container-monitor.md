@@ -12,7 +12,7 @@ Use the `container monitor` command before integrating your code into production
 
 If you make changes to your code, you must run the `container monitor` command again.
 
-For more information, see [Snyk CLI for Snyk Container](../scan-and-maintain-projects-using-the-cli/snyk-cli-for-snyk-container/)
+For more information, see [Snyk CLI for Snyk Container](https://docs.snyk.io/developer-tools/snyk-cli/scan-and-maintain-projects-using-the-cli/snyk-cli-for-snyk-container)
 
 ## Exit codes
 

@@ -41,8 +41,8 @@ import {
   RETRY_DELAY,
   getRequestConcurrency,
   printDepGraph,
-  printEffectiveDepGraph,
-  printEffectiveDepGraphError,
+  printDepGraphJsonl,
+  printDepGraphError,
   assembleQueryString,
   shouldPrintDepGraph,
   shouldPrintEffectiveDepGraph,
@@ -244,7 +244,11 @@ async function sendAndParseResults(
 ): Promise<TestResult[]> {
   const results: TestResult[] = [];
   const ecosystem = getEcosystem(options);
-  const depGraphs = new Map<string, depGraphLib.DepGraphData>();
+  const depGraphs: {
+    graph: depGraphLib.DepGraphData;
+    targetName: string;
+    targetFile: string;
+  }[] = [];
 
   await spinner.clear<void>(spinnerLbl)();
   if (!options.quiet) {
@@ -320,7 +324,11 @@ async function sendAndParseResults(
 
     if (ecosystem && depGraph) {
       const targetName = scanResult ? constructProjectName(scanResult) : '';
-      depGraphs.set(targetName, depGraph.toJSON());
+      depGraphs.push({
+        targetName,
+        graph: depGraph.toJSON(),
+        targetFile: targetFile || displayTargetFile || '',
+      });
     }
 
     const legacyRes = convertIssuesToAffectedPkgs(response);
@@ -350,9 +358,28 @@ async function sendAndParseResults(
 
   if (ecosystem && shouldPrintDepGraph(options)) {
     await spinner.clear<void>(spinnerLbl)();
-    for (const [targetName, depGraph] of depGraphs.entries()) {
-      await printDepGraph(depGraph, targetName, process.stdout);
+    if (options['print-output-jsonl-with-errors']) {
+      for (const { graph, targetFile, targetName } of depGraphs) {
+        await printDepGraphJsonl(
+          graph,
+          targetFile || targetName,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          process.stdout,
+        );
+      }
+    } else {
+      const depGraphsByTarget = new Map(
+        depGraphs.map(({ targetName, graph }) => [targetName, graph]),
+      );
+      for (const [targetName, graph] of depGraphsByTarget) {
+        await printDepGraph(graph, targetName, process.stdout);
+      }
     }
+
     return [];
   }
 
@@ -374,10 +401,11 @@ export async function runTest(
     // dependency graph artifacts for printing.
     if (
       !options.docker &&
-      (shouldPrintDepGraph(options) || shouldPrintEffectiveDepGraph(options))
+      (shouldPrintDepGraph(options) ||
+        shouldPrintEffectiveDepGraph(options) ||
+        options['print-output-jsonl-with-errors'])
     ) {
-      const results: TestResult[] = [];
-      return results;
+      return [];
     }
 
     return await sendAndParseResults(payloads, spinnerLbl, root, options);
@@ -673,9 +701,12 @@ async function assembleLocalPayloads(
         failedResults,
       );
 
-      if (shouldPrintEffectiveDepGraphWithErrors(options)) {
+      if (
+        shouldPrintEffectiveDepGraphWithErrors(options) ||
+        options['print-output-jsonl-with-errors']
+      ) {
         for (const failed of failedResults) {
-          await printEffectiveDepGraphError(root, failed, process.stdout);
+          await printDepGraphError(root, failed, process.stdout);
         }
       }
 
@@ -826,7 +857,20 @@ async function assembleLocalPayloads(
           );
         }
 
-        await printDepGraph(root.toJSON(), targetFile || '', process.stdout);
+        if (options['print-output-jsonl-with-errors']) {
+          await printDepGraphJsonl(
+            root.toJSON(),
+            targetFile || '',
+            project.plugin.targetFile,
+            target,
+            scannedProject.meta?.targetRuntime ?? project.plugin?.targetRuntime,
+            deps.plugin.name,
+            scannedProject.meta?.workspacePluginName,
+            process.stdout,
+          );
+        } else {
+          await printDepGraph(root.toJSON(), targetFile || '', process.stdout);
+        }
       }
 
       const body: PayloadBody = {
@@ -867,13 +911,13 @@ async function assembleLocalPayloads(
 
       const pruneIsRequired = options.pruneRepeatedSubdependencies;
 
-      if (packageManager) {
+      if (packageManager && !options['print-output-jsonl-with-errors']) {
         depGraph = await pruneGraph(depGraph, packageManager, pruneIsRequired);
       }
 
       if (shouldPrintEffectiveDepGraph(options)) {
         spinner.clear<void>(spinnerLbl)();
-        await printEffectiveDepGraph(
+        await printDepGraphJsonl(
           depGraph.toJSON(),
           targetFile,
           project.plugin.targetFile,

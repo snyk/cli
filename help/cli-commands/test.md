@@ -37,7 +37,7 @@ See also subsequent sections for options for specific build environments, packag
 
 ### `--reachability=<true|false>`
 
-Perform reachability analysis during the scan. This feature is currently in Snyk Preview. For more information, refer to [Reachability analysis](../../../manage-risk/prioritize-issues-for-fixing/reachability-analysis.md).
+Perform reachability analysis during the scan. This feature is currently in Snyk Preview. For more information, refer to [Reachability analysis](https://docs.snyk.io/manage-risk/prioritize-issues-for-fixing/reachability-analysis)
 
 Default: `false`
 
@@ -282,11 +282,11 @@ Auto-detect Maven, JAR, WAR, and AAR files recursively from the current folder.
 
 ### Maven-specific options
 
-Add the `--` option for Maven-specific options, followed by the Maven option.&#x20;
+Add the `--` option for Maven-specific options, followed by the Maven option.
 
 The following examples are not all-inclusive. For more details, see [Maven CLI options](https://maven.apache.org/ref/3.9.11/maven-embedder/cli.html).
 
-Examples: `-- -Dpkg_version=1.4`; `-- -Dprofile=my-profile`; `-- -s path/to/settings.xml` &#x20;
+Examples: `-- -Dpkg_version=1.4`; `-- -Dprofile=my-profile`; `-- -s path/to/settings.xml`
 
 ## Options for Gradle projects
 
