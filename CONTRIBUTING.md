@@ -164,7 +164,7 @@ When needed (for example blocking failures outside the CLI), CI can exclude spec
 
 - **CircleCI:** add the variable on context **`team-cli-workflow-context`** (name `TEST_SNYK_IGNORE_LIST`, value is only the pattern text—for example `snyk-code-user-journey\.spec\.ts`—not `TEST_SNYK_IGNORE_LIST=...`). Those workflows attach that context to **`acceptance-tests`** jobs so the env is available there.
 - **Precedence:** for paths that match a fragment, **`TEST_SNYK_IGNORE_LIST` wins over `TEST_SNYK_DONT_SKIP_ANYTHING`** (the file is not collected). `TEST_SNYK_DONT_SKIP_ANYTHING` still applies to specs that remain in the run.
-- **Observability:** stderr **`[acceptance ignore]`**: applied fragments (once per worker), skipped invalid fragments (when any), and the precedence note—avoid relying on stdout for this signal.
+- **Observability:** **`console.warn`** on **stderr** with prefix **`[acceptance ignore]`**: skipped invalid fragments (if any), then applied fragments and precedence vs **`TEST_SNYK_DONT_SKIP_ANYTHING`**—each summary logged once per worker; avoid relying on stdout for this signal.
 
 `testPathIgnorePatterns` applies to whole files; it cannot skip a single `it()` inside a spec.
 
@@ -175,7 +175,7 @@ CI can skip selected `it()` blocks inside specs that Jest still collects, using 
 - **CircleCI:** add the variable on context **`team-cli-workflow-context`** (name `TEST_SNYK_SKIP_TEST_IDS`, value is only the id list—for example `snyk-code-user-journey:golang-native:ignored-issues:severity-threshold,snyk-code-user-journey:golang-native:ignored-issues:single-file`—not `TEST_SNYK_SKIP_TEST_IDS=...`). Those workflows attach that context to **`acceptance-tests`** jobs so the env is available there.
 - **Wiring:** specs use **`acceptanceIt(id)`** from [`test/jest/util/acceptanceTestSkipById.ts`](test/jest/util/acceptanceTestSkipById.ts); stable ids for the Snyk Code user-journey are **`SnykCodeUserJourneyContextSkipIds`** in that file.
 - **Precedence:** if a path matches **`TEST_SNYK_IGNORE_LIST`**, Jest never collects that spec—**`TEST_SNYK_SKIP_TEST_IDS` has no effect** on tests inside it. **`TEST_SNYK_DONT_SKIP_ANYTHING`** does **not** unsuspend **`acceptanceIt`** skips; clear **`TEST_SNYK_SKIP_TEST_IDS`** instead.
-- **Observability:** when ids are present, the helper logs **`console.warn`** on **stderr** with prefix **`[acceptance skip tests]`** (once per worker)—avoid relying on stdout for this signal.
+- **Observability:** **`console.warn`** on **stderr** with prefix **`[acceptance skip tests]`**, listing ids—once per worker; avoid relying on stdout for this signal.
 
 Stable ids for the golang/native ignored-issues journeys:
 
