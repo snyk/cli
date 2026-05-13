@@ -160,11 +160,11 @@ npm run test:acceptance -- --selectProjects coreCli
 
 #### Skipping acceptance spec files via CircleCI context (`TEST_SNYK_IGNORE_LIST`)
 
-When needed (for example blocking failures outside the CLI), CI can exclude specific acceptance specs by path without changing repo code. Set the environment variable **`TEST_SNYK_IGNORE_LIST`** to a comma-separated list of **regex fragments** that Jest merges into `testPathIgnorePatterns` (same semantics as Jest’s ignore patterns). Empty entries are ignored after trimming.
+When needed (for example blocking failures outside the CLI), CI can exclude specific acceptance specs by path without changing repo code. Set the environment variable **`TEST_SNYK_IGNORE_LIST`** to a comma-separated list of **regex fragments** that Jest merges into `testPathIgnorePatterns` (same semantics as Jest’s ignore patterns). Empty entries are ignored after trimming. Each fragment must compile as a JavaScript **`RegExp`** source; malformed fragments are skipped and listed on stderr under **`[acceptance ignore]`** so Jest still starts.
 
 - **CircleCI:** add the variable on context **`team-cli-workflow-context`** (name `TEST_SNYK_IGNORE_LIST`, value is only the pattern text—for example `snyk-code-user-journey\.spec\.ts`—not `TEST_SNYK_IGNORE_LIST=...`). Those workflows attach that context to **`acceptance-tests`** jobs so the env is available there.
 - **Precedence:** for paths that match a fragment, **`TEST_SNYK_IGNORE_LIST` wins over `TEST_SNYK_DONT_SKIP_ANYTHING`** (the file is not collected). `TEST_SNYK_DONT_SKIP_ANYTHING` still applies to specs that remain in the run.
-- **Observability:** when fragments are present, the test factory logs **`console.warn`** on **stderr** with prefix **`[acceptance ignore]`**, the list of patterns, and the precedence note—avoid relying on stdout for this signal.
+- **Observability:** stderr **`[acceptance ignore]`**: applied fragments (once per worker), skipped invalid fragments (when any), and the precedence note—avoid relying on stdout for this signal.
 
 `testPathIgnorePatterns` applies to whole files; it cannot skip a single `it()` inside a spec.
 

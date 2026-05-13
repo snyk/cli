@@ -54,6 +54,28 @@ describe('createJestConfig (TEST_SNYK_IGNORE_LIST)', () => {
     expect(warn.mock.calls[0]?.[1]).toEqual(['same-env']);
   });
 
+  it('skips fragments that are invalid RegExp sources and does not merge them', () => {
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    const createJestConfig = loadCreateJestConfig('[bad');
+    const cfg = createJestConfig({});
+    expect(cfg.testPathIgnorePatterns).not.toContain('[bad');
+    expect(warn).toHaveBeenCalledTimes(1);
+    expect(warn.mock.calls[0]?.[1]).toContain('Skipping invalid');
+    expect(warn.mock.calls[0]?.[2]).toEqual(['[bad']);
+  });
+
+  it('merges only valid fragments when the list mixes valid and invalid entries', () => {
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    const createJestConfig = loadCreateJestConfig('ok-ignore-part,[bad');
+    const cfg = createJestConfig({});
+    expect(cfg.testPathIgnorePatterns).toContain('ok-ignore-part');
+    expect(cfg.testPathIgnorePatterns).not.toContain('[bad');
+    expect(warn).toHaveBeenCalledTimes(2);
+    expect(warn.mock.calls[0]?.[1]).toContain('Skipping invalid');
+    expect(warn.mock.calls[0]?.[2]).toEqual(['[bad']);
+    expect(warn.mock.calls[1]?.[1]).toEqual(['ok-ignore-part']);
+  });
+
   it('caller testPathIgnorePatterns merge after env fragments, not overwriting base', () => {
     jest.spyOn(console, 'warn').mockImplementation(() => {});
     const createJestConfig = loadCreateJestConfig('from-env');
