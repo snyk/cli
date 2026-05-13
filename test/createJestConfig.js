@@ -1,6 +1,4 @@
-import type { Config } from 'jest';
-
-function parseSnykIgnoreFragments(): string[] {
+function parseSnykIgnoreFragments() {
   const raw = process.env.TEST_SNYK_IGNORE_LIST;
   if (typeof raw !== 'string' || raw.trim() === '') {
     return [];
@@ -12,7 +10,7 @@ function parseSnykIgnoreFragments(): string[] {
 }
 
 /** True if `source` is a valid JavaScript RegExp pattern (Jest compiles ignore patterns this way). */
-function isValidRegExpSource(source: string): boolean {
+function isValidRegExpSource(source) {
   try {
     RegExp(source);
     return true;
@@ -21,12 +19,9 @@ function isValidRegExpSource(source: string): boolean {
   }
 }
 
-function partitionIgnoreFragments(fragments: string[]): {
-  valid: string[];
-  invalid: string[];
-} {
-  const valid: string[] = [];
-  const invalid: string[] = [];
+function partitionIgnoreFragments(fragments) {
+  const valid = [];
+  const invalid = [];
   for (const fragment of fragments) {
     if (isValidRegExpSource(fragment)) {
       valid.push(fragment);
@@ -39,7 +34,7 @@ function partitionIgnoreFragments(fragments: string[]): {
 
 let ignoreFragmentsWarned = false;
 
-export function createJestConfig(config: Partial<Config> = {}): Config {
+const createJestConfig = (config = {}) => {
   const ignorePatterns = [
     '/node_modules/',
     '/dist/',
@@ -94,4 +89,8 @@ export function createJestConfig(config: Partial<Config> = {}): Config {
     transformIgnorePatterns: [...ignorePatterns],
     ...restConfig,
   };
-}
+};
+
+module.exports = {
+  createJestConfig,
+};
