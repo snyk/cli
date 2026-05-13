@@ -1396,9 +1396,9 @@ jobs:
       - run:
           name: Install yq (prodsec open-source scan telemetry)
           command: |
-            curl -fsSL -o /usr/local/bin/yq \
+            curl -fsSL -o /usr/bin/yq \
               "https://github.com/mikefarah/yq/releases/download/v4.53.2/yq_linux_amd64"
-            chmod +x /usr/local/bin/yq
+            chmod +x /usr/bin/yq
             yq --version
       - prodsec/security_scans:
           mode: auto
