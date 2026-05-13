@@ -19,7 +19,7 @@ parameters:
   go_version:
     type: string
     # https://go.dev/doc/devel/release
-    default: '1.25.10'
+    default: '1.26.3'
   aws_version:
     type: string
     # https://github.com/aws/aws-cli/blob/v2/CHANGELOG.rst
@@ -63,7 +63,7 @@ executors:
     resource_class: medium
   docker-amd64:
     docker:
-      - image: snyklabs/cli-build-private:20260219-152627
+      - image: snyklabs/cli-build-private:20260506-072205
         auth:
           username: $DOCKER_CLI_BUILD_USERNAME
           password: $DOCKER_CLI_BUILD_PASSWORD
@@ -71,7 +71,7 @@ executors:
     resource_class: large
   docker-amd64-xl:
     docker:
-      - image: snyklabs/cli-build-private:20260219-152627
+      - image: snyklabs/cli-build-private:20260506-072205
         auth:
           username: $DOCKER_CLI_BUILD_USERNAME
           password: $DOCKER_CLI_BUILD_PASSWORD
@@ -79,7 +79,7 @@ executors:
     resource_class: xlarge
   docker-arm64:
     docker:
-      - image: snyklabs/cli-build-private-arm64:20260219-152627
+      - image: snyklabs/cli-build-private-arm64:20260506-072205
         auth:
           username: $DOCKER_CLI_BUILD_USERNAME
           password: $DOCKER_CLI_BUILD_PASSWORD
@@ -87,7 +87,7 @@ executors:
     resource_class: arm.large
   docker-arm64-xl:
     docker:
-      - image: snyklabs/cli-build-private-arm64:20260219-152627
+      - image: snyklabs/cli-build-private-arm64:20260506-072205
         auth:
           username: $DOCKER_CLI_BUILD_USERNAME
           password: $DOCKER_CLI_BUILD_PASSWORD
@@ -276,7 +276,7 @@ commands:
       - restore_cache:
           name: Restoring Windows tools cache
           keys:
-            - windows-tools-cache-v2-{{ arch }}
+            - windows-tools-cache-v4-{{ arch }}-{{ checksum ".nvmrc" }}
       - run:
           name: Install Node.js (native)
           shell: powershell
@@ -315,9 +315,10 @@ commands:
             .\scripts\windows\ensure-python-uv.ps1
       - save_cache:
           name: Saving Windows tools cache
-          key: windows-tools-cache-v2-{{ arch }}
+          key: windows-tools-cache-v4-{{ arch }}-{{ checksum ".nvmrc" }}
           paths:
             - << pipeline.parameters.windows_cache_dir >>
+            - C:\ProgramData\nvm
 
   install-deps-windows-native-full-signing:
     steps:
@@ -377,17 +378,6 @@ commands:
       - run:
           name: No dependencies to install
           command: echo all done!
-
-  # this can be removed if we install the xdg-utils package in the docker image
-  install-deps-linux-acceptance-tests:
-    steps:
-      - run:
-          name: Installing linux acceptance tests dependencies
-          command: |
-            sudo apt-get update
-            sudo apt-get install xdg-utils docker.io -y
-            curl -LsSf https://astral.sh/uv/install.sh | sh
-            echo 'export PATH="$HOME/.local/bin:$PATH"' >> $BASH_ENV
 
   install-deps-python:
     parameters:
@@ -778,7 +768,6 @@ workflows:
               ignore:
                 - main
                 - '/release.*/'
-          install_deps_extension: linux-acceptance-tests
           pre_test_cmds: export BROWSER="curl -L"
           requires:
             - build linux static arm64
@@ -801,7 +790,6 @@ workflows:
               ignore:
                 - main
                 - '/release.*/'
-          install_deps_extension: linux-acceptance-tests
           pre_test_cmds: export BROWSER="curl -L"
           requires:
             - build linux amd64
@@ -824,7 +812,6 @@ workflows:
               ignore:
                 - main
                 - '/release.*/'
-          install_deps_extension: linux-acceptance-tests
           pre_test_cmds: export BROWSER="curl -L"
           requires:
             - build linux arm64
@@ -850,7 +837,6 @@ workflows:
               ignore:
                 - main
                 - '/release.*/'
-          install_deps_extension: linux-acceptance-tests
           pre_test_cmds: export BROWSER="curl -L"
           requires:
             - build linux fips arm64

@@ -263,8 +263,8 @@ func (c *CLI) commandVersion(passthroughArgs []string) error {
 	}
 }
 
-func (c *CLI) commandAbout(proxyInfo *proxy.ProxyInfo, passthroughArgs []string) error {
-	err := c.executeV1Default(proxyInfo, passthroughArgs)
+func (c *CLI) commandAbout(ctx context.Context, proxyInfo *proxy.ProxyInfo, passthroughArgs []string) error {
+	err := c.executeV1Default(ctx, proxyInfo, passthroughArgs)
 	if err != nil {
 		return err
 	}
@@ -433,14 +433,11 @@ func (c *CLI) PrepareV1Command(
 	return snykCmd, err
 }
 
-func (c *CLI) executeV1Default(proxyInfo *proxy.ProxyInfo, passThroughArgs []string) error {
+func (c *CLI) executeV1Default(ctx context.Context, proxyInfo *proxy.ProxyInfo, passThroughArgs []string) error {
 	timeout := c.globalConfig.GetInt(configuration.TIMEOUT)
-	var ctx context.Context
 	var cancel context.CancelFunc
-	if timeout == 0 {
-		ctx = context.Background()
-	} else {
-		ctx, cancel = context.WithTimeout(context.Background(), time.Duration(timeout)*time.Second)
+	if timeout > 0 {
+		ctx, cancel = context.WithTimeout(ctx, time.Duration(timeout)*time.Second)
 		defer cancel()
 	}
 
@@ -545,7 +542,7 @@ func GetErrorFromFile(execErr error, errFilePath string, config configuration.Co
 	return nil, ErrIPCNoDataSent
 }
 
-func (c *CLI) Execute(proxyInfo *proxy.ProxyInfo, passThroughArgs []string) error {
+func (c *CLI) Execute(ctx context.Context, proxyInfo *proxy.ProxyInfo, passThroughArgs []string) error {
 	var err error
 	handler := determineHandler(passThroughArgs)
 
@@ -553,11 +550,11 @@ func (c *CLI) Execute(proxyInfo *proxy.ProxyInfo, passThroughArgs []string) erro
 	case V2_VERSION:
 		err = c.commandVersion(passThroughArgs)
 	case V2_ABOUT:
-		err = c.commandAbout(proxyInfo, passThroughArgs)
+		err = c.commandAbout(ctx, proxyInfo, passThroughArgs)
 	case V1_DEFAULT:
 		fallthrough
 	default:
-		err = c.executeV1Default(proxyInfo, passThroughArgs)
+		err = c.executeV1Default(ctx, proxyInfo, passThroughArgs)
 	}
 
 	return err
