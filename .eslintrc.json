@@ -62,7 +62,8 @@
             "additionalTestBlockFunctions": [
               "testIf",
               "describeIf",
-              "testIf.each"
+              "testIf.each",
+              "acceptanceIt"
             ]
           }
         ]
