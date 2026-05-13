@@ -45,6 +45,15 @@ describe('createJestConfig (TEST_SNYK_IGNORE_LIST)', () => {
     );
   });
 
+  it('warns at most once when createJestConfig is invoked repeatedly', () => {
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    const createJestConfig = loadCreateJestConfig('same-env');
+    createJestConfig({});
+    createJestConfig({});
+    expect(warn).toHaveBeenCalledTimes(1);
+    expect(warn.mock.calls[0]?.[1]).toEqual(['same-env']);
+  });
+
   it('caller testPathIgnorePatterns merge after env fragments, not overwriting base', () => {
     jest.spyOn(console, 'warn').mockImplementation(() => {});
     const createJestConfig = loadCreateJestConfig('from-env');

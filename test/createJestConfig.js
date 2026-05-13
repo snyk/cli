@@ -9,6 +9,8 @@ const parseSnykIgnoreFragments = () => {
     .filter(Boolean);
 };
 
+let ignoreFragmentsWarned = false;
+
 const createJestConfig = (config = {}) => {
   const ignorePatterns = [
     '/node_modules/',
@@ -22,7 +24,8 @@ const createJestConfig = (config = {}) => {
 
   const snykFragments = parseSnykIgnoreFragments();
 
-  if (snykFragments.length > 0) {
+  if (snykFragments.length > 0 && !ignoreFragmentsWarned) {
+    ignoreFragmentsWarned = true;
     console.warn(
       '[acceptance ignore]',
       snykFragments,
