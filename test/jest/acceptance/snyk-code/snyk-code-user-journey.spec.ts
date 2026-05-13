@@ -16,6 +16,10 @@ import {
   createFilepaths,
   deleteFilepaths,
 } from '../../../jest/util/fileIgnoreRulesFixture';
+import {
+  acceptanceIt,
+  SnykCodeUserJourneyContextSkipIds,
+} from '../../util/acceptanceTestSkipById';
 
 expect.extend(matchers);
 jest.setTimeout(1000 * 300);
@@ -774,8 +778,10 @@ describe('snyk code test', () => {
                   }
                 });
 
-                // TODO: Temporarily skipped - investigate persistent CI failures
-                it.skip('with --severity-threshold', async () => {
+                // `TEST_SNYK_SKIP_TEST_IDS` (CircleCI context) → `acceptanceIt(<id>)`
+                acceptanceIt(
+                  SnykCodeUserJourneyContextSkipIds.GOLANG_NATIVE_IGNORED_ISSUES_SEVERITY_THRESHOLD,
+                )('with --severity-threshold', async () => {
                   const { stdout, stderr, code } = await runSnykCLI(
                     `code test ${pathToTest} --severity-threshold=high --sarif-file-output=${sarifFile}`,
                     {
@@ -805,8 +811,9 @@ describe('snyk code test', () => {
                   expect(levels.length).toBe(0);
                 });
 
-                // TODO: Temporarily skipped - investigate persistent CI failures
-                it.skip('with --include-ignores', async () => {
+                acceptanceIt(
+                  SnykCodeUserJourneyContextSkipIds.GOLANG_NATIVE_IGNORED_ISSUES_INCLUDE_IGNORES,
+                )('with --include-ignores', async () => {
                   const { stdout, stderr, code } = await runSnykCLI(
                     `code test ${pathToTest} --include-ignores --sarif-file-output=${sarifFile}`,
                     {
@@ -831,7 +838,9 @@ describe('snyk code test', () => {
           );
 
           describe(`with ignored issues`, () => {
-            it.skip('test a single file', async () => {
+            acceptanceIt(
+              SnykCodeUserJourneyContextSkipIds.GOLANG_NATIVE_IGNORED_ISSUES_SINGLE_FILE,
+            )('test a single file', async () => {
               const { stderr, code } = await runSnykCLI(
                 `code test ${localPath}/routes/index.js --sarif-file-output=${sarifFile}`,
                 {

@@ -158,6 +158,38 @@ You can run acceptance tests with:
 npm run test:acceptance -- --selectProjects coreCli
 ```
 
+#### Skipping acceptance spec files via CircleCI context (`TEST_SNYK_IGNORE_LIST`)
+
+When needed (for example blocking failures outside the CLI), CI can exclude specific acceptance specs by path without changing repo code. Set the environment variable **`TEST_SNYK_IGNORE_LIST`** to a comma-separated list of **regex fragments** that Jest merges into `testPathIgnorePatterns` (same semantics as Jest’s ignore patterns). Empty entries are ignored after trimming.
+
+- **CircleCI:** add the variable on context **`team-cli-workflow-context`** (name `TEST_SNYK_IGNORE_LIST`, value is only the pattern text—for example `snyk-code-user-journey\.spec\.ts`—not `TEST_SNYK_IGNORE_LIST=...`). Those workflows attach that context to **`acceptance-tests`** jobs so the env is available there.
+- **Precedence:** for paths that match a fragment, **`TEST_SNYK_IGNORE_LIST` wins over `TEST_SNYK_DONT_SKIP_ANYTHING`** (the file is not collected). `TEST_SNYK_DONT_SKIP_ANYTHING` still applies to specs that remain in the run.
+- **Observability:** when fragments are present, the test factory logs **`console.warn`** on **stderr** with prefix **`[acceptance ignore]`**, the list of patterns, and the precedence note—avoid relying on stdout for this signal.
+
+`testPathIgnorePatterns` applies to whole files; it cannot skip a single `it()` inside a spec.
+
+#### Skipping individual acceptance tests via CircleCI context (`TEST_SNYK_SKIP_TEST_IDS`)
+
+CI can skip selected `it()` blocks inside specs that Jest still collects, using comma-separated **stable ids** (empty entries ignored after trimming). **Ids must not contain commas.**
+
+- **CircleCI:** add the variable on context **`team-cli-workflow-context`** (name `TEST_SNYK_SKIP_TEST_IDS`, value is only the id list—for example `snyk-code-user-journey:golang-native:ignored-issues:severity-threshold,snyk-code-user-journey:golang-native:ignored-issues:single-file`—not `TEST_SNYK_SKIP_TEST_IDS=...`). Those workflows attach that context to **`acceptance-tests`** jobs so the env is available there.
+- **Wiring:** specs use **`acceptanceIt(id)`** from [`test/jest/util/acceptanceTestSkipById.ts`](test/jest/util/acceptanceTestSkipById.ts); stable ids for the Snyk Code user-journey are **`SnykCodeUserJourneyContextSkipIds`** in that file.
+- **Precedence:** if a path matches **`TEST_SNYK_IGNORE_LIST`**, Jest never collects that spec—**`TEST_SNYK_SKIP_TEST_IDS` has no effect** on tests inside it. **`TEST_SNYK_DONT_SKIP_ANYTHING`** does **not** unsuspend **`acceptanceIt`** skips; clear **`TEST_SNYK_SKIP_TEST_IDS`** instead.
+- **Observability:** when ids are present, the helper logs **`console.warn`** on **stderr** with prefix **`[acceptance skip tests]`** (once per worker)—avoid relying on stdout for this signal.
+
+Stable ids for the golang/native ignored-issues journeys:
+
+- `snyk-code-user-journey:golang-native:ignored-issues:severity-threshold`
+- `snyk-code-user-journey:golang-native:ignored-issues:include-ignores`
+- `snyk-code-user-journey:golang-native:ignored-issues:single-file`
+
+Local repro:
+
+```
+TEST_SNYK_SKIP_TEST_IDS='snyk-code-user-journey:golang-native:ignored-issues:severity-threshold' \
+npm run test:acceptance -- --selectProjects coreCli --runTestsByPath test/jest/acceptance/snyk-code/snyk-code-user-journey.spec.ts
+```
+
 ### Smoke Tests
 
 Smoke tests typically don't run on branches unless the branch is specifically prefixed with `smoke/`. They usually run

@@ -763,6 +763,7 @@ workflows:
             - nodejs-install
             - team_hammerhead-cli
             - devex_cli_docker_hub
+            - team-cli-workflow-context
           filters:
             branches:
               ignore:
@@ -785,6 +786,7 @@ workflows:
             - nodejs-install
             - team_hammerhead-cli
             - devex_cli_docker_hub
+            - team-cli-workflow-context
           filters:
             branches:
               ignore:
@@ -807,6 +809,7 @@ workflows:
             - nodejs-install
             - team_hammerhead-cli
             - devex_cli_docker_hub
+            - team-cli-workflow-context
           filters:
             branches:
               ignore:
@@ -832,6 +835,7 @@ workflows:
             - nodejs-install
             - team_hammerhead-cli
             - devex_cli_docker_hub
+            - team-cli-workflow-context
           filters:
             branches:
               ignore:
@@ -851,6 +855,7 @@ workflows:
           context:
             - nodejs-install
             - team_hammerhead-cli
+            - team-cli-workflow-context
           filters:
             branches:
               ignore:
@@ -874,6 +879,7 @@ workflows:
           context:
             - nodejs-install
             - team_hammerhead-cli
+            - team-cli-workflow-context
           filters:
             branches:
               ignore:
@@ -896,6 +902,7 @@ workflows:
           context:
             - nodejs-install
             - team_hammerhead-cli
+            - team-cli-workflow-context
           filters:
             branches:
               ignore:
@@ -916,6 +923,7 @@ workflows:
           context:
             - nodejs-install
             - team_hammerhead-cli
+            - team-cli-workflow-context
           filters:
             branches:
               ignore:
