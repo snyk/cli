@@ -13,7 +13,9 @@ describe('createJestConfig (TEST_SNYK_IGNORE_LIST)', () => {
     }
     jest.resetModules();
     // eslint-disable-next-line @typescript-eslint/no-require-imports
-    return require('../../createJestConfig').createJestConfig as (config?: object) => {
+    return require('../../createJestConfig').createJestConfig as (
+      config?: object,
+    ) => {
       testPathIgnorePatterns: string[];
     };
   }

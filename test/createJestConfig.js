@@ -30,7 +30,8 @@ const createJestConfig = (config = {}) => {
     );
   }
 
-  const { testPathIgnorePatterns: configTestPathIgnores, ...restConfig } = config;
+  const { testPathIgnorePatterns: configTestPathIgnores, ...restConfig } =
+    config;
   const extraPathIgnores = Array.isArray(configTestPathIgnores)
     ? configTestPathIgnores
     : [];

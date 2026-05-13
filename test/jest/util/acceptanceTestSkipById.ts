@@ -31,7 +31,10 @@ function loadSkipIds(): ReadonlySet<string> {
     return cachedSkipIds;
   }
 
-  const ids = raw.split(',').map((s) => s.trim()).filter(Boolean);
+  const ids = raw
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
   cachedSkipIds = new Set(ids);
 
   if (ids.length > 0 && !skipIdsWarned) {

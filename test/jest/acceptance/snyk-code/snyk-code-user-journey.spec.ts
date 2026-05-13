@@ -782,6 +782,8 @@ describe('snyk code test', () => {
                 acceptanceIt(
                   SnykCodeUserJourneyContextSkipIds.GOLANG_NATIVE_IGNORED_ISSUES_SEVERITY_THRESHOLD,
                 )('with --severity-threshold', async () => {
+                  // acceptanceIt() returns it/it.skip; this rule doesn't treat that call as a test block
+                  /* eslint-disable jest/no-standalone-expect */
                   const { stdout, stderr, code } = await runSnykCLI(
                     `code test ${pathToTest} --severity-threshold=high --sarif-file-output=${sarifFile}`,
                     {
@@ -809,11 +811,14 @@ describe('snyk code test', () => {
                     (result) => result.level.toLowerCase() == 'warning',
                   );
                   expect(levels.length).toBe(0);
+                  /* eslint-enable jest/no-standalone-expect */
                 });
 
                 acceptanceIt(
                   SnykCodeUserJourneyContextSkipIds.GOLANG_NATIVE_IGNORED_ISSUES_INCLUDE_IGNORES,
                 )('with --include-ignores', async () => {
+                  // acceptanceIt() returns it/it.skip; this rule doesn't treat that call as a test block
+                  /* eslint-disable jest/no-standalone-expect */
                   const { stdout, stderr, code } = await runSnykCLI(
                     `code test ${pathToTest} --include-ignores --sarif-file-output=${sarifFile}`,
                     {
@@ -832,6 +837,7 @@ describe('snyk code test', () => {
 
                   // Verify SARIF file
                   checkSarif(sarifFile, expectedIgnoredIssuesAll);
+                  /* eslint-enable jest/no-standalone-expect */
                 });
               });
             },
@@ -841,6 +847,8 @@ describe('snyk code test', () => {
             acceptanceIt(
               SnykCodeUserJourneyContextSkipIds.GOLANG_NATIVE_IGNORED_ISSUES_SINGLE_FILE,
             )('test a single file', async () => {
+              // acceptanceIt() returns it/it.skip; this rule doesn't treat that call as a test block
+              /* eslint-disable jest/no-standalone-expect */
               const { stderr, code } = await runSnykCLI(
                 `code test ${localPath}/routes/index.js --sarif-file-output=${sarifFile}`,
                 {
@@ -856,6 +864,7 @@ describe('snyk code test', () => {
 
               // Verify SARIF file
               checkSarif(sarifFile, 4);
+              /* eslint-enable jest/no-standalone-expect */
             });
           });
 

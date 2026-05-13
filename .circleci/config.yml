@@ -1393,6 +1393,13 @@ jobs:
               export CGO_ENABLED=1
               make lint
             popd
+      - run:
+          name: Install yq (prodsec open-source scan telemetry)
+          command: |
+            curl -fsSL -o /usr/local/bin/yq \
+              "https://github.com/mikefarah/yq/releases/download/v4.53.2/yq_linux_amd64"
+            chmod +x /usr/local/bin/yq
+            yq --version
       - prodsec/security_scans:
           mode: auto
           open-source-additional-arguments: --exclude=test,dist

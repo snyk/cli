@@ -52,14 +52,18 @@ describe('acceptanceTestSkipById (TEST_SNYK_SKIP_TEST_IDS)', () => {
 
   it('exports documented stable id constants for the Snyk Code user journey', async () => {
     const { SnykCodeUserJourneyContextSkipIds } = await loadModule();
-    expect(SnykCodeUserJourneyContextSkipIds.GOLANG_NATIVE_IGNORED_ISSUES_SEVERITY_THRESHOLD).toBe(
+    expect(
+      SnykCodeUserJourneyContextSkipIds.GOLANG_NATIVE_IGNORED_ISSUES_SEVERITY_THRESHOLD,
+    ).toBe(
       'snyk-code-user-journey:golang-native:ignored-issues:severity-threshold',
     );
-    expect(SnykCodeUserJourneyContextSkipIds.GOLANG_NATIVE_IGNORED_ISSUES_INCLUDE_IGNORES).toBe(
+    expect(
+      SnykCodeUserJourneyContextSkipIds.GOLANG_NATIVE_IGNORED_ISSUES_INCLUDE_IGNORES,
+    ).toBe(
       'snyk-code-user-journey:golang-native:ignored-issues:include-ignores',
     );
-    expect(SnykCodeUserJourneyContextSkipIds.GOLANG_NATIVE_IGNORED_ISSUES_SINGLE_FILE).toBe(
-      'snyk-code-user-journey:golang-native:ignored-issues:single-file',
-    );
+    expect(
+      SnykCodeUserJourneyContextSkipIds.GOLANG_NATIVE_IGNORED_ISSUES_SINGLE_FILE,
+    ).toBe('snyk-code-user-journey:golang-native:ignored-issues:single-file');
   });
 });
