@@ -399,8 +399,14 @@ func fillEnvironmentFromConfig(inputAsMap map[string]string, config configuratio
 	inputAsMap[constants.SNYK_INTERNAL_ERR_FILE] = config.GetString(configKeyErrFile)
 	inputAsMap[constants.SNYK_TEMP_PATH] = config.GetString(configuration.TEMP_DIR_PATH)
 
-	if config.IsSet(ConfigKeyRequestConcurrency) {
-		inputAsMap[constants.SNYK_INTERNAL_REQUEST_CONCURRENCY_ENV] = config.GetString(ConfigKeyRequestConcurrency)
+	// Forward the resolved request concurrency to the legacy CLI when the user
+	// set the value. We can't use config.IsSet here: in GAF, IsSet does not
+	// pre-bind env vars for alternative keys, so it returns false even when
+	// the SNYK_REQUEST_CONCURRENCY env var is set under WithSupportedEnvVarPrefixes
+	// (the production setup). GetString goes through GAF's get(), which binds
+	// the alt key before reading, so it returns the resolved value correctly.
+	if v := config.GetString(ConfigKeyRequestConcurrency); v != "" {
+		inputAsMap[constants.SNYK_INTERNAL_REQUEST_CONCURRENCY_ENV] = v
 	}
 
 	if config.GetBool(configuration.PREVIEW_FEATURES_ENABLED) {

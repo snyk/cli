@@ -271,13 +271,23 @@ func Test_PrepareV1EnvironmentVariables_OnlyExplicitlySetValues(t *testing.T) {
 }
 
 func Test_PrepareV1EnvironmentVariables_RequestConcurrency(t *testing.T) {
+	// Mirror main.go's production configuration setup. Crucially, this uses
+	// WithSupportedEnvVarPrefixes (NOT WithAutomaticEnv): under that setup,
+	// GAF's IsSet does not pre-bind env vars for alternative keys, so any
+	// implementation that gates forwarding on IsSet would fail to forward
+	// the value. This test catches that regression.
+	newConfig := func() configuration.Configuration {
+		c := configuration.NewWithOpts(
+			configuration.WithSupportedEnvVarPrefixes("snyk_", "internal_", "test_"),
+		)
+		c.AddAlternativeKeys(cliv2.ConfigKeyRequestConcurrency, []string{"snyk_request_concurrency"})
+		return c
+	}
+
 	t.Run("forwards resolved value to internal env when alt key is set via env", func(t *testing.T) {
 		t.Setenv("SNYK_REQUEST_CONCURRENCY", "17")
 
-		config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
-		config.AddAlternativeKeys(cliv2.ConfigKeyRequestConcurrency, []string{"snyk_request_concurrency"})
-
-		actual, err := cliv2.PrepareV1EnvironmentVariables([]string{}, "foo", "bar", "proxy", "cacertlocation", config, []string{})
+		actual, err := cliv2.PrepareV1EnvironmentVariables([]string{}, "foo", "bar", "proxy", "cacertlocation", newConfig(), []string{})
 
 		assert.Nil(t, err)
 		assert.Contains(t, actual, constants.SNYK_INTERNAL_REQUEST_CONCURRENCY_ENV+"=17")
@@ -288,10 +298,7 @@ func Test_PrepareV1EnvironmentVariables_RequestConcurrency(t *testing.T) {
 		t.Setenv("SNYK_REQUEST_CONCURRENCY", "")
 		_ = os.Unsetenv("SNYK_REQUEST_CONCURRENCY")
 
-		config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
-		config.AddAlternativeKeys(cliv2.ConfigKeyRequestConcurrency, []string{"snyk_request_concurrency"})
-
-		actual, err := cliv2.PrepareV1EnvironmentVariables([]string{}, "foo", "bar", "proxy", "cacertlocation", config, []string{})
+		actual, err := cliv2.PrepareV1EnvironmentVariables([]string{}, "foo", "bar", "proxy", "cacertlocation", newConfig(), []string{})
 
 		assert.Nil(t, err)
 		for _, kv := range actual {
@@ -302,13 +309,10 @@ func Test_PrepareV1EnvironmentVariables_RequestConcurrency(t *testing.T) {
 	t.Run("user-set internal env is stripped before Go reapplies it", func(t *testing.T) {
 		t.Setenv("SNYK_REQUEST_CONCURRENCY", "9")
 
-		config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
-		config.AddAlternativeKeys(cliv2.ConfigKeyRequestConcurrency, []string{"snyk_request_concurrency"})
-
 		// Simulate a user trying to bypass Go config by setting the internal var directly.
 		input := []string{constants.SNYK_INTERNAL_REQUEST_CONCURRENCY_ENV + "=999"}
 
-		actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation", config, []string{})
+		actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation", newConfig(), []string{})
 
 		assert.Nil(t, err)
 		assert.Contains(t, actual, constants.SNYK_INTERNAL_REQUEST_CONCURRENCY_ENV+"=9")
