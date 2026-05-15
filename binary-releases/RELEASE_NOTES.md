@@ -1,4 +1,4 @@
-## [1.1305.0](https://github.com/snyk/snyk/compare/v1.1304.3...v1.1305.0) (2026-05-14)
+## [1.1305.0](https://github.com/snyk/snyk/compare/v1.1304.3...v1.1305.0) (2026-05-20)
 
 The Snyk CLI is being deployed to different deployment channels, users can select the stability level according to their needs. For details please see [this documentation](https://docs.snyk.io/snyk-cli/releases-and-channels-for-the-snyk-cli)
 
