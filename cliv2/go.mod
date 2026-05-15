@@ -1,6 +1,6 @@
 module github.com/snyk/cli/cliv2
 
-go 1.25.8
+go 1.26.3
 
 require (
 	github.com/elazarl/goproxy v1.7.2
@@ -13,20 +13,20 @@ require (
 	github.com/snyk/cli-extension-agent-scan v0.0.0-20260505093105-90d9442ea939
 	github.com/snyk/cli-extension-ai-bom v0.0.0-20260319140413-ac7392950603
 	github.com/snyk/cli-extension-ai-redteam v0.0.0-20260331152502-ce341aeaff9e
-	github.com/snyk/cli-extension-dep-graph v0.32.0
+	github.com/snyk/cli-extension-dep-graph v1.7.0
 	github.com/snyk/cli-extension-iac v0.0.0-20260206082514-00c443ccee80
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20260206080712-9cbb5f95465d
-	github.com/snyk/cli-extension-os-flows v0.0.0-20260330131038-f7539faafecf
-	github.com/snyk/cli-extension-sbom v0.0.0-20260327120356-9befea04c9b0
-	github.com/snyk/cli-extension-secrets v0.0.0-20260421112643-c8c29ed060b9
-	github.com/snyk/code-client-go v1.26.2
+	github.com/snyk/cli-extension-os-flows v0.0.0-20260423112219-b7ba9dd68e57
+	github.com/snyk/cli-extension-sbom v0.0.0-20260428131356-48881c6270fa
+	github.com/snyk/cli-extension-secrets v0.0.0-20260505103358-cc205308a93e
+	github.com/snyk/code-client-go v1.27.0
 	github.com/snyk/container-cli v0.0.0-20260213211631-cd2b2cf8f3ea
-	github.com/snyk/error-catalog-golang-public v0.0.0-20260316131845-f02d7f42046b
-	github.com/snyk/go-application-framework v0.0.0-20260422125240-4b46b7117457
+	github.com/snyk/error-catalog-golang-public v0.0.0-20260505112649-a5103d411663
+	github.com/snyk/go-application-framework v0.0.0-20260506111235-cca3157b9435
 	github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65
 	github.com/snyk/snyk-iac-capture v0.6.5
-	github.com/snyk/snyk-ls v0.0.0-20260401163317-c1fe9ee766fd
-	github.com/snyk/studio-mcp v1.9.2
+	github.com/snyk/snyk-ls v0.0.0-20260507075428-365bccd7be16
+	github.com/snyk/studio-mcp v1.11.0
 	github.com/spf13/cobra v1.9.1
 	github.com/spf13/pflag v1.0.10
 	github.com/stretchr/testify v1.11.1

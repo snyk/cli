@@ -230,6 +230,11 @@ test-binary-wrapper: build-binary-wrapper
 	@echo "-- Testing binary wrapper"
 	@cd $(BINARY_WRAPPER_DIR); npm run test
 
+.PHONY: test-release-scripts
+test-release-scripts:
+	@echo "-- Testing release scripts"
+	@cd release-scripts; go test ./...
+
 
 # targets responsible for the complete CLI build
 .PHONY: pre-build

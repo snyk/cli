@@ -66,6 +66,13 @@ const (
 const (
 	configKeyErrFile         = "INTERNAL_ERR_FILE_PATH"
 	ERROR_HAS_BEEN_DISPLAYED = "hasBeenDisplayed"
+	// ConfigKeyRequestConcurrency is the configuration key holding the
+	// resolved maximum number of concurrent in-flight Snyk dependency-test
+	// or dependency-monitor HTTP requests issued by the legacy CLI. The
+	// user-facing SNYK_REQUEST_CONCURRENCY env var feeds this key (registered
+	// in main.go via AddAlternativeKeys); the resolved value is forwarded to
+	// the legacy CLI process via constants.SNYK_INTERNAL_REQUEST_CONCURRENCY_ENV.
+	ConfigKeyRequestConcurrency = "internal_request_concurrency"
 )
 
 var (
@@ -263,8 +270,8 @@ func (c *CLI) commandVersion(passthroughArgs []string) error {
 	}
 }
 
-func (c *CLI) commandAbout(proxyInfo *proxy.ProxyInfo, passthroughArgs []string) error {
-	err := c.executeV1Default(proxyInfo, passthroughArgs)
+func (c *CLI) commandAbout(ctx context.Context, proxyInfo *proxy.ProxyInfo, passthroughArgs []string) error {
+	err := c.executeV1Default(ctx, proxyInfo, passthroughArgs)
 	if err != nil {
 		return err
 	}
@@ -355,6 +362,7 @@ func PrepareV1EnvironmentVariables(
 			constants.SNYK_NPM_ALL_PROXY,
 			constants.SNYK_OPENSSL_CONF,
 			constants.SNYK_INTERNAL_PREVIEW_FEATURES_ENABLED,
+			constants.SNYK_INTERNAL_REQUEST_CONCURRENCY_ENV,
 			constants.DEBUG_CONST,
 		}
 
@@ -390,6 +398,16 @@ func fillEnvironmentFromConfig(inputAsMap map[string]string, config configuratio
 	inputAsMap[constants.SNYK_INTERNAL_ORGID_ENV] = config.GetString(configuration.ORGANIZATION)
 	inputAsMap[constants.SNYK_INTERNAL_ERR_FILE] = config.GetString(configKeyErrFile)
 	inputAsMap[constants.SNYK_TEMP_PATH] = config.GetString(configuration.TEMP_DIR_PATH)
+
+	// Forward the resolved request concurrency to the legacy CLI when the user
+	// set the value. We can't use config.IsSet here: in GAF, IsSet does not
+	// pre-bind env vars for alternative keys, so it returns false even when
+	// the SNYK_REQUEST_CONCURRENCY env var is set under WithSupportedEnvVarPrefixes
+	// (the production setup). GetString goes through GAF's get(), which binds
+	// the alt key before reading, so it returns the resolved value correctly.
+	if v := config.GetString(ConfigKeyRequestConcurrency); v != "" {
+		inputAsMap[constants.SNYK_INTERNAL_REQUEST_CONCURRENCY_ENV] = v
+	}
 
 	if config.GetBool(configuration.PREVIEW_FEATURES_ENABLED) {
 		inputAsMap[constants.SNYK_INTERNAL_PREVIEW_FEATURES_ENABLED] = "1"
@@ -433,14 +451,11 @@ func (c *CLI) PrepareV1Command(
 	return snykCmd, err
 }
 
-func (c *CLI) executeV1Default(proxyInfo *proxy.ProxyInfo, passThroughArgs []string) error {
+func (c *CLI) executeV1Default(ctx context.Context, proxyInfo *proxy.ProxyInfo, passThroughArgs []string) error {
 	timeout := c.globalConfig.GetInt(configuration.TIMEOUT)
-	var ctx context.Context
 	var cancel context.CancelFunc
-	if timeout == 0 {
-		ctx = context.Background()
-	} else {
-		ctx, cancel = context.WithTimeout(context.Background(), time.Duration(timeout)*time.Second)
+	if timeout > 0 {
+		ctx, cancel = context.WithTimeout(ctx, time.Duration(timeout)*time.Second)
 		defer cancel()
 	}
 
@@ -545,7 +560,7 @@ func GetErrorFromFile(execErr error, errFilePath string, config configuration.Co
 	return nil, ErrIPCNoDataSent
 }
 
-func (c *CLI) Execute(proxyInfo *proxy.ProxyInfo, passThroughArgs []string) error {
+func (c *CLI) Execute(ctx context.Context, proxyInfo *proxy.ProxyInfo, passThroughArgs []string) error {
 	var err error
 	handler := determineHandler(passThroughArgs)
 
@@ -553,11 +568,11 @@ func (c *CLI) Execute(proxyInfo *proxy.ProxyInfo, passThroughArgs []string) erro
 	case V2_VERSION:
 		err = c.commandVersion(passThroughArgs)
 	case V2_ABOUT:
-		err = c.commandAbout(proxyInfo, passThroughArgs)
+		err = c.commandAbout(ctx, proxyInfo, passThroughArgs)
 	case V1_DEFAULT:
 		fallthrough
 	default:
-		err = c.executeV1Default(proxyInfo, passThroughArgs)
+		err = c.executeV1Default(ctx, proxyInfo, passThroughArgs)
 	}
 
 	return err

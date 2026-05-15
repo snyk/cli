@@ -1,7 +1,11 @@
 import { fakeServer } from '../../acceptance/fake-server';
-import { createProjectFromFixture } from '../util/createProject';
-import { runSnykCLI } from '../util/runSnykCLI';
+import {
+  createProjectFromFixture,
+  createProjectFromWorkspace,
+} from '../util/createProject';
 import { getServerPort } from '../util/getServerPort';
+import { parseJSONL } from '../util/parseJSONL';
+import { runSnykCLI } from '../util/runSnykCLI';
 import { ProblemError } from '@snyk/error-catalog-nodejs-public';
 
 jest.setTimeout(1000 * 30);
@@ -163,20 +167,7 @@ describe('`test` command with `--print-effective-graph-with-errors` option', () 
 
     expect(code).toBe(0);
 
-    // Parse JSONL output
-    const lines = stdout
-      .trim()
-      .split('\n')
-      .filter((line) => line.trim());
-
-    const jsonObjects: any[] = [];
-    for (const line of lines) {
-      try {
-        jsonObjects.push(JSON.parse(line));
-      } catch {
-        // Skip non-JSON lines
-      }
-    }
+    const jsonObjects = parseJSONL(stdout) as any[];
 
     // Should have at least one output (either success or error)
     expect(jsonObjects.length).toBeGreaterThan(0);
@@ -224,5 +215,104 @@ describe('`test` command with `--print-effective-graph-with-errors` option', () 
 
     // stderr should contain the failure warning
     expect(stderr).toMatch(/failed to get dependencies/i);
+  });
+
+  it('outputs the target framework for nuget/dotnet projects', async () => {
+    const project = await createProjectFromWorkspace('nuget-app-6-7-8');
+    const { code, stdout } = await runSnykCLI(
+      'test --print-effective-graph-with-errors',
+      {
+        cwd: project.path(),
+        env,
+      },
+    );
+
+    expect(code).toBe(0);
+
+    const outputs = parseJSONL(stdout) as any[];
+
+    expect(outputs[0]).toMatchObject({
+      targetRuntime: 'net6.0',
+      normalisedTargetFile: 'obj/project.assets.json',
+    });
+    expect(outputs[0].depGraph).toBeDefined();
+  });
+
+  it('includes workspace type for yarn workspaces', async () => {
+    const project = await createProjectFromWorkspace('yarn-workspaces');
+    const { code, stdout } = await runSnykCLI(
+      'test --yarn-workspaces --print-effective-graph-with-errors',
+      {
+        cwd: project.path(),
+        env,
+      },
+    );
+
+    expect(code).toBe(0);
+
+    const outputs = parseJSONL(stdout) as any[];
+
+    // All workspace projects should have workspace field
+    expect(outputs.length).toBeGreaterThan(0);
+    for (const output of outputs) {
+      expect(output).toHaveProperty('workspace');
+      expect(output.workspace).toEqual({ type: 'yarn' });
+      expect(output).toHaveProperty('depGraph');
+      expect(output.depGraph.pkgManager.name).toBe('yarn');
+    }
+  });
+
+  it('includes workspace type for workspaces with --all-projects', async () => {
+    const project = await createProjectFromWorkspace('yarn-workspaces');
+
+    const { code, stdout } = await runSnykCLI(
+      'test --all-projects --print-effective-graph-with-errors',
+      {
+        cwd: project.path(),
+        env,
+      },
+    );
+
+    expect(code).toBe(0);
+
+    const outputs = parseJSONL(stdout) as any[];
+
+    // Should have outputs with workspace field
+    expect(outputs.length).toBeGreaterThan(0);
+
+    // All outputs should have workspace field when detected as workspace
+    const workspaceOutputs = outputs.filter((output) => output.workspace);
+    expect(workspaceOutputs.length).toBeGreaterThan(0);
+
+    // Verify workspace field structure
+    for (const output of workspaceOutputs) {
+      expect(output.workspace).toHaveProperty('type');
+      expect(['yarn', 'npm', 'pnpm']).toContain(output.workspace.type);
+      expect(output).toHaveProperty('depGraph');
+    }
+  });
+
+  it('does not include workspace field for non-workspace projects', async () => {
+    const project = await createProjectFromFixture(
+      'npm/with-vulnerable-lodash-dep',
+    );
+    server.setCustomResponse(
+      await project.readJSON('test-dep-graph-result.json'),
+    );
+    const { code, stdout } = await runSnykCLI(
+      'test --print-effective-graph-with-errors',
+      {
+        cwd: project.path(),
+        env,
+      },
+    );
+
+    expect(code).toEqual(0);
+
+    const jsonOutput = JSON.parse(stdout);
+
+    // Non-workspace project should NOT have workspace field
+    expect(jsonOutput).not.toHaveProperty('workspace');
+    expect(jsonOutput).toHaveProperty('depGraph');
   });
 });

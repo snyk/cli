@@ -90,7 +90,9 @@ describe('printUnmanagedDepGraph fn', () => {
       },
     });
 
-    const { result } = await printUnmanagedDepGraph({}, 'foo/bar', mockDest);
+    const { result } = await printUnmanagedDepGraph({}, 'foo/bar', mockDest, {
+      path: '.',
+    });
 
     expect(result).toBe('');
     expect(buffer.toString()).toMatchSnapshot();

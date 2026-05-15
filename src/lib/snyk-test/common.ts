@@ -12,6 +12,37 @@ import { CLI, ProblemError } from '@snyk/error-catalog-nodejs-public';
 import { CustomError } from '../errors';
 import { FailedProjectScanError } from '../plugins/get-multi-plugin-result';
 
+/**
+ * Determines workspace information from the plugin name and scanned project metadata.
+ * Returns workspace metadata if the plugin is a workspace plugin, otherwise undefined.
+ */
+function getWorkspaceInfo(
+  pluginName: string | undefined,
+  workspacePluginName: string | undefined,
+): { type: string } | undefined {
+  // Check workspace plugin name from scannedProject.meta (--all-projects) or parent plugin (--yarn-workspaces)
+  if (
+    workspacePluginName === 'snyk-nodejs-yarn-workspaces' ||
+    pluginName === 'snyk-nodejs-yarn-workspaces'
+  ) {
+    return { type: 'yarn' };
+  }
+  if (
+    workspacePluginName === 'snyk-nodejs-npm-workspaces' ||
+    pluginName === 'snyk-nodejs-npm-workspaces'
+  ) {
+    return { type: 'npm' };
+  }
+  if (
+    workspacePluginName === 'snyk-nodejs-pnpm-workspaces' ||
+    pluginName === 'snyk-nodejs-pnpm-workspaces'
+  ) {
+    return { type: 'pnpm' };
+  }
+
+  return undefined;
+}
+
 export function assembleQueryString(options) {
   const org = options.org || config.org || null;
   const qs: {
@@ -80,6 +111,30 @@ export type FailOn = 'all' | 'upgradable' | 'patchable';
 export const RETRY_ATTEMPTS = 3;
 export const RETRY_DELAY = 500;
 
+const DEFAULT_REQUEST_CONCURRENCY = 5;
+const MIN_REQUEST_CONCURRENCY = 1;
+const MAX_REQUEST_CONCURRENCY = 50;
+
+/**
+ * Returns the maximum number of in-flight Snyk dependency-test or
+ * dependency-monitor HTTP requests permitted at once. The wrapping Go CLI
+ * resolves the user-facing SNYK_REQUEST_CONCURRENCY env var (and any future
+ * config-file/flag sources) and forwards the resolved value via the internal
+ * SNYK_INTERNAL_REQUEST_CONCURRENCY env var read here. Values are clamped to
+ * [MIN_REQUEST_CONCURRENCY, MAX_REQUEST_CONCURRENCY].
+ */
+export function getRequestConcurrency(): number {
+  const raw = process.env.SNYK_INTERNAL_REQUEST_CONCURRENCY;
+  if (!raw) {
+    return DEFAULT_REQUEST_CONCURRENCY;
+  }
+  const parsed = parseInt(raw, 10);
+  if (!Number.isFinite(parsed) || parsed < MIN_REQUEST_CONCURRENCY) {
+    return DEFAULT_REQUEST_CONCURRENCY;
+  }
+  return Math.min(parsed, MAX_REQUEST_CONCURRENCY);
+}
+
 /**
  * printDepGraph writes the given dep-graph and target name to the destination
  * stream as expected by the `depgraph` CLI workflow.
@@ -106,29 +161,31 @@ export function shouldPrintDepGraph(opts: Options): boolean {
 }
 
 /**
- * printEffectiveDepGraph writes the given, possibly pruned dep-graph and target file to the destination
- * stream as a JSON object containing both depGraph, normalisedTargetFile and targetFile from plugin.
- * This allows extracting the effective dep-graph which is being used for the test.
+ * printDepGraphJsonl writes dep-graph metadata to the destination stream as one JSON object
+ * per line (JSONL): depGraph, normalisedTargetFile, optional targetFileFromPlugin, optional target.
+ * Callers supply the dep-graph payload (full or pruned) they want to serialize.
  */
-export async function printEffectiveDepGraph(
+export async function printDepGraphJsonl(
   depGraph: DepGraphData,
   normalisedTargetFile: string,
   targetFileFromPlugin: string | undefined,
   target: GitTarget | ContainerTarget | null | undefined,
+  targetRuntime: string | undefined,
+  pluginName: string | undefined,
+  workspacePluginName: string | undefined,
   destination: Writable,
 ): Promise<void> {
   return new Promise((res, rej) => {
-    const effectiveGraphOutput = {
+    const graphOutput: any = {
       depGraph,
       normalisedTargetFile,
       targetFileFromPlugin,
       target,
+      targetRuntime,
+      workspace: getWorkspaceInfo(pluginName, workspacePluginName),
     };
 
-    new ConcatStream(
-      new JsonStreamStringify(effectiveGraphOutput),
-      Readable.from('\n'),
-    )
+    new ConcatStream(new JsonStreamStringify(graphOutput), Readable.from('\n'))
       .on('end', res)
       .on('error', rej)
       .pipe(destination);
@@ -136,17 +193,16 @@ export async function printEffectiveDepGraph(
 }
 
 /**
- * printEffectiveDepGraphError writes an error output for failed dependency graph resolution
- * to the destination stream in a format consistent with printEffectiveDepGraph.
- * This is used when --print-effective-graph-with-errors is set but dependency resolution failed.
+ * printDepGraphError writes an error output for failed dependency graph resolution
+ * to the destination stream in a format consistent with printDepGraphJsonl.
  */
-export async function printEffectiveDepGraphError(
+export async function printDepGraphError(
   root: string,
   failedProjectScanError: FailedProjectScanError,
   destination: Writable,
 ): Promise<void> {
   return new Promise((res, rej) => {
-    // Normalize the target file path to be relative to root, consistent with printEffectiveDepGraph
+    // Normalize the target file path to be relative to root, consistent with printDepGraphJsonl
     const normalisedTargetFile = failedProjectScanError.targetFile
       ? path.relative(root, failedProjectScanError.targetFile)
       : failedProjectScanError.targetFile;
@@ -154,15 +210,12 @@ export async function printEffectiveDepGraphError(
     const problemError = getOrCreateErrorCatalogError(failedProjectScanError);
     const serializedError = problemError.toJsonApi().body();
 
-    const effectiveGraphErrorOutput = {
+    const errorRecord = {
       error: serializedError,
       normalisedTargetFile,
     };
 
-    new ConcatStream(
-      new JsonStreamStringify(effectiveGraphErrorOutput),
-      Readable.from('\n'),
-    )
+    new ConcatStream(new JsonStreamStringify(errorRecord), Readable.from('\n'))
       .on('end', res)
       .on('error', rej)
       .pipe(destination);
