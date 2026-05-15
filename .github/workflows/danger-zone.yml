@@ -14,7 +14,12 @@ jobs:
         with:
           node-version-file: '.nvmrc'
           cache: 'npm'
+          # registry-url triggers setup-node to create an .npmrc with auth token interpolation,
+          # required to install private @snyk packages
+          registry-url: 'https://registry.npmjs.org'
       - run: npm ci
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.HAMMERHEAD_NPM_TOKEN }}
       - run: npx danger ci
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
