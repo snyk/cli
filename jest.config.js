@@ -1,6 +1,6 @@
-import { createJestConfig } from './test/createJestConfig';
+const { createJestConfig } = require('./test/createJestConfig');
 
-export default createJestConfig({
+module.exports = createJestConfig({
   testTimeout: 20000,
   displayName: 'coreCli',
   projects: ['<rootDir>', '<rootDir>/packages/*'],

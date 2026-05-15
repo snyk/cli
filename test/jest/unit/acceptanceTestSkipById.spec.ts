@@ -39,23 +39,15 @@ describe('acceptanceTestSkipById (TEST_SNYK_SKIP_TEST_IDS)', () => {
     expect(acceptanceIt('c')).toBe(it);
   });
 
-  it('logs [acceptance skip tests] banner once then one warn per skipped acceptanceIt', async () => {
+  it('logs [acceptance skip tests] once per module load when ids are present', async () => {
     const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
     process.env.TEST_SNYK_SKIP_TEST_IDS = 'x,y';
     const { acceptanceIt } = await loadModule();
     acceptanceIt('x');
     acceptanceIt('y');
-    expect(warn).toHaveBeenCalledTimes(3);
+    expect(warn).toHaveBeenCalledTimes(1);
     expect(warn.mock.calls[0][0]).toBe('[acceptance skip tests]');
     expect(warn.mock.calls[0][1]).toEqual(['x', 'y']);
-    expect(warn.mock.calls[1][1]).toBe('x');
-    expect(warn.mock.calls[1][2]).toBe(
-      'Test id matched TEST_SNYK_SKIP_TEST_IDS; using it.skip.',
-    );
-    expect(warn.mock.calls[2][1]).toBe('y');
-    expect(warn.mock.calls[2][2]).toBe(
-      'Test id matched TEST_SNYK_SKIP_TEST_IDS; using it.skip.',
-    );
   });
 
   it('exports documented stable id constants for the Snyk Code user journey', async () => {

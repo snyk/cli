@@ -11,8 +11,6 @@ export const config: Options = {
     'conventional-changelog-cli', // used for generating release notes
     'ts-node', // used for various scripts to avoid separate compile step
     'jest-junit', // used for CI test reporting
-    'typescript', // language + tsc; used via ts-jest/tsconfig, not always import statements
-    'ts-jest', // Jest preset in createJestConfig (preset: 'ts-jest'); no direct imports
     '@types/node', // node types used for alerts
     'conventional-changelog-conventionalcommits', // used to configure generating release notes
   ],
