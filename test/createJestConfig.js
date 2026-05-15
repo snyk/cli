@@ -1,36 +1,11 @@
-function parseSnykIgnoreFragments() {
-  const raw = process.env.TEST_SNYK_IGNORE_LIST;
-  if (typeof raw !== 'string' || raw.trim() === '') {
-    return [];
-  }
-  return raw
-    .split(',')
-    .map((s) => s.trim())
-    .filter(Boolean);
-}
-
-/** True if `source` is a valid JavaScript RegExp pattern (Jest compiles ignore patterns this way). */
-function isValidRegExpSource(source) {
-  try {
-    RegExp(source);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-function partitionIgnoreFragments(fragments) {
-  const valid = [];
-  const invalid = [];
-  for (const fragment of fragments) {
-    if (isValidRegExpSource(fragment)) {
-      valid.push(fragment);
-    } else {
-      invalid.push(fragment);
-    }
-  }
-  return { valid, invalid };
-}
+const path = require('path');
+// Scoped to this folder only so globalSetup is not routed through ts-node for other test/jest/**/*.ts files.
+require('ts-node').register({
+  transpileOnly: true,
+  scope: true,
+  scopeDir: path.join(__dirname, 'jest', 'skip-test-list'),
+});
+const { getSkipTestList } = require('./jest/skip-test-list/getSkipTestList');
 
 let ignoreFragmentsWarned = false;
 
@@ -45,9 +20,8 @@ const createJestConfig = (config = {}) => {
     '<rootDir>/pysrc/',
   ];
 
-  const parsedFragments = parseSnykIgnoreFragments();
   const { valid: snykFragments, invalid: invalidIgnoreFragments } =
-    partitionIgnoreFragments(parsedFragments);
+    getSkipTestList();
 
   if (
     (snykFragments.length > 0 || invalidIgnoreFragments.length > 0) &&

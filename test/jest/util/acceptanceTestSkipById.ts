@@ -6,6 +6,8 @@
  * loaded by Jest, so ids inside those paths never run.
  */
 
+import { getSkipTestIds } from './getSkipTestIds';
+
 let cachedSkipIds: ReadonlySet<string> | undefined;
 
 /** Stable ids for specs whose paths match typical `TEST_SNYK_IGNORE_LIST` fragments. */
@@ -25,19 +27,15 @@ function loadSkipIds(): ReadonlySet<string> {
     return cachedSkipIds;
   }
 
-  const raw = process.env.TEST_SNYK_SKIP_TEST_IDS;
-  if (typeof raw !== 'string' || raw.trim() === '') {
+  const ids = getSkipTestIds();
+  if (ids.length === 0) {
     cachedSkipIds = new Set();
     return cachedSkipIds;
   }
 
-  const ids = raw
-    .split(',')
-    .map((s) => s.trim())
-    .filter(Boolean);
   cachedSkipIds = new Set(ids);
 
-  if (ids.length > 0 && !skipIdsWarned) {
+  if (!skipIdsWarned) {
     skipIdsWarned = true;
     console.warn(
       '[acceptance skip tests]',
