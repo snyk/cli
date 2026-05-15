@@ -41,10 +41,9 @@ export function createJestConfig(config: CreateJestConfigOptions = {}) {
     }
   }
 
-  const { testPathIgnorePatterns: configTestPathIgnores, ...restConfig } =
-    config;
-  const extraPathIgnores = Array.isArray(configTestPathIgnores)
-    ? configTestPathIgnores
+  const { testPathIgnorePatterns, ...restConfig } = config;
+  const extraPathIgnores = Array.isArray(testPathIgnorePatterns)
+    ? testPathIgnorePatterns
     : [];
 
   return {
