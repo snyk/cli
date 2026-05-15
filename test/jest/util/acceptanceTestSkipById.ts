@@ -51,7 +51,11 @@ function loadSkipIds(): ReadonlySet<string> {
 export function acceptanceIt(testId: string): jest.It {
   const skip = loadSkipIds().has(testId);
   if (skip) {
-    console.info('[acceptance skip tests]', 'skip', testId);
+    console.warn(
+      '[acceptance skip tests]',
+      testId,
+      'Test id matched TEST_SNYK_SKIP_TEST_IDS; using it.skip.',
+    );
   }
   return skip ? it.skip : it;
 }
