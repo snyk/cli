@@ -1,15 +1,12 @@
-const path = require('path');
-// Scoped to this folder only so globalSetup is not routed through ts-node for other test/jest/**/*.ts files.
-require('ts-node').register({
-  transpileOnly: true,
-  scope: true,
-  scopeDir: path.join(__dirname, 'jest', 'skip-test-list'),
-});
-const { getSkipTestList } = require('./jest/skip-test-list/getSkipTestList');
+import { getSkipTestList } from './jest/util/getSkipTestList';
 
 let ignoreFragmentsWarned = false;
 
-const createJestConfig = (config = {}) => {
+export type CreateJestConfigOptions = Record<string, unknown> & {
+  testPathIgnorePatterns?: string[];
+};
+
+export function createJestConfig(config: CreateJestConfigOptions = {}) {
   const ignorePatterns = [
     '/node_modules/',
     '/dist/',
@@ -63,8 +60,4 @@ const createJestConfig = (config = {}) => {
     transformIgnorePatterns: [...ignorePatterns],
     ...restConfig,
   };
-};
-
-module.exports = {
-  createJestConfig,
-};
+}
