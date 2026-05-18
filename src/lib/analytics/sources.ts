@@ -57,6 +57,10 @@ enum TrackedIntegration {
 
   // CLI_V1_PLUGIN integration
   CLI_V1_PLUGIN = 'CLI_V1_PLUGIN',
+
+  // AI Integrations
+  MCP = 'MCP',
+  STUDIO = 'STUDIO',
 }
 
 export const getIntegrationName = (args: ArgsOptions[]): string => {
