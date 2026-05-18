@@ -1391,6 +1391,7 @@ jobs:
           iac-scan: disabled
           release-branch: main
           open-source-scan-reachability: true
+          open-source-scan: high
 
   docs-only-check:
     executor: docker-amd64
