@@ -19,7 +19,7 @@ const {
   DISABLE_GO_PACKAGE_URLS_IN_CLI_FEATURE_FLAG,
 } = require('../package-managers');
 const { getOrganizationID } = require('../organization');
-const { printDepGraphError } = require('./common');
+const { printDepGraphError, mapLegacyGraphFlags, shouldEmbedErrors } = require('./common');
 const debug = require('debug')('snyk-test');
 
 async function test(root, options, callback) {
@@ -42,6 +42,8 @@ async function test(root, options, callback) {
 }
 
 async function executeTest(root, options) {
+  mapLegacyGraphFlags(options);
+
   const includeGoStandardLibraryDeps = await hasFeatureFlagOrDefault(
     INCLUDE_GO_STANDARD_LIBRARY_DEPS_FEATURE_FLAG,
     options,
@@ -57,8 +59,7 @@ async function executeTest(root, options) {
     const verboseEnabled =
       args.includes('-Dverbose') ||
       args.includes('-Dverbose=true') ||
-      !!options['print-graph'] ||
-      !!options['print-output-jsonl-with-errors'];
+      (!!options['print-graph'] && !options['prune']);
     if (verboseEnabled) {
       enableMavenDverboseExhaustiveDeps = await hasFeatureFlag(
         MAVEN_DVERBOSE_EXHAUSTIVE_DEPS_FF,
@@ -117,7 +118,7 @@ async function executeTest(root, options) {
           featureFlags,
         );
       } catch (error) {
-        if (options['print-output-jsonl-with-errors']) {
+        if (shouldEmbedErrors(options)) {
           await printDepGraphError(
             root,
             {

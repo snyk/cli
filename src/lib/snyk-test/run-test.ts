@@ -44,9 +44,9 @@ import {
   printDepGraphJsonl,
   printDepGraphError,
   assembleQueryString,
-  shouldPrintDepGraph,
-  shouldPrintEffectiveDepGraph,
-  shouldPrintEffectiveDepGraphWithErrors,
+  shouldPrintGraph,
+  isJsonl,
+  shouldEmbedErrors,
 } from './common';
 import config from '../config';
 import * as analytics from '../analytics';
@@ -356,10 +356,10 @@ async function sendAndParseResults(
     });
   }
 
-  if (ecosystem && shouldPrintDepGraph(options)) {
+  if (ecosystem && shouldPrintGraph(options)) {
     await spinner.clear<void>(spinnerLbl)();
-    if (options['print-output-jsonl-with-errors']) {
-      for (const { graph, targetFile, targetName } of depGraphs) {
+    for (const { graph, targetFile, targetName } of depGraphs) {
+      if (isJsonl(options)) {
         await printDepGraphJsonl(
           graph,
           targetFile || targetName,
@@ -370,12 +370,7 @@ async function sendAndParseResults(
           undefined,
           process.stdout,
         );
-      }
-    } else {
-      const depGraphsByTarget = new Map(
-        depGraphs.map(({ targetName, graph }) => [targetName, graph]),
-      );
-      for (const [targetName, graph] of depGraphsByTarget) {
+      } else {
         await printDepGraph(graph, targetName, process.stdout);
       }
     }
@@ -401,9 +396,7 @@ export async function runTest(
     // dependency graph artifacts for printing.
     if (
       !options.docker &&
-      (shouldPrintDepGraph(options) ||
-        shouldPrintEffectiveDepGraph(options) ||
-        options['print-output-jsonl-with-errors'])
+      shouldPrintGraph(options)
     ) {
       return [];
     }
@@ -701,10 +694,7 @@ async function assembleLocalPayloads(
         failedResults,
       );
 
-      if (
-        shouldPrintEffectiveDepGraphWithErrors(options) ||
-        options['print-output-jsonl-with-errors']
-      ) {
+      if (shouldPrintGraph(options) && shouldEmbedErrors(options)) {
         for (const failed of failedResults) {
           await printDepGraphError(root, failed, process.stdout);
         }
@@ -844,7 +834,7 @@ async function assembleLocalPayloads(
         ? (pkg as depGraphLib.DepGraph).rootPkg.name
         : (pkg as DepTree).name;
 
-      if (shouldPrintDepGraph(options)) {
+      if (shouldPrintGraph(options) && !options['prune']) {
         spinner.clear<void>(spinnerLbl)();
         let root: depGraphLib.DepGraph;
         if (scannedProject.depGraph) {
@@ -857,7 +847,7 @@ async function assembleLocalPayloads(
           );
         }
 
-        if (options['print-output-jsonl-with-errors']) {
+        if (isJsonl(options)) {
           await printDepGraphJsonl(
             root.toJSON(),
             targetFile || '',
@@ -909,13 +899,14 @@ async function assembleLocalPayloads(
         });
       }
 
-      const pruneIsRequired = options.pruneRepeatedSubdependencies;
+      const pruneIsRequired =
+        options.pruneRepeatedSubdependencies || !!options['prune'];
 
-      if (packageManager && !options['print-output-jsonl-with-errors']) {
+      if (packageManager && (!isJsonl(options) || options['prune'])) {
         depGraph = await pruneGraph(depGraph, packageManager, pruneIsRequired);
       }
 
-      if (shouldPrintEffectiveDepGraph(options)) {
+      if (shouldPrintGraph(options) && options['prune']) {
         spinner.clear<void>(spinnerLbl)();
         await printDepGraphJsonl(
           depGraph.toJSON(),

@@ -15,6 +15,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/snyk/error-catalog-golang-public/code"
 	"github.com/snyk/error-catalog-golang-public/snyk_errors"
 	"github.com/snyk/go-application-framework/pkg/app"
 	"github.com/snyk/go-application-framework/pkg/configuration"
@@ -654,6 +655,9 @@ func TestDeriveExitCode(t *testing.T) {
 		{name: "no error", err: nil, expected: constants.SNYK_EXIT_CODE_OK},
 		{name: "error with exit code", err: &cli_errors.ErrorWithExitCode{ExitCode: 42}, expected: 42},
 		{name: "other error", err: errors.New("some other error"), expected: constants.SNYK_EXIT_CODE_ERROR},
+		{name: "snyk_errors.Error with mapped code", err: snyk_errors.Error{ErrorCode: code.NewUnsupportedProjectError("").ErrorCode}, expected: constants.SNYK_EXIT_CODE_UNSUPPORTED_PROJECTS},
+		{name: "snyk_errors.Error with unmapped code", err: snyk_errors.Error{ErrorCode: "SNYK-UNKNOWN-9999"}, expected: constants.SNYK_EXIT_CODE_ERROR},
+		{name: "wrapped snyk_errors.Error", err: fmt.Errorf("wrap: %w", snyk_errors.Error{ErrorCode: code.NewUnsupportedProjectError("").ErrorCode}), expected: constants.SNYK_EXIT_CODE_UNSUPPORTED_PROJECTS},
 	}
 
 	for _, tc := range tests {
