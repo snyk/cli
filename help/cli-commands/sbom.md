@@ -10,7 +10,7 @@ The `snyk sbom` feature requires an internet connection.
 
 ## Usage
 
-`$ snyk sbom --format=<cyclonedx1.4+json|cyclonedx1.4+xml|cyclonedx1.5+json|cyclonedx1.5+xml|cyclonedx1.6+json|cyclonedx1.6+xml|spdx2.3+json> [--org=<ORG_ID>] [--file=<FILE>] [--unmanaged] [--dev] [--all-projects] [--name=<NAME>] [--version=<VERSION>] [--exclude=<NAME>[,<NAME>...]] [--detection-depth=<DEPTH>] [--prune-repeated-subdependencies|-p] [--maven-aggregate-project] [--scan-unmanaged] [--scan-all-unmanaged] [--sub-project=<NAME>] [--gradle-sub-project=<NAME>] [--all-sub-projects] [--configuration-matching=<CONFIGURATION_REGEX>] [--configuration-attributes=<ATTRIBUTE>[,<ATTRIBUTE>]] [--init-script=<FILE>] [--json-file-output=<OUTPUT_FILE_PATH>] [--include-provenance] [--go-module-level] [<TARGET_DIRECTORY>]`
+`$ snyk sbom --format=<cyclonedx1.4+json|cyclonedx1.4+xml|cyclonedx1.5+json|cyclonedx1.5+xml|cyclonedx1.6+json|cyclonedx1.6+xml|spdx2.3+json> [--org=<ORG_ID>] [--file=<FILE>] [--unmanaged] [--dev] [--all-projects] [--allow-incomplete-sbom] [--name=<NAME>] [--version=<VERSION>] [--exclude=<NAME>[,<NAME>...]] [--detection-depth=<DEPTH>] [--prune-repeated-subdependencies|-p] [--maven-aggregate-project] [--scan-unmanaged] [--scan-all-unmanaged] [--sub-project=<NAME>] [--gradle-sub-project=<NAME>] [--all-sub-projects] [--configuration-matching=<CONFIGURATION_REGEX>] [--configuration-attributes=<ATTRIBUTE>[,<ATTRIBUTE>]] [--init-script=<FILE>] [--json-file-output=<OUTPUT_FILE_PATH>] [--include-provenance] [--go-module-level] [<TARGET_DIRECTORY>]`
 
 ## Description
 
@@ -115,6 +115,19 @@ Default: no limit
 ### `[--prune-repeated-subdependencies|-p]`
 
 Prune dependency trees, removing duplicate sub-dependencies.
+
+### `[--allow-incomplete-sbom]`
+
+Continue generating an SBOM when one or more detected projects fail to resolve, instead of aborting on the first failure.
+
+Without this option, the `sbom` command fails as soon as any project cannot be resolved and no SBOM is produced (fail-fast).
+
+With this option:
+
+- Every detected project is scanned. Projects that resolve successfully contribute their components, including transitive dependencies, to the SBOM. Projects that fail to resolve are excluded from the SBOM and are reported as scan errors.
+- The command exits with code `0` even if some projects could not be resolved. If every project fails, the SBOM is still produced but contains zero components.
+
+This option works in any `sbom` invocation, including single-project scans, `--all-projects`, and `--unmanaged`. It is most useful in multi-project workspaces where a single broken manifest would otherwise prevent generating an SBOM for the rest of the workspace.
 
 ### `[--json-file-output]`
 
