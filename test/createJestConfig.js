@@ -1,11 +1,36 @@
-const path = require('path');
-// Scoped to this folder only so globalSetup is not routed through ts-node for other test/jest/**/*.ts files.
-require('ts-node').register({
-  transpileOnly: true,
-  scope: true,
-  scopeDir: path.join(__dirname, 'jest', 'skip-test-list'),
-});
-const { getSkipTestList } = require('./jest/skip-test-list/getSkipTestList');
+/**
+ * Comma-separated env lists (`TEST_SNYK_IGNORE_LIST`, `TEST_SNYK_SKIP_TEST_IDS`): trim, drop empties,
+ * validate each fragment as a JavaScript RegExp source (same rule as Jest path patterns).
+ * @param {string} raw
+ * @returns {{ valid: string[], invalid: string[] }}
+ */
+function parseSnykIgnoreFragments(raw) {
+  if (typeof raw !== 'string' || raw.trim() === '') {
+    return { valid: [], invalid: [] };
+  }
+  const pieces = raw
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const valid = [];
+  const invalid = [];
+  for (const f of pieces) {
+    try {
+      // Validate fragment as a JavaScript RegExp source (same as Jest path patterns).
+      // eslint-disable-next-line no-new
+      new RegExp(f);
+      valid.push(f);
+    } catch {
+      invalid.push(f);
+    }
+  }
+  return { valid, invalid };
+}
+
+function getSkipTestList() {
+  const raw = process.env.TEST_SNYK_IGNORE_LIST;
+  return parseSnykIgnoreFragments(typeof raw === 'string' ? raw : '');
+}
 
 let ignoreFragmentsWarned = false;
 
@@ -66,4 +91,5 @@ const createJestConfig = (config = {}) => {
 
 module.exports = {
   createJestConfig,
+  parseSnykIgnoreFragments,
 };
