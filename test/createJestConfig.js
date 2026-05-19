@@ -45,25 +45,21 @@ const createJestConfig = (config = {}) => {
     '<rootDir>/pysrc/',
   ];
 
-  const { valid: snykFragments, invalid: invalidIgnoreFragments } =
-    getSkipTestList();
+  const { valid, invalid } = getSkipTestList();
 
-  if (
-    (snykFragments.length > 0 || invalidIgnoreFragments.length > 0) &&
-    !ignoreFragmentsWarned
-  ) {
+  if ((valid.length > 0 || invalid.length > 0) && !ignoreFragmentsWarned) {
     ignoreFragmentsWarned = true;
-    if (invalidIgnoreFragments.length > 0) {
+    if (invalid.length > 0) {
       console.warn(
         '[acceptance ignore]',
         'Skipping invalid TEST_SNYK_IGNORE_LIST fragments (must compile as JavaScript RegExp sources):',
-        invalidIgnoreFragments,
+        invalid,
       );
     }
-    if (snykFragments.length > 0) {
+    if (valid.length > 0) {
       console.warn(
         '[acceptance ignore]',
-        snykFragments,
+        valid,
         'TEST_SNYK_IGNORE_LIST overrides TEST_SNYK_DONT_SKIP_ANYTHING for matching files.',
       );
     }
@@ -77,11 +73,7 @@ const createJestConfig = (config = {}) => {
   return {
     preset: 'ts-jest',
     testRegex: '\\.spec\\.ts$',
-    testPathIgnorePatterns: [
-      ...ignorePatterns,
-      ...snykFragments,
-      ...extraPathIgnores,
-    ],
+    testPathIgnorePatterns: [...ignorePatterns, ...valid, ...extraPathIgnores],
     modulePathIgnorePatterns: [...ignorePatterns],
     coveragePathIgnorePatterns: [...ignorePatterns],
     transformIgnorePatterns: [...ignorePatterns],
