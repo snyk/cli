@@ -11,6 +11,7 @@ import { ContainerTarget, GitTarget } from '../project-metadata/types';
 import { CLI, ProblemError } from '@snyk/error-catalog-nodejs-public';
 import { CustomError } from '../errors';
 import { FailedProjectScanError } from '../plugins/get-multi-plugin-result';
+import * as analytics from '../analytics';
 
 /**
  * Determines workspace information from the plugin name and scanned project metadata.
@@ -132,8 +133,67 @@ export async function printDepGraph(
   });
 }
 
-export function shouldPrintDepGraph(opts: Options): boolean {
-  return opts['print-graph'] && !opts['print-deps'];
+// PHASE 2: --jsonl will be removed once all consumers use the dep-graph router
+// directly. At that point, JSONL will be the only print-graph output format.
+export function isJsonl(opts: Options): boolean {
+  return !!opts['jsonl'];
+}
+
+export function shouldEmbedErrors(opts: Options): boolean {
+  return !!opts['embed-errors'];
+}
+
+export function shouldPrintGraph(opts: Options): boolean {
+  return !opts['print-deps'] && (
+    !!opts['print-graph'] ||
+    !!opts['print-effective-graph'] ||
+    !!opts['print-effective-graph-with-errors'] ||
+    !!opts['print-output-jsonl-with-errors']
+  );
+}
+
+// DEPRECATION: The legacy flag mappings below exist for backward compatibility.
+// Once analytics confirm no usage of the old flags, remove the legacyMappings
+// table and the deprecation warnings.
+export function mapLegacyGraphFlags(opts: Options): void {
+  // --prune implies --jsonl (pruned output is always JSONL)
+  if (opts['prune']) {
+    opts['jsonl'] = true;
+    opts['print-graph'] = true;
+  }
+
+  // New-style --jsonl or --prune: always embed errors.
+  // Consumers of the new model are expected to handle embedded errors.
+  if (opts['jsonl']) {
+    opts['print-graph'] = true;
+    opts['embed-errors'] = true;
+    return;
+  }
+
+  const legacyMappings: Array<{ flag: keyof Options; prune: boolean; embedErrors: boolean }> = [
+    { flag: 'print-effective-graph', prune: true, embedErrors: false },
+    { flag: 'print-effective-graph-with-errors', prune: true, embedErrors: true },
+    { flag: 'print-output-jsonl-with-errors', prune: false, embedErrors: true },
+  ];
+
+  for (const { flag, prune, embedErrors } of legacyMappings) {
+    if (opts[flag]) {
+      const replacement = prune ? '--print-graph --prune' : '--print-graph --jsonl';
+      process.stderr.write(
+        `WARNING: --${flag} is deprecated. Use ${replacement} instead.\n`,
+      );
+      analytics.add('deprecatedLegacyDepGraphFlag', flag);
+      opts['print-graph'] = true;
+      opts['jsonl'] = true;
+      if (prune) {
+        opts['prune'] = true;
+      }
+      if (embedErrors) {
+        opts['embed-errors'] = true;
+      }
+      return;
+    }
+  }
 }
 
 /**
@@ -180,8 +240,8 @@ export async function printDepGraphError(
   return new Promise((res, rej) => {
     // Normalize the target file path to be relative to root, consistent with printDepGraphJsonl
     const normalisedTargetFile = failedProjectScanError.targetFile
-      ? path.relative(root, failedProjectScanError.targetFile)
-      : failedProjectScanError.targetFile;
+    ? path.relative(root, path.resolve(root, failedProjectScanError.targetFile))
+    : failedProjectScanError.targetFile;
 
     const problemError = getOrCreateErrorCatalogError(failedProjectScanError);
     const serializedError = problemError.toJsonApi().body();
@@ -198,23 +258,6 @@ export async function printDepGraphError(
   });
 }
 
-/**
- * Checks if either --print-effective-graph or --print-effective-graph-with-errors is set.
- */
-export function shouldPrintEffectiveDepGraph(opts: Options): boolean {
-  return (
-    !!opts['print-effective-graph'] ||
-    shouldPrintEffectiveDepGraphWithErrors(opts)
-  );
-}
-
-/**
- * shouldPrintEffectiveDepGraphWithErrors checks if the --print-effective-graph-with-errors flag is set.
- * This is used to determine if the effective dep-graph with errors should be printed.
- */
-export function shouldPrintEffectiveDepGraphWithErrors(opts: Options): boolean {
-  return !!opts['print-effective-graph-with-errors'];
-}
 
 /**
  * getOrCreateErrorCatalogError returns a ProblemError instance for consistent error catalog usage.
