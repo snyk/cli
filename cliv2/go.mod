@@ -16,16 +16,16 @@ require (
 	github.com/snyk/cli-extension-dep-graph v1.7.0
 	github.com/snyk/cli-extension-iac v0.0.0-20260206082514-00c443ccee80
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20260206080712-9cbb5f95465d
-	github.com/snyk/cli-extension-os-flows v0.0.0-20260423112219-b7ba9dd68e57
+	github.com/snyk/cli-extension-os-flows v0.0.0-20260515090326-f505ef5d1ead
 	github.com/snyk/cli-extension-sbom v0.0.0-20260428131356-48881c6270fa
-	github.com/snyk/cli-extension-secrets v0.0.0-20260505103358-cc205308a93e
+	github.com/snyk/cli-extension-secrets v0.0.0-20260519130658-5bc07275ad09
 	github.com/snyk/code-client-go v1.27.0
 	github.com/snyk/container-cli v0.0.0-20260213211631-cd2b2cf8f3ea
 	github.com/snyk/error-catalog-golang-public v0.0.0-20260505112649-a5103d411663
-	github.com/snyk/go-application-framework v0.0.0-20260506111235-cca3157b9435
+	github.com/snyk/go-application-framework v0.0.0-20260511100036-100e7116aec5
 	github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65
 	github.com/snyk/snyk-iac-capture v0.6.5
-	github.com/snyk/snyk-ls v0.0.0-20260507075428-365bccd7be16
+	github.com/snyk/snyk-ls v0.0.0-20260519104610-d16ea9b8a8b1
 	github.com/snyk/studio-mcp v1.11.0
 	github.com/spf13/cobra v1.9.1
 	github.com/spf13/pflag v1.0.10
@@ -136,7 +136,7 @@ require (
 	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect
 	github.com/gobwas/glob v0.2.3 // indirect
 	github.com/golang/groupcache v0.0.0-20241129210726-2c02b8208cf8 // indirect
-	github.com/gomarkdown/markdown v0.0.0-20250207164621-7a1f277a159e // indirect
+	github.com/gomarkdown/markdown v0.0.0-20260417124207-7d523f7318df // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/google/pprof v0.0.0-20250403155104-27863c87afa6 // indirect
@@ -274,7 +274,7 @@ require (
 // version 2491eb6c1c75 contains a valid license
 replace github.com/mattn/go-localereader v0.0.1 => github.com/mattn/go-localereader v0.0.2-0.20220822084749-2491eb6c1c75
 
-// replace github.com/snyk/go-application-framework => ../../go-application-framework
+//replace github.com/snyk/go-application-framework => ../../go-application-framework
 
 //replace github.com/snyk/snyk-ls => ../../snyk-ls
 //replace github.com/snyk/code-client-go => ../../code-client-go
@@ -293,4 +293,4 @@ replace github.com/mattn/go-localereader v0.0.1 => github.com/mattn/go-localerea
 
 // replace github.com/snyk/cli-extension-sbom => ../../cli-extension-sbom
 
-// replace github.com/snyk/cli-extension-secrets => ../../cli-extension-secrets
+//replace github.com/snyk/cli-extension-secrets => ../../cli-extension-secrets
