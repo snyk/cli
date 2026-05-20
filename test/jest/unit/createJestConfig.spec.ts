@@ -5,12 +5,24 @@ describe('createJestConfig (TEST_SNYK_IGNORE_LIST)', () => {
     jest.restoreAllMocks();
   });
 
-  function loadCreateJestConfig(envValue: string | undefined) {
-    if (envValue === undefined) {
-      delete process.env.TEST_SNYK_IGNORE_LIST;
-    } else {
-      process.env.TEST_SNYK_IGNORE_LIST = envValue;
-    }
+  function unsetTestSnykIgnoreListEnv(): void {
+    delete process.env.TEST_SNYK_IGNORE_LIST;
+  }
+
+  function setTestSnykIgnoreListEnv(value: string): void {
+    process.env.TEST_SNYK_IGNORE_LIST = value;
+  }
+
+  /**
+   * Loads `createJestConfig` from disk after `jest.resetModules()` so the module’s
+   * `ignoreFragmentsWarned` flag (and any other module state in `test/createJestConfig.js`)
+   * matches this test case.
+   */
+  function loadFreshCreateJestConfig(): (
+    config?: object,
+  ) => {
+    testPathIgnorePatterns: string[];
+  } {
     jest.resetModules();
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     return require('../../createJestConfig').createJestConfig as (
@@ -20,9 +32,10 @@ describe('createJestConfig (TEST_SNYK_IGNORE_LIST)', () => {
     };
   }
 
-  it('no TEST_SNYK_IGNORE_LIST: no stderr banner, base paths preserved', () => {
+  it('when TEST_SNYK_IGNORE_LIST is unset: base ignore patterns still apply and no [acceptance ignore] warning', () => {
     const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
-    const createJestConfig = loadCreateJestConfig(undefined);
+    unsetTestSnykIgnoreListEnv();
+    const createJestConfig = loadFreshCreateJestConfig();
     const cfg = createJestConfig({});
     expect(cfg.testPathIgnorePatterns).toContain('/node_modules/');
     expect(warn).not.toHaveBeenCalled();
@@ -30,14 +43,16 @@ describe('createJestConfig (TEST_SNYK_IGNORE_LIST)', () => {
 
   it('empty TEST_SNYK_IGNORE_LIST after trim: no banner', () => {
     const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
-    const createJestConfig = loadCreateJestConfig('   ');
+    setTestSnykIgnoreListEnv('   ');
+    const createJestConfig = loadFreshCreateJestConfig();
     createJestConfig({});
     expect(warn).not.toHaveBeenCalled();
   });
 
   it('non-empty list: warn includes fragments and merges into testPathIgnorePatterns', () => {
     const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
-    const createJestConfig = loadCreateJestConfig('foo, bar ,,, baz ');
+    setTestSnykIgnoreListEnv('foo, bar ,,, baz ');
+    const createJestConfig = loadFreshCreateJestConfig();
     const cfg = createJestConfig({});
     expect(warn.mock.calls[0]?.[1]).toEqual(['foo', 'bar', 'baz']);
     expect(cfg.testPathIgnorePatterns).toEqual(
@@ -47,7 +62,8 @@ describe('createJestConfig (TEST_SNYK_IGNORE_LIST)', () => {
 
   it('warns at most once when createJestConfig is invoked repeatedly', () => {
     const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
-    const createJestConfig = loadCreateJestConfig('same-env');
+    setTestSnykIgnoreListEnv('same-env');
+    const createJestConfig = loadFreshCreateJestConfig();
     createJestConfig({});
     createJestConfig({});
     expect(warn).toHaveBeenCalledTimes(1);
@@ -56,7 +72,8 @@ describe('createJestConfig (TEST_SNYK_IGNORE_LIST)', () => {
 
   it('skips fragments that are invalid RegExp sources and does not merge them', () => {
     const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
-    const createJestConfig = loadCreateJestConfig('[bad');
+    setTestSnykIgnoreListEnv('[bad');
+    const createJestConfig = loadFreshCreateJestConfig();
     const cfg = createJestConfig({});
     expect(cfg.testPathIgnorePatterns).not.toContain('[bad');
     expect(warn).toHaveBeenCalledTimes(1);
@@ -66,7 +83,8 @@ describe('createJestConfig (TEST_SNYK_IGNORE_LIST)', () => {
 
   it('merges only valid fragments when the list mixes valid and invalid entries', () => {
     const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
-    const createJestConfig = loadCreateJestConfig('ok-ignore-part,[bad');
+    setTestSnykIgnoreListEnv('ok-ignore-part,[bad');
+    const createJestConfig = loadFreshCreateJestConfig();
     const cfg = createJestConfig({});
     expect(cfg.testPathIgnorePatterns).toContain('ok-ignore-part');
     expect(cfg.testPathIgnorePatterns).not.toContain('[bad');
@@ -78,7 +96,8 @@ describe('createJestConfig (TEST_SNYK_IGNORE_LIST)', () => {
 
   it('caller testPathIgnorePatterns merge after env fragments, not overwriting base', () => {
     jest.spyOn(console, 'warn').mockImplementation(() => {});
-    const createJestConfig = loadCreateJestConfig('from-env');
+    setTestSnykIgnoreListEnv('from-env');
+    const createJestConfig = loadFreshCreateJestConfig();
     const cfg = createJestConfig({
       testPathIgnorePatterns: ['/caller-only/'],
     });
