@@ -28,6 +28,7 @@ import (
 	"github.com/snyk/code-client-go/pkg/code"
 	"github.com/snyk/container-cli/pkg/container"
 	"github.com/snyk/error-catalog-golang-public/cli"
+	"github.com/snyk/remy-cli-extension/pkg/remy"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 
@@ -64,7 +65,6 @@ import (
 	"github.com/snyk/go-application-framework/pkg/workflow"
 
 	snykls "github.com/snyk/snyk-ls/ls_extension"
-	"github.com/snyk/remy-cli-extension/pkg/remy"
 	"github.com/snyk/studio-mcp/pkg/mcp"
 
 	cli_errors "github.com/snyk/cli/cliv2/internal/errors"
