@@ -39,6 +39,15 @@ describe('acceptanceTestSkipById (TEST_SNYK_SKIP_TEST_IDS)', () => {
     expect(acceptanceIt('c')).toBe(it);
   });
 
+  it('treats stable ids as literal strings, not RegExp sources (e.g. `[` in the id)', async () => {
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+    const id = 'suite:case:with[bracket-unclosed';
+    process.env.TEST_SNYK_SKIP_TEST_IDS = id;
+    const { acceptanceIt } = await loadModule();
+    expect(acceptanceIt(id)).toBe(it.skip);
+    expect(acceptanceIt('other-id')).toBe(it);
+  });
+
   it('logs [acceptance skip tests] once per module load when ids are present', async () => {
     const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
     process.env.TEST_SNYK_SKIP_TEST_IDS = 'x,y';

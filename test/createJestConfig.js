@@ -1,5 +1,20 @@
 /**
- * Comma-separated env lists (`TEST_SNYK_IGNORE_LIST`, `TEST_SNYK_SKIP_TEST_IDS`): trim, drop empties,
+ * Comma-separated env list: trim segments, drop empties. For literal string sets (no RegExp checks).
+ * @param {string} raw
+ * @returns {string[]}
+ */
+function parseCommaSeparatedEnvList(raw) {
+  if (typeof raw !== 'string' || raw.trim() === '') {
+    return [];
+  }
+  return raw
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
+/**
+ * Comma-separated env list (`TEST_SNYK_IGNORE_LIST`): trim, drop empties,
  * validate each fragment as a JavaScript RegExp source (same rule as Jest path patterns).
  * @param {string} raw
  * @returns {{ valid: string[], invalid: string[] }}
@@ -83,5 +98,6 @@ const createJestConfig = (config = {}) => {
 
 module.exports = {
   createJestConfig,
+  parseCommaSeparatedEnvList,
   parseSnykIgnoreFragments,
 };
