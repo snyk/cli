@@ -204,7 +204,10 @@ export async function printDepGraphError(
   return new Promise((res, rej) => {
     // Normalize the target file path to be relative to root, consistent with printDepGraphJsonl
     const normalisedTargetFile = failedProjectScanError.targetFile
-      ? path.relative(root, failedProjectScanError.targetFile)
+      ? path.relative(
+          root,
+          path.resolve(root, failedProjectScanError.targetFile),
+        )
       : failedProjectScanError.targetFile;
 
     const problemError = getOrCreateErrorCatalogError(failedProjectScanError);
