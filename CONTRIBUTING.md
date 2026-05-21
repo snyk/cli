@@ -158,15 +158,48 @@ You can run acceptance tests with:
 npm run test:acceptance -- --selectProjects coreCli
 ```
 
-#### Skipping acceptance spec files via CircleCI context (`TEST_SNYK_IGNORE_LIST`)
+#### Skipping acceptance spec files via CircleCI context
 
-When needed (for example blocking failures outside the CLI), CI can exclude specific acceptance specs by path without changing repo code. Set the environment variable **`TEST_SNYK_IGNORE_LIST`** to a comma-separated list of **regex fragments** that Jest merges into `testPathIgnorePatterns` (same semantics as Jest’s ignore patterns). Empty entries are ignored after trimming. Each fragment must compile as a JavaScript **`RegExp`** source; malformed fragments are skipped and listed on stderr under **`[acceptance ignore]`** so Jest still starts.
+The `TEST_SNYK_IGNORE_LIST` environment variable enables selective exclusion of acceptance test files from CI
+execution without modifying repository code. This feature is particularly useful for blocking failures outside
+the CLI scope.
 
-- **CircleCI:** add the variable on context **`team-cli-workflow-context`** (name `TEST_SNYK_IGNORE_LIST`, value is only the pattern text—for example `snyk-code-user-journey\.spec\.ts`—not `TEST_SNYK_IGNORE_LIST=...`). Those workflows attach that context to **`acceptance-tests`** jobs so the env is available there.
-- **Precedence:** for paths that match a fragment, **`TEST_SNYK_IGNORE_LIST` wins over `TEST_SNYK_DONT_SKIP_ANYTHING`** (the file is not collected). `TEST_SNYK_DONT_SKIP_ANYTHING` still applies to specs that remain in the run.
-- **Observability:** **`console.warn`** on **stderr** with prefix **`[acceptance ignore]`**: skipped invalid fragments (if any), then applied fragments and precedence vs **`TEST_SNYK_DONT_SKIP_ANYTHING`**—each summary logged once per worker; avoid relying on stdout for this signal.
+##### Configuration
 
-`testPathIgnorePatterns` applies to whole files; it cannot skip a single `it()` inside a spec.
+Set the environment variable **`TEST_SNYK_IGNORE_LIST`** to a comma-separated list of **regex fragments**. These
+fragments are merged into Jest's `testPathIgnorePatterns` with identical semantics to Jest's native ignore
+patterns. Empty entries are ignored after trimming, and malformed fragments are skipped while being logged to
+stderr under the **`[acceptance ignore]`** prefix to ensure Jest startup continues uninterrupted.
+
+##### CircleCI Setup
+
+- **Context**: Add the variable to the **`team-cli-workflow-context`** context
+- **Variable Name**: `TEST_SNYK_IGNORE_LIST`
+- **Value Format**: Pattern text only (e.g., `snyk-code-user-journey\.spec\.ts`) — not
+  `TEST_SNYK_IGNORE_LIST=...`
+- **Workflow Attachment**: These workflows automatically attach the context to **`acceptance-tests`** jobs,
+  making the environment variable available
+
+##### Precedence Rules
+
+1. **`TEST_SNYK_IGNORE_LIST` takes precedence over `TEST_SNYK_DONT_SKIP_ANYTHING`** for matching paths (the file
+   is excluded from collection)
+2. **`TEST_SNYK_DONT_SKIP_ANYTHING` still applies** to specs that remain in the test run
+
+##### Observability
+
+- **Logging**: **`console.warn`** messages on **stderr** with prefix **`[acceptance ignore]`**
+- **Information Included**:
+  - Skipped invalid fragments (if any)
+  - Applied fragments
+  - Precedence comparison with `TEST_SNYK_DONT_SKIP_ANYTHING`
+- **Frequency**: Each summary is logged once per worker
+- **Note**: Avoid relying on stdout for this signaling mechanism
+
+##### Limitations
+
+`testPathIgnorePatterns` applies to entire files only; it cannot skip individual `it()` blocks within a spec
+file.
 
 ### Smoke Tests
 
