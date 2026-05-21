@@ -168,8 +168,7 @@ the CLI scope.
 
 Set the environment variable **`TEST_SNYK_IGNORE_LIST`** to a comma-separated list of **regex fragments**. These
 fragments are merged into Jest's `testPathIgnorePatterns` with identical semantics to Jest's native ignore
-patterns. Empty entries are ignored after trimming, and malformed fragments are skipped while being logged to
-stderr under the **`[acceptance ignore]`** prefix to ensure Jest startup continues uninterrupted.
+patterns.
 
 ##### CircleCI Setup
 
@@ -185,16 +184,6 @@ stderr under the **`[acceptance ignore]`** prefix to ensure Jest startup continu
 1. **`TEST_SNYK_IGNORE_LIST` takes precedence over `TEST_SNYK_DONT_SKIP_ANYTHING`** for matching paths (the file
    is excluded from collection)
 2. **`TEST_SNYK_DONT_SKIP_ANYTHING` still applies** to specs that remain in the test run
-
-##### Observability
-
-- **Logging**: **`console.warn`** messages on **stderr** with prefix **`[acceptance ignore]`**
-- **Information Included**:
-  - Skipped invalid fragments (if any)
-  - Applied fragments
-  - Precedence comparison with `TEST_SNYK_DONT_SKIP_ANYTHING`
-- **Frequency**: Each summary is logged once per worker
-- **Note**: Avoid relying on stdout for this signaling mechanism
 
 ##### Limitations
 
