@@ -16,17 +16,17 @@ require (
 	github.com/snyk/cli-extension-dep-graph v1.7.0
 	github.com/snyk/cli-extension-iac v0.0.0-20260206082514-00c443ccee80
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20260206080712-9cbb5f95465d
-	github.com/snyk/cli-extension-os-flows v0.0.0-20260423112219-b7ba9dd68e57
+	github.com/snyk/cli-extension-os-flows v0.0.0-20260515090326-f505ef5d1ead
 	github.com/snyk/cli-extension-sbom v0.0.0-20260428131356-48881c6270fa
-	github.com/snyk/cli-extension-secrets v0.0.0-20260505103358-cc205308a93e
+	github.com/snyk/cli-extension-secrets v0.0.0-20260519130658-5bc07275ad09
 	github.com/snyk/code-client-go v1.27.0
 	github.com/snyk/container-cli v0.0.0-20260213211631-cd2b2cf8f3ea
 	github.com/snyk/error-catalog-golang-public v0.0.0-20260505112649-a5103d411663
-	github.com/snyk/go-application-framework v0.0.0-20260511082023-c0c078d45b62
+	github.com/snyk/go-application-framework v0.0.0-20260511100036-100e7116aec5
 	github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65
 	github.com/snyk/snyk-iac-capture v0.6.5
-	github.com/snyk/snyk-ls v0.0.0-20260507075428-365bccd7be16
-	github.com/snyk/studio-mcp v1.9.2
+	github.com/snyk/snyk-ls v0.0.0-20260519104610-d16ea9b8a8b1
+	github.com/snyk/studio-mcp v1.11.0
 	github.com/spf13/cobra v1.9.1
 	github.com/spf13/pflag v1.0.10
 	github.com/stretchr/testify v1.11.1
@@ -121,8 +121,8 @@ require (
 	github.com/gertd/go-pluralize v0.2.1 // indirect
 	github.com/getsentry/sentry-go v0.31.1 // indirect
 	github.com/go-git/gcfg v1.5.1-0.20230307220236-3a3c6141e376 // indirect
-	github.com/go-git/go-billy/v5 v5.8.0 // indirect
-	github.com/go-git/go-git/v5 v5.18.0 // indirect
+	github.com/go-git/go-billy/v5 v5.9.0 // indirect
+	github.com/go-git/go-git/v5 v5.19.0 // indirect
 	github.com/go-ini/ini v1.67.0 // indirect
 	github.com/go-jose/go-jose/v4 v4.1.4 // indirect
 	github.com/go-logr/logr v1.4.3 // indirect
@@ -136,7 +136,7 @@ require (
 	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect
 	github.com/gobwas/glob v0.2.3 // indirect
 	github.com/golang/groupcache v0.0.0-20241129210726-2c02b8208cf8 // indirect
-	github.com/gomarkdown/markdown v0.0.0-20250207164621-7a1f277a159e // indirect
+	github.com/gomarkdown/markdown v0.0.0-20260417124207-7d523f7318df // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/google/pprof v0.0.0-20250403155104-27863c87afa6 // indirect
@@ -195,7 +195,7 @@ require (
 	github.com/patrickmn/go-cache v2.1.0+incompatible // indirect
 	github.com/pelletier/go-toml/v2 v2.2.4 // indirect
 	github.com/peterh/liner v1.2.2 // indirect
-	github.com/pjbgf/sha1cd v0.5.0 // indirect
+	github.com/pjbgf/sha1cd v0.6.0 // indirect
 	github.com/pkg/browser v0.0.0-20240102092130-5ac0b6a4141c // indirect
 	github.com/planetscale/vtprotobuf v0.6.1-0.20240319094008-0393e58bdf10 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
@@ -251,7 +251,7 @@ require (
 	go.opentelemetry.io/otel/trace v1.43.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/crypto v0.50.0 // indirect
-	golang.org/x/exp v0.0.0-20251023183803-a4bb9ffd2546 // indirect
+	golang.org/x/exp v0.0.0-20260410095643-746e56fc9e2f // indirect
 	golang.org/x/net v0.53.0 // indirect
 	golang.org/x/oauth2 v0.36.0 // indirect
 	golang.org/x/sync v0.20.0 // indirect
@@ -274,7 +274,7 @@ require (
 // version 2491eb6c1c75 contains a valid license
 replace github.com/mattn/go-localereader v0.0.1 => github.com/mattn/go-localereader v0.0.2-0.20220822084749-2491eb6c1c75
 
-// replace github.com/snyk/go-application-framework => ../../go-application-framework
+//replace github.com/snyk/go-application-framework => ../../go-application-framework
 
 //replace github.com/snyk/snyk-ls => ../../snyk-ls
 //replace github.com/snyk/code-client-go => ../../code-client-go
@@ -293,4 +293,4 @@ replace github.com/mattn/go-localereader v0.0.1 => github.com/mattn/go-localerea
 
 // replace github.com/snyk/cli-extension-sbom => ../../cli-extension-sbom
 
-// replace github.com/snyk/cli-extension-secrets => ../../cli-extension-secrets
+//replace github.com/snyk/cli-extension-secrets => ../../cli-extension-secrets

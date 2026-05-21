@@ -92,6 +92,11 @@ V1_BUILD_TYPE = build:prod
 V1_BINARY_FOLDER = ts-cli-binaries
 # default to empty string, which means no subfolder
 V1_BINARY_SUBFOLDER =
+# ensures we set the correct ts-cli-binaries subfolder for static node binaries
+# when STATIC_NODE_BINARY=true is passed to the make command
+ifeq ($(STATIC_NODE_BINARY), true)
+	V1_BINARY_SUBFOLDER = experimental/
+endif
 HASH_STRING = $(HASH)$(HASH_ALGORITHM)
 SIGN_SCRIPT = $(WORKING_DIR)/scripts/sign_$(_GO_OS).sh
 ISSIGNED_SCRIPT = $(WORKING_DIR)/scripts/issigned_$(_GO_OS).sh

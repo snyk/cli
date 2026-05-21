@@ -15,7 +15,7 @@ The Snyk CLI brings the functionality of Snyk into your development workflow. Yo
 
 Snyk CLI scanning supports many languages and tools. For detailed information, see the following:
 
-- [Supported languages, package managers, and frameworks](../../supported-languages/supported-languages-package-managers-and-frameworks.md) for Open Source and Snyk Code
+- [Supported languages, package managers, and frameworks](https://docs.snyk.io/supported-languages/supported-languages-package-managers-and-frameworks) for Open Source and Snyk Code
 - [Supported operating system distributions for Container](https://docs.snyk.io/scan-with-snyk/snyk-container/how-snyk-container-works/operating-system-distributions-supported-by-snyk-container)
 - [Supported IaC Languages and cloud providers](https://docs.snyk.io/scan-with-snyk/snyk-iac/supported-iac-languages-cloud-providers-and-cloud-resources)
 
@@ -23,7 +23,7 @@ This page explains how to install, authenticate, and start scanning using the CL
 
 ## Install the Snyk CLI and authenticate your machine
 
-To use the CLI, you must install it and authenticate your machine. See [Install or update the Snyk CLI](https://docs.snyk.io/snyk-cli/install-or-update-the-snyk-cli) and [Authenticate the CLI with your account](authenticate-to-use-the-cli.md). You can refer to the [release notes](https://github.com/snyk/cli/releases) for a summary of changes in each release. Before scanning your code, review the [Code execution warning for Snyk CLI](https://docs.snyk.io/snyk-cli/code-execution-warning-for-snyk-cli).
+To use the CLI, you must install it and authenticate your machine. See [Install or update the Snyk CLI](https://docs.snyk.io/snyk-cli/install-or-update-the-snyk-cli) and [Authenticate the CLI with your account](https://docs.snyk.io/developer-tools/snyk-cli/authenticate-to-use-the-cli). You can refer to the [release notes](https://github.com/snyk/cli/releases) for a summary of changes in each release. Before scanning your code, review the [Code execution warning for Snyk CLI](https://docs.snyk.io/snyk-cli/code-execution-warning-for-snyk-cli).
 
 {% hint style="info" %}
 Before you can use the CLI for Open Source scanning, you must install your package manager. The needed third-party tools, such as Gradle or Maven, must be in the `PATH`.
@@ -58,7 +58,7 @@ For details about using the Snyk CLI to scan each content type, see the followin
 
 - [Snyk CLI for Snyk Open Source](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/snyk-cli-for-open-source) and the CLI help for the [`test`](https://docs.snyk.io/snyk-cli/commands/test) and [`monitor`](https://docs.snyk.io/snyk-cli/commands/monitor) commands
 - [Snyk CLI for Snyk Code](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/snyk-cli-for-snyk-code) and the [Snyk Code CLI help](https://docs.snyk.io/snyk-cli/commands/code)
-- [Snyk CLI for Snyk Container](scan-and-maintain-projects-using-the-cli/snyk-cli-for-snyk-container/), including Docker scanning, and the [Snyk Container CLI help](https://docs.snyk.io/snyk-cli/commands/container)
+- [Snyk CLI for Snyk Container](https://docs.snyk.io/developer-tools/snyk-cli/scan-and-maintain-projects-using-the-cli/snyk-cli-for-snyk-container), including Docker scanning, and the [Snyk Container CLI help](https://docs.snyk.io/snyk-cli/commands/container)
 - [Snyk CLI for Snyk IaC](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/snyk-cli-for-iac), including Terraform and Kubernetes (K8s) Projects, and the [Snyk IAC CLI help](https://docs.snyk.io/snyk-cli/commands/iac)
 
 ## Monitor your Open Source or Container Project
