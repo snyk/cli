@@ -18,9 +18,7 @@ describe('createJestConfig (TEST_SNYK_IGNORE_LIST)', () => {
    * `ignoreFragmentsWarned` flag (and any other module state in `test/createJestConfig.js`)
    * matches this test case.
    */
-  function loadFreshCreateJestConfig(): (
-    config?: object,
-  ) => {
+  function loadFreshCreateJestConfig(): (config?: object) => {
     testPathIgnorePatterns: string[];
   } {
     jest.resetModules();

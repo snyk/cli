@@ -68,14 +68,14 @@ const createJestConfig = (config = {}) => {
       console.warn(
         '[acceptance ignore]',
         'Skipping invalid TEST_SNYK_IGNORE_LIST fragments (must compile as JavaScript RegExp sources):',
-        invalid
+        invalid,
       );
     }
     if (valid.length > 0) {
       console.warn(
         '[acceptance ignore]',
         valid,
-        'TEST_SNYK_IGNORE_LIST overrides TEST_SNYK_DONT_SKIP_ANYTHING for matching files.'
+        'TEST_SNYK_IGNORE_LIST overrides TEST_SNYK_DONT_SKIP_ANYTHING for matching files.',
       );
     }
   }
