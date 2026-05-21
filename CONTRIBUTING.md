@@ -166,9 +166,9 @@ the CLI scope.
 
 ##### Configuration
 
-Set the environment variable **`TEST_SNYK_IGNORE_LIST`** to a comma-separated list of **regex fragments**. These
-fragments are merged into Jest's `testPathIgnorePatterns` with identical semantics to Jest's native ignore
-patterns.
+Set the environment variable **`TEST_SNYK_IGNORE_LIST`** to a comma-separated list of **patterns**. Split on commas,
+trim each segment, omit empty segments, then merge the rest into Jest's `testPathIgnorePatterns` (same as setting
+that option in config; behaviour follows Jest's documentation for ignore patterns).
 
 ##### CircleCI Setup
 
