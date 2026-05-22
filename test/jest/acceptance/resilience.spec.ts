@@ -57,6 +57,55 @@ interface ResilienceScenario {
   skip?: string[]; // Commands to skip for this scenario (not yet consistent)
 }
 
+describe('TEST_SNYK_IGNORE_LIST → testPathIgnorePatterns', () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { createJestConfig } = require('../../createJestConfig') as {
+    createJestConfig: (config?: object) => {
+      testPathIgnorePatterns: string[];
+    };
+  };
+  let previousIgnoreList: string | undefined;
+
+  beforeEach(() => {
+    previousIgnoreList = process.env.TEST_SNYK_IGNORE_LIST;
+  });
+
+  afterEach(() => {
+    if (previousIgnoreList === undefined) {
+      delete process.env.TEST_SNYK_IGNORE_LIST;
+    } else {
+      process.env.TEST_SNYK_IGNORE_LIST = previousIgnoreList;
+    }
+  });
+
+  it('when unset or empty, does not add fragments from TEST_SNYK_IGNORE_LIST', () => {
+    for (const value of [undefined as string | undefined, '']) {
+      if (value === undefined) {
+        delete process.env.TEST_SNYK_IGNORE_LIST;
+      } else {
+        process.env.TEST_SNYK_IGNORE_LIST = value;
+      }
+      const ignorePathPatterns = createJestConfig({}).testPathIgnorePatterns;
+      expect(ignorePathPatterns).toContain('/node_modules/');
+      expect(ignorePathPatterns).not.toContain('happy-path-one');
+    }
+  });
+
+  it('single comma-separated pattern is merged', () => {
+    process.env.TEST_SNYK_IGNORE_LIST = 'happy-path-one';
+    expect(createJestConfig({}).testPathIgnorePatterns).toContain(
+      'happy-path-one',
+    );
+  });
+
+  it('two comma-separated patterns are merged', () => {
+    process.env.TEST_SNYK_IGNORE_LIST = 'happy-path-a, happy-path-b';
+    const ignorePathPatterns = createJestConfig({}).testPathIgnorePatterns;
+    expect(ignorePathPatterns).toContain('happy-path-a');
+    expect(ignorePathPatterns).toContain('happy-path-b');
+  });
+});
+
 const RESILIENCE_SCENARIOS: ResilienceScenario[] = [
   // Scenario 1
   {
