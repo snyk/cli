@@ -6,6 +6,7 @@ import _ "github.com/snyk/go-application-framework/pkg/networking/fips_enable"
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -462,6 +463,22 @@ func displayError(err error, userInterface ui.UserInterface, config configuratio
 	}
 }
 
+func handleRetryNotification(engine workflow.Engine, logger *zerolog.Logger, err error) {
+	if ui := engine.GetUserInterface(); ui != nil {
+		if outputErr := ui.OutputError(err); outputErr != nil {
+			logger.Warn().Err(outputErr).Msg("failed to show rate-limit retry warning")
+		}
+	} else {
+		logger.Warn().Msg("rate-limit retry warning not shown: user interface not attached")
+	}
+
+	if analytics := engine.GetAnalytics(); analytics != nil {
+		analytics.AddError(err)
+	} else {
+		logger.Warn().Msg("rate-limit retry not recorded in analytics: collector not initialized")
+	}
+}
+
 // tearDown handles sending analytics and instrumentation
 // It is used both for normal exit and signal-triggered exit
 func tearDown(err error, errorList []error, startTime time.Time, ua networking.UserAgentInfo, cliAnalytics analytics.Analytics, networkAccess networking.NetworkAccess) int {
@@ -564,6 +581,15 @@ func mainWithErrorCode(additionalExts []workflow.ExtensionInit) int {
 		if err == nil {
 			return nil
 		}
+
+		// Retry notifications arrive as catalog errors with RetryAttemptError as cause.
+		// Show UI warning, record in analytics, but don't collect as a command error.
+		var retryErr *middleware.RetryAttemptError
+		if errors.As(err, &retryErr) {
+			handleRetryNotification(globalEngine, globalLogger, err)
+			return nil
+		}
+
 		errorListMutex.Lock()
 		defer errorListMutex.Unlock()
 
