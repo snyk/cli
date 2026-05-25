@@ -261,7 +261,8 @@ commands:
                     New-Item -Path $bashEnvScript -ItemType File -Force | Out-Null
                   }
                   $bashPath = $goBin.Replace('\', '/').Replace('C:', '/c')
-                  'export PATH="' + $bashPath + ':$PATH"' | Out-File -FilePath $bashEnvScript -Append -Encoding UTF8
+                  $bashLine = 'export PATH="' + $bashPath + ':$PATH"'
+                  [System.IO.File]::AppendAllText($bashEnvScript, $bashLine + "`n", (New-Object System.Text.UTF8Encoding $false))
 
   install-deps-windows-native-build:
     steps:
@@ -276,7 +277,7 @@ commands:
       - restore_cache:
           name: Restoring Windows tools cache
           keys:
-            - windows-tools-cache-v4-{{ arch }}-{{ checksum ".nvmrc" }}
+            - windows-tools-cache-v5-{{ arch }}-{{ checksum ".nvmrc" }}
       - run:
           name: Install Node.js (native)
           shell: powershell
@@ -315,7 +316,7 @@ commands:
             .\scripts\windows\ensure-python-uv.ps1
       - save_cache:
           name: Saving Windows tools cache
-          key: windows-tools-cache-v4-{{ arch }}-{{ checksum ".nvmrc" }}
+          key: windows-tools-cache-v5-{{ arch }}-{{ checksum ".nvmrc" }}
           paths:
             - << pipeline.parameters.windows_cache_dir >>
             - C:\ProgramData\nvm
