@@ -935,58 +935,62 @@ describe('snyk code test', () => {
             it('should support .snyk file filtering', async () => {
               const ignoredFile1 = 'JWTVotesEndpoint.java';
               const ignoredFile2 = 'HashingAssignment.java';
-
-              // run initial snyk code and verify issues are there
-              const initialCodeTestCmd = await runSnykCLI(
-                `code test ${projectWithIssuesAndDotSnykFile} --severity-threshold=high`,
-                {
-                  env: {
-                    ...process.env,
-                    ...integrationEnv,
-                  },
-                },
+              const projectPath = await ensureUniqueBundleIsUsed(
+                projectWithIssuesAndDotSnykFile,
               );
 
-              // before creating the .snyk file, issues in these files should be there
-              expect(initialCodeTestCmd.stdout).toContain(ignoredFile1);
-              expect(initialCodeTestCmd.stdout).toContain(ignoredFile2);
+              try {
+                const testEnv = {
+                  ...process.env,
+                  ...integrationEnv,
+                };
 
-              // create ignores
-              await Promise.all([
-                runSnykCLI(
-                  `ignore --file-path=${ignoredFile1} --file-path-group=code --policy-path=${projectWithIssuesAndDotSnykFile}`,
-                ),
-                runSnykCLI(
-                  `ignore --file-path=${ignoredFile2} --expiry=3000-12-31T00:00:00.000Z --file-path-group=code --policy-path=${projectWithIssuesAndDotSnykFile}`,
-                ),
-              ]);
+                // run initial snyk code and verify issues are there
+                const initialCodeTestCmd = await runSnykCLI(
+                  `code test ${projectPath} --severity-threshold=high`,
+                  { env: testEnv },
+                );
 
-              /** .snyk file in sut should look something like:
-               * # Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
-                  version: v1.25.1
-                  ignore: {}
-                  patch: {}
-                  exclude:
-                    code:
-                      - JWTVotesEndpoint.java
-                      - HashingAssignment.java:
-                          expires: 3000-12-31T00:00:00.000Z
-                          created: 2026-01-28T11:59:32.489Z
-               */
+                // before creating the .snyk file, issues in these files should be there
+                expect(initialCodeTestCmd.stdout).toContain(ignoredFile1);
+                expect(initialCodeTestCmd.stdout).toContain(ignoredFile2);
 
-              // test
-              const codeTestCmd = await runSnykCLI(
-                `code test ${projectWithIssuesAndDotSnykFile} --severity-threshold=high`,
-                {
-                  env: {
-                    ...process.env,
-                    ...integrationEnv,
-                  },
-                },
-              );
+                // create ignores sequentially to avoid concurrent read-modify-write on .snyk
+                const ignore1 = await runSnykCLI(
+                  `ignore --file-path=${ignoredFile1} --file-path-group=code --policy-path=${projectPath}`,
+                );
+                expect(ignore1.code).toEqual(0);
 
-              expect(codeTestCmd.stdout).not.toContain(ignoredFile1);
-              expect(codeTestCmd.stdout).not.toContain(ignoredFile2);
+                const ignore2 = await runSnykCLI(
+                  `ignore --file-path=${ignoredFile2} --expiry=3000-12-31T00:00:00.000Z --file-path-group=code --policy-path=${projectPath}`,
+                );
+                expect(ignore2.code).toEqual(0);
+
+                expect(existsSync(join(projectPath, '.snyk'))).toBe(true);
+
+                /** .snyk file in sut should look something like:
+                 * # Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+                    version: v1.25.1
+                    ignore: {}
+                    patch: {}
+                    exclude:
+                      code:
+                        - JWTVotesEndpoint.java
+                        - HashingAssignment.java:
+                            expires: 3000-12-31T00:00:00.000Z
+                            created: 2026-01-28T11:59:32.489Z
+                 */
+
+                const codeTestCmd = await runSnykCLI(
+                  `code test ${projectPath} --severity-threshold=high`,
+                  { env: testEnv },
+                );
+
+                expect(codeTestCmd.stdout).not.toContain(ignoredFile1);
+                expect(codeTestCmd.stdout).not.toContain(ignoredFile2);
+              } finally {
+                fs.removeSync(projectPath);
+              }
             });
           });
         }
