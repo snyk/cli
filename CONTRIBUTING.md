@@ -158,6 +158,38 @@ You can run acceptance tests with:
 npm run test:acceptance -- --selectProjects coreCli
 ```
 
+#### Skipping acceptance spec files via CircleCI context
+
+The `TEST_SNYK_IGNORE_LIST` environment variable enables selective exclusion of acceptance test files from CI
+execution without modifying repository code. This feature is particularly useful for blocking failures outside
+the CLI scope.
+
+##### Configuration
+
+Set the environment variable **`TEST_SNYK_IGNORE_LIST`** to a comma-separated list of **patterns**. Split on commas,
+trim each segment, omit empty segments, then merge the rest into Jest's `testPathIgnorePatterns` (same as setting
+that option in config; behaviour follows Jest's documentation for ignore patterns).
+
+##### CircleCI Setup
+
+- **Context**: Add the variable to the **`team-cli-workflow-context`** context
+- **Variable Name**: `TEST_SNYK_IGNORE_LIST`
+- **Value Format**: Pattern text only (e.g., `snyk-code-user-journey\.spec\.ts`) — not
+  `TEST_SNYK_IGNORE_LIST=...`
+- **Workflow Attachment**: These workflows automatically attach the context to **`acceptance-tests`** jobs,
+  making the environment variable available
+
+##### Precedence Rules
+
+1. **`TEST_SNYK_IGNORE_LIST` takes precedence over `TEST_SNYK_DONT_SKIP_ANYTHING`** for matching paths (the file
+   is excluded from collection)
+2. **`TEST_SNYK_DONT_SKIP_ANYTHING` still applies** to specs that remain in the test run
+
+##### Limitations
+
+`testPathIgnorePatterns` applies to entire files only; it cannot skip individual `it()` blocks within a spec
+file.
+
 ### Smoke Tests
 
 Smoke tests typically don't run on branches unless the branch is specifically prefixed with `smoke/`. They usually run
