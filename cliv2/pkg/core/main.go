@@ -389,6 +389,9 @@ func createCommandsForWorkflows(rootCommand *cobra.Command, engine workflow.Engi
 			// to preserve backwards compatibility we will need to relax flag validation
 			parentCommand.FParseErrWhitelist.UnknownFlags = true
 			parentCommand.Aliases = []string{"mcp-scan"}
+		case "fix":
+			// to preserve backwards compatibility we will need to relax flag validation
+			parentCommand.FParseErrWhitelist.UnknownFlags = true
 		}
 	}
 }
