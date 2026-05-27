@@ -354,7 +354,7 @@ run: build require-args
 
 .PHONY: run-ts
 run-ts: require-args
-	@npm install
+	@npx -y npm@11.16.0 install
 	npm run dev "$(ARGS)"
 
 .PHONY: require-args

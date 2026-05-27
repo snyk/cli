@@ -1387,7 +1387,7 @@ jobs:
             - prepare-v1-build-npm-deps
       - run:
           name: Installing dependencies
-          command: npm ci --no-audit --no-progress --cache .npm --prefer-offline
+          command: npx -y npm@11.16.0  ci --no-audit --no-progress --cache .npm --prefer-offline
       - save_cache:
           name: Save npm cache
           key: prepare-v1-build-npm-deps-{{ checksum "package-lock.json" }}
@@ -1541,7 +1541,7 @@ jobs:
             - public-build-npm-deps
       - run:
           name: Installing dependencies
-          command: npm ci --no-audit --no-progress --cache .npm --prefer-offline
+          command: npx -y npm@11.16.0  ci --no-audit --no-progress --cache .npm --prefer-offline
       - save_cache:
           name: Save npm cache (public build)
           key: public-build-npm-deps-{{ checksum "package-lock.json" }}
@@ -1701,7 +1701,7 @@ jobs:
             - setup_remote_docker:
                 docker_layer_caching: false
       - run:
-          command: npm install
+          command: npx -y npm@11.16.0  install
       - install-go:
           go_os: << parameters.go_os >>
           go_target_os: << parameters.go_target_os >>
