@@ -14,4 +14,7 @@ describe('getSeverityValue', () => {
   it('Low returns 4', () => {
     expect(getSeverityValue(SEVERITY.LOW)).toEqual(1);
   });
+  it('none returns 0', () => {
+    expect(getSeverityValue('none')).toEqual(0);
+  });
 });

@@ -99,7 +99,6 @@ async function handleError(args, error) {
     error.userMessage = error.nestedUserMessage || error.userMessage;
     error.code = error.nestedCode || error.code;
     error.strCode = error.nestedStrCode || error.strCode;
-    error.userMessage = error.nestedUserMessage || error.userMessage;
   }
 
   let command = 'bad-command';
