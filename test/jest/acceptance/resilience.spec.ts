@@ -12,6 +12,12 @@ const GRACE_PERIOD_SECS = 5;
 const SERVER_DELAY_MS = 10000;
 const FAKE_ORG = '11111111-1111-1111-1111-111111111111';
 
+/**
+ * X-RateLimit-Reset: seconds remaining until the rate limit resets (int as string on the wire).
+ * Used with the go-application-framework retry middleware in throttle scenarios.
+ */
+const RATE_LIMIT_SECONDS_REMAINING = 2;
+
 // Commands that should behave consistently across all fault scenarios
 const COMMANDS_UNDER_TEST = [
   'test',
@@ -51,10 +57,11 @@ interface ResilienceScenario {
   setup: (ctx: ScenarioContext) => void | Promise<void>;
   teardown?: (ctx: ScenarioContext) => void | Promise<void>;
   expectedExitCode: number;
-  expectedErrorCode: string;
+  expectedErrorCode?: string;
   assert?: (ctx: AssertionContext) => void; // Additional scenario-specific assertions
   envOverrides?: Record<string, string>;
   skip?: string[]; // Commands to skip for this scenario (not yet consistent)
+  onlyCommands?: string[];
 }
 
 const RESILIENCE_SCENARIOS: ResilienceScenario[] = [
@@ -183,6 +190,56 @@ const RESILIENCE_SCENARIOS: ResilienceScenario[] = [
       'container monitor scratch',
     ],
   },
+
+  // Scenario 5
+  {
+    name: 'rate-limit-reset-retry-recovery',
+    description:
+      '429 with X-RateLimit-Reset (seconds remaining): retry middleware backs off then succeeds',
+    setup: ({ server }) => {
+      const throttleBody = {
+        jsonapi: { version: '1.0' },
+        errors: [new Snyk.TooManyRequestsError('').toJsonApiErrorObject()],
+      };
+
+      const okSelf = {
+        jsonapi: { version: '1.0' },
+        data: {
+          type: 'user',
+          id: '11111111-2222-3333-4444-555555555555',
+          attributes: {
+            name: 'John Doe',
+            default_org_context: '55555555-5555-5555-5555-555555555555',
+            username: 'john.doe@snyk.io',
+            email: 'john.doe@snyk.io',
+            avatar_url: 'https://s.gravatar.com/avatar/snykdog.png',
+          },
+        },
+        links: { self: '/self?version=2024-10-15' },
+      };
+
+      const selfPaths = ['/api/rest/self', '/rest/self'];
+      for (const path of selfPaths) {
+        server.setEndpointResponses(path, [throttleBody, throttleBody, okSelf]);
+        server.setEndpointStatusCodes(path, [429, 429, 200]);
+        server.setEndpointHeaders(path, {
+          'X-RateLimit-Reset': String(RATE_LIMIT_SECONDS_REMAINING),
+        });
+      }
+    },
+    expectedExitCode: 0,
+    envOverrides: {
+      SNYK_MAX_ATTEMPTS: '10',
+    },
+    onlyCommands: ['whoami --experimental'],
+    assert: ({ server }) => {
+      const selfHits = server
+        .getRequests()
+        .filter((r) => (r.url ?? '').includes('/rest/self'));
+      // eslint-disable-next-line jest/no-standalone-expect
+      expect(selfHits.length).toBeGreaterThanOrEqual(3);
+    },
+  },
 ];
 
 function shouldSkip(scenario: ResilienceScenario, command: string): boolean {
@@ -202,6 +259,7 @@ describe('Resilience - Consistent CLI Behavior', () => {
     baseEnv = {
       ...process.env,
       SNYK_API: 'http://' + ipAddr + ':' + port + baseApi,
+      SNYK_HOST: 'http://' + ipAddr + ':' + port,
       SNYK_TOKEN: '123456789',
       SNYK_HTTP_PROTOCOL_UPGRADE: '0',
       SNYK_CFG_ORG: FAKE_ORG,
@@ -223,10 +281,15 @@ describe('Resilience - Consistent CLI Behavior', () => {
   describe.each(RESILIENCE_SCENARIOS)(
     '$name: $description',
     (scenario: ResilienceScenario) => {
-      const commandsToRun = COMMANDS_UNDER_TEST.filter(
+      const commandPool =
+        scenario.onlyCommands && scenario.onlyCommands.length > 0
+          ? scenario.onlyCommands
+          : COMMANDS_UNDER_TEST;
+
+      const commandsToRun = commandPool.filter(
         (cmd) => !shouldSkip(scenario, cmd),
       );
-      const commandsToSkip = COMMANDS_UNDER_TEST.filter((cmd) =>
+      const commandsToSkip = commandPool.filter((cmd) =>
         shouldSkip(scenario, cmd),
       );
 
@@ -252,7 +315,9 @@ describe('Resilience - Consistent CLI Behavior', () => {
 
           // Common assertions
           expect(code).toEqual(scenario.expectedExitCode);
-          expect(stdout).toContain(scenario.expectedErrorCode);
+          if (scenario.expectedErrorCode !== undefined) {
+            expect(stdout).toContain(scenario.expectedErrorCode);
+          }
 
           // Scenario-specific assertions
           if (scenario.assert) {

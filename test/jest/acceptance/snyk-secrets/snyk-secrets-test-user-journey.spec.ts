@@ -72,6 +72,25 @@ const copyFolderSync = (from: string, to: string) => {
   });
 };
 
+// Guards against an empty/malformed SARIF
+// so failures surface as readable assertion messages
+function assertSarifShape(sarifOutput: any): void {
+  expect(Array.isArray(sarifOutput?.runs)).toBe(true);
+  expect(sarifOutput.runs.length).toBeGreaterThan(0);
+  expect(Array.isArray(sarifOutput.runs[0]?.results)).toBe(true);
+}
+
+function checkSarif(sarifOutput: any, expectedIgnoredFindings: number): any {
+  assertSarifShape(sarifOutput);
+
+  const suppressions = sarifOutput.runs[0].results.filter(
+    (result: any) => result.suppressions,
+  );
+  expect(suppressions.length).toBe(expectedIgnoredFindings);
+
+  return sarifOutput;
+}
+
 describe('snyk secrets test', () => {
   describe('output formats', () => {
     it('should display human-readable output by default', async () => {
@@ -117,6 +136,7 @@ describe('snyk secrets test', () => {
     );
 
     const sarifOutput = JSON.parse(stdout);
+    assertSarifShape(sarifOutput);
 
     // examples/ contains a single critical-severity private key, which is kept at
     // --severity-threshold=critical; any lower-severity findings would be filtered out.
@@ -420,5 +440,100 @@ describe('snyk secrets test', () => {
         expect(code).toBe(EXIT_CODES.ERROR);
       },
     );
+  });
+
+  describe('with ignored issues', () => {
+    // semgrep-rules-examples provides enough varied findings to ignore
+    const expectedIgnoredCritical = 1;
+    const expectedIgnoredTotal = 2;
+
+    it('filters below-threshold ignored findings with --severity-threshold', async () => {
+      const { stdout, stderr, code } = await runSnykCLI(
+        `secrets test ${TEMP_LOCAL_PATH}/semgrep-rules-examples --severity-threshold=critical --sarif`,
+        { env },
+      );
+
+      expect(stderr).toBe('');
+      expect(code).toBe(EXIT_CODES.VULNS_FOUND);
+
+      const sarifOutput = checkSarif(
+        JSON.parse(stdout),
+        expectedIgnoredCritical,
+      );
+
+      // SARIF level "error" covers both critical and high, so it can't distinguish them on its own.
+      // The per-result message text carries the actual severity word ("critical severity")
+      const results = sarifOutput.runs[0].results;
+      expect(results.length).toBeGreaterThan(0);
+      results.forEach((result: any) => {
+        expect(result.message?.text).toMatch(/critical severity/i);
+        expect(result.message?.text).not.toMatch(/(high|medium|low) severity/i);
+      });
+    });
+
+    it('renders ignore metadata in human-readable output with --include-ignores', async () => {
+      const { stdout, stderr, code } = await runSnykCLI(
+        `secrets test ${TEMP_LOCAL_PATH}/semgrep-rules-examples --include-ignores`,
+        { env },
+      );
+
+      expect(stderr).toBe('');
+      expect(code).toBe(EXIT_CODES.VULNS_FOUND);
+
+      // Each ignored finding renders an [IGNORED] marker.
+      const ignoredMarkers = stdout.match(/\[\s*IGNORED\s*\]/gi) || [];
+      expect(ignoredMarkers.length).toBe(expectedIgnoredTotal);
+      expect(stdout).toMatch(/Ignored:\s*\d+/);
+
+      // Ignore metadata is rendered for every ignored finding.
+      expect(stdout).toMatch(/Reason:\s+\S+/);
+      expect(stdout).toMatch(
+        /Expiration:\s+(?:[A-Z][a-z]+\s+\d{1,2},\s+\d{4}|never)/,
+      );
+      expect(stdout).toMatch(/Ignored on:\s+[A-Z][a-z]+\s+\d{1,2},\s+\d{4}/);
+    });
+
+    it('emits suppressions in SARIF', async () => {
+      const { stdout, stderr, code } = await runSnykCLI(
+        `secrets test ${TEMP_LOCAL_PATH}/semgrep-rules-examples --sarif`,
+        { env },
+      );
+
+      expect(stderr).toBe('');
+      expect(code).toBe(EXIT_CODES.VULNS_FOUND);
+
+      const sarifOutput = checkSarif(JSON.parse(stdout), expectedIgnoredTotal);
+
+      // SARIF suppressions carry the core ignore metadata fields.
+      const ignoredResults = sarifOutput.runs[0].results.filter(
+        (result: any) => result.suppressions,
+      );
+      ignoredResults.forEach((result: any) => {
+        expect(result.suppressions.length).toBeGreaterThan(0);
+        result.suppressions.forEach((suppression: any) => {
+          expect(suppression).toHaveProperty('status');
+          expect(suppression).toHaveProperty('justification');
+          expect(suppression).toHaveProperty('kind');
+        });
+      });
+    });
+
+    it('omits ignored findings from human-readable output by default', async () => {
+      const { stdout, stderr, code } = await runSnykCLI(
+        `secrets test ${TEMP_LOCAL_PATH}/semgrep-rules-examples`,
+        { env },
+      );
+
+      expect(stderr).toBe('');
+      expect(code).toBe(EXIT_CODES.VULNS_FOUND);
+
+      // Per-finding ignore output ([IGNORED] markers and metadata) is suppressed
+      // unless --include-ignores is passed. The summary line still reports a count.
+      expect(stdout).not.toMatch(/\[\s*IGNORED\s*\]/i);
+      expect(stdout).not.toMatch(/Reason:\s+\S+/);
+      expect(stdout).not.toMatch(
+        /Ignored on:\s+[A-Z][a-z]+\s+\d{1,2},\s+\d{4}/,
+      );
+    });
   });
 });
