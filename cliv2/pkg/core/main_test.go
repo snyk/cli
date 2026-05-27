@@ -1,4 +1,4 @@
-package main
+package core
 
 import (
 	"encoding/json"
@@ -40,13 +40,13 @@ func cleanup() {
 	globalEngine = nil
 }
 
-func Test_MainWithErrorCode(t *testing.T) {
+func Test_mainWithErrorCode(t *testing.T) {
 	defer cleanup()
 	oldArgs := append([]string{}, os.Args...)
 	os.Args = []string{"snyk", "--version"}
 	defer func() { os.Args = oldArgs }()
 
-	errCode := MainWithErrorCode()
+	errCode := mainWithErrorCode(nil)
 	assert.False(t, globalConfiguration.GetBool(configuration.CONFIG_CACHE_DISABLED))
 	assert.Equal(t, configuration.NoCacheExpiration, globalConfiguration.GetDuration(configuration.CONFIG_CACHE_TTL))
 
@@ -61,7 +61,7 @@ func Test_MainWithErrorCode(t *testing.T) {
 			os.Args = oldArgs
 		}()
 
-		errCode := MainWithErrorCode()
+		errCode := mainWithErrorCode(nil)
 		assert.Equal(t, 2, errCode)
 	})
 }

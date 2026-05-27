@@ -166,7 +166,7 @@ commands:
         type: string
       make_target:
         type: string
-        default: 'build'
+        default: 'build BUILD_MODE=private'
       c_compiler:
         type: string
         default: ''
@@ -379,6 +379,29 @@ commands:
           name: No dependencies to install
           command: echo all done!
 
+  setup-go-private-modules:
+    description: >-
+      Configure git and Go to fetch private snyk modules using the
+      GITHUB_PRIVATE_TOKEN provided by the `go-private-modules` context.
+      Safe to call on Linux, macOS and Windows (uses bash on all executors).
+    steps:
+      - run:
+          name: Configure access to private Snyk Go modules
+          shell: bash
+          command: |
+            # Load Windows env (PATH for git/go) if running on the Windows executor.
+            if [ -f "/c/tools-cache/<< pipeline.parameters.windows_bash_env_script >>" ]; then
+              source "/c/tools-cache/<< pipeline.parameters.windows_bash_env_script >>"
+            fi
+            if [ -z "${GITHUB_PRIVATE_TOKEN}" ]; then
+              echo "GITHUB_PRIVATE_TOKEN is not set; skipping private Snyk modules setup."
+              echo "Add the 'go-private-modules' context to this job if private modules are required."
+              exit 0
+            fi
+            git config --global url."https://${GITHUB_PRIVATE_TOKEN}:x-oauth-basic@github.com/snyk".insteadOf "https://github.com/snyk"
+            # Propagate GOPRIVATE to subsequent bash steps.
+            echo 'export GOPRIVATE=github.com/snyk' >> "$BASH_ENV"
+
   install-deps-python:
     parameters:
       os:
@@ -538,6 +561,7 @@ workflows:
           context:
             - devex_cli
             - devex_cli_docker_hub
+            - go-private-modules
           requires:
             - prepare-build
           filters:
@@ -566,6 +590,23 @@ workflows:
           context:
             - nodejs-install
             - team_hammerhead-cli
+            - devex_cli_docker_hub
+            - go-private-modules
+          requires:
+            - prepare-build
+          filters:
+            branches:
+              ignore:
+                - main
+                - '/release.*/'
+
+      - build-public:
+          name: build public (open source)
+          go_target_os: linux
+          go_os: linux
+          go_arch: amd64
+          go_download_base_url: << pipeline.parameters.go_download_base_url >>
+          context:
             - devex_cli_docker_hub
           requires:
             - prepare-build
@@ -598,6 +639,7 @@ workflows:
           name: build linux amd64
           context:
             - iac-cli
+            - go-private-modules
             - devex_cli_docker_hub
           go_target_os: linux
           go_os: linux
@@ -612,13 +654,14 @@ workflows:
           name: build linux static amd64
           context:
             - iac-cli
+            - go-private-modules
             - devex_cli_docker_hub
           go_target_os: linux
           go_os: linux
           go_arch: amd64
           static_binary: true
           go_download_base_url: << pipeline.parameters.go_download_base_url >>
-          make_target: build-experimental
+          make_target: build-experimental BUILD_MODE=private
           executor: docker-amd64-xl
           requires:
             - prepare-build
@@ -627,12 +670,13 @@ workflows:
           name: build linux fips amd64
           context:
             - iac-cli
+            - go-private-modules
             - devex_cli_docker_hub
           go_target_os: linux
           go_os: linux
           go_arch: amd64
           go_download_base_url: << pipeline.parameters.fips_go_download_base_url >>
-          make_target: build-fips
+          make_target: build-fips BUILD_MODE=private
           executor: docker-amd64-xl
           requires:
             - prepare-build
@@ -641,6 +685,7 @@ workflows:
           name: build linux arm64
           context:
             - iac-cli
+            - go-private-modules
             - devex_cli_docker_hub
           go_target_os: linux
           go_os: linux
@@ -655,13 +700,14 @@ workflows:
           name: build linux static arm64
           context:
             - iac-cli
+            - go-private-modules
             - devex_cli_docker_hub
           go_target_os: linux
           go_os: linux
           go_arch: arm64
           static_binary: true
           go_download_base_url: << pipeline.parameters.go_download_base_url >>
-          make_target: build-experimental
+          make_target: build-experimental BUILD_MODE=private
           executor: docker-arm64-xl
           requires:
             - prepare-build
@@ -670,12 +716,13 @@ workflows:
           name: build linux fips arm64
           context:
             - iac-cli
+            - go-private-modules
             - devex_cli_docker_hub
           go_target_os: linux
           go_os: linux
           go_arch: arm64
           go_download_base_url: << pipeline.parameters.fips_go_download_base_url >>
-          make_target: build-fips
+          make_target: build-fips BUILD_MODE=private
           executor: docker-arm64-xl
           requires:
             - prepare-build
@@ -684,6 +731,7 @@ workflows:
           name: build alpine amd64
           context:
             - iac-cli
+            - go-private-modules
             - devex_cli_docker_hub
           go_target_os: alpine
           go_os: linux
@@ -698,6 +746,7 @@ workflows:
           name: build alpine arm64
           context:
             - iac-cli
+            - go-private-modules
             - devex_cli_docker_hub
           go_target_os: alpine
           go_os: linux
@@ -719,6 +768,7 @@ workflows:
           context:
             - snyk-macos-signing
             - iac-cli
+            - go-private-modules
           requires:
             - prepare-build
 
@@ -733,6 +783,7 @@ workflows:
           context:
             - snyk-macos-signing
             - iac-cli
+            - go-private-modules
           requires:
             - prepare-build
 
@@ -742,13 +793,14 @@ workflows:
           go_os: windows
           go_arch: amd64
           go_download_base_url: << pipeline.parameters.fips_go_download_base_url >>
-          make_target: build clean-golang build-fips
+          make_target: build clean-golang build-fips BUILD_MODE=private
           install_deps_extension: windows-native-full-signing
           install_path: 'C:\'
           executor: win-server2022-amd64
           context:
             - snyk-windows-signing
             - iac-cli
+            - go-private-modules
           requires:
             - prepare-build
 
@@ -1385,6 +1437,7 @@ jobs:
           go_arch: << parameters.go_arch >>
           base_url: << parameters.go_download_base_url >>
           extraction_path: << parameters.install_path >>
+      - setup-go-private-modules
       - run:
           name: Linting project
           command: |
@@ -1459,10 +1512,44 @@ jobs:
           go_arch: << parameters.go_arch >>
           base_url: << parameters.go_download_base_url >>
           extraction_path: << parameters.install_path >>
+      - setup-go-private-modules
       - run:
           name: Running Go unit tests
           working_directory: ./cliv2
           command: make openboxtest
+
+  build-public:
+    description: Verify the open source (public) CLI build compiles
+    executor: docker-amd64
+    parameters:
+      go_os:
+        type: string
+      go_target_os:
+        type: string
+      go_arch:
+        type: string
+      go_download_base_url:
+        type: string
+      install_path:
+        type: string
+        default: '.'
+    steps:
+      - prepare-workspace
+      - install-go:
+          go_os: << parameters.go_os >>
+          go_target_os: << parameters.go_target_os >>
+          go_arch: << parameters.go_arch >>
+          base_url: << parameters.go_download_base_url >>
+          extraction_path: << parameters.install_path >>
+      - make-binary:
+          go_arch: << parameters.go_arch >>
+          go_target_os: << parameters.go_target_os >>
+          make_target: build BUILD_MODE=public
+      - run:
+          name: Verify public CLI runs
+          command: |
+            ./binary-releases/snyk-linux --version
+            ./binary-releases/snyk-linux --help
 
   test-legacy-tap:
     executor: docker-amd64
@@ -1535,6 +1622,7 @@ jobs:
           go_arch: << parameters.go_arch >>
           base_url: << parameters.go_download_base_url >>
           extraction_path: << parameters.install_path >>
+      - setup-go-private-modules
       - restore_cache:
           key: go-build-{{ arch }}-{{ checksum "cliv2/go.sum" }}
       - make-binary:
