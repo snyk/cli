@@ -13,10 +13,10 @@ require (
 	github.com/snyk/cli-extension-agent-scan v0.0.0-20260505093105-90d9442ea939
 	github.com/snyk/cli-extension-ai-bom v0.0.0-20260319140413-ac7392950603
 	github.com/snyk/cli-extension-ai-redteam v0.0.0-20260331152502-ce341aeaff9e
-	github.com/snyk/cli-extension-dep-graph v1.22.1
+	github.com/snyk/cli-extension-dep-graph v1.23.0
 	github.com/snyk/cli-extension-iac v0.0.0-20260515092252-505c498f1077
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20260515141409-fb475901bb8e
-	github.com/snyk/cli-extension-os-flows v0.0.0-20260526152725-59c9ce00d48b
+	github.com/snyk/cli-extension-os-flows v0.0.0-20260528140040-b7cfe6ad82fc
 	github.com/snyk/cli-extension-sbom v0.0.0-20260428131356-48881c6270fa
 	github.com/snyk/cli-extension-secrets v0.0.0-20260519130658-5bc07275ad09
 	github.com/snyk/code-client-go v1.27.0
@@ -80,10 +80,12 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sts v1.41.9 // indirect
 	github.com/aws/smithy-go v1.24.2 // indirect
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
+	github.com/bazelbuild/bazel-gazelle v0.47.0 // indirect
+	github.com/bazelbuild/buildtools v0.0.0-20250930140053-2eb4fccefb52 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bgentry/go-netrc v0.0.0-20140422174119-9fd32a8b3d3d // indirect
 	github.com/bmatcuk/doublestar v1.3.4 // indirect
-	github.com/bmatcuk/doublestar/v4 v4.6.0 // indirect
+	github.com/bmatcuk/doublestar/v4 v4.9.1 // indirect
 	github.com/cenkalti/backoff/v5 v5.0.3 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/charmbracelet/bubbles v0.14.0 // indirect
