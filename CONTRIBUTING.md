@@ -52,6 +52,35 @@ Then run `ls binary-releases` to confirm the name of the binary. For instance, i
 ./binary-releases/snyk-macos-arm64 --version
 ```
 
+### Public vs Private Builds
+
+The CLI supports two build modes:
+
+- **Private build** (default): The full-featured build including proprietary extensions. Requires access to private repositories.
+- **Public/OSS build**: Contains only open-source extensions. This is the fallback for external contributors without access to private repos.
+
+The build system auto-detects which mode to use based on your access to the `cliv2-private` module. You can also explicitly set the mode:
+
+```sh
+# Force public build
+make build BUILD_MODE=public
+
+# Force private build (will fail if you don't have access)
+make build BUILD_MODE=private
+```
+
+To check which build you have, run:
+
+```sh
+./binary-releases/snyk-macos-arm64 --version
+# Private: 1.1234.0
+# Public:  1.1234.0-oss
+```
+
+### Managing Go Dependencies
+
+When updating Go dependencies, run `make tidy` to tidy both the public and private Go modules.
+
 ## Debugging the go binary with VSCode
 
 1. Build the cli using `make build-debug`
@@ -428,7 +457,7 @@ If you have made changes to the `go-application-framework`, you can run
 
 - Fetch the most recent commit from the `main` branch of the framework
 - Go get that version of the framework
-- Run `go mod tidy` to ensure the `go.mod` file matches the source code in the module
+- Run `make tidy` to ensure the `go.mod` files match the source code in both modules
 
 You can then raise a pr with the relevant changes.
 
