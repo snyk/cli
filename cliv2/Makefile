@@ -62,7 +62,7 @@ CACHE_DIR = $(WORKING_DIR)/_cache
 LS_PROTOCOL_VERSION_FILE = $(CACHE_DIR)/ls-protocol-version
 LS_COMMIT_HASH_FILE = $(CACHE_DIR)/ls-commit-hash
 LS_COMMIT_HASH = $(if $(wildcard $(LS_COMMIT_HASH_FILE)),$(shell cat $(LS_COMMIT_HASH_FILE)),determined during LS metadata generation)
-SRCS = $(shell find $(WORKING_DIR) -type f -name '*.go')
+SRCS = $(shell $(GOCMD) list -f '{{range .GoFiles}}{{$$.Dir}}/{{.}} {{end}}' ./...)
 
 # load cached variables if available
 -include $(CACHE_DIR)/variables.mk

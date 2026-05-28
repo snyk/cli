@@ -18,9 +18,11 @@ SHASUM_CMD = shasum
 GOHOSTOS = $(shell go env GOHOSTOS)
 export PYTHON = python
 
-PYTHON_VERSION = $(shell python3 --version)
-ifneq (, $(PYTHON_VERSION))
-	PYTHON = python3
+ifneq ($(GOHOSTOS), windows)
+	PYTHON_VERSION = $(shell python3 --version 2>/dev/null)
+	ifneq (, $(PYTHON_VERSION))
+		PYTHON = python3
+	endif
 endif
 
 ifeq ($(GOHOSTOS), windows)
