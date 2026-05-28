@@ -546,7 +546,9 @@ workflows:
                 - '/^docs\/.*/'
 
       - prepare-build:
-          context: devex_cli_docker_hub
+          context:
+            - devex_cli_docker_hub
+            - go-private-modules
           requires:
             - secrets-scan
           filters:
@@ -610,7 +612,7 @@ workflows:
           context:
             - devex_cli_docker_hub
           requires:
-            - prepare-build
+            - secrets-scan
           filters:
             branches:
               ignore:
@@ -1377,6 +1379,7 @@ jobs:
     executor: docker-amd64
     steps:
       - checkout
+      - setup-go-private-modules
       - restore_cache:
           name: Restore npm cache
           keys:
@@ -1520,7 +1523,7 @@ jobs:
           command: make openboxtest
 
   build-public:
-    description: Verify the open source (public) CLI build compiles
+    description: Verify the open source (public) CLI build compiles from scratch
     executor: docker-amd64
     parameters:
       go_os:
@@ -1535,21 +1538,29 @@ jobs:
         type: string
         default: '.'
     steps:
-      - prepare-workspace
-      - install-go:
-          go_os: << parameters.go_os >>
-          go_target_os: << parameters.go_target_os >>
-          go_arch: << parameters.go_arch >>
-          base_url: << parameters.go_download_base_url >>
-          extraction_path: << parameters.install_path >>
+      - checkout
+      - restore_cache:
+          name: Restore npm cache (public build)
+          keys:
+            - public-build-npm-deps-{{ checksum "package-lock.json" }}
+            - public-build-npm-deps
+      - run:
+          name: Installing dependencies
+          command: npm ci --no-audit --no-progress --cache .npm --prefer-offline
+      - save_cache:
+          name: Save npm cache (public build)
+          key: public-build-npm-deps-{{ checksum "package-lock.json" }}
+          paths:
+            - .npm
       - make-binary:
           go_arch: << parameters.go_arch >>
           go_target_os: << parameters.go_target_os >>
           make_target: build BUILD_MODE=public
       - run:
-          name: Verify public CLI runs
+          name: Verify public CLI runs and has -oss suffix
           command: |
             ./binary-releases/snyk-linux --version
+            ./binary-releases/snyk-linux --version 2>&1 | grep -q "\oss" || (echo "ERROR: Version should contain oss suffix for public build" && exit 1)
             ./binary-releases/snyk-linux --help
 
   test-legacy-tap:

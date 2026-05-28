@@ -16,17 +16,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/rs/zerolog"
-	"github.com/snyk/cli-extension-agent-scan/pkg/agentscan"
-	"github.com/snyk/cli-extension-ai-bom/pkg/aibom"
-	"github.com/snyk/cli-extension-ai-redteam/pkg/redteam"
-	"github.com/snyk/cli-extension-dep-graph/pkg/depgraph"
-	"github.com/snyk/cli-extension-iac-rules/iacrules"
-	"github.com/snyk/cli-extension-iac/pkg/iac"
-	"github.com/snyk/cli-extension-os-flows/pkg/osflows"
-	"github.com/snyk/cli-extension-sbom/pkg/sbom"
-	"github.com/snyk/cli-extension-secrets/pkg/secrets"
-	"github.com/snyk/code-client-go/pkg/code"
-	"github.com/snyk/container-cli/pkg/container"
 	"github.com/snyk/error-catalog-golang-public/cli"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -49,12 +38,6 @@ import (
 	"github.com/snyk/go-application-framework/pkg/local_workflows/config_utils"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/network_utils"
 
-	"github.com/snyk/go-httpauth/pkg/httpauth"
-	"github.com/snyk/snyk-iac-capture/pkg/capture"
-
-	workflows "github.com/snyk/go-application-framework/pkg/local_workflows/connectivity_check_extension"
-
-	ignoreworkflow "github.com/snyk/go-application-framework/pkg/local_workflows/ignore_workflow"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/output_workflow"
 	"github.com/snyk/go-application-framework/pkg/networking"
 	"github.com/snyk/go-application-framework/pkg/networking/middleware"
@@ -62,9 +45,7 @@ import (
 	"github.com/snyk/go-application-framework/pkg/ui"
 	"github.com/snyk/go-application-framework/pkg/utils"
 	"github.com/snyk/go-application-framework/pkg/workflow"
-
-	snykls "github.com/snyk/snyk-ls/ls_extension"
-	"github.com/snyk/studio-mcp/pkg/mcp"
+	"github.com/snyk/go-httpauth/pkg/httpauth"
 
 	cli_errors "github.com/snyk/cli/cliv2/internal/errors"
 	"github.com/snyk/cli/cliv2/pkg/basic_workflows"
@@ -478,35 +459,6 @@ func displayError(err error, userInterface ui.UserInterface, config configuratio
 				globalLogger.Err(uiError).Msg("ui failed to show error")
 			}
 		}
-	}
-}
-
-func initExtensions(engine workflow.Engine, config configuration.Configuration, additionalExts []workflow.ExtensionInit) {
-	engine.AddExtensionInitializer(basic_workflows.Init)
-	engine.AddExtensionInitializer(osflows.Init)
-	engine.AddExtensionInitializer(iac.Init)
-	engine.AddExtensionInitializer(sbom.Init)
-	engine.AddExtensionInitializer(aibom.Init)
-	engine.AddExtensionInitializer(redteam.Init)
-	engine.AddExtensionInitializer(depgraph.Init)
-	engine.AddExtensionInitializer(capture.Init)
-	engine.AddExtensionInitializer(iacrules.Init)
-	engine.AddExtensionInitializer(snykls.Init)
-	engine.AddExtensionInitializer(mcp.Init)
-	engine.AddExtensionInitializer(container.Init)
-	engine.AddExtensionInitializer(code.Init)
-	engine.AddExtensionInitializer(workflows.InitConnectivityCheckWorkflow)
-	engine.AddExtensionInitializer(ignoreworkflow.InitIgnoreWorkflows)
-	engine.AddExtensionInitializer(agentscan.Init)
-	engine.AddExtensionInitializer(secrets.Init)
-
-	// Register additional extensions injected via Run(WithAdditionalExtensions(...))
-	for _, ext := range additionalExts {
-		engine.AddExtensionInitializer(ext)
-	}
-
-	if config.GetBool(configuration.PREVIEW_FEATURES_ENABLED) {
-		config.Set("INTERNAL_USE_UFM_PRESENTER", true)
 	}
 }
 
