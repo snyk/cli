@@ -133,7 +133,7 @@ Example: `--project-tags=department=finance,team=alpha`
 
 To clear the project tags set `--project-tags=`
 
-For more information including allowable characters see [Project tags](../../../snyk-platform-administration/snyk-projects/project-tags.md)
+For more information including allowable characters see [Project tags](https://docs.snyk.io/snyk-platform-administration/snyk-projects/project-tags)
 
 ### `--remote-repo-url=<URL>`
 

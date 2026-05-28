@@ -270,6 +270,56 @@ func Test_PrepareV1EnvironmentVariables_OnlyExplicitlySetValues(t *testing.T) {
 	})
 }
 
+func Test_PrepareV1EnvironmentVariables_RequestConcurrency(t *testing.T) {
+	// Mirror main.go's production configuration setup. Crucially, this uses
+	// WithSupportedEnvVarPrefixes (NOT WithAutomaticEnv): under that setup,
+	// GAF's IsSet does not pre-bind env vars for alternative keys, so any
+	// implementation that gates forwarding on IsSet would fail to forward
+	// the value. This test catches that regression.
+	newConfig := func() configuration.Configuration {
+		c := configuration.NewWithOpts(
+			configuration.WithSupportedEnvVarPrefixes("snyk_", "internal_", "test_"),
+		)
+		c.AddAlternativeKeys(cliv2.ConfigKeyRequestConcurrency, []string{"snyk_request_concurrency"})
+		return c
+	}
+
+	t.Run("forwards resolved value to internal env when alt key is set via env", func(t *testing.T) {
+		t.Setenv("SNYK_REQUEST_CONCURRENCY", "17")
+
+		actual, err := cliv2.PrepareV1EnvironmentVariables([]string{}, "foo", "bar", "proxy", "cacertlocation", newConfig(), []string{})
+
+		assert.Nil(t, err)
+		assert.Contains(t, actual, constants.SNYK_INTERNAL_REQUEST_CONCURRENCY_ENV+"=17")
+	})
+
+	t.Run("does not set internal env when alt key is unset", func(t *testing.T) {
+		// guard against a stray env var leaking into the test environment
+		t.Setenv("SNYK_REQUEST_CONCURRENCY", "")
+		_ = os.Unsetenv("SNYK_REQUEST_CONCURRENCY")
+
+		actual, err := cliv2.PrepareV1EnvironmentVariables([]string{}, "foo", "bar", "proxy", "cacertlocation", newConfig(), []string{})
+
+		assert.Nil(t, err)
+		for _, kv := range actual {
+			assert.NotContains(t, kv, constants.SNYK_INTERNAL_REQUEST_CONCURRENCY_ENV+"=")
+		}
+	})
+
+	t.Run("user-set internal env is stripped before Go reapplies it", func(t *testing.T) {
+		t.Setenv("SNYK_REQUEST_CONCURRENCY", "9")
+
+		// Simulate a user trying to bypass Go config by setting the internal var directly.
+		input := []string{constants.SNYK_INTERNAL_REQUEST_CONCURRENCY_ENV + "=999"}
+
+		actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation", newConfig(), []string{})
+
+		assert.Nil(t, err)
+		assert.Contains(t, actual, constants.SNYK_INTERNAL_REQUEST_CONCURRENCY_ENV+"=9")
+		assert.NotContains(t, actual, constants.SNYK_INTERNAL_REQUEST_CONCURRENCY_ENV+"=999")
+	})
+}
+
 func Test_PrepareV1EnvironmentVariables_Fail_DontOverrideExisting(t *testing.T) {
 	orgid := "orgid"
 	testapi := "https://api.snyky.io"

@@ -11,7 +11,12 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v4
         with:
-          node-version: '16.16.0'
+          node-version-file: '.nvmrc'
           cache: 'npm'
+          # registry-url triggers setup-node to create an .npmrc with auth token interpolation,
+          # required to install private @snyk packages
+          registry-url: 'https://registry.npmjs.org'
       - run: npm ci
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.HAMMERHEAD_NPM_TOKEN }}
       - run: npx ts-node ./scripts/check-dependencies.ts

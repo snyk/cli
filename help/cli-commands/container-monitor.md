@@ -12,7 +12,7 @@ Use the `container monitor` command before integrating your code into production
 
 If you make changes to your code, you must run the `container monitor` command again.
 
-For more information, see [Snyk CLI for Snyk Container](../scan-and-maintain-projects-using-the-cli/snyk-cli-for-snyk-container/)
+For more information, see [Snyk CLI for Snyk Container](https://docs.snyk.io/developer-tools/snyk-cli/scan-and-maintain-projects-using-the-cli/snyk-cli-for-snyk-container)
 
 ## Exit codes
 
@@ -148,7 +148,7 @@ When `app-vulns` is enabled, use the `--nested-jars-depth=n` option to set how m
 
 ### `--exclude-base-image-vulns`
 
-Do not show vulnerabilities introduced only by the base image. Works for operating system packages only. Available when using `snyk container test` only. Provided for compatibility with `snyk container test`. Using this option with `snyk container monitor` will not have any effect
+Do not show vulnerabilities introduced only by the base image. Works for operating system packages only.
 
 ### `--prune-repeated-subdependencies`
 

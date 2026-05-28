@@ -1,6 +1,6 @@
 module github.com/snyk/cli/cliv2
 
-go 1.26.2
+go 1.26.3
 
 require (
 	github.com/elazarl/goproxy v1.7.2
@@ -13,24 +13,24 @@ require (
 	github.com/snyk/cli-extension-agent-scan v0.0.0-20260505093105-90d9442ea939
 	github.com/snyk/cli-extension-ai-bom v0.0.0-20260319140413-ac7392950603
 	github.com/snyk/cli-extension-ai-redteam v0.0.0-20260331152502-ce341aeaff9e
-	github.com/snyk/cli-extension-dep-graph v1.4.0
-	github.com/snyk/cli-extension-iac v0.0.0-20260206082514-00c443ccee80
-	github.com/snyk/cli-extension-iac-rules v0.0.0-20260206080712-9cbb5f95465d
-	github.com/snyk/cli-extension-os-flows v0.0.0-20260423112219-b7ba9dd68e57
-	github.com/snyk/cli-extension-sbom v0.0.0-20260423112228-5d124dd8c9b0
-	github.com/snyk/cli-extension-secrets v0.0.0-20260505103358-cc205308a93e
-	github.com/snyk/code-client-go v1.26.7
+	github.com/snyk/cli-extension-dep-graph v1.22.1
+	github.com/snyk/cli-extension-iac v0.0.0-20260515092252-505c498f1077
+	github.com/snyk/cli-extension-iac-rules v0.0.0-20260515141409-fb475901bb8e
+	github.com/snyk/cli-extension-os-flows v0.0.0-20260526152725-59c9ce00d48b
+	github.com/snyk/cli-extension-sbom v0.0.0-20260428131356-48881c6270fa
+	github.com/snyk/cli-extension-secrets v0.0.0-20260519130658-5bc07275ad09
+	github.com/snyk/code-client-go v1.27.0
 	github.com/snyk/container-cli v0.0.0-20260213211631-cd2b2cf8f3ea
 	github.com/snyk/error-catalog-golang-public v0.0.0-20260505112649-a5103d411663
-	github.com/snyk/go-application-framework v0.0.0-20260504124159-e299fb4a44a1
+	github.com/snyk/go-application-framework v0.0.0-20260521100148-fa5bb2f17d49
 	github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65
 	github.com/snyk/snyk-iac-capture v0.6.5
-	github.com/snyk/snyk-ls v0.0.0-20260414093345-2a6d7434eb91
-	github.com/snyk/studio-mcp v1.9.2
+	github.com/snyk/snyk-ls v0.0.0-20260521200407-f9b48c0d538f
+	github.com/snyk/studio-mcp v1.11.0
 	github.com/spf13/cobra v1.9.1
 	github.com/spf13/pflag v1.0.10
 	github.com/stretchr/testify v1.11.1
-	golang.org/x/mod v0.33.0
+	golang.org/x/mod v0.35.0
 )
 
 require (
@@ -43,10 +43,10 @@ require (
 	cloud.google.com/go/monitoring v1.24.3 // indirect
 	cloud.google.com/go/storage v1.61.3 // indirect
 	dario.cat/mergo v1.0.2 // indirect
-	github.com/BurntSushi/toml v1.6.0 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/detectors/gcp v1.30.0 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric v0.55.0 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.55.0 // indirect
+	github.com/Masterminds/semver/v3 v3.4.0 // indirect
 	github.com/Microsoft/go-winio v0.6.2 // indirect
 	github.com/OneOfOne/xxhash v1.2.8 // indirect
 	github.com/ProtonMail/go-crypto v1.3.0 // indirect
@@ -89,7 +89,7 @@ require (
 	github.com/charmbracelet/bubbles v0.14.0 // indirect
 	github.com/charmbracelet/bubbletea v0.23.1 // indirect
 	github.com/charmbracelet/colorprofile v0.4.2 // indirect
-	github.com/charmbracelet/lipgloss v1.1.0 // indirect
+	github.com/charmbracelet/lipgloss v1.1.1-0.20250404203927-76690c660834 // indirect
 	github.com/charmbracelet/x/ansi v0.11.6 // indirect
 	github.com/charmbracelet/x/cellbuf v0.0.15 // indirect
 	github.com/charmbracelet/x/term v0.2.2 // indirect
@@ -104,7 +104,7 @@ require (
 	github.com/cyphar/filepath-securejoin v0.6.1 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/denisbrodbeck/machineid v1.0.1 // indirect
-	github.com/dlclark/regexp2 v1.11.4 // indirect
+	github.com/dlclark/regexp2 v1.11.5 // indirect
 	github.com/docker/distribution v2.8.2+incompatible // indirect
 	github.com/dop251/goja v0.0.0-20251008123653-cf18d89f3cf6 // indirect
 	github.com/dop251/goja_nodejs v0.0.0-20250409162600-f7acab6894b0 // indirect
@@ -121,8 +121,8 @@ require (
 	github.com/gertd/go-pluralize v0.2.1 // indirect
 	github.com/getsentry/sentry-go v0.31.1 // indirect
 	github.com/go-git/gcfg v1.5.1-0.20230307220236-3a3c6141e376 // indirect
-	github.com/go-git/go-billy/v5 v5.8.0 // indirect
-	github.com/go-git/go-git/v5 v5.18.0 // indirect
+	github.com/go-git/go-billy/v5 v5.9.0 // indirect
+	github.com/go-git/go-git/v5 v5.19.0 // indirect
 	github.com/go-ini/ini v1.67.0 // indirect
 	github.com/go-jose/go-jose/v4 v4.1.4 // indirect
 	github.com/go-logr/logr v1.4.3 // indirect
@@ -136,7 +136,7 @@ require (
 	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect
 	github.com/gobwas/glob v0.2.3 // indirect
 	github.com/golang/groupcache v0.0.0-20241129210726-2c02b8208cf8 // indirect
-	github.com/gomarkdown/markdown v0.0.0-20250207164621-7a1f277a159e // indirect
+	github.com/gomarkdown/markdown v0.0.0-20260417124207-7d523f7318df // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/google/pprof v0.0.0-20250403155104-27863c87afa6 // indirect
@@ -195,7 +195,7 @@ require (
 	github.com/patrickmn/go-cache v2.1.0+incompatible // indirect
 	github.com/pelletier/go-toml/v2 v2.2.4 // indirect
 	github.com/peterh/liner v1.2.2 // indirect
-	github.com/pjbgf/sha1cd v0.5.0 // indirect
+	github.com/pjbgf/sha1cd v0.6.0 // indirect
 	github.com/pkg/browser v0.0.0-20240102092130-5ac0b6a4141c // indirect
 	github.com/planetscale/vtprotobuf v0.6.1-0.20240319094008-0393e58bdf10 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
@@ -215,7 +215,7 @@ require (
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/skeema/knownhosts v1.3.2 // indirect
 	github.com/snyk/dep-graph/go v0.0.0-20260127160647-c836da762c62 // indirect
-	github.com/snyk/policy-engine v1.1.3 // indirect
+	github.com/snyk/policy-engine v1.1.4 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/sourcegraph/go-lsp v0.0.0-20240223163137-f80c5dd31dfd // indirect
 	github.com/spf13/afero v1.14.0 // indirect
@@ -250,14 +250,14 @@ require (
 	go.opentelemetry.io/otel/sdk/metric v1.43.0 // indirect
 	go.opentelemetry.io/otel/trace v1.43.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/crypto v0.49.0 // indirect
-	golang.org/x/exp v0.0.0-20251023183803-a4bb9ffd2546 // indirect
-	golang.org/x/net v0.52.0 // indirect
+	golang.org/x/crypto v0.52.0 // indirect
+	golang.org/x/exp v0.0.0-20260410095643-746e56fc9e2f // indirect
+	golang.org/x/net v0.54.0 // indirect
 	golang.org/x/oauth2 v0.36.0 // indirect
 	golang.org/x/sync v0.20.0 // indirect
-	golang.org/x/sys v0.42.0 // indirect
-	golang.org/x/term v0.41.0 // indirect
-	golang.org/x/text v0.35.0 // indirect
+	golang.org/x/sys v0.45.0 // indirect
+	golang.org/x/term v0.43.0 // indirect
+	golang.org/x/text v0.37.0 // indirect
 	golang.org/x/time v0.15.0 // indirect
 	google.golang.org/api v0.271.0 // indirect
 	google.golang.org/genproto v0.0.0-20260128011058-8636f8732409 // indirect
@@ -274,7 +274,7 @@ require (
 // version 2491eb6c1c75 contains a valid license
 replace github.com/mattn/go-localereader v0.0.1 => github.com/mattn/go-localereader v0.0.2-0.20220822084749-2491eb6c1c75
 
-// replace github.com/snyk/go-application-framework => ../../go-application-framework
+//replace github.com/snyk/go-application-framework => ../../go-application-framework
 
 //replace github.com/snyk/snyk-ls => ../../snyk-ls
 //replace github.com/snyk/code-client-go => ../../code-client-go
@@ -293,4 +293,4 @@ replace github.com/mattn/go-localereader v0.0.1 => github.com/mattn/go-localerea
 
 // replace github.com/snyk/cli-extension-sbom => ../../cli-extension-sbom
 
-// replace github.com/snyk/cli-extension-secrets => ../../cli-extension-secrets
+//replace github.com/snyk/cli-extension-secrets => ../../cli-extension-secrets

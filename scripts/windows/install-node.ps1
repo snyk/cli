@@ -13,10 +13,7 @@ if (Test-Path $envScript) {
 }
 
 try {
-  $expectedNodeVersion = '20.11.1'
-  $expectedSha256 = 'c54f5f7e2416e826fd84e878f28e3b53363ae9c3f60a140af4434b2453b5ae89'
-
-  # Resolve repo root from script location (script is in .circleci/windows)
+  # Resolve repo root from script location (script is in scripts/windows)
   $repoRoot = Resolve-Path (Join-Path $PSScriptRoot '..\..')
   $nvmrcPath = Join-Path $repoRoot '.nvmrc'
 
@@ -24,42 +21,33 @@ try {
     throw ".nvmrc not found at $nvmrcPath"
   }
 
-  $nvmVersion = (Get-Content $nvmrcPath -Raw).Trim()
-  if ([string]::IsNullOrWhiteSpace($nvmVersion)) {
+  $nodeVersion = (Get-Content $nvmrcPath -Raw).Trim().TrimStart('v')
+  if ([string]::IsNullOrWhiteSpace($nodeVersion)) {
     throw ".nvmrc is empty at $nvmrcPath"
   }
 
-  if ($nvmVersion -ne $expectedNodeVersion) {
-    throw ".nvmrc version '$nvmVersion' does not match expected Node.js version '$expectedNodeVersion' used by Windows CI."
+  # nvm-windows is the only supported installer here. It manages
+  # C:\Program Files\nodejs as a junction; using a parallel MSI install on the
+  # same machine leaves stale npm internals.
+  $nvmExe = Get-Command nvm -ErrorAction SilentlyContinue
+  if (-not $nvmExe) {
+    throw "nvm-windows is required but was not found on PATH. Ensure the runner image provides nvm-windows."
   }
 
-  $nodeVersion = $expectedNodeVersion
+  Write-Host "nvm-windows: $($nvmExe.Source)"
+  Write-Host "NVM_HOME: $env:NVM_HOME"
+  Write-Host "NVM_SYMLINK: $env:NVM_SYMLINK"
 
-  $msiPath = Join-Path $cacheDir "node-v$nodeVersion-x64.msi"
-
-  if (-not (Test-Path $cacheDir)) {
-    New-Item -ItemType Directory -Path $cacheDir | Out-Null
+  $nvmList = & nvm list 2>&1 | Out-String
+  if ($nvmList -notmatch ('\b' + [regex]::Escape($nodeVersion) + '\b')) {
+    Write-Host "[nvm-cache] MISS: Node.js v$nodeVersion not present; installing via nvm..."
+    & nvm install $nodeVersion
+  } else {
+    Write-Host "[nvm-cache] HIT: Node.js v$nodeVersion already installed in nvm; skipping download."
   }
 
-  if (-not (Test-Path $msiPath)) {
-    Write-Host "Downloading Node.js v$nodeVersion (x64 MSI)..."
-    $url = "https://nodejs.org/dist/v$nodeVersion/node-v$nodeVersion-x64.msi"
-    curl.exe -L $url -o $msiPath
-  }
-
-  Write-Host 'Verifying Node.js installer checksum...'
-  $hash = Get-FileHash -Path $msiPath -Algorithm SHA256
-  if ($hash.Hash.ToLower() -ne $expectedSha256.ToLower()) {
-    throw "Checksum verification failed for $msiPath. Expected $expectedSha256 but got $($hash.Hash.ToLower())."
-  }
-
-  Write-Host "Installing Node.js v$nodeVersion..."
-  $msiArgs = "/i `"$msiPath`" /qn /norestart"
-  $process = Start-Process -FilePath msiexec.exe -ArgumentList $msiArgs -PassThru
-  $process.WaitForExit()
-  if ($process.ExitCode -ne 0) {
-    throw "Node.js MSI installer exited with code $($process.ExitCode)."
-  }
+  Write-Host "Activating Node.js v$nodeVersion via nvm..."
+  & nvm use $nodeVersion
 
   # Verify installation using the known default installation path
   $nodeExe = "C:\Program Files\nodejs\node.exe"
@@ -72,44 +60,10 @@ try {
     throw "Installed Node.js version '$reportedVersion' does not match expected 'v$nodeVersion'."
   }
 
-  Write-Host "Node.js $reportedVersion installed successfully at $nodeExe"
+  Write-Host "Node.js $reportedVersion installed and active at $nodeExe"
 
-  try {
-    $nodeDir = Split-Path $nodeExe -Parent
-    $envScript = Join-Path $cacheDir $cacheFileName
-    if (-not (Test-Path $envScript)) {
-      New-Item -Path $envScript -ItemType File -Force | Out-Null
-    }
-
-    $pathUpdateLine = '$Env:Path = "' + $nodeDir + ';" + $Env:Path'
-    $existing = Get-Content -Path $envScript -ErrorAction SilentlyContinue
-    if (-not $existing -or -not ($existing -contains $pathUpdateLine)) {
-      $pathUpdateLine | Out-File -FilePath $envScript -Append -Encoding UTF8
-    }
-  }
-  catch {
-    Write-Host "Warning: failed to persist Node.js PATH update to env script: $($_.Exception.Message)"
-  }
-
-  # Also create a bash-compatible version for non-PowerShell envs
-  try {
-    $bashEnvScript = Join-Path $cacheDir $bashCacheFileName
-    if (-not (Test-Path $bashEnvScript)) {
-      New-Item -Path $bashEnvScript -ItemType File -Force | Out-Null
-    }
-    $bashPath = $nodeDir.Replace('\', '/').Replace('C:', '/c')
-    $bashUpdateLine = 'export PATH="' + $bashPath + ':$PATH"'
-    $bashExisting = Get-Content -Path $bashEnvScript -ErrorAction SilentlyContinue
-    if (-not $bashExisting -or -not ($bashExisting -contains $bashUpdateLine)) {
-      $bashUpdateLine | Out-File -FilePath $bashEnvScript -Append -Encoding UTF8
-    }
-  }
-  catch {
-    Write-Host "Warning: failed to persist Node.js PATH update to bash env script: $($_.Exception.Message)"
-  }
 }
 catch {
   Write-Error "Failed to install Node.js: $($_.Exception.Message)"
   exit 1
 }
-
