@@ -14,8 +14,8 @@ require (
 	github.com/snyk/cli-extension-ai-bom v0.0.0-20260319140413-ac7392950603
 	github.com/snyk/cli-extension-ai-redteam v0.0.0-20260331152502-ce341aeaff9e
 	github.com/snyk/cli-extension-dep-graph v1.7.0
-	github.com/snyk/cli-extension-iac v0.0.0-20260206082514-00c443ccee80
-	github.com/snyk/cli-extension-iac-rules v0.0.0-20260206080712-9cbb5f95465d
+	github.com/snyk/cli-extension-iac v0.0.0-20260515092252-505c498f1077
+	github.com/snyk/cli-extension-iac-rules v0.0.0-20260515141409-fb475901bb8e
 	github.com/snyk/cli-extension-os-flows v0.0.0-20260515090326-f505ef5d1ead
 	github.com/snyk/cli-extension-sbom v0.0.0-20260428131356-48881c6270fa
 	github.com/snyk/cli-extension-secrets v0.0.0-20260519130658-5bc07275ad09
@@ -215,7 +215,7 @@ require (
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/skeema/knownhosts v1.3.2 // indirect
 	github.com/snyk/dep-graph/go v0.0.0-20260127160647-c836da762c62 // indirect
-	github.com/snyk/policy-engine v1.1.3 // indirect
+	github.com/snyk/policy-engine v1.1.4 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/sourcegraph/go-lsp v0.0.0-20240223163137-f80c5dd31dfd // indirect
 	github.com/spf13/afero v1.14.0 // indirect
