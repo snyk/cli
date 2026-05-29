@@ -4,7 +4,7 @@ go 1.26.3
 
 require (
 	github.com/snyk/cli/cliv2 v0.0.0
-	github.com/snyk/remy-cli-extension v1.9.4
+	github.com/snyk/remy-cli-extension v1.10.2
 )
 
 require (
@@ -217,11 +217,11 @@ require (
 	github.com/snyk/container-cli v0.0.0-20260213211631-cd2b2cf8f3ea // indirect
 	github.com/snyk/dep-graph/go v0.0.0-20260127160647-c836da762c62 // indirect
 	github.com/snyk/error-catalog-golang-public v0.0.0-20260505112649-a5103d411663 // indirect
-	github.com/snyk/go-application-framework v0.0.0-20260521100148-fa5bb2f17d49 // indirect
+	github.com/snyk/go-application-framework v0.1.1-0.20260528144555-42dd115b13bf // indirect
 	github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65 // indirect
 	github.com/snyk/policy-engine v1.1.4 // indirect
 	github.com/snyk/snyk-iac-capture v0.6.5 // indirect
-	github.com/snyk/snyk-ls v0.0.0-20260521200407-f9b48c0d538f // indirect
+	github.com/snyk/snyk-ls v0.0.0-20260529103026-b999aa3e3447 // indirect
 	github.com/snyk/studio-mcp v1.11.0 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/sourcegraph/go-lsp v0.0.0-20240223163137-f80c5dd31dfd // indirect
