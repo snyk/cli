@@ -16,6 +16,7 @@ BINARY_RELEASES_FOLDER_TS_CLI = binary-releases
 export BINARY_OUTPUT_FOLDER = binary-releases
 SHASUM_CMD = shasum
 GOHOSTOS = $(shell go env GOHOSTOS)
+GOCMD = go
 export PYTHON = python
 
 ifneq ($(GOHOSTOS), windows)
@@ -317,6 +318,19 @@ release-mgt-prepare:
 release-mgt-create:
 	@echo "-- Creating stable release"
 	@./release-scripts/create-release.sh
+
+.PHONY: lint
+lint:
+	@echo "-- Linting code"
+	@npm run lint
+	@pushd $(EXTENSIBLE_CLI_DIR); export CGO_ENABLED=1; $(MAKE) lint; popd
+	@echo "-- Verifying go.mod files are tidy"
+	@cd $(EXTENSIBLE_CLI_DIR) && $(GOCMD) mod tidy -diff > /dev/null || \
+		(echo "ERROR: cliv2/go.mod is not tidy. Run 'make format' and commit the changes." && exit 1)
+	@if [ -d "$(WORKING_DIR)/cliv2-private" ]; then \
+		cd $(WORKING_DIR)/cliv2-private && $(GOCMD) mod tidy -diff > /dev/null || \
+			(echo "ERROR: cliv2-private/go.mod is not tidy. Run 'make format' and commit the changes." && exit 1); \
+	fi
 
 .PHONY: format
 format:

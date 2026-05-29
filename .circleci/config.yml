@@ -1444,12 +1444,7 @@ jobs:
       - setup-go-private-modules
       - run:
           name: Linting project
-          command: |
-            npm run lint
-            pushd cliv2
-              export CGO_ENABLED=1
-              make lint
-            popd
+          command: make lint
       - prodsec/security_scans:
           mode: auto
           open-source-additional-arguments: --exclude=test,dist
