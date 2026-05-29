@@ -195,7 +195,7 @@ const RESILIENCE_SCENARIOS: ResilienceScenario[] = [
   {
     name: 'rate-limit-reset-retry-recovery',
     description:
-      '429 with X-RateLimit-Reset (seconds remaining): retry middleware backs off then succeeds',
+      '429 with X-RateLimit-Reset (seconds remaining): shows retry warning, backs off, then succeeds',
     setup: ({ server }) => {
       const throttleBody = {
         jsonapi: { version: '1.0' },
@@ -232,12 +232,19 @@ const RESILIENCE_SCENARIOS: ResilienceScenario[] = [
       SNYK_MAX_ATTEMPTS: '10',
     },
     onlyCommands: ['whoami --experimental'],
-    assert: ({ server }) => {
+    assert: ({ server, result }) => {
       const selfHits = server
         .getRequests()
         .filter((r) => (r.url ?? '').includes('/rest/self'));
       // eslint-disable-next-line jest/no-standalone-expect
       expect(selfHits.length).toBeGreaterThanOrEqual(3);
+
+      // Retry warnings use the catalog error code (stable); avoid asserting on prose.
+      // eslint-disable-next-line jest/no-standalone-expect
+      expect(result.stdout).toContain('SNYK-0001');
+      const rateLimitWarnings = result.stdout.match(/SNYK-0001/g);
+      // eslint-disable-next-line jest/no-standalone-expect
+      expect(rateLimitWarnings?.length ?? 0).toBeGreaterThanOrEqual(2);
     },
   },
 ];
