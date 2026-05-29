@@ -18,9 +18,11 @@ SHASUM_CMD = shasum
 GOHOSTOS = $(shell go env GOHOSTOS)
 export PYTHON = python
 
-PYTHON_VERSION = $(shell python3 --version)
-ifneq (, $(PYTHON_VERSION))
-	PYTHON = python3
+ifneq ($(GOHOSTOS), windows)
+	PYTHON_VERSION = $(shell python3 --version 2>/dev/null)
+	ifneq (, $(PYTHON_VERSION))
+		PYTHON = python3
+	endif
 endif
 
 ifeq ($(GOHOSTOS), windows)
@@ -44,8 +46,14 @@ $(BINARY_OUTPUT_FOLDER)/experimental: $(BINARY_OUTPUT_FOLDER)
 $(BINARY_RELEASES_FOLDER_TS_CLI):
 	@mkdir -p $(BINARY_RELEASES_FOLDER_TS_CLI)
 
+# BUILD_MODE is auto-detected in cliv2/Makefile based on access to cliv2-private.
+# We use the same detection logic here for consistency.
+PRIVATE_DIR = $(WORKING_DIR)/cliv2-private
+_CAN_BUILD_PRIVATE = $(shell if [ -f "$(PRIVATE_DIR)/go.mod" ] && cd "$(PRIVATE_DIR)" && go mod download > /dev/null 2>&1; then echo yes; fi)
+BUILD_MODE ?= $(if $(_CAN_BUILD_PRIVATE),private,public)
+
 $(BINARY_RELEASES_FOLDER_TS_CLI)/version: | $(BINARY_RELEASES_FOLDER_TS_CLI)
-	./release-scripts/next-version.sh > $(BINARY_RELEASES_FOLDER_TS_CLI)/version
+	BUILD_MODE=$(BUILD_MODE) ./release-scripts/next-version.sh > $(BINARY_RELEASES_FOLDER_TS_CLI)/version
 
 $(BINARY_OUTPUT_FOLDER)/experimental/version: $(BINARY_RELEASES_FOLDER_TS_CLI)/version $(BINARY_OUTPUT_FOLDER)/experimental
 	@cp $(BINARY_RELEASES_FOLDER_TS_CLI)/version $(BINARY_OUTPUT_FOLDER)/experimental/version
@@ -242,22 +250,22 @@ pre-build: pre-build-binary-wrapper $(BINARY_RELEASES_FOLDER_TS_CLI) $(BINARY_RE
 
 .PHONY: build-fips
 build-fips: pre-build $(BINARY_OUTPUT_FOLDER)/fips/version
-	@cd $(EXTENSIBLE_CLI_DIR); $(MAKE) fips build-full install bindir=$(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER)/fips USE_LEGACY_EXECUTABLE_NAME=1
+	@cd $(EXTENSIBLE_CLI_DIR); $(MAKE) fips build-full install bindir=$(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER)/fips USE_LEGACY_EXECUTABLE_NAME=1 BUILD_MODE=$(BUILD_MODE)
 	@$(MAKE) clean-package-files
 
 .PHONY: build-experimental
 build-experimental: pre-build $(BINARY_OUTPUT_FOLDER)/experimental/version
-	@cd $(EXTENSIBLE_CLI_DIR); $(MAKE) experimental build-full install bindir=$(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER)/experimental USE_LEGACY_EXECUTABLE_NAME=1
+	@cd $(EXTENSIBLE_CLI_DIR); $(MAKE) experimental build-full install bindir=$(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER)/experimental USE_LEGACY_EXECUTABLE_NAME=1 BUILD_MODE=$(BUILD_MODE)
 	@$(MAKE) clean-package-files
 
 .PHONY: build
 build: pre-build
-	@cd $(EXTENSIBLE_CLI_DIR); $(MAKE) build-full install bindir=$(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER) USE_LEGACY_EXECUTABLE_NAME=1
+	@cd $(EXTENSIBLE_CLI_DIR); $(MAKE) build-full install bindir=$(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER) USE_LEGACY_EXECUTABLE_NAME=1 BUILD_MODE=$(BUILD_MODE)
 	@$(MAKE) clean-package-files
 
 .PHONY: build-debug
 build-debug: pre-build
-	@cd $(EXTENSIBLE_CLI_DIR); $(MAKE) debug build-full install bindir=$(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER) USE_LEGACY_EXECUTABLE_NAME=1
+	@cd $(EXTENSIBLE_CLI_DIR); $(MAKE) debug build-full install bindir=$(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER) USE_LEGACY_EXECUTABLE_NAME=1 BUILD_MODE=$(BUILD_MODE)
 	@$(MAKE) clean-package-files
 
 .PHONY: sign
@@ -312,9 +320,14 @@ release-mgt-create:
 
 .PHONY: format
 format:
+	@$(MAKE) tidy
 	@echo "-- Formatting code"
 	@npm run format
 	@pushd $(EXTENSIBLE_CLI_DIR); $(MAKE) format; popd
+
+.PHONY: tidy
+tidy:
+	@cd $(EXTENSIBLE_CLI_DIR); $(MAKE) tidy
 
 .PHONY: ls-protocol-metadata
 ls-protocol-metadata: $(BINARY_RELEASES_FOLDER_TS_CLI)/version

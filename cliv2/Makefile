@@ -19,15 +19,14 @@ export LS_PROTOCOL_VERSION=
 STATIC_NODE_BINARY = false
 CGO_ENABLED = 1
 
-# Auto-detect build mode by checking whether the private module's dependencies
-# can actually be resolved (i.e. the developer has access to the private repos).
-# Defaults to private when possible, falls back to public.
+# BUILD_MODE is typically set by the root Makefile. When running cliv2/Makefile
+# directly, it defaults to auto-detection based on access to cliv2-private.
 # Can be overridden: make build BUILD_MODE=public
-# NOTE: When BUILD_MODE=private is explicitly set (e.g., in CI), the build will
-# fail if private dependencies cannot be resolved, rather than silently falling back.
 PRIVATE_DIR = $(WORKING_DIR)/../cliv2-private
-_CAN_BUILD_PRIVATE = $(shell if [ -f "$(PRIVATE_DIR)/go.mod" ] && cd "$(PRIVATE_DIR)" && $(GOCMD) mod download > /dev/null 2>&1; then echo yes; fi)
-BUILD_MODE ?= $(if $(_CAN_BUILD_PRIVATE),private,public)
+ifndef BUILD_MODE
+  _CAN_BUILD_PRIVATE = $(shell if [ -f "$(PRIVATE_DIR)/go.mod" ] && cd "$(PRIVATE_DIR)" && $(GOCMD) mod download > /dev/null 2>&1; then echo yes; fi)
+  BUILD_MODE = $(if $(_CAN_BUILD_PRIVATE),private,public)
+endif
 BUILD_ROOT_DIR = $(if $(filter private,$(BUILD_MODE)),$(PRIVATE_DIR),$(WORKING_DIR))
 
 # Validation target for BUILD_MODE=private (called by build targets, not at parse time)
@@ -62,7 +61,7 @@ CACHE_DIR = $(WORKING_DIR)/_cache
 LS_PROTOCOL_VERSION_FILE = $(CACHE_DIR)/ls-protocol-version
 LS_COMMIT_HASH_FILE = $(CACHE_DIR)/ls-commit-hash
 LS_COMMIT_HASH = $(if $(wildcard $(LS_COMMIT_HASH_FILE)),$(shell cat $(LS_COMMIT_HASH_FILE)),determined during LS metadata generation)
-SRCS = $(shell find $(WORKING_DIR) -type f -name '*.go')
+SRCS = $(shell $(GOCMD) list -f '{{range .GoFiles}}{{$$.Dir}}/{{.}} {{end}}' ./...)
 
 # load cached variables if available
 -include $(CACHE_DIR)/variables.mk
@@ -261,6 +260,19 @@ $(TOOLS_BIN)/golangci-lint:
 format:
 	gofmt -w -l -e .
 
+# Tidy both public and private modules. The private module depends on the public
+# module via a replace directive, so we tidy the public module first.
+.PHONY: tidy
+tidy:
+	@echo "$(LOG_PREFIX) Running go mod tidy in cliv2 (public)"
+	@cd $(WORKING_DIR) && $(GOCMD) mod tidy
+	@if [ -f "$(PRIVATE_DIR)/go.mod" ]; then \
+		echo "$(LOG_PREFIX) Running go mod tidy in cliv2-private"; \
+		cd "$(PRIVATE_DIR)" && $(GOCMD) mod tidy; \
+	else \
+		echo "$(LOG_PREFIX) Skipping cliv2-private (not found or no access)"; \
+	fi
+
 .PHONY: SIGN_SCRIPT
 SIGN_SCRIPT:
 	@echo "$(LOG_PREFIX) Running $(SIGN_SCRIPT) ( $(BUILD_DIR) )"
@@ -335,6 +347,7 @@ help:
 	@echo "\n Main targets (Golang only):"
 	@echo "$(LOG_PREFIX) lint"
 	@echo "$(LOG_PREFIX) format"
+	@echo "$(LOG_PREFIX) tidy                       Run go mod tidy in both cliv2 and cliv2-private"
 	@echo "$(LOG_PREFIX) fips"
 	@echo "$(LOG_PREFIX) build"
 	@echo "$(LOG_PREFIX) sign"
@@ -350,5 +363,6 @@ help:
 	@echo "$(LOG_PREFIX) GOARCH                     Specify Architecture to compile for (see golang GOARCH, default=$(GOARCH))"
 	@echo "$(LOG_PREFIX) CLI_V1_VERSION_TAG         Version of the CLIv1 to bundle"
 	@echo "$(LOG_PREFIX) CLI_V1_LOCATION            Filesystem location of CLIv1 binaries to bundle, if specified, CLI_V1_VERSION_TAG is also required"
+	@echo "$(LOG_PREFIX) BUILD_MODE                 Build mode: 'public' (default) or 'private' (auto-detected based on access)"
 	@echo "$(LOG_PREFIX) prefix                     Installation prefix (default=$(prefix))"
 	@echo "$(LOG_PREFIX) DESTDIR                    For staged installations"

@@ -91,9 +91,9 @@ func upgradeGoMod(name, commitSHA string) error {
 		return err
 	}
 
-	fmt.Println("🧹 Running go mod tidy...")
-	cmd = exec.Command("go", "mod", "tidy")
-	cmd.Dir = "./cliv2"
+	fmt.Println("🧹 Running make tidy...")
+	cmd = exec.Command("make", "tidy")
+	cmd.Dir = "."
 	if err := cmd.Run(); err != nil {
 		return err
 	}
