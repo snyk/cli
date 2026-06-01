@@ -55,10 +55,12 @@ Method, not memorized data — resolve specifics from source each time:
 ## Code Style
 
 ### TypeScript
+
 - **Prettier** (format) + **ESLint** (lint); tests use **Jest** (`*.spec.ts`)
 - Unit tests in `test/jest/unit/`, acceptance tests in `test/jest/acceptance/`
 
 ### Go (`cliv2/`)
+
 - **gofmt** (format) + **golangci-lint** (lint; version pinned in `cliv2/.golangci.yml`)
 - Standard Go testing; mocks generated via `go generate`
 
@@ -116,7 +118,7 @@ Keep the first line under 72 characters. This format is enforced on every commit
 PR conventions are enforced by **Danger** (`dangerfile.js` is authoritative). To pass first time:
 
 - **Squash to a single commit** before merging — multiple commits are flagged.
-- **Commit/PR-title format** must follow [Commit Message Format](#commit-message-format) above (the only *blocking* check).
+- **Commit/PR-title format** must follow [Commit Message Format](#commit-message-format) above (the only _blocking_ check).
 - **Update tests alongside `src/` changes** — touching `src/` with no `test/` change is flagged.
 - **New tests go under `test/jest/` as Jest** (`*.spec.ts`); avoid adding Tap-style tests (`*.test.ts`) elsewhere.
 - **Use ES6 `import`/`export`** in `.ts` files — not `require()` / `module.exports`.
@@ -132,11 +134,13 @@ make tidy
 ## Building with Local Dependencies
 
 **Go** — add to `cliv2/go.mod`:
+
 ```go
 replace github.com/snyk/cli-extension-foo => ../../cli-extension-foo
 ```
 
 **TypeScript** — update `package.json`, then `npm install` and temporarily commit:
+
 ```json
 "snyk-foo": "file:../snyk-foo",
 ```
@@ -144,9 +148,11 @@ replace github.com/snyk/cli-extension-foo => ../../cli-extension-foo
 ## Architecture
 
 ### Binary structure
+
 The shipped CLI is a **Go executable** (`cliv2/`) that embeds the TypeScript CLI binary via `go:embed`. At runtime the Go CLI decides whether a command is a **native Go workflow** or **legacy TypeScript**; for legacy commands it extracts and spawns the embedded TS binary (the `legacycli` workflow), proxying stdin/stdout/stderr and the exit code.
 
 ### Go Application Framework (GAF)
+
 Built on `go-application-framework` (GAF). Commands are **workflows** registered with the engine. Key packages: `pkg/workflow` (engine), `pkg/configuration`, `pkg/networking`, `pkg/auth`, `pkg/local_workflows` (built-ins like auth, whoami).
 
 A workflow receives an `InvocationContext` and input `Data`, and returns output `Data`:
@@ -165,6 +171,7 @@ func myWorkflow(invocation workflow.InvocationContext, input []workflow.Data) ([
 Registering a workflow is a three-step pattern — define a `WorkflowIdentifier`, write an `Init` that builds a flagset and calls `engine.Register(...)`, and wire it in via `engine.AddExtensionInitializer(...)`. See an existing extension (e.g. `cli-extension-sbom`) for the canonical shape.
 
 ### Extensions
+
 Feature logic lives in separate **`cli-extension-*`** repos, registered with GAF at startup via `ExtensionInit`. Suggested layout:
 
 ```
@@ -177,6 +184,7 @@ extension/
 **Key principle**: the workflow callback is a **thin integration shell** — read config/client/context out of `InvocationContext`, hand concrete values to domain code, package the result back into `[]Data`.
 
 **Anti-patterns**:
+
 - ❌ Domain logic inside the callback — extract into domain packages
 - ❌ Passing `InvocationContext` into domain code — pass concrete values
 - ❌ Deep workflow call chains — keep composition flat
