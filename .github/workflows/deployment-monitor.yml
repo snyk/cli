@@ -30,10 +30,50 @@ jobs:
           path: ${{ env.SNYK_VERSION_DIR }}
           include-hidden-files: 'true'
 
+  create_version_dir_retry:
+    name: 'Create version directory [retry 1/2]'
+    runs-on: ubuntu-latest
+    needs: create_version_dir
+    if: ${{ github.ref == 'refs/heads/main' && needs.create_version_dir.result == 'cancelled' }}
+    steps:
+      - name: Create version directory for version comparison
+        run: |
+          mkdir -p $SNYK_VERSION_DIR
+          echo "Created directory for Snyk versions."
+          touch ${{ env.SNYK_VERSION_DIR }}/.keep
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: snyk-version-create_version_dir
+          path: ${{ env.SNYK_VERSION_DIR }}
+          include-hidden-files: 'true'
+
+  create_version_dir_retry_2:
+    name: 'Create version directory [retry 2/2]'
+    runs-on: ubuntu-latest
+    needs: create_version_dir_retry
+    if: ${{ github.ref == 'refs/heads/main' && needs.create_version_dir_retry.result == 'cancelled' }}
+    steps:
+      - name: Create version directory for version comparison
+        run: |
+          mkdir -p $SNYK_VERSION_DIR
+          echo "Created directory for Snyk versions."
+          touch ${{ env.SNYK_VERSION_DIR }}/.keep
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: snyk-version-create_version_dir
+          path: ${{ env.SNYK_VERSION_DIR }}
+          include-hidden-files: 'true'
+
   monitor_cdn:
     name: 'deployment: CDN'
     runs-on: ${{ matrix.os }}-latest
-    needs: create_version_dir
+    needs:
+      - create_version_dir
+      - create_version_dir_retry
+      - create_version_dir_retry_2
+    if: ${{ always() && (needs.create_version_dir.result == 'success' || needs.create_version_dir_retry.result == 'success' || needs.create_version_dir_retry_2.result == 'success') }}
     strategy:
       fail-fast: false
       matrix:
@@ -47,16 +87,31 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           path: ${{ env.SNYK_VERSION_DIR }}
-      - name: Install Snyk
+      - name: Download Snyk binary
+        if: github.ref == 'refs/heads/main'
+        uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          retry_wait_seconds: 30
+          command: |
+            rm -f ./snyk ./snyk-linux ./snyk-linux.sha256
+            curl --retry 2 -L -v --compressed https://${{ matrix.base_url }}/cli/${{ matrix.channel }}/snyk-linux -o ./snyk-linux
+            curl --retry 2 -L -v --compressed https://${{ matrix.base_url }}/cli/${{ matrix.channel }}/snyk-linux.sha256 -o ./snyk-linux.sha256
+            chmod +x ./snyk-linux
+      - name: Download Snyk binary
+        if: github.ref != 'refs/heads/main'
         run: |
-          rm -f ./snyk
+          rm -f ./snyk ./snyk-linux ./snyk-linux.sha256
           curl --retry 2 -L -v --compressed https://${{ matrix.base_url }}/cli/${{ matrix.channel }}/snyk-linux -o ./snyk-linux
           curl --retry 2 -L -v --compressed https://${{ matrix.base_url }}/cli/${{ matrix.channel }}/snyk-linux.sha256 -o ./snyk-linux.sha256
+          chmod +x ./snyk-linux
+      - name: Verify Snyk binary hash
+        run: |
           echo --- Content shasum file ---
           cat snyk-linux.sha256
           echo --- Shasum binary ---
           sha256sum snyk-linux
-          chmod +x ./snyk-linux
           echo --- CLI version ---
           ./snyk-linux --version
           echo --- Shasum comparison ---
@@ -81,16 +136,31 @@ jobs:
   monitor_homebrew:
     name: 'deployment: Homebrew (macos)'
     runs-on: macos-latest
-    needs: create_version_dir
+    needs:
+      - create_version_dir
+      - create_version_dir_retry
+      - create_version_dir_retry_2
+    if: ${{ always() && (needs.create_version_dir.result == 'success' || needs.create_version_dir_retry.result == 'success' || needs.create_version_dir_retry_2.result == 'success') }}
     steps:
       - uses: actions/download-artifact@v4
         with:
           path: ${{ env.SNYK_VERSION_DIR }}
       - name: Install Snyk
+        if: github.ref == 'refs/heads/main'
+        uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          retry_wait_seconds: 30
+          command: |
+            brew tap snyk/tap
+            brew install snyk
+      - name: Install Snyk
+        if: github.ref != 'refs/heads/main'
         run: |
           brew tap snyk/tap
           brew install snyk
-      - name: Capture version and shasum metadata
+      - name: Resolve installed Snyk metadata
         run: |
           VERSION=$(snyk --version | tr -d '\r\n')
           SNYK_PATH=$(command -v snyk)
@@ -108,8 +178,27 @@ jobs:
               BINARY_NAME="snyk-macos"
             fi
           fi
-          RELEASE_URL="https://static.snyk.io/cli/v${VERSION}/release.json"
-          curl --retry 2 -sSL "$RELEASE_URL" -o release.json
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "SHA256=$SHA256" >> $GITHUB_ENV
+          echo "BINARY_NAME=$BINARY_NAME" >> $GITHUB_ENV
+          echo "RELEASE_URL=https://static.snyk.io/cli/v${VERSION}/release.json" >> $GITHUB_ENV
+      - name: Download release.json
+        if: github.ref == 'refs/heads/main'
+        uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          retry_wait_seconds: 30
+          command: curl --retry 2 -sSL "$RELEASE_URL" -o release.json
+        env:
+          RELEASE_URL: ${{ env.RELEASE_URL }}
+      - name: Download release.json
+        if: github.ref != 'refs/heads/main'
+        run: curl --retry 2 -sSL "$RELEASE_URL" -o release.json
+        env:
+          RELEASE_URL: ${{ env.RELEASE_URL }}
+      - name: Assert hash and write artifacts
+        run: |
           EXPECTED=$(BINARY_NAME="$BINARY_NAME" python3 - <<'PY'
           import json
           import os
@@ -138,6 +227,10 @@ jobs:
           cat <<EOF > ${{ env.SNYK_VERSION_DIR }}/snyk-metadata-${{ github.job }}.json
           {"channel":"stable","base_url":"homebrew","binary":"$BINARY_NAME","version":"$VERSION","sha256":"$SHA256"}
           EOF
+        env:
+          VERSION: ${{ env.VERSION }}
+          SHA256: ${{ env.SHA256 }}
+          BINARY_NAME: ${{ env.BINARY_NAME }}
       - uses: actions/upload-artifact@v4
         with:
           name: snyk-version-${{ github.job }}
@@ -148,19 +241,37 @@ jobs:
   monitor_scoop:
     name: 'deployment: Scoop (windows)'
     runs-on: windows-latest
-    needs: create_version_dir
+    needs:
+      - create_version_dir
+      - create_version_dir_retry
+      - create_version_dir_retry_2
+    if: ${{ always() && (needs.create_version_dir.result == 'success' || needs.create_version_dir_retry.result == 'success' || needs.create_version_dir_retry_2.result == 'success') }}
     steps:
       - uses: actions/download-artifact@v4
         with:
           path: ${{ env.SNYK_VERSION_DIR }}
       - name: Install Scoop and Snyk
+        if: github.ref == 'refs/heads/main'
+        uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          retry_wait_seconds: 30
+          shell: pwsh
+          command: |
+            Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+            Invoke-RestMethod -Uri https://get.scoop.sh | Invoke-Expression
+            scoop bucket add snyk https://github.com/snyk/scoop-snyk
+            scoop install snyk
+      - name: Install Scoop and Snyk
+        if: github.ref != 'refs/heads/main'
         shell: pwsh
         run: |
           Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
           Invoke-RestMethod -Uri https://get.scoop.sh | Invoke-Expression
           scoop bucket add snyk https://github.com/snyk/scoop-snyk
           scoop install snyk
-      - name: Capture version and shasum metadata
+      - name: Resolve installed Snyk metadata
         shell: pwsh
         run: |
           $env:PATH = "$env:USERPROFILE\scoop\shims;$env:PATH"
@@ -182,7 +293,46 @@ jobs:
             throw "Unable to resolve Snyk binary path for Scoop."
           }
           $Sha256 = (Get-FileHash -Algorithm SHA256 $SnykPath).Hash.ToLower()
-          $BinaryName = "snyk-win.exe"
+          "VERSION=$Version" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding ascii
+          "SHA256=$Sha256" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding ascii
+      - name: Download sha256sums manifest
+        if: github.ref == 'refs/heads/main'
+        uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          retry_wait_seconds: 30
+          shell: pwsh
+          command: |
+            $ManifestPath = "sha256sums-stable.txt.asc"
+            $ManifestUrls = @(
+              "https://static.snyk.io/cli/stable/sha256sums.txt.asc",
+              "https://downloads.snyk.io/cli/stable/sha256sums.txt.asc"
+            )
+            $ManifestRaw = $null
+            foreach ($ManifestUrl in $ManifestUrls) {
+              & curl.exe --retry 2 -fsSL $ManifestUrl -o $ManifestPath
+              if ($LASTEXITCODE -ne 0) {
+                continue
+              }
+              $Candidate = Get-Content $ManifestPath -Raw
+              if ($Candidate -match "<Error>") {
+                continue
+              }
+              if ($Candidate -notmatch "-----BEGIN PGP SIGNED MESSAGE-----") {
+                continue
+              }
+              $ManifestRaw = $Candidate
+              break
+            }
+            if (-not $ManifestRaw) {
+              throw "Failed to download a valid sha256sums.txt.asc manifest for stable channel."
+            }
+            Set-Content -Path manifest.raw.txt -Value $ManifestRaw -NoNewline
+      - name: Download sha256sums manifest
+        if: github.ref != 'refs/heads/main'
+        shell: pwsh
+        run: |
           $ManifestPath = "sha256sums-stable.txt.asc"
           $ManifestUrls = @(
             "https://static.snyk.io/cli/stable/sha256sums.txt.asc",
@@ -207,6 +357,14 @@ jobs:
           if (-not $ManifestRaw) {
             throw "Failed to download a valid sha256sums.txt.asc manifest for stable channel."
           }
+          Set-Content -Path manifest.raw.txt -Value $ManifestRaw -NoNewline
+      - name: Assert hash and write artifacts
+        shell: pwsh
+        run: |
+          $Version = $env:VERSION
+          $Sha256 = $env:SHA256
+          $BinaryName = "snyk-win.exe"
+          $ManifestRaw = Get-Content manifest.raw.txt -Raw
           $Expected = $null
           foreach ($Line in ($ManifestRaw -split "\r?\n")) {
             $Line = $Line.Trim()
@@ -239,7 +397,11 @@ jobs:
   monitor_npm:
     name: 'deployment: npm (ubuntu)'
     runs-on: ubuntu-latest
-    needs: create_version_dir
+    needs:
+      - create_version_dir
+      - create_version_dir_retry
+      - create_version_dir_retry_2
+    if: ${{ always() && (needs.create_version_dir.result == 'success' || needs.create_version_dir_retry.result == 'success' || needs.create_version_dir_retry_2.result == 'success') }}
     steps:
       - uses: actions/download-artifact@v4
         with:
@@ -248,8 +410,17 @@ jobs:
         with:
           node-version: latest
       - name: Install Snyk
+        if: github.ref == 'refs/heads/main'
+        uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          retry_wait_seconds: 30
+          command: npm install -g snyk
+      - name: Install Snyk
+        if: github.ref != 'refs/heads/main'
         run: npm install -g snyk
-      - name: Capture Snyk version and shasum metadata
+      - name: Resolve installed Snyk metadata
         run: |
           VERSION=$(snyk --version | tr -d '\r\n')
           SNYK_PATH=$(command -v snyk)
@@ -267,7 +438,47 @@ jobs:
           else
             BINARY_NAME="snyk-linux"
           fi
-          curl --retry 2 -sSL https://downloads.snyk.io/cli/stable/sha256sums.txt.asc -o sha256sums.txt.asc
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "SHA256=$SHA256" >> $GITHUB_ENV
+          echo "IS_ELF=$IS_ELF" >> $GITHUB_ENV
+          echo "BINARY_NAME=$BINARY_NAME" >> $GITHUB_ENV
+      - name: Download sha256sums manifest
+        if: github.ref == 'refs/heads/main'
+        uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          retry_wait_seconds: 30
+          command: |
+            for url in \
+              https://static.snyk.io/cli/stable/sha256sums.txt.asc \
+              https://downloads.snyk.io/cli/stable/sha256sums.txt.asc; do
+              curl --retry 2 -fsSL "$url" -o sha256sums.txt.asc
+              if [ -s sha256sums.txt.asc ] && ! grep -q '<Error>' sha256sums.txt.asc; then
+                break
+              fi
+            done
+            if [ ! -s sha256sums.txt.asc ] || grep -q '<Error>' sha256sums.txt.asc; then
+              echo "Failed to download a valid sha256sums.txt.asc manifest."
+              exit 1
+            fi
+      - name: Download sha256sums manifest
+        if: github.ref != 'refs/heads/main'
+        run: |
+          for url in \
+            https://static.snyk.io/cli/stable/sha256sums.txt.asc \
+            https://downloads.snyk.io/cli/stable/sha256sums.txt.asc; do
+            curl --retry 2 -fsSL "$url" -o sha256sums.txt.asc
+            if [ -s sha256sums.txt.asc ] && ! grep -q '<Error>' sha256sums.txt.asc; then
+              break
+            fi
+          done
+          if [ ! -s sha256sums.txt.asc ] || grep -q '<Error>' sha256sums.txt.asc; then
+            echo "Failed to download a valid sha256sums.txt.asc manifest."
+            exit 1
+          fi
+      - name: Assert hash and write artifacts
+        run: |
           EXPECTED=$(awk -v name="$BINARY_NAME" '$1 ~ /^[a-f0-9]{64}$/ {gsub(/^\*/, "", $2); if ($2==name) {print $1; exit}}' sha256sums.txt.asc)
           if [ -z "$EXPECTED" ]; then
             echo "Missing expected hash for $BINARY_NAME in manifest."
@@ -285,6 +496,11 @@ jobs:
           cat <<EOF > ${{ env.SNYK_VERSION_DIR }}/snyk-metadata-${{ github.job }}.json
           {"channel":"stable","base_url":"npm","binary":"$BINARY_NAME","version":"$VERSION","sha256":"$SHA256"}
           EOF
+        env:
+          VERSION: ${{ env.VERSION }}
+          SHA256: ${{ env.SHA256 }}
+          IS_ELF: ${{ env.IS_ELF }}
+          BINARY_NAME: ${{ env.BINARY_NAME }}
       - uses: actions/upload-artifact@v4
         with:
           name: snyk-version-${{ github.job }}
@@ -295,7 +511,11 @@ jobs:
   monitor_snyk_images:
     name: 'deployment: snyk-images (snyk/snyk:linux)'
     runs-on: ubuntu-latest
-    needs: create_version_dir
+    needs:
+      - create_version_dir
+      - create_version_dir_retry
+      - create_version_dir_retry_2
+    if: ${{ always() && (needs.create_version_dir.result == 'success' || needs.create_version_dir_retry.result == 'success' || needs.create_version_dir_retry_2.result == 'success') }}
     container:
       image: snyk/snyk:linux
     steps:
@@ -304,7 +524,7 @@ jobs:
           path: ${{ env.SNYK_VERSION_DIR }}
       - name: Install curl
         run: apt-get update && apt-get install -y curl
-      - name: Capture version and shasum metadata
+      - name: Resolve installed Snyk metadata
         run: |
           VERSION=$(snyk --version | tr -d '\r\n')
           SNYK_PATH=$(command -v snyk)
@@ -315,8 +535,30 @@ jobs:
           else
             BINARY_NAME="snyk-linux"
           fi
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "SHA256=$SHA256" >> $GITHUB_ENV
+          echo "BINARY_NAME=$BINARY_NAME" >> $GITHUB_ENV
+      - name: Download experimental manifest
+        if: github.ref == 'refs/heads/main'
+        uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          retry_wait_seconds: 30
+          command: |
+            # The image is built by snyk/snyk-images using the experimental base URL.
+            curl --retry 2 -sSL "https://downloads.snyk.io/experimental/cli/v${VERSION}/sha256sums.txt.asc" -o sha256sums.txt.asc
+        env:
+          VERSION: ${{ env.VERSION }}
+      - name: Download experimental manifest
+        if: github.ref != 'refs/heads/main'
+        run: |
           # The image is built by snyk/snyk-images using the experimental base URL.
           curl --retry 2 -sSL "https://downloads.snyk.io/experimental/cli/v${VERSION}/sha256sums.txt.asc" -o sha256sums.txt.asc
+        env:
+          VERSION: ${{ env.VERSION }}
+      - name: Assert hash and write artifacts
+        run: |
           EXPECTED=$(awk -v name="$BINARY_NAME" '$1 ~ /^[a-f0-9]{64}$/ {gsub(/^\*/, "", $2); if ($2==name) {print $1; exit}}' sha256sums.txt.asc)
           if [ -z "$EXPECTED" ]; then
             echo "Missing expected hash for $BINARY_NAME in experimental manifest."
@@ -332,6 +574,10 @@ jobs:
           cat <<EOF > ${{ env.SNYK_VERSION_DIR }}/snyk-metadata-${{ github.job }}.json
           {"channel":"stable","base_url":"snyk-images","binary":"$BINARY_NAME","version":"$VERSION","sha256":"$SHA256"}
           EOF
+        env:
+          VERSION: ${{ env.VERSION }}
+          SHA256: ${{ env.SHA256 }}
+          BINARY_NAME: ${{ env.BINARY_NAME }}
       - uses: actions/upload-artifact@v4
         with:
           name: snyk-version-${{ github.job }}
@@ -339,26 +585,1212 @@ jobs:
             ${{ env.SNYK_VERSION_DIR }}/snyk-version-${{ github.job }}.txt
             ${{ env.SNYK_VERSION_DIR }}/snyk-metadata-${{ github.job }}.json
 
+  monitor_cdn_retry:
+    name: 'deployment: CDN [retry 1/2]'
+    runs-on: ${{ matrix.os }}-latest
+    needs:
+      - create_version_dir
+      - create_version_dir_retry
+      - create_version_dir_retry_2
+      - monitor_cdn
+    if: ${{ github.ref == 'refs/heads/main' && needs.monitor_cdn.result == 'cancelled' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu]
+        base_url: [static.snyk.io, downloads.snyk.io]
+        channel: [stable, preview]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: sudo apt update && sudo apt install -y curl
+      - uses: actions/download-artifact@v4
+        with:
+          path: ${{ env.SNYK_VERSION_DIR }}
+      - name: Download Snyk binary
+        if: github.ref == 'refs/heads/main'
+        uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          retry_wait_seconds: 30
+          command: |
+            rm -f ./snyk ./snyk-linux ./snyk-linux.sha256
+            curl --retry 2 -L -v --compressed https://${{ matrix.base_url }}/cli/${{ matrix.channel }}/snyk-linux -o ./snyk-linux
+            curl --retry 2 -L -v --compressed https://${{ matrix.base_url }}/cli/${{ matrix.channel }}/snyk-linux.sha256 -o ./snyk-linux.sha256
+            chmod +x ./snyk-linux
+      - name: Download Snyk binary
+        if: github.ref != 'refs/heads/main'
+        run: |
+          rm -f ./snyk ./snyk-linux ./snyk-linux.sha256
+          curl --retry 2 -L -v --compressed https://${{ matrix.base_url }}/cli/${{ matrix.channel }}/snyk-linux -o ./snyk-linux
+          curl --retry 2 -L -v --compressed https://${{ matrix.base_url }}/cli/${{ matrix.channel }}/snyk-linux.sha256 -o ./snyk-linux.sha256
+          chmod +x ./snyk-linux
+      - name: Verify Snyk binary hash
+        run: |
+          echo --- Content shasum file ---
+          cat snyk-linux.sha256
+          echo --- Shasum binary ---
+          sha256sum snyk-linux
+          echo --- CLI version ---
+          ./snyk-linux --version
+          echo --- Shasum comparison ---
+          sha256sum -c snyk-linux.sha256
+      - name: Set unique identifier for the artifact file name
+        run: echo "SUFFIX=${{ matrix.os }}-${{ matrix.base_url }}-${{ matrix.channel }}" >> $GITHUB_ENV
+      - name: Capture version and shasum metadata
+        run: |
+          VERSION=$(./snyk-linux --version | tr -d '\r\n')
+          SHA256=$(sha256sum snyk-linux | awk '{print $1}')
+          echo "$VERSION" > ${{ env.SNYK_VERSION_DIR }}/snyk-version-${{ env.SUFFIX }}.txt
+          cat <<EOF > ${{ env.SNYK_VERSION_DIR }}/snyk-metadata-${{ env.SUFFIX }}.json
+          {"channel":"${{ matrix.channel }}","base_url":"${{ matrix.base_url }}","binary":"snyk-linux","version":"$VERSION","sha256":"$SHA256"}
+          EOF
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: snyk-version-${{ env.SUFFIX }}
+          path: |
+            ${{ env.SNYK_VERSION_DIR }}/snyk-version-${{ env.SUFFIX }}.txt
+            ${{ env.SNYK_VERSION_DIR }}/snyk-metadata-${{ env.SUFFIX }}.json
+  monitor_cdn_retry_2:
+    name: 'deployment: CDN [retry 2/2]'
+    runs-on: ${{ matrix.os }}-latest
+    needs:
+      - create_version_dir
+      - create_version_dir_retry
+      - create_version_dir_retry_2
+      - monitor_cdn_retry
+    if: ${{ github.ref == 'refs/heads/main' && needs.monitor_cdn_retry.result == 'cancelled' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu]
+        base_url: [static.snyk.io, downloads.snyk.io]
+        channel: [stable, preview]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: sudo apt update && sudo apt install -y curl
+      - uses: actions/download-artifact@v4
+        with:
+          path: ${{ env.SNYK_VERSION_DIR }}
+      - name: Download Snyk binary
+        if: github.ref == 'refs/heads/main'
+        uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          retry_wait_seconds: 30
+          command: |
+            rm -f ./snyk ./snyk-linux ./snyk-linux.sha256
+            curl --retry 2 -L -v --compressed https://${{ matrix.base_url }}/cli/${{ matrix.channel }}/snyk-linux -o ./snyk-linux
+            curl --retry 2 -L -v --compressed https://${{ matrix.base_url }}/cli/${{ matrix.channel }}/snyk-linux.sha256 -o ./snyk-linux.sha256
+            chmod +x ./snyk-linux
+      - name: Download Snyk binary
+        if: github.ref != 'refs/heads/main'
+        run: |
+          rm -f ./snyk ./snyk-linux ./snyk-linux.sha256
+          curl --retry 2 -L -v --compressed https://${{ matrix.base_url }}/cli/${{ matrix.channel }}/snyk-linux -o ./snyk-linux
+          curl --retry 2 -L -v --compressed https://${{ matrix.base_url }}/cli/${{ matrix.channel }}/snyk-linux.sha256 -o ./snyk-linux.sha256
+          chmod +x ./snyk-linux
+      - name: Verify Snyk binary hash
+        run: |
+          echo --- Content shasum file ---
+          cat snyk-linux.sha256
+          echo --- Shasum binary ---
+          sha256sum snyk-linux
+          echo --- CLI version ---
+          ./snyk-linux --version
+          echo --- Shasum comparison ---
+          sha256sum -c snyk-linux.sha256
+      - name: Set unique identifier for the artifact file name
+        run: echo "SUFFIX=${{ matrix.os }}-${{ matrix.base_url }}-${{ matrix.channel }}" >> $GITHUB_ENV
+      - name: Capture version and shasum metadata
+        run: |
+          VERSION=$(./snyk-linux --version | tr -d '\r\n')
+          SHA256=$(sha256sum snyk-linux | awk '{print $1}')
+          echo "$VERSION" > ${{ env.SNYK_VERSION_DIR }}/snyk-version-${{ env.SUFFIX }}.txt
+          cat <<EOF > ${{ env.SNYK_VERSION_DIR }}/snyk-metadata-${{ env.SUFFIX }}.json
+          {"channel":"${{ matrix.channel }}","base_url":"${{ matrix.base_url }}","binary":"snyk-linux","version":"$VERSION","sha256":"$SHA256"}
+          EOF
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: snyk-version-${{ env.SUFFIX }}
+          path: |
+            ${{ env.SNYK_VERSION_DIR }}/snyk-version-${{ env.SUFFIX }}.txt
+            ${{ env.SNYK_VERSION_DIR }}/snyk-metadata-${{ env.SUFFIX }}.json
+  monitor_homebrew_retry:
+    name: 'deployment: Homebrew (macos) [retry 1/2]'
+    runs-on: macos-latest
+    needs:
+      - create_version_dir
+      - create_version_dir_retry
+      - create_version_dir_retry_2
+      - monitor_homebrew
+    if: ${{ github.ref == 'refs/heads/main' && needs.monitor_homebrew.result == 'cancelled' }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: ${{ env.SNYK_VERSION_DIR }}
+      - name: Install Snyk
+        if: github.ref == 'refs/heads/main'
+        uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          retry_wait_seconds: 30
+          command: |
+            brew tap snyk/tap
+            brew install snyk
+      - name: Install Snyk
+        if: github.ref != 'refs/heads/main'
+        run: |
+          brew tap snyk/tap
+          brew install snyk
+      - name: Resolve installed Snyk metadata
+        run: |
+          VERSION=$(snyk --version | tr -d '\r\n')
+          SNYK_PATH=$(command -v snyk)
+          SHA256=$(shasum -a 256 "$SNYK_PATH" | awk '{print $1}')
+          FILE_INFO=$(file "$SNYK_PATH")
+          if echo "$FILE_INFO" | grep -qi "arm64"; then
+            BINARY_NAME="snyk-macos-arm64"
+          elif echo "$FILE_INFO" | grep -qi "x86_64"; then
+            BINARY_NAME="snyk-macos"
+          else
+            ARCH=$(uname -m)
+            if [ "$ARCH" = "arm64" ]; then
+              BINARY_NAME="snyk-macos-arm64"
+            else
+              BINARY_NAME="snyk-macos"
+            fi
+          fi
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "SHA256=$SHA256" >> $GITHUB_ENV
+          echo "BINARY_NAME=$BINARY_NAME" >> $GITHUB_ENV
+          echo "RELEASE_URL=https://static.snyk.io/cli/v${VERSION}/release.json" >> $GITHUB_ENV
+      - name: Download release.json
+        if: github.ref == 'refs/heads/main'
+        uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          retry_wait_seconds: 30
+          command: curl --retry 2 -sSL "$RELEASE_URL" -o release.json
+        env:
+          RELEASE_URL: ${{ env.RELEASE_URL }}
+      - name: Download release.json
+        if: github.ref != 'refs/heads/main'
+        run: curl --retry 2 -sSL "$RELEASE_URL" -o release.json
+        env:
+          RELEASE_URL: ${{ env.RELEASE_URL }}
+      - name: Assert hash and write artifacts
+        run: |
+          EXPECTED=$(BINARY_NAME="$BINARY_NAME" python3 - <<'PY'
+          import json
+          import os
+          name = os.environ.get("BINARY_NAME")
+          if not name:
+              raise SystemExit(1)
+          with open("release.json", "r", encoding="utf-8") as fh:
+              data = json.load(fh)
+          asset = data.get("assets", {}).get(name)
+          if not asset or "sha256" not in asset:
+              raise SystemExit(1)
+          print(asset["sha256"].split()[0])
+          PY
+          )
+          if [ -z "$EXPECTED" ]; then
+            echo "Missing expected hash for $BINARY_NAME in release.json."
+            exit 1
+          fi
+          if [ "$SHA256" != "$EXPECTED" ]; then
+            echo "Hash mismatch for $BINARY_NAME (homebrew)."
+            echo "Expected: $EXPECTED"
+            echo "Actual:   $SHA256"
+            exit 1
+          fi
+          echo "$VERSION" > ${{ env.SNYK_VERSION_DIR }}/snyk-version-monitor_homebrew.txt
+          cat <<EOF > ${{ env.SNYK_VERSION_DIR }}/snyk-metadata-monitor_homebrew.json
+          {"channel":"stable","base_url":"homebrew","binary":"$BINARY_NAME","version":"$VERSION","sha256":"$SHA256"}
+          EOF
+        env:
+          VERSION: ${{ env.VERSION }}
+          SHA256: ${{ env.SHA256 }}
+          BINARY_NAME: ${{ env.BINARY_NAME }}
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: snyk-version-monitor_homebrew
+          path: |
+            ${{ env.SNYK_VERSION_DIR }}/snyk-version-monitor_homebrew.txt
+            ${{ env.SNYK_VERSION_DIR }}/snyk-metadata-monitor_homebrew.json
+  monitor_homebrew_retry_2:
+    name: 'deployment: Homebrew (macos) [retry 2/2]'
+    runs-on: macos-latest
+    needs:
+      - create_version_dir
+      - create_version_dir_retry
+      - create_version_dir_retry_2
+      - monitor_homebrew_retry
+    if: ${{ github.ref == 'refs/heads/main' && needs.monitor_homebrew_retry.result == 'cancelled' }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: ${{ env.SNYK_VERSION_DIR }}
+      - name: Install Snyk
+        if: github.ref == 'refs/heads/main'
+        uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          retry_wait_seconds: 30
+          command: |
+            brew tap snyk/tap
+            brew install snyk
+      - name: Install Snyk
+        if: github.ref != 'refs/heads/main'
+        run: |
+          brew tap snyk/tap
+          brew install snyk
+      - name: Resolve installed Snyk metadata
+        run: |
+          VERSION=$(snyk --version | tr -d '\r\n')
+          SNYK_PATH=$(command -v snyk)
+          SHA256=$(shasum -a 256 "$SNYK_PATH" | awk '{print $1}')
+          FILE_INFO=$(file "$SNYK_PATH")
+          if echo "$FILE_INFO" | grep -qi "arm64"; then
+            BINARY_NAME="snyk-macos-arm64"
+          elif echo "$FILE_INFO" | grep -qi "x86_64"; then
+            BINARY_NAME="snyk-macos"
+          else
+            ARCH=$(uname -m)
+            if [ "$ARCH" = "arm64" ]; then
+              BINARY_NAME="snyk-macos-arm64"
+            else
+              BINARY_NAME="snyk-macos"
+            fi
+          fi
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "SHA256=$SHA256" >> $GITHUB_ENV
+          echo "BINARY_NAME=$BINARY_NAME" >> $GITHUB_ENV
+          echo "RELEASE_URL=https://static.snyk.io/cli/v${VERSION}/release.json" >> $GITHUB_ENV
+      - name: Download release.json
+        if: github.ref == 'refs/heads/main'
+        uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          retry_wait_seconds: 30
+          command: curl --retry 2 -sSL "$RELEASE_URL" -o release.json
+        env:
+          RELEASE_URL: ${{ env.RELEASE_URL }}
+      - name: Download release.json
+        if: github.ref != 'refs/heads/main'
+        run: curl --retry 2 -sSL "$RELEASE_URL" -o release.json
+        env:
+          RELEASE_URL: ${{ env.RELEASE_URL }}
+      - name: Assert hash and write artifacts
+        run: |
+          EXPECTED=$(BINARY_NAME="$BINARY_NAME" python3 - <<'PY'
+          import json
+          import os
+          name = os.environ.get("BINARY_NAME")
+          if not name:
+              raise SystemExit(1)
+          with open("release.json", "r", encoding="utf-8") as fh:
+              data = json.load(fh)
+          asset = data.get("assets", {}).get(name)
+          if not asset or "sha256" not in asset:
+              raise SystemExit(1)
+          print(asset["sha256"].split()[0])
+          PY
+          )
+          if [ -z "$EXPECTED" ]; then
+            echo "Missing expected hash for $BINARY_NAME in release.json."
+            exit 1
+          fi
+          if [ "$SHA256" != "$EXPECTED" ]; then
+            echo "Hash mismatch for $BINARY_NAME (homebrew)."
+            echo "Expected: $EXPECTED"
+            echo "Actual:   $SHA256"
+            exit 1
+          fi
+          echo "$VERSION" > ${{ env.SNYK_VERSION_DIR }}/snyk-version-monitor_homebrew.txt
+          cat <<EOF > ${{ env.SNYK_VERSION_DIR }}/snyk-metadata-monitor_homebrew.json
+          {"channel":"stable","base_url":"homebrew","binary":"$BINARY_NAME","version":"$VERSION","sha256":"$SHA256"}
+          EOF
+        env:
+          VERSION: ${{ env.VERSION }}
+          SHA256: ${{ env.SHA256 }}
+          BINARY_NAME: ${{ env.BINARY_NAME }}
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: snyk-version-monitor_homebrew
+          path: |
+            ${{ env.SNYK_VERSION_DIR }}/snyk-version-monitor_homebrew.txt
+            ${{ env.SNYK_VERSION_DIR }}/snyk-metadata-monitor_homebrew.json
+  monitor_scoop_retry:
+    name: 'deployment: Scoop (windows) [retry 1/2]'
+    runs-on: windows-latest
+    needs:
+      - create_version_dir
+      - create_version_dir_retry
+      - create_version_dir_retry_2
+      - monitor_scoop
+    if: ${{ github.ref == 'refs/heads/main' && needs.monitor_scoop.result == 'cancelled' }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: ${{ env.SNYK_VERSION_DIR }}
+      - name: Install Scoop and Snyk
+        if: github.ref == 'refs/heads/main'
+        uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          retry_wait_seconds: 30
+          shell: pwsh
+          command: |
+            Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+            Invoke-RestMethod -Uri https://get.scoop.sh | Invoke-Expression
+            scoop bucket add snyk https://github.com/snyk/scoop-snyk
+            scoop install snyk
+      - name: Install Scoop and Snyk
+        if: github.ref != 'refs/heads/main'
+        shell: pwsh
+        run: |
+          Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+          Invoke-RestMethod -Uri https://get.scoop.sh | Invoke-Expression
+          scoop bucket add snyk https://github.com/snyk/scoop-snyk
+          scoop install snyk
+      - name: Resolve installed Snyk metadata
+        shell: pwsh
+        run: |
+          $env:PATH = "$env:USERPROFILE\scoop\shims;$env:PATH"
+          $Version = (snyk --version).Trim()
+          $Candidates = @()
+          if (Get-Command scoop -ErrorAction SilentlyContinue) {
+            $SnykPrefix = (scoop prefix snyk 2>$null)
+            if ($SnykPrefix) {
+              $Candidates += (Join-Path $SnykPrefix "snyk-win.exe")
+            }
+          }
+          $Candidates += "$env:USERPROFILE\scoop\apps\snyk\current\snyk-win.exe"
+          $Cmd = (Get-Command snyk.exe -ErrorAction SilentlyContinue)
+          if ($Cmd) {
+            $Candidates += $Cmd.Source
+          }
+          $SnykPath = $Candidates | Where-Object { $_ -and (Test-Path $_) } | Select-Object -First 1
+          if (-not $SnykPath) {
+            throw "Unable to resolve Snyk binary path for Scoop."
+          }
+          $Sha256 = (Get-FileHash -Algorithm SHA256 $SnykPath).Hash.ToLower()
+          "VERSION=$Version" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding ascii
+          "SHA256=$Sha256" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding ascii
+      - name: Download sha256sums manifest
+        if: github.ref == 'refs/heads/main'
+        uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          retry_wait_seconds: 30
+          shell: pwsh
+          command: |
+            $ManifestPath = "sha256sums-stable.txt.asc"
+            $ManifestUrls = @(
+              "https://static.snyk.io/cli/stable/sha256sums.txt.asc",
+              "https://downloads.snyk.io/cli/stable/sha256sums.txt.asc"
+            )
+            $ManifestRaw = $null
+            foreach ($ManifestUrl in $ManifestUrls) {
+              & curl.exe --retry 2 -fsSL $ManifestUrl -o $ManifestPath
+              if ($LASTEXITCODE -ne 0) {
+                continue
+              }
+              $Candidate = Get-Content $ManifestPath -Raw
+              if ($Candidate -match "<Error>") {
+                continue
+              }
+              if ($Candidate -notmatch "-----BEGIN PGP SIGNED MESSAGE-----") {
+                continue
+              }
+              $ManifestRaw = $Candidate
+              break
+            }
+            if (-not $ManifestRaw) {
+              throw "Failed to download a valid sha256sums.txt.asc manifest for stable channel."
+            }
+            Set-Content -Path manifest.raw.txt -Value $ManifestRaw -NoNewline
+      - name: Download sha256sums manifest
+        if: github.ref != 'refs/heads/main'
+        shell: pwsh
+        run: |
+          $ManifestPath = "sha256sums-stable.txt.asc"
+          $ManifestUrls = @(
+            "https://static.snyk.io/cli/stable/sha256sums.txt.asc",
+            "https://downloads.snyk.io/cli/stable/sha256sums.txt.asc"
+          )
+          $ManifestRaw = $null
+          foreach ($ManifestUrl in $ManifestUrls) {
+            & curl.exe --retry 2 -fsSL $ManifestUrl -o $ManifestPath
+            if ($LASTEXITCODE -ne 0) {
+              continue
+            }
+            $Candidate = Get-Content $ManifestPath -Raw
+            if ($Candidate -match "<Error>") {
+              continue
+            }
+            if ($Candidate -notmatch "-----BEGIN PGP SIGNED MESSAGE-----") {
+              continue
+            }
+            $ManifestRaw = $Candidate
+            break
+          }
+          if (-not $ManifestRaw) {
+            throw "Failed to download a valid sha256sums.txt.asc manifest for stable channel."
+          }
+          Set-Content -Path manifest.raw.txt -Value $ManifestRaw -NoNewline
+      - name: Assert hash and write artifacts
+        shell: pwsh
+        run: |
+          $Version = $env:VERSION
+          $Sha256 = $env:SHA256
+          $BinaryName = "snyk-win.exe"
+          $ManifestRaw = Get-Content manifest.raw.txt -Raw
+          $Expected = $null
+          foreach ($Line in ($ManifestRaw -split "\r?\n")) {
+            $Line = $Line.Trim()
+            if ($Line -match '^([0-9a-fA-F]{64})\s+\*?snyk-win\.exe$') {
+              $Expected = $Matches[1].ToLower()
+              break
+            }
+          }
+          if (-not $Expected) {
+            throw "Missing expected hash for snyk-win.exe in manifest."
+          }
+          if ($Sha256 -ne $Expected) {
+            throw "Hash mismatch for snyk-win.exe (scoop). Expected $Expected, got $Sha256."
+          }
+          $Version | Out-File -FilePath "${{ env.SNYK_VERSION_DIR }}/snyk-version-monitor_scoop.txt" -Encoding ascii
+          @{
+            channel = "stable"
+            base_url = "scoop"
+            binary = $BinaryName
+            version = $Version
+            sha256 = $Sha256
+          } | ConvertTo-Json -Compress | Out-File -FilePath "${{ env.SNYK_VERSION_DIR }}/snyk-metadata-monitor_scoop.json" -Encoding ascii
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: snyk-version-monitor_scoop
+          path: |
+            ${{ env.SNYK_VERSION_DIR }}/snyk-version-monitor_scoop.txt
+            ${{ env.SNYK_VERSION_DIR }}/snyk-metadata-monitor_scoop.json
+  monitor_scoop_retry_2:
+    name: 'deployment: Scoop (windows) [retry 2/2]'
+    runs-on: windows-latest
+    needs:
+      - create_version_dir
+      - create_version_dir_retry
+      - create_version_dir_retry_2
+      - monitor_scoop_retry
+    if: ${{ github.ref == 'refs/heads/main' && needs.monitor_scoop_retry.result == 'cancelled' }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: ${{ env.SNYK_VERSION_DIR }}
+      - name: Install Scoop and Snyk
+        if: github.ref == 'refs/heads/main'
+        uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          retry_wait_seconds: 30
+          shell: pwsh
+          command: |
+            Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+            Invoke-RestMethod -Uri https://get.scoop.sh | Invoke-Expression
+            scoop bucket add snyk https://github.com/snyk/scoop-snyk
+            scoop install snyk
+      - name: Install Scoop and Snyk
+        if: github.ref != 'refs/heads/main'
+        shell: pwsh
+        run: |
+          Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+          Invoke-RestMethod -Uri https://get.scoop.sh | Invoke-Expression
+          scoop bucket add snyk https://github.com/snyk/scoop-snyk
+          scoop install snyk
+      - name: Resolve installed Snyk metadata
+        shell: pwsh
+        run: |
+          $env:PATH = "$env:USERPROFILE\scoop\shims;$env:PATH"
+          $Version = (snyk --version).Trim()
+          $Candidates = @()
+          if (Get-Command scoop -ErrorAction SilentlyContinue) {
+            $SnykPrefix = (scoop prefix snyk 2>$null)
+            if ($SnykPrefix) {
+              $Candidates += (Join-Path $SnykPrefix "snyk-win.exe")
+            }
+          }
+          $Candidates += "$env:USERPROFILE\scoop\apps\snyk\current\snyk-win.exe"
+          $Cmd = (Get-Command snyk.exe -ErrorAction SilentlyContinue)
+          if ($Cmd) {
+            $Candidates += $Cmd.Source
+          }
+          $SnykPath = $Candidates | Where-Object { $_ -and (Test-Path $_) } | Select-Object -First 1
+          if (-not $SnykPath) {
+            throw "Unable to resolve Snyk binary path for Scoop."
+          }
+          $Sha256 = (Get-FileHash -Algorithm SHA256 $SnykPath).Hash.ToLower()
+          "VERSION=$Version" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding ascii
+          "SHA256=$Sha256" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding ascii
+      - name: Download sha256sums manifest
+        if: github.ref == 'refs/heads/main'
+        uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          retry_wait_seconds: 30
+          shell: pwsh
+          command: |
+            $ManifestPath = "sha256sums-stable.txt.asc"
+            $ManifestUrls = @(
+              "https://static.snyk.io/cli/stable/sha256sums.txt.asc",
+              "https://downloads.snyk.io/cli/stable/sha256sums.txt.asc"
+            )
+            $ManifestRaw = $null
+            foreach ($ManifestUrl in $ManifestUrls) {
+              & curl.exe --retry 2 -fsSL $ManifestUrl -o $ManifestPath
+              if ($LASTEXITCODE -ne 0) {
+                continue
+              }
+              $Candidate = Get-Content $ManifestPath -Raw
+              if ($Candidate -match "<Error>") {
+                continue
+              }
+              if ($Candidate -notmatch "-----BEGIN PGP SIGNED MESSAGE-----") {
+                continue
+              }
+              $ManifestRaw = $Candidate
+              break
+            }
+            if (-not $ManifestRaw) {
+              throw "Failed to download a valid sha256sums.txt.asc manifest for stable channel."
+            }
+            Set-Content -Path manifest.raw.txt -Value $ManifestRaw -NoNewline
+      - name: Download sha256sums manifest
+        if: github.ref != 'refs/heads/main'
+        shell: pwsh
+        run: |
+          $ManifestPath = "sha256sums-stable.txt.asc"
+          $ManifestUrls = @(
+            "https://static.snyk.io/cli/stable/sha256sums.txt.asc",
+            "https://downloads.snyk.io/cli/stable/sha256sums.txt.asc"
+          )
+          $ManifestRaw = $null
+          foreach ($ManifestUrl in $ManifestUrls) {
+            & curl.exe --retry 2 -fsSL $ManifestUrl -o $ManifestPath
+            if ($LASTEXITCODE -ne 0) {
+              continue
+            }
+            $Candidate = Get-Content $ManifestPath -Raw
+            if ($Candidate -match "<Error>") {
+              continue
+            }
+            if ($Candidate -notmatch "-----BEGIN PGP SIGNED MESSAGE-----") {
+              continue
+            }
+            $ManifestRaw = $Candidate
+            break
+          }
+          if (-not $ManifestRaw) {
+            throw "Failed to download a valid sha256sums.txt.asc manifest for stable channel."
+          }
+          Set-Content -Path manifest.raw.txt -Value $ManifestRaw -NoNewline
+      - name: Assert hash and write artifacts
+        shell: pwsh
+        run: |
+          $Version = $env:VERSION
+          $Sha256 = $env:SHA256
+          $BinaryName = "snyk-win.exe"
+          $ManifestRaw = Get-Content manifest.raw.txt -Raw
+          $Expected = $null
+          foreach ($Line in ($ManifestRaw -split "\r?\n")) {
+            $Line = $Line.Trim()
+            if ($Line -match '^([0-9a-fA-F]{64})\s+\*?snyk-win\.exe$') {
+              $Expected = $Matches[1].ToLower()
+              break
+            }
+          }
+          if (-not $Expected) {
+            throw "Missing expected hash for snyk-win.exe in manifest."
+          }
+          if ($Sha256 -ne $Expected) {
+            throw "Hash mismatch for snyk-win.exe (scoop). Expected $Expected, got $Sha256."
+          }
+          $Version | Out-File -FilePath "${{ env.SNYK_VERSION_DIR }}/snyk-version-monitor_scoop.txt" -Encoding ascii
+          @{
+            channel = "stable"
+            base_url = "scoop"
+            binary = $BinaryName
+            version = $Version
+            sha256 = $Sha256
+          } | ConvertTo-Json -Compress | Out-File -FilePath "${{ env.SNYK_VERSION_DIR }}/snyk-metadata-monitor_scoop.json" -Encoding ascii
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: snyk-version-monitor_scoop
+          path: |
+            ${{ env.SNYK_VERSION_DIR }}/snyk-version-monitor_scoop.txt
+            ${{ env.SNYK_VERSION_DIR }}/snyk-metadata-monitor_scoop.json
+  monitor_npm_retry:
+    name: 'deployment: npm (ubuntu) [retry 1/2]'
+    runs-on: ubuntu-latest
+    needs:
+      - create_version_dir
+      - create_version_dir_retry
+      - create_version_dir_retry_2
+      - monitor_npm
+    if: ${{ github.ref == 'refs/heads/main' && needs.monitor_npm.result == 'cancelled' }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: ${{ env.SNYK_VERSION_DIR }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: latest
+      - name: Install Snyk
+        if: github.ref == 'refs/heads/main'
+        uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          retry_wait_seconds: 30
+          command: npm install -g snyk
+      - name: Install Snyk
+        if: github.ref != 'refs/heads/main'
+        run: npm install -g snyk
+      - name: Resolve installed Snyk metadata
+        run: |
+          VERSION=$(snyk --version | tr -d '\r\n')
+          SNYK_PATH=$(command -v snyk)
+          SHA256=$(shasum -a 256 "$SNYK_PATH" | awk '{print $1}')
+          IS_ELF=$(python3 - "$SNYK_PATH" <<'PY'
+          import sys
+          with open(sys.argv[1], "rb") as fh:
+              magic = fh.read(4)
+          print("1" if magic == b"\x7fELF" else "0")
+          PY
+          )
+          ARCH=$(uname -m)
+          if [ "$ARCH" = "arm64" ] || [ "$ARCH" = "aarch64" ]; then
+            BINARY_NAME="snyk-linux-arm64"
+          else
+            BINARY_NAME="snyk-linux"
+          fi
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "SHA256=$SHA256" >> $GITHUB_ENV
+          echo "IS_ELF=$IS_ELF" >> $GITHUB_ENV
+          echo "BINARY_NAME=$BINARY_NAME" >> $GITHUB_ENV
+      - name: Download sha256sums manifest
+        if: github.ref == 'refs/heads/main'
+        uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          retry_wait_seconds: 30
+          command: |
+            for url in \
+              https://static.snyk.io/cli/stable/sha256sums.txt.asc \
+              https://downloads.snyk.io/cli/stable/sha256sums.txt.asc; do
+              curl --retry 2 -fsSL "$url" -o sha256sums.txt.asc
+              if [ -s sha256sums.txt.asc ] && ! grep -q '<Error>' sha256sums.txt.asc; then
+                break
+              fi
+            done
+            if [ ! -s sha256sums.txt.asc ] || grep -q '<Error>' sha256sums.txt.asc; then
+              echo "Failed to download a valid sha256sums.txt.asc manifest."
+              exit 1
+            fi
+      - name: Download sha256sums manifest
+        if: github.ref != 'refs/heads/main'
+        run: |
+          for url in \
+            https://static.snyk.io/cli/stable/sha256sums.txt.asc \
+            https://downloads.snyk.io/cli/stable/sha256sums.txt.asc; do
+            curl --retry 2 -fsSL "$url" -o sha256sums.txt.asc
+            if [ -s sha256sums.txt.asc ] && ! grep -q '<Error>' sha256sums.txt.asc; then
+              break
+            fi
+          done
+          if [ ! -s sha256sums.txt.asc ] || grep -q '<Error>' sha256sums.txt.asc; then
+            echo "Failed to download a valid sha256sums.txt.asc manifest."
+            exit 1
+          fi
+      - name: Assert hash and write artifacts
+        run: |
+          EXPECTED=$(awk -v name="$BINARY_NAME" '$1 ~ /^[a-f0-9]{64}$/ {gsub(/^\*/, "", $2); if ($2==name) {print $1; exit}}' sha256sums.txt.asc)
+          if [ -z "$EXPECTED" ]; then
+            echo "Missing expected hash for $BINARY_NAME in manifest."
+            exit 1
+          fi
+          if [ "$IS_ELF" != "1" ]; then
+            echo "Non-binary CLI detected for npm; skipping CDN hash comparison."
+          elif [ "$SHA256" != "$EXPECTED" ]; then
+            echo "Hash mismatch for $BINARY_NAME (npm)."
+            echo "Expected: $EXPECTED"
+            echo "Actual:   $SHA256"
+            exit 1
+          fi
+          echo "$VERSION" > ${{ env.SNYK_VERSION_DIR }}/snyk-version-monitor_npm.txt
+          cat <<EOF > ${{ env.SNYK_VERSION_DIR }}/snyk-metadata-monitor_npm.json
+          {"channel":"stable","base_url":"npm","binary":"$BINARY_NAME","version":"$VERSION","sha256":"$SHA256"}
+          EOF
+        env:
+          VERSION: ${{ env.VERSION }}
+          SHA256: ${{ env.SHA256 }}
+          IS_ELF: ${{ env.IS_ELF }}
+          BINARY_NAME: ${{ env.BINARY_NAME }}
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: snyk-version-monitor_npm
+          path: |
+            ${{ env.SNYK_VERSION_DIR }}/snyk-version-monitor_npm.txt
+            ${{ env.SNYK_VERSION_DIR }}/snyk-metadata-monitor_npm.json
+  monitor_npm_retry_2:
+    name: 'deployment: npm (ubuntu) [retry 2/2]'
+    runs-on: ubuntu-latest
+    needs:
+      - create_version_dir
+      - create_version_dir_retry
+      - create_version_dir_retry_2
+      - monitor_npm_retry
+    if: ${{ github.ref == 'refs/heads/main' && needs.monitor_npm_retry.result == 'cancelled' }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: ${{ env.SNYK_VERSION_DIR }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: latest
+      - name: Install Snyk
+        if: github.ref == 'refs/heads/main'
+        uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          retry_wait_seconds: 30
+          command: npm install -g snyk
+      - name: Install Snyk
+        if: github.ref != 'refs/heads/main'
+        run: npm install -g snyk
+      - name: Resolve installed Snyk metadata
+        run: |
+          VERSION=$(snyk --version | tr -d '\r\n')
+          SNYK_PATH=$(command -v snyk)
+          SHA256=$(shasum -a 256 "$SNYK_PATH" | awk '{print $1}')
+          IS_ELF=$(python3 - "$SNYK_PATH" <<'PY'
+          import sys
+          with open(sys.argv[1], "rb") as fh:
+              magic = fh.read(4)
+          print("1" if magic == b"\x7fELF" else "0")
+          PY
+          )
+          ARCH=$(uname -m)
+          if [ "$ARCH" = "arm64" ] || [ "$ARCH" = "aarch64" ]; then
+            BINARY_NAME="snyk-linux-arm64"
+          else
+            BINARY_NAME="snyk-linux"
+          fi
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "SHA256=$SHA256" >> $GITHUB_ENV
+          echo "IS_ELF=$IS_ELF" >> $GITHUB_ENV
+          echo "BINARY_NAME=$BINARY_NAME" >> $GITHUB_ENV
+      - name: Download sha256sums manifest
+        if: github.ref == 'refs/heads/main'
+        uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          retry_wait_seconds: 30
+          command: |
+            for url in \
+              https://static.snyk.io/cli/stable/sha256sums.txt.asc \
+              https://downloads.snyk.io/cli/stable/sha256sums.txt.asc; do
+              curl --retry 2 -fsSL "$url" -o sha256sums.txt.asc
+              if [ -s sha256sums.txt.asc ] && ! grep -q '<Error>' sha256sums.txt.asc; then
+                break
+              fi
+            done
+            if [ ! -s sha256sums.txt.asc ] || grep -q '<Error>' sha256sums.txt.asc; then
+              echo "Failed to download a valid sha256sums.txt.asc manifest."
+              exit 1
+            fi
+      - name: Download sha256sums manifest
+        if: github.ref != 'refs/heads/main'
+        run: |
+          for url in \
+            https://static.snyk.io/cli/stable/sha256sums.txt.asc \
+            https://downloads.snyk.io/cli/stable/sha256sums.txt.asc; do
+            curl --retry 2 -fsSL "$url" -o sha256sums.txt.asc
+            if [ -s sha256sums.txt.asc ] && ! grep -q '<Error>' sha256sums.txt.asc; then
+              break
+            fi
+          done
+          if [ ! -s sha256sums.txt.asc ] || grep -q '<Error>' sha256sums.txt.asc; then
+            echo "Failed to download a valid sha256sums.txt.asc manifest."
+            exit 1
+          fi
+      - name: Assert hash and write artifacts
+        run: |
+          EXPECTED=$(awk -v name="$BINARY_NAME" '$1 ~ /^[a-f0-9]{64}$/ {gsub(/^\*/, "", $2); if ($2==name) {print $1; exit}}' sha256sums.txt.asc)
+          if [ -z "$EXPECTED" ]; then
+            echo "Missing expected hash for $BINARY_NAME in manifest."
+            exit 1
+          fi
+          if [ "$IS_ELF" != "1" ]; then
+            echo "Non-binary CLI detected for npm; skipping CDN hash comparison."
+          elif [ "$SHA256" != "$EXPECTED" ]; then
+            echo "Hash mismatch for $BINARY_NAME (npm)."
+            echo "Expected: $EXPECTED"
+            echo "Actual:   $SHA256"
+            exit 1
+          fi
+          echo "$VERSION" > ${{ env.SNYK_VERSION_DIR }}/snyk-version-monitor_npm.txt
+          cat <<EOF > ${{ env.SNYK_VERSION_DIR }}/snyk-metadata-monitor_npm.json
+          {"channel":"stable","base_url":"npm","binary":"$BINARY_NAME","version":"$VERSION","sha256":"$SHA256"}
+          EOF
+        env:
+          VERSION: ${{ env.VERSION }}
+          SHA256: ${{ env.SHA256 }}
+          IS_ELF: ${{ env.IS_ELF }}
+          BINARY_NAME: ${{ env.BINARY_NAME }}
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: snyk-version-monitor_npm
+          path: |
+            ${{ env.SNYK_VERSION_DIR }}/snyk-version-monitor_npm.txt
+            ${{ env.SNYK_VERSION_DIR }}/snyk-metadata-monitor_npm.json
+  monitor_snyk_images_retry:
+    name: 'deployment: snyk-images (snyk/snyk:linux) [retry 1/2]'
+    runs-on: ubuntu-latest
+    needs:
+      - create_version_dir
+      - create_version_dir_retry
+      - create_version_dir_retry_2
+      - monitor_snyk_images
+    if: ${{ github.ref == 'refs/heads/main' && needs.monitor_snyk_images.result == 'cancelled' }}
+    container:
+      image: snyk/snyk:linux
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: ${{ env.SNYK_VERSION_DIR }}
+      - name: Install curl
+        run: apt-get update && apt-get install -y curl
+      - name: Resolve installed Snyk metadata
+        run: |
+          VERSION=$(snyk --version | tr -d '\r\n')
+          SNYK_PATH=$(command -v snyk)
+          SHA256=$(shasum -a 256 "$SNYK_PATH" | awk '{print $1}')
+          ARCH=$(uname -m)
+          if [ "$ARCH" = "arm64" ] || [ "$ARCH" = "aarch64" ]; then
+            BINARY_NAME="snyk-linux-arm64"
+          else
+            BINARY_NAME="snyk-linux"
+          fi
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "SHA256=$SHA256" >> $GITHUB_ENV
+          echo "BINARY_NAME=$BINARY_NAME" >> $GITHUB_ENV
+      - name: Download experimental manifest
+        if: github.ref == 'refs/heads/main'
+        uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          retry_wait_seconds: 30
+          command: |
+            # The image is built by snyk/snyk-images using the experimental base URL.
+            curl --retry 2 -sSL "https://downloads.snyk.io/experimental/cli/v${VERSION}/sha256sums.txt.asc" -o sha256sums.txt.asc
+        env:
+          VERSION: ${{ env.VERSION }}
+      - name: Download experimental manifest
+        if: github.ref != 'refs/heads/main'
+        run: |
+          # The image is built by snyk/snyk-images using the experimental base URL.
+          curl --retry 2 -sSL "https://downloads.snyk.io/experimental/cli/v${VERSION}/sha256sums.txt.asc" -o sha256sums.txt.asc
+        env:
+          VERSION: ${{ env.VERSION }}
+      - name: Assert hash and write artifacts
+        run: |
+          EXPECTED=$(awk -v name="$BINARY_NAME" '$1 ~ /^[a-f0-9]{64}$/ {gsub(/^\*/, "", $2); if ($2==name) {print $1; exit}}' sha256sums.txt.asc)
+          if [ -z "$EXPECTED" ]; then
+            echo "Missing expected hash for $BINARY_NAME in experimental manifest."
+            exit 1
+          fi
+          if [ "$SHA256" != "$EXPECTED" ]; then
+            echo "Hash mismatch for $BINARY_NAME (snyk-images)."
+            echo "Expected: $EXPECTED"
+            echo "Actual:   $SHA256"
+            exit 1
+          fi
+          echo "$VERSION" > ${{ env.SNYK_VERSION_DIR }}/snyk-version-monitor_snyk_images.txt
+          cat <<EOF > ${{ env.SNYK_VERSION_DIR }}/snyk-metadata-monitor_snyk_images.json
+          {"channel":"stable","base_url":"snyk-images","binary":"$BINARY_NAME","version":"$VERSION","sha256":"$SHA256"}
+          EOF
+        env:
+          VERSION: ${{ env.VERSION }}
+          SHA256: ${{ env.SHA256 }}
+          BINARY_NAME: ${{ env.BINARY_NAME }}
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: snyk-version-monitor_snyk_images
+          path: |
+            ${{ env.SNYK_VERSION_DIR }}/snyk-version-monitor_snyk_images.txt
+            ${{ env.SNYK_VERSION_DIR }}/snyk-metadata-monitor_snyk_images.json
+  monitor_snyk_images_retry_2:
+    name: 'deployment: snyk-images (snyk/snyk:linux) [retry 2/2]'
+    runs-on: ubuntu-latest
+    needs:
+      - create_version_dir
+      - create_version_dir_retry
+      - create_version_dir_retry_2
+      - monitor_snyk_images_retry
+    if: ${{ github.ref == 'refs/heads/main' && needs.monitor_snyk_images_retry.result == 'cancelled' }}
+    container:
+      image: snyk/snyk:linux
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: ${{ env.SNYK_VERSION_DIR }}
+      - name: Install curl
+        run: apt-get update && apt-get install -y curl
+      - name: Resolve installed Snyk metadata
+        run: |
+          VERSION=$(snyk --version | tr -d '\r\n')
+          SNYK_PATH=$(command -v snyk)
+          SHA256=$(shasum -a 256 "$SNYK_PATH" | awk '{print $1}')
+          ARCH=$(uname -m)
+          if [ "$ARCH" = "arm64" ] || [ "$ARCH" = "aarch64" ]; then
+            BINARY_NAME="snyk-linux-arm64"
+          else
+            BINARY_NAME="snyk-linux"
+          fi
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "SHA256=$SHA256" >> $GITHUB_ENV
+          echo "BINARY_NAME=$BINARY_NAME" >> $GITHUB_ENV
+      - name: Download experimental manifest
+        if: github.ref == 'refs/heads/main'
+        uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          retry_wait_seconds: 30
+          command: |
+            # The image is built by snyk/snyk-images using the experimental base URL.
+            curl --retry 2 -sSL "https://downloads.snyk.io/experimental/cli/v${VERSION}/sha256sums.txt.asc" -o sha256sums.txt.asc
+        env:
+          VERSION: ${{ env.VERSION }}
+      - name: Download experimental manifest
+        if: github.ref != 'refs/heads/main'
+        run: |
+          # The image is built by snyk/snyk-images using the experimental base URL.
+          curl --retry 2 -sSL "https://downloads.snyk.io/experimental/cli/v${VERSION}/sha256sums.txt.asc" -o sha256sums.txt.asc
+        env:
+          VERSION: ${{ env.VERSION }}
+      - name: Assert hash and write artifacts
+        run: |
+          EXPECTED=$(awk -v name="$BINARY_NAME" '$1 ~ /^[a-f0-9]{64}$/ {gsub(/^\*/, "", $2); if ($2==name) {print $1; exit}}' sha256sums.txt.asc)
+          if [ -z "$EXPECTED" ]; then
+            echo "Missing expected hash for $BINARY_NAME in experimental manifest."
+            exit 1
+          fi
+          if [ "$SHA256" != "$EXPECTED" ]; then
+            echo "Hash mismatch for $BINARY_NAME (snyk-images)."
+            echo "Expected: $EXPECTED"
+            echo "Actual:   $SHA256"
+            exit 1
+          fi
+          echo "$VERSION" > ${{ env.SNYK_VERSION_DIR }}/snyk-version-monitor_snyk_images.txt
+          cat <<EOF > ${{ env.SNYK_VERSION_DIR }}/snyk-metadata-monitor_snyk_images.json
+          {"channel":"stable","base_url":"snyk-images","binary":"$BINARY_NAME","version":"$VERSION","sha256":"$SHA256"}
+          EOF
+        env:
+          VERSION: ${{ env.VERSION }}
+          SHA256: ${{ env.SHA256 }}
+          BINARY_NAME: ${{ env.BINARY_NAME }}
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: snyk-version-monitor_snyk_images
+          path: |
+            ${{ env.SNYK_VERSION_DIR }}/snyk-version-monitor_snyk_images.txt
+            ${{ env.SNYK_VERSION_DIR }}/snyk-metadata-monitor_snyk_images.json
+
   compare_versions:
     name: 'Compare Snyk Versions'
+    if: always()
     runs-on: ubuntu-latest
     needs:
       [
         monitor_cdn,
+        monitor_cdn_retry,
+        monitor_cdn_retry_2,
         monitor_homebrew,
+        monitor_homebrew_retry,
+        monitor_homebrew_retry_2,
         monitor_scoop,
+        monitor_scoop_retry,
+        monitor_scoop_retry_2,
         monitor_npm,
+        monitor_npm_retry,
+        monitor_npm_retry_2,
         monitor_snyk_images,
+        monitor_snyk_images_retry,
+        monitor_snyk_images_retry_2,
         verify_manifests,
         verify_experimental_manifest,
       ]
     steps:
+      - name: Summarize job results
+        env:
+          MONITOR_CDN: ${{ needs.monitor_cdn.result }}
+          MONITOR_CDN_RETRY: ${{ needs.monitor_cdn_retry.result }}
+          MONITOR_CDN_RETRY_2: ${{ needs.monitor_cdn_retry_2.result }}
+          MONITOR_HOMEBREW: ${{ needs.monitor_homebrew.result }}
+          MONITOR_HOMEBREW_RETRY: ${{ needs.monitor_homebrew_retry.result }}
+          MONITOR_HOMEBREW_RETRY_2: ${{ needs.monitor_homebrew_retry_2.result }}
+          MONITOR_SCOOP: ${{ needs.monitor_scoop.result }}
+          MONITOR_SCOOP_RETRY: ${{ needs.monitor_scoop_retry.result }}
+          MONITOR_SCOOP_RETRY_2: ${{ needs.monitor_scoop_retry_2.result }}
+          MONITOR_NPM: ${{ needs.monitor_npm.result }}
+          MONITOR_NPM_RETRY: ${{ needs.monitor_npm_retry.result }}
+          MONITOR_NPM_RETRY_2: ${{ needs.monitor_npm_retry_2.result }}
+          MONITOR_SNYK_IMAGES: ${{ needs.monitor_snyk_images.result }}
+          MONITOR_SNYK_IMAGES_RETRY: ${{ needs.monitor_snyk_images_retry.result }}
+          MONITOR_SNYK_IMAGES_RETRY_2: ${{ needs.monitor_snyk_images_retry_2.result }}
+          VERIFY_MANIFESTS: ${{ needs.verify_manifests.result }}
+          VERIFY_EXPERIMENTAL: ${{ needs.verify_experimental_manifest.result }}
+        run: |
+          set -euo pipefail
+
+          report_result() {
+            local label="$1"
+            local result="$2"
+            case "$result" in
+              success) echo "✅ ${label}: success" ;;
+              failure) echo "❌ ${label}: failure" ;;
+              cancelled) echo "⏭ ${label}: cancelled (runner/queue or workflow stop)" ;;
+              skipped) echo "⏭ ${label}: skipped (upstream did not complete)" ;;
+              *) echo "? ${label}: ${result}" ;;
+            esac
+          }
+
+          attempts_succeeded() {
+            local r1="$1"
+            local r2="$2"
+            local r3="$3"
+            [ "$r1" = "success" ] || [ "$r2" = "success" ] || [ "$r3" = "success" ]
+          }
+
+          winning_attempt() {
+            local r1="$1"
+            local r2="$2"
+            local r3="$3"
+            if [ "$r1" = "success" ]; then
+              echo "primary"
+            elif [ "$r2" = "success" ]; then
+              echo "retry 1"
+            elif [ "$r3" = "success" ]; then
+              echo "retry 2"
+            else
+              echo "none"
+            fi
+          }
+
+          report_logical_monitor() {
+            local label="$1"
+            local r1="$2"
+            local r2="$3"
+            local r3="$4"
+            echo "=== ${label} attempts ==="
+            report_result "${label} (primary)" "$r1"
+            report_result "${label} (retry 1)" "$r2"
+            report_result "${label} (retry 2)" "$r3"
+            if attempts_succeeded "$r1" "$r2" "$r3"; then
+              echo "✅ ${label}: channel OK (succeeded on $(winning_attempt "$r1" "$r2" "$r3"))"
+            elif [ "$r1" = "failure" ]; then
+              echo "❌ ${label}: failure on primary attempt (no job retry for failure)."
+            else
+              echo "❌ ${label}: all attempts failed or cancelled without success."
+            fi
+          }
+
+          logical_monitor_failed() {
+            local r1="$1"
+            local r2="$2"
+            local r3="$3"
+            if attempts_succeeded "$r1" "$r2" "$r3"; then
+              return 1
+            fi
+            return 0
+          }
+
+          echo "=== Upstream monitor and verify job results ==="
+          report_logical_monitor "monitor_cdn" "$MONITOR_CDN" "$MONITOR_CDN_RETRY" "$MONITOR_CDN_RETRY_2"
+          report_logical_monitor "monitor_homebrew" "$MONITOR_HOMEBREW" "$MONITOR_HOMEBREW_RETRY" "$MONITOR_HOMEBREW_RETRY_2"
+          report_logical_monitor "monitor_scoop" "$MONITOR_SCOOP" "$MONITOR_SCOOP_RETRY" "$MONITOR_SCOOP_RETRY_2"
+          report_logical_monitor "monitor_npm" "$MONITOR_NPM" "$MONITOR_NPM_RETRY" "$MONITOR_NPM_RETRY_2"
+          report_logical_monitor "monitor_snyk_images" "$MONITOR_SNYK_IMAGES" "$MONITOR_SNYK_IMAGES_RETRY" "$MONITOR_SNYK_IMAGES_RETRY_2"
+          report_result "verify_manifests" "$VERIFY_MANIFESTS"
+          report_result "verify_experimental_manifest" "$VERIFY_EXPERIMENTAL"
+
+          upstream_failure=0
+          if logical_monitor_failed "$MONITOR_CDN" "$MONITOR_CDN_RETRY" "$MONITOR_CDN_RETRY_2"; then
+            upstream_failure=1
+          fi
+          if logical_monitor_failed "$MONITOR_HOMEBREW" "$MONITOR_HOMEBREW_RETRY" "$MONITOR_HOMEBREW_RETRY_2"; then
+            upstream_failure=1
+          fi
+          if logical_monitor_failed "$MONITOR_SCOOP" "$MONITOR_SCOOP_RETRY" "$MONITOR_SCOOP_RETRY_2"; then
+            upstream_failure=1
+          fi
+          if logical_monitor_failed "$MONITOR_NPM" "$MONITOR_NPM_RETRY" "$MONITOR_NPM_RETRY_2"; then
+            upstream_failure=1
+          fi
+          if logical_monitor_failed "$MONITOR_SNYK_IMAGES" "$MONITOR_SNYK_IMAGES_RETRY" "$MONITOR_SNYK_IMAGES_RETRY_2"; then
+            upstream_failure=1
+          fi
+          if [ "$VERIFY_MANIFESTS" = "failure" ]; then
+            upstream_failure=1
+            echo "❌ verify_manifests failed — channel unverified (strict mode)."
+          fi
+          if [ "$VERIFY_EXPERIMENTAL" = "failure" ]; then
+            upstream_failure=1
+            echo "❌ verify_experimental_manifest failed — channel unverified (strict mode)."
+          fi
+
+          if [ "$upstream_failure" -eq 1 ]; then
+            echo "❌ One or more monitor/verify jobs failed. Continuing compare on available artifacts."
+            exit 1
+          fi
+
+          echo "✅ All monitor channels verified (primary or retry success); verify jobs OK."
       - uses: actions/download-artifact@v4
+        if: always()
         with:
           pattern: snyk-version-*
           merge-multiple: true
           path: ${{ env.SNYK_VERSION_DIR }}
       - name: Check if the directory is not empty
+        if: always()
         run: |
           cd "${{ env.SNYK_VERSION_DIR }}"
           txt_files=$(ls *.txt 2>/dev/null)
@@ -367,6 +1799,7 @@ jobs:
             exit 2
           fi
       - name: If not empty, compare Snyk versions
+        if: always()
         run: |
           cd "${{ env.SNYK_VERSION_DIR }}"
           echo "Collected Snyk versions:"
@@ -426,6 +1859,7 @@ jobs:
 
           echo "✅ All Snyk versions (stable and preview) are consistent within their respective channels."
       - name: Compare CDN shasums
+        if: always()
         run: |
           cd "${{ env.SNYK_VERSION_DIR }}"
           python3 - <<'PY'
@@ -517,11 +1951,184 @@ jobs:
           gpg --verify sha256sums-experimental.txt.asc
 
   notify_slack_on_failure:
-    if: ${{ failure() && github.ref == 'refs/heads/main' }}
+    if: ${{ always() && failure() && github.ref == 'refs/heads/main' }}
     name: 'Do a Slack notification on failure'
-    needs: compare_versions
+    needs:
+      - create_version_dir
+      - create_version_dir_retry
+      - create_version_dir_retry_2
+      - monitor_cdn
+      - monitor_cdn_retry
+      - monitor_cdn_retry_2
+      - monitor_homebrew
+      - monitor_homebrew_retry
+      - monitor_homebrew_retry_2
+      - monitor_scoop
+      - monitor_scoop_retry
+      - monitor_scoop_retry_2
+      - monitor_npm
+      - monitor_npm_retry
+      - monitor_npm_retry_2
+      - monitor_snyk_images
+      - monitor_snyk_images_retry
+      - monitor_snyk_images_retry_2
+      - verify_manifests
+      - verify_experimental_manifest
+      - compare_versions
     runs-on: ubuntu-latest
     steps:
+      - name: Build failure summary
+        id: summary
+        env:
+          CREATE_VERSION_DIR: ${{ needs.create_version_dir.result }}
+          CREATE_VERSION_DIR_RETRY: ${{ needs.create_version_dir_retry.result }}
+          CREATE_VERSION_DIR_RETRY_2: ${{ needs.create_version_dir_retry_2.result }}
+          MONITOR_CDN: ${{ needs.monitor_cdn.result }}
+          MONITOR_CDN_RETRY: ${{ needs.monitor_cdn_retry.result }}
+          MONITOR_CDN_RETRY_2: ${{ needs.monitor_cdn_retry_2.result }}
+          MONITOR_HOMEBREW: ${{ needs.monitor_homebrew.result }}
+          MONITOR_HOMEBREW_RETRY: ${{ needs.monitor_homebrew_retry.result }}
+          MONITOR_HOMEBREW_RETRY_2: ${{ needs.monitor_homebrew_retry_2.result }}
+          MONITOR_SCOOP: ${{ needs.monitor_scoop.result }}
+          MONITOR_SCOOP_RETRY: ${{ needs.monitor_scoop_retry.result }}
+          MONITOR_SCOOP_RETRY_2: ${{ needs.monitor_scoop_retry_2.result }}
+          MONITOR_NPM: ${{ needs.monitor_npm.result }}
+          MONITOR_NPM_RETRY: ${{ needs.monitor_npm_retry.result }}
+          MONITOR_NPM_RETRY_2: ${{ needs.monitor_npm_retry_2.result }}
+          MONITOR_SNYK_IMAGES: ${{ needs.monitor_snyk_images.result }}
+          MONITOR_SNYK_IMAGES_RETRY: ${{ needs.monitor_snyk_images_retry.result }}
+          MONITOR_SNYK_IMAGES_RETRY_2: ${{ needs.monitor_snyk_images_retry_2.result }}
+          VERIFY_MANIFESTS: ${{ needs.verify_manifests.result }}
+          VERIFY_EXPERIMENTAL: ${{ needs.verify_experimental_manifest.result }}
+          COMPARE_VERSIONS: ${{ needs.compare_versions.result }}
+        run: |
+          set -euo pipefail
+
+          attempts_succeeded() {
+            local r1="$1"
+            local r2="$2"
+            local r3="$3"
+            [ "$r1" = "success" ] || [ "$r2" = "success" ] || [ "$r3" = "success" ]
+          }
+
+          classify_failure() {
+            local job_id="$1"
+            local result="$2"
+            if [ "$result" = "cancelled" ]; then
+              echo "infra"
+              return
+            fi
+            if [ "$result" != "failure" ]; then
+              echo ""
+              return
+            fi
+            case "$job_id" in
+              create_version_dir)
+                echo "infra"
+                ;;
+              compare_versions|verify_manifests|verify_experimental_manifest)
+                echo "detection"
+                ;;
+              monitor_*)
+                echo "detection"
+                ;;
+              *)
+                echo "detection"
+                ;;
+            esac
+          }
+
+          failure_context() {
+            local job_id="$1"
+            local result="$2"
+            if [ "$result" = "cancelled" ]; then
+              echo "cancelled (possible runner not acquired)"
+              return
+            fi
+            case "$job_id" in
+              compare_versions)
+                echo "version or CDN shasum mismatch"
+                ;;
+              verify_manifests|verify_experimental_manifest)
+                echo "GPG manifest verification failed"
+                ;;
+              monitor_cdn|monitor_homebrew|monitor_scoop|monitor_npm|monitor_snyk_images)
+                echo "install, download, or hash assertion failed"
+                ;;
+              create_version_dir)
+                echo "bootstrap step failed or cancelled"
+                ;;
+              *)
+                echo "job failed"
+                ;;
+            esac
+          }
+
+          append_failed_job() {
+            local job_id="$1"
+            local display_name="$2"
+            local result="$3"
+            if [ "$result" != "failure" ] && [ "$result" != "cancelled" ]; then
+              return
+            fi
+            local label
+            label="$(classify_failure "$job_id" "$result")"
+            local context
+            context="$(failure_context "$job_id" "$result")"
+            if [ -n "$SUMMARY" ]; then
+              SUMMARY="${SUMMARY}"$'\n'
+            fi
+            SUMMARY="${SUMMARY}• ${display_name} — ${context} [${label}]"
+          }
+
+          append_logical_failure() {
+            local job_id="$1"
+            local display_name="$2"
+            local r1="$3"
+            local r2="$4"
+            local r3="$5"
+            if attempts_succeeded "$r1" "$r2" "$r3"; then
+              return
+            fi
+            local context
+            local label
+            if [ "$r1" = "failure" ]; then
+              context="failure on primary attempt (no job retry for failure)"
+              label="detection"
+            elif [ "$r1" = "cancelled" ] || [ "$r2" = "cancelled" ] || [ "$r3" = "cancelled" ]; then
+              context="cancelled after 3 attempts (runner not acquired)"
+              label="infra"
+            else
+              context="all attempts failed or cancelled without success"
+              label="infra"
+            fi
+            if [ -n "$SUMMARY" ]; then
+              SUMMARY="${SUMMARY}"$'\n'
+            fi
+            SUMMARY="${SUMMARY}• ${display_name} — ${context} [${label}]"
+          }
+
+          SUMMARY=""
+          append_logical_failure "create_version_dir" "Create version directory" "$CREATE_VERSION_DIR" "$CREATE_VERSION_DIR_RETRY" "$CREATE_VERSION_DIR_RETRY_2"
+          append_logical_failure "monitor_cdn" "deployment: CDN" "$MONITOR_CDN" "$MONITOR_CDN_RETRY" "$MONITOR_CDN_RETRY_2"
+          append_logical_failure "monitor_homebrew" "deployment: Homebrew (macos)" "$MONITOR_HOMEBREW" "$MONITOR_HOMEBREW_RETRY" "$MONITOR_HOMEBREW_RETRY_2"
+          append_logical_failure "monitor_scoop" "deployment: Scoop (windows)" "$MONITOR_SCOOP" "$MONITOR_SCOOP_RETRY" "$MONITOR_SCOOP_RETRY_2"
+          append_logical_failure "monitor_npm" "deployment: npm (ubuntu)" "$MONITOR_NPM" "$MONITOR_NPM_RETRY" "$MONITOR_NPM_RETRY_2"
+          append_logical_failure "monitor_snyk_images" "deployment: snyk-images (snyk/snyk:linux)" "$MONITOR_SNYK_IMAGES" "$MONITOR_SNYK_IMAGES_RETRY" "$MONITOR_SNYK_IMAGES_RETRY_2"
+          append_failed_job "verify_manifests" "Verify shasum manifests (stable/preview)" "$VERIFY_MANIFESTS"
+          append_failed_job "verify_experimental_manifest" "Verify shasum manifest (experimental)" "$VERIFY_EXPERIMENTAL"
+          append_failed_job "compare_versions" "Compare Snyk Versions" "$COMPARE_VERSIONS"
+
+          if [ -z "$SUMMARY" ]; then
+            SUMMARY="• Workflow failed but no individual job reported failure or cancellation."
+          fi
+
+          {
+            echo "failed_jobs_summary<<EOF"
+            echo "*Failed jobs:*"
+            echo "$SUMMARY"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
       - name: Post a message in a channel
         uses: slackapi/slack-github-action@v2.1.0
         with:
@@ -539,6 +2146,10 @@ jobs:
                 text:
                   type: "mrkdwn"
                   text: "*Workflow*: `${{ github.workflow }}`"
+              - type: "section"
+                text:
+                  type: "mrkdwn"
+                  text: "${{ steps.summary.outputs.failed_jobs_summary }}"
               - type: "section"
                 text:
                   type: "mrkdwn"
