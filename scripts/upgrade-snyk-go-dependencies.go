@@ -16,6 +16,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"os"
 	"os/exec"
 	"regexp"
 )
@@ -84,17 +85,28 @@ func getLatestCommitSHA(name string) (string, error) {
 	return commits[0].SHA, nil
 }
 
+func runStep(stepName string, cmd *exec.Cmd) error {
+	output, err := cmd.CombinedOutput()
+	if err == nil {
+		return nil
+	}
+	if len(output) > 0 {
+		return fmt.Errorf("%s failed (%w):\n%s", stepName, err, output)
+	}
+	return fmt.Errorf("%s failed (%w)", stepName, err)
+}
+
 func upgradeGoMod(name, commitSHA string) error {
 	cmd := exec.Command("go", "get", fmt.Sprintf("github.com/snyk/%s@%s", name, commitSHA))
 	cmd.Dir = "./cliv2"
-	if err := cmd.Run(); err != nil {
+	if err := runStep("go get", cmd); err != nil {
 		return err
 	}
 
 	fmt.Println("🧹 Running make tidy...")
 	cmd = exec.Command("make", "tidy")
 	cmd.Dir = "."
-	if err := cmd.Run(); err != nil {
+	if err := runStep("make tidy", cmd); err != nil {
 		return err
 	}
 
@@ -115,20 +127,22 @@ func upgradeDep(name string) error {
 	return nil
 }
 
+func upgradeDepExitOnError(name string) {
+	err := upgradeDep(name)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "An error occurred while upgrading %s: %v\n", name, err)
+		os.Exit(1)
+	}
+}
+
 func main() {
 	name := flag.String("name", "", "Repository name to download from (e.g., go-application-framework)")
 	flag.Parse()
 
 	if *name == "" {
-		if err := upgradeDep("go-application-framework"); err != nil {
-			fmt.Printf("An error occurred: %v\n", err)
-		}
-		if err := upgradeDep("snyk-ls"); err != nil {
-			fmt.Printf("An error occurred: %v\n", err)
-		}
+		upgradeDepExitOnError("go-application-framework")
+		upgradeDepExitOnError("snyk-ls")
 	} else {
-		if err := upgradeDep(*name); err != nil {
-			fmt.Printf("An error occurred: %v\n", err)
-		}
+		upgradeDepExitOnError(*name)
 	}
 }
