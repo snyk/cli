@@ -63,12 +63,20 @@ jobs:
           sha256sum -c snyk-linux.sha256
       - name: Set unique identifier for the artifact file name
         run: echo "SUFFIX=${{ matrix.os }}-${{ matrix.base_url }}-${{ matrix.channel }}" >> $GITHUB_ENV
-      - name: Run snyk --version
-        run: ./snyk-linux --version > ${{ env.SNYK_VERSION_DIR }}/snyk-version-${{ env.SUFFIX }}.txt
+      - name: Capture version and shasum metadata
+        run: |
+          VERSION=$(./snyk-linux --version | tr -d '\r\n')
+          SHA256=$(sha256sum snyk-linux | awk '{print $1}')
+          echo "$VERSION" > ${{ env.SNYK_VERSION_DIR }}/snyk-version-${{ env.SUFFIX }}.txt
+          cat <<EOF > ${{ env.SNYK_VERSION_DIR }}/snyk-metadata-${{ env.SUFFIX }}.json
+          {"channel":"${{ matrix.channel }}","base_url":"${{ matrix.base_url }}","binary":"snyk-linux","version":"$VERSION","sha256":"$SHA256"}
+          EOF
       - uses: actions/upload-artifact@v4
         with:
           name: snyk-version-${{ env.SUFFIX }}
-          path: ${{ env.SNYK_VERSION_DIR }}/snyk-version-${{ env.SUFFIX }}.txt
+          path: |
+            ${{ env.SNYK_VERSION_DIR }}/snyk-version-${{ env.SUFFIX }}.txt
+            ${{ env.SNYK_VERSION_DIR }}/snyk-metadata-${{ env.SUFFIX }}.json
 
   monitor_homebrew:
     name: 'deployment: Homebrew (macos)'
@@ -82,12 +90,60 @@ jobs:
         run: |
           brew tap snyk/tap
           brew install snyk
-      - name: Run snyk --version
-        run: snyk --version > ${{ env.SNYK_VERSION_DIR }}/snyk-version-${{ github.job }}.txt
+      - name: Capture version and shasum metadata
+        run: |
+          VERSION=$(snyk --version | tr -d '\r\n')
+          SNYK_PATH=$(command -v snyk)
+          SHA256=$(shasum -a 256 "$SNYK_PATH" | awk '{print $1}')
+          FILE_INFO=$(file "$SNYK_PATH")
+          if echo "$FILE_INFO" | grep -qi "arm64"; then
+            BINARY_NAME="snyk-macos-arm64"
+          elif echo "$FILE_INFO" | grep -qi "x86_64"; then
+            BINARY_NAME="snyk-macos"
+          else
+            ARCH=$(uname -m)
+            if [ "$ARCH" = "arm64" ]; then
+              BINARY_NAME="snyk-macos-arm64"
+            else
+              BINARY_NAME="snyk-macos"
+            fi
+          fi
+          RELEASE_URL="https://static.snyk.io/cli/v${VERSION}/release.json"
+          curl --retry 2 -sSL "$RELEASE_URL" -o release.json
+          EXPECTED=$(BINARY_NAME="$BINARY_NAME" python3 - <<'PY'
+          import json
+          import os
+          name = os.environ.get("BINARY_NAME")
+          if not name:
+              raise SystemExit(1)
+          with open("release.json", "r", encoding="utf-8") as fh:
+              data = json.load(fh)
+          asset = data.get("assets", {}).get(name)
+          if not asset or "sha256" not in asset:
+              raise SystemExit(1)
+          print(asset["sha256"].split()[0])
+          PY
+          )
+          if [ -z "$EXPECTED" ]; then
+            echo "Missing expected hash for $BINARY_NAME in release.json."
+            exit 1
+          fi
+          if [ "$SHA256" != "$EXPECTED" ]; then
+            echo "Hash mismatch for $BINARY_NAME (homebrew)."
+            echo "Expected: $EXPECTED"
+            echo "Actual:   $SHA256"
+            exit 1
+          fi
+          echo "$VERSION" > ${{ env.SNYK_VERSION_DIR }}/snyk-version-${{ github.job }}.txt
+          cat <<EOF > ${{ env.SNYK_VERSION_DIR }}/snyk-metadata-${{ github.job }}.json
+          {"channel":"stable","base_url":"homebrew","binary":"$BINARY_NAME","version":"$VERSION","sha256":"$SHA256"}
+          EOF
       - uses: actions/upload-artifact@v4
         with:
           name: snyk-version-${{ github.job }}
-          path: ${{ env.SNYK_VERSION_DIR }}/snyk-version-${{ github.job }}.txt
+          path: |
+            ${{ env.SNYK_VERSION_DIR }}/snyk-version-${{ github.job }}.txt
+            ${{ env.SNYK_VERSION_DIR }}/snyk-metadata-${{ github.job }}.json
 
   monitor_scoop:
     name: 'deployment: Scoop (windows)'
@@ -97,17 +153,88 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           path: ${{ env.SNYK_VERSION_DIR }}
-      - name: Install Scoop and Snyk, run Snyk --version
+      - name: Install Scoop and Snyk
+        shell: pwsh
         run: |
           Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
           Invoke-RestMethod -Uri https://get.scoop.sh | Invoke-Expression
           scoop bucket add snyk https://github.com/snyk/scoop-snyk
           scoop install snyk
-          snyk --version > ${{ env.SNYK_VERSION_DIR }}/snyk-version-${{ github.job }}.txt
+      - name: Capture version and shasum metadata
+        shell: pwsh
+        run: |
+          $env:PATH = "$env:USERPROFILE\scoop\shims;$env:PATH"
+          $Version = (snyk --version).Trim()
+          $Candidates = @()
+          if (Get-Command scoop -ErrorAction SilentlyContinue) {
+            $SnykPrefix = (scoop prefix snyk 2>$null)
+            if ($SnykPrefix) {
+              $Candidates += (Join-Path $SnykPrefix "snyk-win.exe")
+            }
+          }
+          $Candidates += "$env:USERPROFILE\scoop\apps\snyk\current\snyk-win.exe"
+          $Cmd = (Get-Command snyk.exe -ErrorAction SilentlyContinue)
+          if ($Cmd) {
+            $Candidates += $Cmd.Source
+          }
+          $SnykPath = $Candidates | Where-Object { $_ -and (Test-Path $_) } | Select-Object -First 1
+          if (-not $SnykPath) {
+            throw "Unable to resolve Snyk binary path for Scoop."
+          }
+          $Sha256 = (Get-FileHash -Algorithm SHA256 $SnykPath).Hash.ToLower()
+          $BinaryName = "snyk-win.exe"
+          $ManifestPath = "sha256sums-stable.txt.asc"
+          $ManifestUrls = @(
+            "https://static.snyk.io/cli/stable/sha256sums.txt.asc",
+            "https://downloads.snyk.io/cli/stable/sha256sums.txt.asc"
+          )
+          $ManifestRaw = $null
+          foreach ($ManifestUrl in $ManifestUrls) {
+            & curl.exe --retry 2 -fsSL $ManifestUrl -o $ManifestPath
+            if ($LASTEXITCODE -ne 0) {
+              continue
+            }
+            $Candidate = Get-Content $ManifestPath -Raw
+            if ($Candidate -match "<Error>") {
+              continue
+            }
+            if ($Candidate -notmatch "-----BEGIN PGP SIGNED MESSAGE-----") {
+              continue
+            }
+            $ManifestRaw = $Candidate
+            break
+          }
+          if (-not $ManifestRaw) {
+            throw "Failed to download a valid sha256sums.txt.asc manifest for stable channel."
+          }
+          $Expected = $null
+          foreach ($Line in ($ManifestRaw -split "\r?\n")) {
+            $Line = $Line.Trim()
+            if ($Line -match '^([0-9a-fA-F]{64})\s+\*?snyk-win\.exe$') {
+              $Expected = $Matches[1].ToLower()
+              break
+            }
+          }
+          if (-not $Expected) {
+            throw "Missing expected hash for snyk-win.exe in manifest."
+          }
+          if ($Sha256 -ne $Expected) {
+            throw "Hash mismatch for snyk-win.exe (scoop). Expected $Expected, got $Sha256."
+          }
+          $Version | Out-File -FilePath "${{ env.SNYK_VERSION_DIR }}/snyk-version-${{ github.job }}.txt" -Encoding ascii
+          @{
+            channel = "stable"
+            base_url = "scoop"
+            binary = $BinaryName
+            version = $Version
+            sha256 = $Sha256
+          } | ConvertTo-Json -Compress | Out-File -FilePath "${{ env.SNYK_VERSION_DIR }}/snyk-metadata-${{ github.job }}.json" -Encoding ascii
       - uses: actions/upload-artifact@v4
         with:
           name: snyk-version-${{ github.job }}
-          path: ${{ env.SNYK_VERSION_DIR }}/snyk-version-${{ github.job }}.txt
+          path: |
+            ${{ env.SNYK_VERSION_DIR }}/snyk-version-${{ github.job }}.txt
+            ${{ env.SNYK_VERSION_DIR }}/snyk-metadata-${{ github.job }}.json
 
   monitor_npm:
     name: 'deployment: npm (ubuntu)'
@@ -122,12 +249,48 @@ jobs:
           node-version: latest
       - name: Install Snyk
         run: npm install -g snyk
-      - name: Run snyk --version
-        run: snyk --version > ${{ env.SNYK_VERSION_DIR }}/snyk-version-${{ github.job }}.txt
+      - name: Capture Snyk version and shasum metadata
+        run: |
+          VERSION=$(snyk --version | tr -d '\r\n')
+          SNYK_PATH=$(command -v snyk)
+          SHA256=$(shasum -a 256 "$SNYK_PATH" | awk '{print $1}')
+          IS_ELF=$(python3 - "$SNYK_PATH" <<'PY'
+          import sys
+          with open(sys.argv[1], "rb") as fh:
+              magic = fh.read(4)
+          print("1" if magic == b"\x7fELF" else "0")
+          PY
+          )
+          ARCH=$(uname -m)
+          if [ "$ARCH" = "arm64" ] || [ "$ARCH" = "aarch64" ]; then
+            BINARY_NAME="snyk-linux-arm64"
+          else
+            BINARY_NAME="snyk-linux"
+          fi
+          curl --retry 2 -sSL https://downloads.snyk.io/cli/stable/sha256sums.txt.asc -o sha256sums.txt.asc
+          EXPECTED=$(awk -v name="$BINARY_NAME" '$1 ~ /^[a-f0-9]{64}$/ {gsub(/^\*/, "", $2); if ($2==name) {print $1; exit}}' sha256sums.txt.asc)
+          if [ -z "$EXPECTED" ]; then
+            echo "Missing expected hash for $BINARY_NAME in manifest."
+            exit 1
+          fi
+          if [ "$IS_ELF" != "1" ]; then
+            echo "Non-binary CLI detected for npm; skipping CDN hash comparison."
+          elif [ "$SHA256" != "$EXPECTED" ]; then
+            echo "Hash mismatch for $BINARY_NAME (npm)."
+            echo "Expected: $EXPECTED"
+            echo "Actual:   $SHA256"
+            exit 1
+          fi
+          echo "$VERSION" > ${{ env.SNYK_VERSION_DIR }}/snyk-version-${{ github.job }}.txt
+          cat <<EOF > ${{ env.SNYK_VERSION_DIR }}/snyk-metadata-${{ github.job }}.json
+          {"channel":"stable","base_url":"npm","binary":"$BINARY_NAME","version":"$VERSION","sha256":"$SHA256"}
+          EOF
       - uses: actions/upload-artifact@v4
         with:
           name: snyk-version-${{ github.job }}
-          path: ${{ env.SNYK_VERSION_DIR }}/snyk-version-${{ github.job }}.txt
+          path: |
+            ${{ env.SNYK_VERSION_DIR }}/snyk-version-${{ github.job }}.txt
+            ${{ env.SNYK_VERSION_DIR }}/snyk-metadata-${{ github.job }}.json
 
   monitor_snyk_images:
     name: 'deployment: snyk-images (snyk/snyk:linux)'
@@ -139,12 +302,42 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           path: ${{ env.SNYK_VERSION_DIR }}
-      - name: Run snyk --version
-        run: snyk --version > ${{ env.SNYK_VERSION_DIR }}/snyk-version-${{ github.job }}.txt
+      - name: Install curl
+        run: apt-get update && apt-get install -y curl
+      - name: Capture version and shasum metadata
+        run: |
+          VERSION=$(snyk --version | tr -d '\r\n')
+          SNYK_PATH=$(command -v snyk)
+          SHA256=$(shasum -a 256 "$SNYK_PATH" | awk '{print $1}')
+          ARCH=$(uname -m)
+          if [ "$ARCH" = "arm64" ] || [ "$ARCH" = "aarch64" ]; then
+            BINARY_NAME="snyk-linux-arm64"
+          else
+            BINARY_NAME="snyk-linux"
+          fi
+          # The image is built by snyk/snyk-images using the experimental base URL.
+          curl --retry 2 -sSL "https://downloads.snyk.io/experimental/cli/v${VERSION}/sha256sums.txt.asc" -o sha256sums.txt.asc
+          EXPECTED=$(awk -v name="$BINARY_NAME" '$1 ~ /^[a-f0-9]{64}$/ {gsub(/^\*/, "", $2); if ($2==name) {print $1; exit}}' sha256sums.txt.asc)
+          if [ -z "$EXPECTED" ]; then
+            echo "Missing expected hash for $BINARY_NAME in experimental manifest."
+            exit 1
+          fi
+          if [ "$SHA256" != "$EXPECTED" ]; then
+            echo "Hash mismatch for $BINARY_NAME (snyk-images)."
+            echo "Expected: $EXPECTED"
+            echo "Actual:   $SHA256"
+            exit 1
+          fi
+          echo "$VERSION" > ${{ env.SNYK_VERSION_DIR }}/snyk-version-${{ github.job }}.txt
+          cat <<EOF > ${{ env.SNYK_VERSION_DIR }}/snyk-metadata-${{ github.job }}.json
+          {"channel":"stable","base_url":"snyk-images","binary":"$BINARY_NAME","version":"$VERSION","sha256":"$SHA256"}
+          EOF
       - uses: actions/upload-artifact@v4
         with:
           name: snyk-version-${{ github.job }}
-          path: ${{ env.SNYK_VERSION_DIR }}/snyk-version-${{ github.job }}.txt
+          path: |
+            ${{ env.SNYK_VERSION_DIR }}/snyk-version-${{ github.job }}.txt
+            ${{ env.SNYK_VERSION_DIR }}/snyk-metadata-${{ github.job }}.json
 
   compare_versions:
     name: 'Compare Snyk Versions'
@@ -156,6 +349,8 @@ jobs:
         monitor_scoop,
         monitor_npm,
         monitor_snyk_images,
+        verify_manifests,
+        verify_experimental_manifest,
       ]
     steps:
       - uses: actions/download-artifact@v4
@@ -230,9 +425,99 @@ jobs:
           fi
 
           echo "✅ All Snyk versions (stable and preview) are consistent within their respective channels."
+      - name: Compare CDN shasums
+        run: |
+          cd "${{ env.SNYK_VERSION_DIR }}"
+          python3 - <<'PY'
+          import json
+          import os
+          from collections import defaultdict
+
+          metadata_files = [f for f in os.listdir(".") if f.startswith("snyk-metadata-") and f.endswith(".json")]
+          if not metadata_files:
+              print("No metadata files found; skipping shasum comparison.")
+              raise SystemExit(0)
+
+          cdn_entries = defaultdict(list)
+          for filename in metadata_files:
+              with open(filename, "r", encoding="utf-8") as fh:
+                  content = fh.read().strip()
+              if not content:
+                  print(f"Metadata file {filename} is empty.")
+                  raise SystemExit(1)
+              try:
+                  data = json.loads(content)
+              except json.JSONDecodeError as exc:
+                  snippet = content[:200].replace("\n", "\\n")
+                  print(f"Invalid JSON in {filename}: {exc}")
+                  print(f"Content snippet: {snippet}")
+                  raise SystemExit(1)
+              base_url = data.get("base_url")
+              if base_url not in {"static.snyk.io", "downloads.snyk.io"}:
+                  continue
+              channel = data.get("channel", "unknown")
+              binary = data.get("binary", "unknown")
+              sha256 = data.get("sha256")
+              if sha256:
+                  cdn_entries[(channel, binary)].append((base_url, sha256, filename))
+
+          if not cdn_entries:
+              print("No CDN metadata entries found; skipping shasum comparison.")
+              raise SystemExit(0)
+
+          failed = False
+          for (channel, binary), entries in sorted(cdn_entries.items()):
+              shas = {sha for _, sha, _ in entries}
+              if len(shas) > 1:
+                  failed = True
+                  print(f"❌ CDN shasum mismatch for {binary} ({channel})")
+                  for base_url, sha, fname in entries:
+                      print(f"  {base_url}: {sha} ({fname})")
+          if failed:
+              raise SystemExit(1)
+
+          print("✅ CDN shasums are consistent within channels.")
+          PY
+
+  verify_manifests:
+    name: 'Verify shasum manifests (stable/preview)'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install GPG
+        run: sudo apt-get update && sudo apt-get install -y gnupg
+      - name: Import Snyk CLI public key
+        run: |
+          curl --retry 2 -sSL https://raw.githubusercontent.com/snyk/cli/main/help/_about-this-project/snyk-code-signing-public.pgp -o public.pgp
+          gpg --import public.pgp
+      - name: Verify stable manifest
+        run: |
+          curl --retry 2 -sSL https://downloads.snyk.io/cli/stable/sha256sums.txt.asc -o sha256sums-stable.txt.asc
+          gpg --verify sha256sums-stable.txt.asc
+      - name: Verify preview manifest
+        run: |
+          curl --retry 2 -sSL https://downloads.snyk.io/cli/preview/sha256sums.txt.asc -o sha256sums-preview.txt.asc
+          gpg --verify sha256sums-preview.txt.asc
+
+  verify_experimental_manifest:
+    name: 'Verify shasum manifest (experimental)'
+    runs-on: ubuntu-latest
+    container:
+      image: snyk/snyk:linux
+    steps:
+      - name: Install GPG
+        run: apt-get update && apt-get install -y gnupg curl
+      - name: Import Snyk CLI public key
+        run: |
+          curl --retry 2 -sSL https://raw.githubusercontent.com/snyk/cli/main/help/_about-this-project/snyk-code-signing-public.pgp -o public.pgp
+          gpg --import public.pgp
+      - name: Verify experimental manifest
+        run: |
+          VERSION=$(snyk --version | tr -d '\r\n')
+          curl --retry 2 -sSL "https://downloads.snyk.io/experimental/cli/v${VERSION}/sha256sums.txt.asc" -o sha256sums-experimental.txt.asc
+          gpg --verify sha256sums-experimental.txt.asc
 
   notify_slack_on_failure:
-    if: ${{ failure() }}
+    if: ${{ failure() && github.ref == 'refs/heads/main' }}
     name: 'Do a Slack notification on failure'
     needs: compare_versions
     runs-on: ubuntu-latest
