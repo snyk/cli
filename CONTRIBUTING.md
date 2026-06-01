@@ -256,14 +256,18 @@ increases visibility in the state of the feature being used.
 To ensure your changes follow formatting guidelines, you can run the linter.
 
 ```
-npm run lint
+make lint
 ```
+
+This lints both TypeScript (ESLint) and Go (golangci-lint) code.
 
 To fix various issues automatically, you can install ESLint and Prettier plugins for your IDE or run the following:
 
 ```
-npm run format
+make format
 ```
+
+This formats both TypeScript (Prettier + ESLint autofix) and Go (gofmt) code, and also runs `make tidy` to ensure Go modules are tidy.
 
 You will need to fix any remaining issues manually.
 
