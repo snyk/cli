@@ -211,7 +211,7 @@ describe('snyk test --reachability', () => {
     expect(code).toBe(EXIT_CODES.VULNS_FOUND);
   });
 
-  test('renders a warning if no files were uploaded', async () => {
+  test('warns and still returns results when source dir has no reachability-supported files', async () => {
     const pathWithNoValidFiles = join(
       __dirname,
       '../../../fixtures/npm/with-vulnerable-lodash-dep',
@@ -228,7 +228,7 @@ describe('snyk test --reachability', () => {
 
     expect(stdout).not.toBe('');
     expect(stderr).toContainText(
-      'failed to upload source code for reachability analysis',
+      'no reachability-supported source files were found; skipping reachability analysis',
     );
 
     const jsonOutput = JSON.parse(stdout);
