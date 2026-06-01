@@ -14,15 +14,15 @@ require (
 	github.com/snyk/cli-extension-ai-bom v0.0.0-20260319140413-ac7392950603
 	github.com/snyk/cli-extension-ai-redteam v0.0.0-20260331152502-ce341aeaff9e
 	github.com/snyk/cli-extension-dep-graph v1.7.0
-	github.com/snyk/cli-extension-iac v0.0.0-20260206082514-00c443ccee80
-	github.com/snyk/cli-extension-iac-rules v0.0.0-20260206080712-9cbb5f95465d
+	github.com/snyk/cli-extension-iac v0.0.0-20260515092252-505c498f1077
+	github.com/snyk/cli-extension-iac-rules v0.0.0-20260515141409-fb475901bb8e
 	github.com/snyk/cli-extension-os-flows v0.0.0-20260515090326-f505ef5d1ead
 	github.com/snyk/cli-extension-sbom v0.0.0-20260428131356-48881c6270fa
 	github.com/snyk/cli-extension-secrets v0.0.0-20260519130658-5bc07275ad09
 	github.com/snyk/code-client-go v1.27.0
 	github.com/snyk/container-cli v0.0.0-20260213211631-cd2b2cf8f3ea
 	github.com/snyk/error-catalog-golang-public v0.0.0-20260505112649-a5103d411663
-	github.com/snyk/go-application-framework v0.0.0-20260511100036-100e7116aec5
+	github.com/snyk/go-application-framework v0.0.0-20260529123521-1898a4f7ac40
 	github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65
 	github.com/snyk/snyk-iac-capture v0.6.5
 	github.com/snyk/snyk-ls v0.0.0-20260519104610-d16ea9b8a8b1
@@ -215,7 +215,7 @@ require (
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/skeema/knownhosts v1.3.2 // indirect
 	github.com/snyk/dep-graph/go v0.0.0-20260127160647-c836da762c62 // indirect
-	github.com/snyk/policy-engine v1.1.3 // indirect
+	github.com/snyk/policy-engine v1.1.4 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/sourcegraph/go-lsp v0.0.0-20240223163137-f80c5dd31dfd // indirect
 	github.com/spf13/afero v1.14.0 // indirect
@@ -250,14 +250,14 @@ require (
 	go.opentelemetry.io/otel/sdk/metric v1.43.0 // indirect
 	go.opentelemetry.io/otel/trace v1.43.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/crypto v0.50.0 // indirect
+	golang.org/x/crypto v0.52.0 // indirect
 	golang.org/x/exp v0.0.0-20260410095643-746e56fc9e2f // indirect
-	golang.org/x/net v0.53.0 // indirect
+	golang.org/x/net v0.54.0 // indirect
 	golang.org/x/oauth2 v0.36.0 // indirect
 	golang.org/x/sync v0.20.0 // indirect
-	golang.org/x/sys v0.43.0 // indirect
-	golang.org/x/term v0.42.0 // indirect
-	golang.org/x/text v0.36.0 // indirect
+	golang.org/x/sys v0.45.0 // indirect
+	golang.org/x/term v0.43.0 // indirect
+	golang.org/x/text v0.37.0 // indirect
 	golang.org/x/time v0.15.0 // indirect
 	google.golang.org/api v0.271.0 // indirect
 	google.golang.org/genproto v0.0.0-20260128011058-8636f8732409 // indirect

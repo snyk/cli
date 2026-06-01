@@ -77,6 +77,10 @@ export type FakeServer = {
     endpoint: string,
     responses: Record<string, unknown>[],
   ) => void;
+  setEndpointHeaders: (
+    endpoint: string,
+    headers: Record<string, string>,
+  ) => void;
   setStatusCode: (c: number) => void;
   setResponseDelay: (delayMs: number) => void;
   setLocalCodeEngineConfiguration: (next: Record<string, unknown>) => void;
@@ -257,6 +261,14 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     config.responses = [...responses];
     config.isResponseArray = true;
     config.responseIndex = 0;
+  };
+
+  const setEndpointHeaders = (
+    endpoint: string,
+    headers: Record<string, string>,
+  ) => {
+    const config = getOrCreateEndpointConfig(endpoint);
+    config.headers = { ...config.headers, ...headers };
   };
 
   const handleSpecificResponses = (request, response): boolean => {
@@ -1862,6 +1874,7 @@ ${componentsXml}
     setEndpointStatusCode,
     setEndpointStatusCodes,
     setEndpointResponses,
+    setEndpointHeaders,
     setGlobalResponse,
     setStatusCode,
     setResponseDelay,
