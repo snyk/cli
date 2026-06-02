@@ -539,7 +539,9 @@ workflows:
           trusted-branch: main
 
       - docs-only-check:
-          context: devex_cli_docker_hub
+          context:
+            - devex_cli_docker_hub
+            - go-private-modules
           filters:
             branches:
               only:
@@ -618,6 +620,7 @@ workflows:
               ignore:
                 - main
                 - '/release.*/'
+                - '/^docs\/.*/'
 
       - test-legacy-tap:
           context:
@@ -1462,7 +1465,7 @@ jobs:
           command: |
             CHANGED_FILES=$(git diff --name-only main)
 
-            # If this step fails, check if you need to add another extension, 
+            # If this step fails, check if you need to add another extension,
             # or indeed if this PR adds more than docs-related changes.
             ALLOWED_DOCS_EXTENSIONS="(\.md|\.svg|\.jpg)$"
 
@@ -1476,6 +1479,19 @@ jobs:
               fi
             done
             exit 0
+      - run:
+          name: Installing dependencies
+          command: npm ci --no-audit --no-progress
+      - install-go:
+          go_os: linux
+          go_target_os: linux
+          go_arch: amd64
+          base_url: << pipeline.parameters.go_download_base_url >>
+          extraction_path: '/tmp'
+      - setup-go-private-modules
+      - run:
+          name: Linting project
+          command: make lint
 
   test-node:
     executor: docker-amd64
