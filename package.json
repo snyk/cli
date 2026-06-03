@@ -42,6 +42,12 @@
     "test": "npm run test:unit && npm run test:acceptance && npm run test:tap",
     "test:unit": "jest --runInBand --testPathPattern '/test(/jest)?/unit/|/src/lib/plugins/uv/.*\\.spec\\.ts$' --reporters=jest-junit --reporters=default",
     "test:acceptance": "jest --maxWorkers=1 --testPathPattern \"/test(/jest)?/acceptance/\" --reporters=jest-junit --reporters=default",
+    "gen:test-timings:linux": "node scripts/test-timings/gen-test-timings.js --platform linux scripts/test-timings/reports-from-ci/linux",
+    "gen:test-timings:macos": "node scripts/test-timings/gen-test-timings.js --platform macos scripts/test-timings/reports-from-ci/macos",
+    "gen:test-timings:windows": "node scripts/test-timings/gen-test-timings.js --platform windows scripts/test-timings/reports-from-ci/windows",
+    "download:test-reports:linux": "./scripts/test-timings/download-ci-junit-shards.sh --platform linux",
+    "download:test-reports:macos": "./scripts/test-timings/download-ci-junit-shards.sh --platform macos",
+    "download:test-reports:windows": "./scripts/test-timings/download-ci-junit-shards.sh --platform windows",
     "test:tap": "tap -Rspec --timeout=300 test/tap/*.test.* ",
     "test:smoke": "./scripts/run-smoke-tests-locally.sh",
     "dev": "ts-node ./src/cli/index.ts"
@@ -135,6 +141,7 @@
     "wrap-ansi": "^5.1.0"
   },
   "devDependencies": {
+    "@jest/test-sequencer": "^29.7.0",
     "@types/body-parser": "^1.19.1",
     "@types/cross-spawn": "^6.0.2",
     "@types/express": "^4.17.13",
@@ -221,6 +228,7 @@
     "access": "public"
   },
   "jest-junit": {
-    "reportTestSuiteErrors": "true"
+    "reportTestSuiteErrors": "true",
+    "addFileAttribute": "true"
   }
 }

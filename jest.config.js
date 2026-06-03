@@ -6,4 +6,5 @@ module.exports = createJestConfig({
   projects: ['<rootDir>', '<rootDir>/packages/*'],
   globalSetup: './test/setup.js',
   setupFilesAfterEnv: ['./test/setup-jest.ts'],
+  testSequencer: require.resolve('./test/jest/timingSequencer.js'),
 });

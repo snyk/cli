@@ -1,0 +1,7 @@
+# Everything is ignored except committed example/doc files.
+*
+!.gitignore
+!README.md
+!urls-linux.txt.example
+!urls-macos.txt.example
+!urls-windows.txt.example

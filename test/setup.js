@@ -63,6 +63,8 @@ module.exports = async function () {
       SNYK_VERSION +
       '\n Allow to skip tests [TEST_SNYK_DONT_SKIP_ANYTHING] ... ' +
       !isDontSkipTestsEnabled() +
+      '\n Timings platform    [TEST_SNYK_TIMINGS_PLATFORM] .... ' +
+      (process.env.TEST_SNYK_TIMINGS_PLATFORM || '(default)') +
       '\n Ignore those test files [TEST_SNYK_IGNORE_LIST] ... ' +
       process.env.TEST_SNYK_IGNORE_LIST +
       '\n Run FIPS tests      [TEST_SNYK_FIPS] ................. ' +
