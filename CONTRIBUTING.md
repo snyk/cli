@@ -219,6 +219,12 @@ that option in config; behaviour follows Jest's documentation for ignore pattern
 `testPathIgnorePatterns` applies to entire files only; it cannot skip individual `it()` blocks within a spec
 file.
 
+#### Platform-specific test timings
+
+The acceptance suite is sharded by estimated runtime using per-platform weight files in `test/jest/` (`test-timings-linux.json`, `test-timings-macos.json`, `test-timings-windows.json`).
+
+CI sets `TEST_SNYK_TIMINGS_PLATFORM` (via the `timings_platform` parameter in `.circleci/config.yml`) to select the right weight file. Strict mode (`TEST_SNYK_TIMINGS_STRICT`) is enabled in CI so a missing file fails fast rather than silently sharding with equal weights.
+
 ### Smoke Tests
 
 Smoke tests typically don't run on branches unless the branch is specifically prefixed with `smoke/`. They usually run
