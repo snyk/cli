@@ -589,8 +589,8 @@ github.com/snyk/dep-graph/go v0.0.0-20260127160647-c836da762c62 h1:kgZNQ5ztI4+n3
 github.com/snyk/dep-graph/go v0.0.0-20260127160647-c836da762c62/go.mod h1:hTr91da/4ze2nk9q6ZW1BmfM2Z8rLUZSEZ3kK+6WGpc=
 github.com/snyk/error-catalog-golang-public v0.0.0-20260505112649-a5103d411663 h1:j2ZPhi78wKIHTiL9EFTNVXMIbsk56FVF2d5Sy1ZwSYk=
 github.com/snyk/error-catalog-golang-public v0.0.0-20260505112649-a5103d411663/go.mod h1:Ytttq7Pw4vOCu9NtRQaOeDU2dhBYUyNBe6kX4+nIIQ4=
-github.com/snyk/go-application-framework v0.1.1-0.20260529100338-4fceab88ea93 h1:xFCe8NtNYdi+EvGtHmEV87U3B7QCNyF/B/UFFkoq8U4=
-github.com/snyk/go-application-framework v0.1.1-0.20260529100338-4fceab88ea93/go.mod h1:yTGCJKf6RmqdwrNs5B9zmukL9x1D8EhfSK8mzaPB1Rk=
+github.com/snyk/go-application-framework v0.1.1-0.20260603104425-55463a85ed37 h1:o8C51nDl1nvXEnpcBOBVQ3D7mgfEjRLD8lgy16fyneU=
+github.com/snyk/go-application-framework v0.1.1-0.20260603104425-55463a85ed37/go.mod h1:fMJZ6RJN6CyjBt/6KaP0jG/WvPSZFtFnmmDb/NjdF7Y=
 github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65 h1:CEQuYv0Go6MEyRCD3YjLYM2u3Oxkx8GpCpFBd4rUTUk=
 github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65/go.mod h1:88KbbvGYlmLgee4OcQ19yr0bNpXpOr2kciOthaSzCAg=
 github.com/snyk/policy-engine v1.1.4 h1:0XpaMpl7ixSk4+dlpHYg2iKEBuv+5Ci+QIcbsmhktao=
@@ -599,8 +599,8 @@ github.com/snyk/remy-cli-extension v1.10.2 h1:+i2/RO9rzRa7XZFn2CRClvBwyHCvyCll1i
 github.com/snyk/remy-cli-extension v1.10.2/go.mod h1:JXKmFbceSY2fyX3i3cn4VAvm3FrJt/bCpQIrVmUUfrc=
 github.com/snyk/snyk-iac-capture v0.6.5 h1:992DXCAJSN97KtUh8T5ndaWwd/6ZCal2bDkRXqM1u/E=
 github.com/snyk/snyk-iac-capture v0.6.5/go.mod h1:e47i55EmM0F69ZxyFHC4sCi7vyaJW6DLoaamJJCzWGk=
-github.com/snyk/snyk-ls v0.0.0-20260529103026-b999aa3e3447 h1:/i1g1NrQlGoXObznpV34e8fJZUoIz6MvdSBA/31b/w8=
-github.com/snyk/snyk-ls v0.0.0-20260529103026-b999aa3e3447/go.mod h1:BMlsv1iD7iO+fJYnIUIbBB/XqBNjBFgm5EX8UdGpfe8=
+github.com/snyk/snyk-ls v0.0.0-20260603103347-ffc06a9fa250 h1:sJGRjXJIsZoCc4F+XmXGtPNFClBDCA5lgUplDavkwGk=
+github.com/snyk/snyk-ls v0.0.0-20260603103347-ffc06a9fa250/go.mod h1:hg4jhLv5SUX849l+JYu2GmyNqu/dm5IAZrviJxZGdTY=
 github.com/snyk/studio-mcp v1.11.0 h1:WfvWqqHu5+Stb/y+LTVdWWiazc0i4BapxqMCJyGRArA=
 github.com/snyk/studio-mcp v1.11.0/go.mod h1:CiMKFs/PJrAMjG8Zjkvx+XwuM0XlxGJ7jP5yCr5hm5w=
 github.com/sourcegraph/conc v0.3.0 h1:OQTbbt6P72L20UqAkXXuLOj79LfEanQ+YQFNpLA9ySo=
