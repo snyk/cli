@@ -47,11 +47,11 @@ orbs:
 executors:
   alpine:
     docker:
-      - image: alpine:3.20
+      - image: alpine:3.23
     resource_class: xlarge
   alpine-arm64:
     docker:
-      - image: alpine:3.20
+      - image: alpine:3.23
     resource_class: arm.xlarge
   generic-ubuntu:
     docker:
@@ -63,7 +63,7 @@ executors:
     resource_class: medium
   docker-amd64:
     docker:
-      - image: snyklabs/cli-build-private:20260609-143411
+      - image: snyklabs/cli-build-private:20260610-125138
         auth:
           username: $DOCKER_CLI_BUILD_USERNAME
           password: $DOCKER_CLI_BUILD_PASSWORD
@@ -71,7 +71,7 @@ executors:
     resource_class: large
   docker-amd64-xl:
     docker:
-      - image: snyklabs/cli-build-private:20260609-143411
+      - image: snyklabs/cli-build-private:20260610-125138
         auth:
           username: $DOCKER_CLI_BUILD_USERNAME
           password: $DOCKER_CLI_BUILD_PASSWORD
@@ -79,7 +79,7 @@ executors:
     resource_class: xlarge
   docker-arm64:
     docker:
-      - image: snyklabs/cli-build-private-arm64:20260609-143411
+      - image: snyklabs/cli-build-private-arm64:20260610-125138
         auth:
           username: $DOCKER_CLI_BUILD_USERNAME
           password: $DOCKER_CLI_BUILD_PASSWORD
@@ -87,7 +87,7 @@ executors:
     resource_class: arm.large
   docker-arm64-xl:
     docker:
-      - image: snyklabs/cli-build-private-arm64:20260609-143411
+      - image: snyklabs/cli-build-private-arm64:20260610-125138
         auth:
           username: $DOCKER_CLI_BUILD_USERNAME
           password: $DOCKER_CLI_BUILD_PASSWORD
@@ -454,6 +454,9 @@ commands:
             - ~/Library/Caches/Homebrew
       - install-deps-python:
           os: macos
+      - run:
+          name: Upgrade npm to satisfy package.json engine requirements (>=11.10)
+          command: npm install -g npm@^11.10
 
   install-deps-macos-build:
     parameters:
@@ -466,6 +469,9 @@ commands:
           command: softwareupdate --install-rosetta --agree-to-license
       - install-deps-python:
           os: macos
+      - run:
+          name: Upgrade npm to satisfy package.json engine requirements (>=11.10)
+          command: npm install -g npm@^11.10
 
   install-deps-alpine-full:
     steps:
@@ -479,6 +485,8 @@ commands:
             esac
             echo "using architecture: $arch"
             apk add --update nodejs npm bash maven git python3 py3-pip elixir composer unzip xdg-utils docker
+            # apk's npm is < package.json engines floor (>=11.10); upgrade in place.
+            npm install -g npm@^11.10
             pip3 install pipenv requests PyYAML setuptools==70.3.0
             wget https://dot.net/v1/dotnet-install.sh -O dotnet-install.sh && chmod +x dotnet-install.sh && ./dotnet-install.sh && \
               ln -s $HOME/.dotnet/dotnet /usr/local/bin/dotnet
@@ -1713,7 +1721,7 @@ jobs:
           no_output_timeout: 30m
           command: |
             << parameters.pre_test_cmds >>
-            npm run test:acceptance -- --selectProjects coreCli --shard=<< parameters.shard_calc_cmd >>/<< parameters.shards >>
+            npm run test:acceptance "--" --selectProjects coreCli --shard=<< parameters.shard_calc_cmd >>/<< parameters.shards >>
           environment:
             TEST_SNYK_FIPS: << parameters.fips >>
             TEST_SNYK_COMMAND: << parameters.test_snyk_command >>
