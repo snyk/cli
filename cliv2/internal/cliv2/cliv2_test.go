@@ -506,7 +506,6 @@ func Test_init_extractDueToInvalidBinary(t *testing.T) {
 	initError := cli.Init()
 	assert.Nil(t, initError)
 
-	// execute to test that the cli can run successfully
 	assert.FileExists(t, cli.GetBinaryLocation())
 
 	fileInfo2, _ := os.Stat(cli.GetBinaryLocation())
