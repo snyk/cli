@@ -217,7 +217,7 @@ require (
 	github.com/snyk/container-cli v0.0.0-20260213211631-cd2b2cf8f3ea // indirect
 	github.com/snyk/dep-graph/go v0.0.0-20260127160647-c836da762c62 // indirect
 	github.com/snyk/error-catalog-golang-public v0.0.0-20260505112649-a5103d411663 // indirect
-	github.com/snyk/go-application-framework v0.1.1-0.20260529100338-4fceab88ea93 // indirect
+	github.com/snyk/go-application-framework v0.2.0 // indirect
 	github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65 // indirect
 	github.com/snyk/policy-engine v1.1.4 // indirect
 	github.com/snyk/snyk-iac-capture v0.6.5 // indirect
@@ -288,4 +288,26 @@ require (
 // For local development, point to the sibling public module:
 replace github.com/snyk/cli/cliv2 => ../cliv2
 
-//replace github.com/snyk/remy-cli-extension => ../../remy-cli-extension
+// replace github.com/snyk/remy-cli-extension => ../../remy-cli-extension
+
+// replace github.com/snyk/go-application-framework => ../../go-application-framework
+
+// replace github.com/snyk/snyk-ls => ../../snyk-ls
+
+// replace github.com/snyk/code-client-go => ../../code-client-go
+
+// replace github.com/snyk/cli-extension-iac => ../../cli-extension-iac
+
+// replace github.com/snyk/cli-extension-os-flows => ../../cli-extension-os-flows
+
+// replace github.com/snyk/cli-extension-ai-bom => ../../cli-extension-ai-bom
+
+// replace github.com/snyk/cli-extension-ai-redteam => ../../cli-extension-ai-redteam
+
+// replace github.com/snyk/studio-mcp => ../../studio-mcp
+
+// replace github.com/snyk/cli-extension-agent-scan => ../../cli-extension-agent-scan
+
+// replace github.com/snyk/cli-extension-sbom => ../../cli-extension-sbom
+
+// replace github.com/snyk/cli-extension-secrets => ../../cli-extension-secrets

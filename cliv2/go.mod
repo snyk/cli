@@ -22,7 +22,7 @@ require (
 	github.com/snyk/code-client-go v1.27.0
 	github.com/snyk/container-cli v0.0.0-20260213211631-cd2b2cf8f3ea
 	github.com/snyk/error-catalog-golang-public v0.0.0-20260505112649-a5103d411663
-	github.com/snyk/go-application-framework v0.1.1-0.20260529100338-4fceab88ea93
+	github.com/snyk/go-application-framework v0.2.0
 	github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65
 	github.com/snyk/snyk-iac-capture v0.6.5
 	github.com/snyk/snyk-ls v0.0.0-20260529103026-b999aa3e3447
@@ -276,14 +276,15 @@ require (
 // version 2491eb6c1c75 contains a valid license
 replace github.com/mattn/go-localereader v0.0.1 => github.com/mattn/go-localereader v0.0.2-0.20220822084749-2491eb6c1c75
 
-//replace github.com/snyk/go-application-framework => ../../go-application-framework
+// replace github.com/snyk/go-application-framework => ../../go-application-framework
 
-//replace github.com/snyk/snyk-ls => ../../snyk-ls
-//replace github.com/snyk/code-client-go => ../../code-client-go
+// replace github.com/snyk/snyk-ls => ../../snyk-ls
 
-//replace github.com/snyk/cli-extension-iac => ../../cli-extension-iac
+// replace github.com/snyk/code-client-go => ../../code-client-go
 
-//replace github.com/snyk/cli-extension-os-flows => ../../cli-extension-os-flows
+// replace github.com/snyk/cli-extension-iac => ../../cli-extension-iac
+
+// replace github.com/snyk/cli-extension-os-flows => ../../cli-extension-os-flows
 
 // replace github.com/snyk/cli-extension-ai-bom => ../../cli-extension-ai-bom
 
@@ -295,4 +296,4 @@ replace github.com/mattn/go-localereader v0.0.1 => github.com/mattn/go-localerea
 
 // replace github.com/snyk/cli-extension-sbom => ../../cli-extension-sbom
 
-//replace github.com/snyk/cli-extension-secrets => ../../cli-extension-secrets
+// replace github.com/snyk/cli-extension-secrets => ../../cli-extension-secrets
