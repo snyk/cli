@@ -32,6 +32,7 @@ import (
 	"github.com/snyk/cli/cliv2/internal/cliv2"
 	"github.com/snyk/cli/cliv2/internal/constants"
 	clierrors "github.com/snyk/cli/cliv2/internal/errors"
+	"github.com/snyk/cli/cliv2/pkg/helprouting"
 )
 
 func cleanup() {
@@ -144,7 +145,7 @@ func Test_CreateCommandsForWorkflowWithSubcommands(t *testing.T) {
 	}
 
 	_ = globalEngine.Init()
-	rootCommand := prepareRootCommand()
+	rootCommand := prepareRootCommand(testHelpRouter())
 
 	// invoke method under test
 	createCommandsForWorkflows(rootCommand, globalEngine)
@@ -762,4 +763,10 @@ func loadJsonFile(t *testing.T, filename string) []byte {
 	byteValue, err := io.ReadAll(jsonFile)
 	assert.NoError(t, err)
 	return byteValue
+}
+
+func testHelpRouter() *helprouting.Router {
+	return &helprouting.Router{
+		LegacyHelp: func() error { return nil },
+	}
 }
