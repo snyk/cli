@@ -604,10 +604,6 @@ func mainWithErrorCode(additionalExts []workflow.ExtensionInit) int {
 	)
 	network_utils.AddSnykRequestId(networkAccess)
 
-	if debugEnabled {
-		writeLogHeader(globalConfiguration, networkAccess)
-	}
-
 	// initialize the extensions -> they register themselves at the engine
 	initExtensions(globalEngine, globalConfiguration, additionalExts)
 
@@ -616,6 +612,7 @@ func mainWithErrorCode(additionalExts []workflow.ExtensionInit) int {
 
 	// We want to scrub the debug log of sensitive information. Since we have a list of commands we know can occur, we can intersect that with arguments we don't recognize, and automatically scrub all those from the logs.
 	if debugEnabled {
+		writeLogHeader(globalConfiguration, networkAccess)
 		knownTerms, _ := instrumentation.GetKnownCommandsAndFlags(globalEngine)
 		knownTerms = append(knownTerms, globalConfiguration.GetString(configuration.API_URL), globalConfiguration.GetString(configuration.ORGANIZATION), globalConfiguration.GetString(configuration.ORGANIZATION_SLUG))
 		termsToRedact := cliv2utils.GetUnknownParameters(os.Args[1:], os.Environ(), knownTerms)
