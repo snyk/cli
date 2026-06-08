@@ -54,6 +54,24 @@ export async function processYarnWorkspaces(
     scannedProjects: [],
   };
 
+  // Collect every workspace member's package.json up front so the lockfile parser can prune
+  // dev-only dependencies of workspace packages that are consumed as production deps. Done
+  // before the main loop because a consumer (e.g. apps/my-app) may be processed before the
+  // member it depends on (e.g. libraries/shared-lib).
+  const workspaceManifestContents: string[] = [];
+  for (const directory of Object.keys(yarnTargetFiles)) {
+    try {
+      workspaceManifestContents.push(
+        getFileContents(root, pathUtil.join(directory, 'package.json')).content,
+      );
+    } catch (e) {
+      debug(`Could not read package.json in ${directory}: ${e}`);
+    }
+  }
+  const workspacePackages = collectYarnWorkspacePackages(
+    workspaceManifestContents,
+  );
+
   let rootWorkspaceManifestContent = {};
   // the folders must be ordered highest first
   for (const directory of Object.keys(yarnTargetFiles)) {
@@ -142,6 +160,7 @@ export async function processYarnWorkspaces(
               isRoot: isRootPackageJson,
               rootResolutions:
                 rootWorkspaceManifestContent?.['resolutions'] || {},
+              workspacePackages,
             },
           );
           break;
@@ -223,4 +242,42 @@ export function packageJsonBelongsToWorkspace(
     ),
   );
   return match;
+}
+
+export interface WorkspacePackageManifest {
+  dependencies?: Record<string, string>;
+  devDependencies?: Record<string, string>;
+  optionalDependencies?: Record<string, string>;
+  peerDependencies?: Record<string, string>;
+}
+
+/**
+ * Build a map of workspace package name -> its package.json dependency groups.
+ *
+ * Yarn Berry merges a workspace member's dependencies + devDependencies into a single
+ * `dependencies` block in yarn.lock, dropping the dev marker. When a workspace package is
+ * consumed as a production dependency, this map lets the lockfile parser re-derive which of
+ * its transitive deps are dev-only and prune them from the production graph.
+ */
+export function collectYarnWorkspacePackages(
+  manifestContents: string[],
+): Record<string, WorkspacePackageManifest> {
+  const workspacePackages: Record<string, WorkspacePackageManifest> = {};
+  for (const content of manifestContents) {
+    try {
+      const pkg = JSON.parse(content);
+      if (!pkg || !pkg.name) {
+        continue;
+      }
+      workspacePackages[pkg.name] = {
+        dependencies: pkg.dependencies,
+        devDependencies: pkg.devDependencies,
+        optionalDependencies: pkg.optionalDependencies,
+        peerDependencies: pkg.peerDependencies,
+      };
+    } catch (e) {
+      debug('Failed to parse a workspace package.json', e.message);
+    }
+  }
+  return workspacePackages;
 }
