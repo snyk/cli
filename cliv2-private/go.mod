@@ -210,7 +210,7 @@ require (
 	github.com/snyk/cli-extension-dep-graph v1.23.0 // indirect
 	github.com/snyk/cli-extension-iac v0.0.0-20260515092252-505c498f1077 // indirect
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20260515141409-fb475901bb8e // indirect
-	github.com/snyk/cli-extension-os-flows v0.0.0-20260601094021-c1b88a8181fe // indirect
+	github.com/snyk/cli-extension-os-flows v0.0.0-20260604170628-bdbe89c716c2 // indirect
 	github.com/snyk/cli-extension-sbom v0.0.0-20260428131356-48881c6270fa // indirect
 	github.com/snyk/cli-extension-secrets v0.0.0-20260519130658-5bc07275ad09 // indirect
 	github.com/snyk/code-client-go v1.27.0 // indirect
@@ -266,7 +266,7 @@ require (
 	golang.org/x/crypto v0.52.0 // indirect
 	golang.org/x/exp v0.0.0-20260410095643-746e56fc9e2f // indirect
 	golang.org/x/mod v0.35.0 // indirect
-	golang.org/x/net v0.54.0 // indirect
+	golang.org/x/net v0.55.0 // indirect
 	golang.org/x/oauth2 v0.36.0 // indirect
 	golang.org/x/sync v0.20.0 // indirect
 	golang.org/x/sys v0.45.0 // indirect

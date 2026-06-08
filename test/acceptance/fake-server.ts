@@ -500,6 +500,43 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     res.send(defaultResponse);
   });
 
+  // Feature flag batch evaluation used by the Go binary's GAF layer
+  // (config_utils.AddFeatureFlagToConfig → featureflaggateway.EvaluateFlags).
+  // Request: POST /hidden/orgs/:orgId/feature_flags/evaluation
+  // Body: { data: { attributes: { flags: ["flag-name", ...] } } }
+  app.post('/hidden/orgs/:orgId/feature_flags/evaluation', (req, res) => {
+    const flags: string[] = req.body?.data?.attributes?.flags ?? [];
+    // Maps batch evaluation API flag names to their GAF config keys.
+    // The batch endpoint receives short API names; tests call setFeatureFlag
+    // with the full config key. Add an entry here when writing acceptance tests
+    // for a new flag so both forms resolve correctly.
+    const batchNameToConfigKey: Record<string, string> = {
+      'unified-test-api-os-cli':
+        'internal_snyk_cli_use_unified_test_api_for_os_cli_test',
+    };
+    const evaluations = flags.map((key) => {
+      const alias = batchNameToConfigKey[key] ?? key;
+      const enabled = featureFlags.has(key)
+        ? featureFlags.get(key)
+        : featureFlags.has(alias)
+          ? featureFlags.get(alias)
+          : false;
+      return { key, value: enabled, reason: enabled ? 'enabled' : 'disabled' };
+    });
+    res.status(200);
+    res.setHeader('Content-Type', 'application/vnd.api+json');
+    res.send({
+      jsonapi: { version: '1.0' },
+      data: {
+        type: 'feature_flags',
+        attributes: {
+          evaluatedAt: new Date().toISOString(),
+          evaluations,
+        },
+      },
+    });
+  });
+
   app.post('/hidden/orgs/:orgId/unmanaged_ecosystem/depgraphs', (req, res) => {
     res.status(201);
     res.send({
