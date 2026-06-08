@@ -11,7 +11,7 @@ Snyk is a developer-first, cloud-native security tool to scan and monitor your s
 
 The Snyk CLI brings the functionality of Snyk into your development workflow. You can run the CLI locally from the command line or in an IDE. You can also run the CLI in your CI/CD pipeline. The following shows an example of Snyk CLI test command output.
 
-<figure><img src="../https://github.com/snyk/user-docs/raw/HEAD/docs/.gitbook/assets/snyk-cli-screenshot.png" alt=""><figcaption><p>Snyk CLI test command output example</p></figcaption></figure>
+<figure><img src="https://github.com/snyk/user-docs/raw/HEAD/developer-tools/.gitbook/assets/snyk-cli-screenshot.png" alt=""><figcaption><p>Snyk CLI test command output example</p></figcaption></figure>
 
 Snyk CLI scanning supports many languages and tools. For detailed information, see the following:
 
@@ -81,7 +81,7 @@ dependencies will be emailed to you.
 
 You can log in to your Snyk account and navigate to the Projects page to find the latest snapshot and scan results:
 
-<figure><img src="../https://github.com/snyk/user-docs/raw/HEAD/docs/.gitbook/assets/monitor.png" alt=""><figcaption><p>Snyk monitor snapshot and scan results</p></figcaption></figure>
+<figure><img src="https://github.com/snyk/user-docs/raw/HEAD/developer-tools/.gitbook/assets/monitor.png" alt=""><figcaption><p>Snyk monitor snapshot and scan results</p></figcaption></figure>
 
 For more information, see [Monitor your Projects at regular intervals](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/monitor-your-projects-at-regular-intervals).
 
