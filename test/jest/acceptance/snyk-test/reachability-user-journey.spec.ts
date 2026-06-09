@@ -59,7 +59,9 @@ describe('snyk test --reachability', () => {
     );
 
     expect(stdout).not.toBe('');
-    expect(stderr).toBe('');
+    expect(stderr).toContain(
+      'WARNING: --print-effective-graph is deprecated. Use --print-graph --prune instead.',
+    );
 
     expect(stdout).toContain('Test Summary');
     expect(code).toBe(EXIT_CODES.VULNS_FOUND);
@@ -78,7 +80,9 @@ describe('snyk test --reachability', () => {
     );
 
     expect(stdout).not.toBe('');
-    expect(stderr).toBe('');
+    expect(stderr).toContain(
+      'WARNING: --print-effective-graph is deprecated. Use --print-graph --prune instead.',
+    );
 
     expect(stdout).toContain('Ignored: 1');
     expect(code).toBe(EXIT_CODES.VULNS_FOUND);
@@ -97,7 +101,9 @@ describe('snyk test --reachability', () => {
     );
 
     expect(stdout).not.toBe('');
-    expect(stderr).toBe('');
+    expect(stderr).toContain(
+      'WARNING: --print-effective-graph is deprecated. Use --print-graph --prune instead.',
+    );
 
     expect(stdout).toContain('Ignored: 0');
     expect(code).toBe(EXIT_CODES.VULNS_FOUND);
@@ -115,7 +121,9 @@ describe('snyk test --reachability', () => {
     );
 
     expect(stdout).not.toBe('');
-    expect(stderr).toBe('');
+    expect(stderr).toContain(
+      'WARNING: --print-effective-graph is deprecated. Use --print-graph --prune instead.',
+    );
 
     const jsonOutput = JSON.parse(stdout);
 
@@ -144,7 +152,9 @@ describe('snyk test --reachability', () => {
     expect(code).not.toBe(EXIT_CODES.ERROR);
 
     expect(stdout).not.toBe('');
-    expect(stderr).toBe('');
+    expect(stderr).toContain(
+      'WARNING: --print-effective-graph is deprecated. Use --print-graph --prune instead.',
+    );
 
     const jsonOutput = JSON.parse(stdout);
 
@@ -168,7 +178,9 @@ describe('snyk test --reachability', () => {
     );
 
     expect(stdout).not.toBe('');
-    expect(stderr).toBe('');
+    expect(stderr).toContain(
+      'WARNING: --print-effective-graph is deprecated. Use --print-graph --prune instead.',
+    );
 
     const jsonOutput = JSON.parse(stdout);
 
@@ -193,7 +205,9 @@ describe('snyk test --reachability', () => {
     );
 
     expect(stdout).not.toBe('');
-    expect(stderr).toBe('');
+    expect(stderr).toContain(
+      'WARNING: --print-effective-graph is deprecated. Use --print-graph --prune instead.',
+    );
 
     const jsonOutput = JSON.parse(stdout);
 
@@ -282,7 +296,9 @@ describe('snyk test --reachability', () => {
     );
 
     expect(stdout).not.toBe('');
-    expect(stderr).toBe('');
+    expect(stderr).toContain(
+      'WARNING: --print-effective-graph is deprecated. Use --print-graph --prune instead.',
+    );
 
     const jsonOutput = JSON.parse(stdout);
     expect(jsonOutput.vulnerabilities.length).toBeGreaterThanOrEqual(1);
@@ -309,7 +325,9 @@ describe('snyk test --reachability', () => {
       },
     );
 
-    expect(stderr).toBe('');
+    expect(stderr).toContain(
+      'WARNING: --print-effective-graph is deprecated. Use --print-graph --prune instead.',
+    );
     expect(stdout).toContain('Test Summary');
 
     const jsonOutput = JSON.parse(readFileSync(jsonOutputPath, 'utf8'));
