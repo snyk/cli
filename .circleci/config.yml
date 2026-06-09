@@ -962,6 +962,7 @@ workflows:
           go_os: darwin
           go_arch: arm64
           go_download_base_url: << pipeline.parameters.go_download_base_url >>
+          shards: 6
           context:
             - nodejs-install
             - team_hammerhead-cli
@@ -998,10 +999,13 @@ workflows:
           test_snyk_command: binary-releases\\snyk-win.exe
           install_deps_extension: windows-native-build
           dont_skip_tests: 0
-          shards: 8
-          shard_calc_cmd: '$([int]$env:CIRCLE_NODE_INDEX + 1)'
+          shards: 6
           pre_test_cmds: |
             if (Test-Path '<< pipeline.parameters.windows_cache_dir >>/<< pipeline.parameters.windows_env_script >>') { . '<< pipeline.parameters.windows_cache_dir >>/<< pipeline.parameters.windows_env_script >>' }
+          test_cmd: |
+            Get-ChildItem -Recurse -Path test/jest/acceptance,ts-binary-wrapper/test/acceptance -Filter *.spec.ts |
+              ForEach-Object { (Resolve-Path -Relative $_.FullName) -replace '\\', '/' -replace '^\./', '' } |
+              circleci tests run --command "xargs npx jest --maxWorkers=1 --selectProjects coreCli --reporters=jest-junit --reporters=default --" --split-by=timings --timings-type=file
 
       - sign:
           name: sign windows amd64
@@ -1689,10 +1693,15 @@ jobs:
         default: 'echo Running tests'
       shards:
         type: integer
-        default: 4
-      shard_calc_cmd:
+        default: 6
+      test_cmd:
         type: string
-        default: '$(expr $CIRCLE_NODE_INDEX + 1)'
+        default: |
+          find test/jest/acceptance ts-binary-wrapper/test/acceptance -name '*.spec.ts' \
+            | circleci tests run \
+                --command="xargs npx jest --maxWorkers=1 --selectProjects coreCli --reporters=jest-junit --reporters=default --" \
+                --split-by=timings \
+                --timings-type=file
     executor: << parameters.executor >>
     parallelism: << parameters.shards >>
     environment:
@@ -1721,13 +1730,17 @@ jobs:
           no_output_timeout: 30m
           command: |
             << parameters.pre_test_cmds >>
-            npm run test:acceptance "--" --selectProjects coreCli --shard=<< parameters.shard_calc_cmd >>/<< parameters.shards >>
+            << parameters.test_cmd >>
           environment:
             TEST_SNYK_FIPS: << parameters.fips >>
             TEST_SNYK_COMMAND: << parameters.test_snyk_command >>
             TEST_SNYK_DONT_SKIP_ANYTHING: << parameters.dont_skip_tests >>
             JEST_JUNIT_OUTPUT_DIR: test/reports
             NODE_OPTIONS: --max-old-space-size=4096
+      - run:
+          name: Normalize junit file paths for timing data
+          when: always
+          command: node scripts/normalize-junit-file-paths.js test/reports
       - store_test_results:
           path: test/reports
       - store_artifacts:
