@@ -19,7 +19,11 @@ const {
   DISABLE_GO_PACKAGE_URLS_IN_CLI_FEATURE_FLAG,
 } = require('../package-managers');
 const { getOrganizationID } = require('../organization');
-const { printDepGraphError, mapLegacyGraphFlags, shouldEmbedErrors } = require('./common');
+const {
+  printDepGraphError,
+  mapLegacyGraphFlags,
+  shouldEmbedErrors,
+} = require('./common');
 const debug = require('debug')('snyk-test');
 
 async function test(root, options, callback) {

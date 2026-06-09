@@ -150,7 +150,6 @@ export async function getDepsFromPlugin(
             errMessage: error.userMessage,
           },
         ],
-
       } as MultiProjectResultCustom;
     }
     throw error;
