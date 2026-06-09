@@ -10,6 +10,10 @@ The `snyk ignore` command modifies the `.snyk` policy file to ignore a specified
 
 **Note:** Ignoring issues or vulnerabilities using the `.snyk` file is not supported for Snyk Code.
 
+### Create ignore requests
+
+[`snyk ignore create`](ignore-create.md); `snyk ignore create --help`: creates an ignore request for a finding.
+
 ### Exclude
 
 `snyk ignore [--expiry=] [--reason=] [--policy-path=<PATH_TO_POLICY_FILE>] [--file-path=<PATH_TO_RESOURCE>] [OPTIONS]`
