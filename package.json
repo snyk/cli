@@ -222,6 +222,7 @@
     "access": "public"
   },
   "jest-junit": {
-    "reportTestSuiteErrors": "true"
+    "reportTestSuiteErrors": "true",
+    "addFileAttribute": "true"
   }
 }
