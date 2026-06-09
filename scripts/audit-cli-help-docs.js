@@ -20,6 +20,19 @@ const internalCommands = new Set([
   'reportanalytics',
 ]);
 
+const commandsWithoutStandaloneHelp = new Set([
+  'container depgraph',
+  'depgraph',
+  'describe',
+  'protect',
+  'unmanaged',
+  'unmanaged monitor',
+  'unmanaged test',
+  'update-exclude-policy',
+  'wizard',
+  'woof',
+]);
+
 function readFile(relativePath) {
   return fs.readFileSync(path.join(repoRoot, relativePath), 'utf8');
 }
@@ -144,6 +157,7 @@ function collectCommands() {
 const docs = helpFiles();
 const missing = collectCommands()
   .filter((entry) => includeInternal || !internalCommands.has(entry.command))
+  .filter((entry) => !commandsWithoutStandaloneHelp.has(entry.command))
   .filter((entry) => includeHidden || entry.visible)
   .filter((entry) => !docs.has(expectedHelpFile(entry.command)))
   .sort((a, b) => a.command.localeCompare(b.command));
