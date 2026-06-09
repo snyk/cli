@@ -394,10 +394,7 @@ export async function runTest(
     // At this point managed ecosystems have dependency graphs printed.
     // Containers however require another roundtrip to get all the
     // dependency graph artifacts for printing.
-    if (
-      !options.docker &&
-      shouldPrintGraph(options)
-    ) {
+    if (!options.docker && shouldPrintGraph(options)) {
       return [];
     }
 

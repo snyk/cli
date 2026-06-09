@@ -56,10 +56,7 @@ export async function testEcosystem(
   }
   spinner.clearAll();
 
-  if (
-    isUnmanagedEcosystem(ecosystem) &&
-    shouldPrintGraph(options)
-  ) {
+  if (isUnmanagedEcosystem(ecosystem) && shouldPrintGraph(options)) {
     const [target] = paths;
     return printUnmanagedDepGraph(results, target, process.stdout, options);
   }

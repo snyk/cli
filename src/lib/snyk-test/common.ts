@@ -168,11 +168,12 @@ export function shouldEmbedErrors(opts: Options): boolean {
 }
 
 export function shouldPrintGraph(opts: Options): boolean {
-  return !opts['print-deps'] && (
-    !!opts['print-graph'] ||
-    !!opts['print-effective-graph'] ||
-    !!opts['print-effective-graph-with-errors'] ||
-    !!opts['print-output-jsonl-with-errors']
+  return (
+    !opts['print-deps'] &&
+    (!!opts['print-graph'] ||
+      !!opts['print-effective-graph'] ||
+      !!opts['print-effective-graph-with-errors'] ||
+      !!opts['print-output-jsonl-with-errors'])
   );
 }
 
@@ -194,15 +195,25 @@ export function mapLegacyGraphFlags(opts: Options): void {
     return;
   }
 
-  const legacyMappings: Array<{ flag: keyof Options; prune: boolean; embedErrors: boolean }> = [
+  const legacyMappings: Array<{
+    flag: keyof Options;
+    prune: boolean;
+    embedErrors: boolean;
+  }> = [
     { flag: 'print-effective-graph', prune: true, embedErrors: false },
-    { flag: 'print-effective-graph-with-errors', prune: true, embedErrors: true },
+    {
+      flag: 'print-effective-graph-with-errors',
+      prune: true,
+      embedErrors: true,
+    },
     { flag: 'print-output-jsonl-with-errors', prune: false, embedErrors: true },
   ];
 
   for (const { flag, prune, embedErrors } of legacyMappings) {
     if (opts[flag]) {
-      const replacement = prune ? '--print-graph --prune' : '--print-graph --jsonl';
+      const replacement = prune
+        ? '--print-graph --prune'
+        : '--print-graph --jsonl';
       process.stderr.write(
         `WARNING: --${flag} is deprecated. Use ${replacement} instead.\n`,
       );
@@ -284,7 +295,6 @@ export async function printDepGraphError(
       .pipe(destination);
   });
 }
-
 
 /**
  * getOrCreateErrorCatalogError returns a ProblemError instance for consistent error catalog usage.

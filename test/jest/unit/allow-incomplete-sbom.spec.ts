@@ -4,6 +4,7 @@ import {
   getMultiPluginResult,
   MultiProjectResultCustom,
 } from '../../../src/lib/plugins/get-multi-plugin-result';
+import { mapLegacyGraphFlags } from '../../../src/lib/snyk-test/common';
 import { Options, TestOptions } from '../../../src/lib/types';
 import {
   createProject,
@@ -29,6 +30,7 @@ describe('allow-incomplete-sbom: error handling in plugin layer', () => {
         path: project.path(),
         'print-output-jsonl-with-errors': true,
       };
+      mapLegacyGraphFlags(options);
 
       const result = (await getDepsFromPlugin(
         project.path(),
@@ -67,6 +69,7 @@ describe('allow-incomplete-sbom: error handling in plugin layer', () => {
         packageManager: 'npm',
         'print-output-jsonl-with-errors': true,
       };
+      mapLegacyGraphFlags(options);
 
       const result = (await getDepsFromPlugin(
         project.path(),
@@ -95,6 +98,7 @@ describe('allow-incomplete-sbom: error handling in plugin layer', () => {
         allProjects: true,
         'print-output-jsonl-with-errors': true,
       };
+      mapLegacyGraphFlags(options);
 
       const result = await getMultiPluginResult(
         project.path(),
@@ -128,6 +132,7 @@ describe('allow-incomplete-sbom: error handling in plugin layer', () => {
         allProjects: true,
         'print-output-jsonl-with-errors': true,
       };
+      mapLegacyGraphFlags(options);
 
       const result = await getMultiPluginResult(
         project.path(),
@@ -205,6 +210,7 @@ describe('allow-incomplete-sbom: error handling in plugin layer', () => {
         allProjects: true,
         'print-output-jsonl-with-errors': true,
       };
+      mapLegacyGraphFlags(options);
 
       const result = (await getDepsFromPlugin(
         project.path(),
@@ -227,6 +233,7 @@ describe('allow-incomplete-sbom: error handling in plugin layer', () => {
         allProjects: true,
         'print-output-jsonl-with-errors': true,
       };
+      mapLegacyGraphFlags(options);
 
       const result = (await getDepsFromPlugin(
         project.path(),
@@ -247,6 +254,7 @@ describe('allow-incomplete-sbom: error handling in plugin layer', () => {
         allProjects: true,
         'print-output-jsonl-with-errors': true,
       };
+      mapLegacyGraphFlags(options);
 
       const result = (await getDepsFromPlugin(
         project.path(),

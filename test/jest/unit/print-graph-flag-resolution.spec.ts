@@ -15,7 +15,9 @@ describe('print-graph flag resolution', () => {
   };
 
   beforeEach(() => {
-    stderrSpy = jest.spyOn(process.stderr, 'write').mockImplementation(() => true);
+    stderrSpy = jest
+      .spyOn(process.stderr, 'write')
+      .mockImplementation(() => true);
   });
 
   afterEach(() => {
@@ -34,7 +36,11 @@ describe('print-graph flag resolution', () => {
   });
 
   it('--print-graph --jsonl resolves to complete JSONL (no pruning)', () => {
-    const opts: Options & TestOptions = { ...baseOptions, 'print-graph': true, jsonl: true };
+    const opts: Options & TestOptions = {
+      ...baseOptions,
+      'print-graph': true,
+      jsonl: true,
+    };
     mapLegacyGraphFlags(opts);
 
     expect(shouldPrintGraph(opts)).toBe(true);
@@ -45,7 +51,11 @@ describe('print-graph flag resolution', () => {
   });
 
   it('--print-graph --prune resolves to pruned JSONL', () => {
-    const opts: Options & TestOptions = { ...baseOptions, 'print-graph': true, prune: true };
+    const opts: Options & TestOptions = {
+      ...baseOptions,
+      'print-graph': true,
+      prune: true,
+    };
     mapLegacyGraphFlags(opts);
 
     expect(shouldPrintGraph(opts)).toBe(true);
@@ -66,7 +76,10 @@ describe('print-graph flag resolution', () => {
   });
 
   it('--print-effective-graph maps to pruned JSONL but throws on errors', () => {
-    const opts: Options & TestOptions = { ...baseOptions, 'print-effective-graph': true };
+    const opts: Options & TestOptions = {
+      ...baseOptions,
+      'print-effective-graph': true,
+    };
     mapLegacyGraphFlags(opts);
 
     expect(shouldPrintGraph(opts)).toBe(true);
@@ -80,7 +93,10 @@ describe('print-graph flag resolution', () => {
   });
 
   it('--print-effective-graph-with-errors maps to pruned JSONL with embedded errors', () => {
-    const opts: Options & TestOptions = { ...baseOptions, 'print-effective-graph-with-errors': true };
+    const opts: Options & TestOptions = {
+      ...baseOptions,
+      'print-effective-graph-with-errors': true,
+    };
     mapLegacyGraphFlags(opts);
 
     expect(shouldPrintGraph(opts)).toBe(true);
@@ -89,12 +105,17 @@ describe('print-graph flag resolution', () => {
     expect(opts['print-graph']).toBe(true);
     expect(shouldEmbedErrors(opts)).toBe(true);
     expect(stderrSpy).toHaveBeenCalledWith(
-      expect.stringContaining('--print-effective-graph-with-errors is deprecated'),
+      expect.stringContaining(
+        '--print-effective-graph-with-errors is deprecated',
+      ),
     );
   });
 
   it('--print-output-jsonl-with-errors maps to unpruned JSONL with embedded errors', () => {
-    const opts: Options & TestOptions = { ...baseOptions, 'print-output-jsonl-with-errors': true };
+    const opts: Options & TestOptions = {
+      ...baseOptions,
+      'print-output-jsonl-with-errors': true,
+    };
     mapLegacyGraphFlags(opts);
 
     expect(shouldPrintGraph(opts)).toBe(true);
@@ -118,7 +139,11 @@ describe('print-graph flag resolution', () => {
   });
 
   it('--print-deps alongside --print-graph suppresses graph printing', () => {
-    const opts: Options & TestOptions = { ...baseOptions, 'print-graph': true, 'print-deps': true };
+    const opts: Options & TestOptions = {
+      ...baseOptions,
+      'print-graph': true,
+      'print-deps': true,
+    };
     mapLegacyGraphFlags(opts);
 
     expect(shouldPrintGraph(opts)).toBe(false);
