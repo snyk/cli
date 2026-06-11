@@ -261,6 +261,7 @@ describe('`snyk remy` with mocked ollama', () => {
     const result = await runSnykCLI(
       [
         'fix',
+        '--sca',
         '--agentic',
         '--experimental',
         '--provider',
@@ -318,6 +319,7 @@ describe('`snyk remy` with mocked ollama', () => {
     const result = await runSnykCLI(
       [
         'fix',
+        '--sca',
         '--agentic',
         '--experimental',
         '--provider',
@@ -355,6 +357,7 @@ describe('`snyk remy` with mocked ollama', () => {
     const { stdout } = await runSnykCLI(
       [
         'fix',
+        '--sca',
         '--agentic',
         '--provider',
         'ollama',
