@@ -4,7 +4,7 @@ go 1.26.4
 
 require (
 	github.com/snyk/cli/cliv2 v0.0.0
-	github.com/snyk/remy-cli-extension v1.10.2
+	github.com/snyk/remy-cli-extension v1.15.0
 )
 
 require (
@@ -81,7 +81,6 @@ require (
 	github.com/containerd/console v1.0.3 // indirect
 	github.com/creachadair/jrpc2 v1.3.0 // indirect
 	github.com/creachadair/mds v0.23.0 // indirect
-	github.com/creack/pty v1.1.24 // indirect
 	github.com/cyphar/filepath-securejoin v0.6.1 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/denisbrodbeck/machineid v1.0.1 // indirect
@@ -115,7 +114,7 @@ require (
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-playground/validator/v10 v10.14.1 // indirect
 	github.com/go-sourcemap/sourcemap v2.1.4+incompatible // indirect
-	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect
+	github.com/go-viper/mapstructure/v2 v2.5.0 // indirect
 	github.com/gobwas/glob v0.2.3 // indirect
 	github.com/gofrs/flock v0.13.0 // indirect
 	github.com/golang/groupcache v0.0.0-20241129210726-2c02b8208cf8 // indirect
@@ -213,7 +212,7 @@ require (
 	github.com/snyk/cli-extension-os-flows v0.0.0-20260604170628-bdbe89c716c2 // indirect
 	github.com/snyk/cli-extension-sbom v0.0.0-20260428131356-48881c6270fa // indirect
 	github.com/snyk/cli-extension-secrets v0.0.0-20260610073002-c53205f61449 // indirect
-	github.com/snyk/code-client-go v1.27.0 // indirect
+	github.com/snyk/code-client-go v1.27.5 // indirect
 	github.com/snyk/container-cli v0.0.0-20260213211631-cd2b2cf8f3ea // indirect
 	github.com/snyk/dep-graph/go v0.0.0-20260127160647-c836da762c62 // indirect
 	github.com/snyk/error-catalog-golang-public v0.0.0-20260505112649-a5103d411663 // indirect
