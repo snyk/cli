@@ -50,6 +50,7 @@ import (
 
 	cli_errors "github.com/snyk/cli/cliv2/internal/errors"
 	"github.com/snyk/cli/cliv2/pkg/basic_workflows"
+	"github.com/snyk/cli/cliv2/pkg/helprouting"
 )
 
 // Option configures the CLI runner.
@@ -225,13 +226,6 @@ func runWorkflowAndProcessData(ctx context.Context, engine workflow.Engine, logg
 	return err
 }
 
-func help(_ *cobra.Command, _ []string) error {
-	helpProvided = true
-	args := utils.RemoveSimilar(os.Args[1:], "--") // remove all double dash arguments to avoid issues with the help command
-	args = append(args, "--help")
-	return defaultCmd(args)
-}
-
 func defaultCmd(args []string) error {
 	inputDirectory := cliv2.DetermineInputDirectory(args)
 	if len(inputDirectory) > 0 {
@@ -245,6 +239,11 @@ func defaultCmd(args []string) error {
 	globalConfiguration.Set(configuration.RAW_CMD_ARGS, args)
 	_, err := globalEngine.Invoke(basic_workflows.WORKFLOWID_LEGACY_CLI)
 	return err
+}
+
+func runLegacyHelp() error {
+	filteredArgs := utils.RemoveSimilar(os.Args[1:], "--")
+	return defaultCmd(append(filteredArgs, "--help"))
 }
 
 func runTestCommandWithSarifEqualJson(cmd *cobra.Command, args []string, templateFiles []string) error {
@@ -378,7 +377,7 @@ func createCommandsForWorkflows(rootCommand *cobra.Command, engine workflow.Engi
 	}
 }
 
-func prepareRootCommand() *cobra.Command {
+func prepareRootCommand(router *helprouting.Router) *cobra.Command {
 	rootCommand := cobra.Command{
 		Use: "snyk",
 		RunE: func(cmd *cobra.Command, _ []string) error {
@@ -386,11 +385,13 @@ func prepareRootCommand() *cobra.Command {
 		},
 	}
 
-	// help for all commands is handled by the legacy cli
-	// TODO: discuss how to move help to extensions
+	// Help precedence: synced user-doc Markdown (legacy CLI) when available; otherwise Cobra help.
+	root := &rootCommand
 	helpCommand := cobra.Command{
-		Use:  "help",
-		RunE: help,
+		Use: "help",
+		RunE: func(c *cobra.Command, _ []string) error {
+			return router.Help(c, root, os.Args[1:])
+		},
 	}
 
 	// some static/global cobra configuration
@@ -399,8 +400,7 @@ func prepareRootCommand() *cobra.Command {
 	rootCommand.SilenceUsage = true
 	rootCommand.FParseErrWhitelist.UnknownFlags = true
 
-	// ensure that help and usage information comes from the legacy cli instead of cobra's default help
-	rootCommand.SetHelpFunc(func(c *cobra.Command, args []string) { _ = help(c, args) })
+	rootCommand.SetHelpFunc(func(c *cobra.Command, _ []string) { _ = router.Help(c, root, os.Args[1:]) })
 	rootCommand.SetHelpCommand(&helpCommand)
 	rootCommand.PersistentFlags().AddFlagSet(getGlobalFLags())
 
@@ -427,7 +427,7 @@ func handleError(err error) HandleError {
 		if commandError {
 			resultError = handleErrorFallbackToLegacyCLI
 		} else if flagError {
-			// handle flag errors explicitly since we need to delegate the help to the legacy CLI. This includes disabling the cobra default help/usage
+			// handle flag errors explicitly via help(): user-doc markdown when available, otherwise Cobra help
 			resultError = handleErrorShowHelp
 		}
 	}
@@ -464,16 +464,16 @@ func displayError(err error, userInterface ui.UserInterface, config configuratio
 }
 
 func handleRetryNotification(engine workflow.Engine, logger *zerolog.Logger, err error) {
-	if ui := engine.GetUserInterface(); ui != nil {
-		if outputErr := ui.OutputError(err); outputErr != nil {
+	if userInterface := engine.GetUserInterface(); userInterface != nil {
+		if outputErr := userInterface.OutputError(err); outputErr != nil {
 			logger.Warn().Err(outputErr).Msg("failed to show rate-limit retry warning")
 		}
 	} else {
 		logger.Warn().Msg("rate-limit retry warning not shown: user interface not attached")
 	}
 
-	if analytics := engine.GetAnalytics(); analytics != nil {
-		analytics.AddError(err)
+	if engineAnalytics := engine.GetAnalytics(); engineAnalytics != nil {
+		engineAnalytics.AddError(err)
 	} else {
 		logger.Warn().Msg("rate-limit retry not recorded in analytics: collector not initialized")
 	}
@@ -543,7 +543,11 @@ func mainWithErrorCode(additionalExts []workflow.ExtensionInit) int {
 	var err error
 	rInfo := runtimeinfo.New(runtimeinfo.WithName("snyk-cli"), runtimeinfo.WithVersion(cliv2.GetFullVersion()))
 
-	rootCommand := prepareRootCommand()
+	helpRouter := &helprouting.Router{
+		LegacyHelp:   runLegacyHelp,
+		OnHelpCalled: func() { helpProvided = true },
+	}
+	rootCommand := prepareRootCommand(helpRouter)
 	// omit the first arg which is always `snyk`
 	_ = rootCommand.ParseFlags(os.Args[1:])
 
@@ -556,7 +560,7 @@ func mainWithErrorCode(additionalExts []workflow.ExtensionInit) int {
 	)
 	err = globalConfiguration.AddFlagSet(rootCommand.LocalFlags())
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "Failed to add flags to root command", err)
+		_, _ = fmt.Fprintln(os.Stderr, "Failed to add flags to root command", err)
 	}
 
 	// ensure to init configuration before using it
@@ -670,7 +674,7 @@ func mainWithErrorCode(additionalExts []workflow.ExtensionInit) int {
 		globalLogger.Printf("Using Legacy CLI to serve the command. (reason: %v)", err)
 		err = defaultCmd(os.Args[1:])
 	case handleErrorShowHelp:
-		err = help(nil, []string{})
+		err = helpRouter.Help(nil, rootCommand, os.Args[1:])
 	case handleErrorUnhandled:
 		// ignore
 	}

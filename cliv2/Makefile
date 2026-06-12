@@ -126,6 +126,9 @@ HASH_STRING = $(HASH)$(HASH_ALGORITHM)
 SIGN_SCRIPT = $(WORKING_DIR)/scripts/sign_$(_GO_OS).sh
 ISSIGNED_SCRIPT = $(WORKING_DIR)/scripts/issigned_$(_GO_OS).sh
 EMBEDDED_DATA_DIR = $(WORKING_DIR)/internal/embedded/_data
+HELPDOCS_DIR = $(WORKING_DIR)/pkg/helpdocs
+HELPDOCS_MANIFEST = $(HELPDOCS_DIR)/manifest.txt
+HELPDOCS_SOURCE = $(WORKING_DIR)/../help/cli-commands/*.md
 
 ifeq ($(GOHOSTOS), windows)
 	SPECIAL_SHELL = powershell
@@ -188,7 +191,17 @@ summary:
 .PHONY: configure
 configure: _validate-build-mode summary $(CACHE_DIR) $(CACHE_DIR)/variables.mk $(V1_DIRECTORY)/$(V1_EMBEDDED_FILE_OUTPUT) dependencies $(CACHE_DIR)/prepare-3rd-party-licenses
 
-$(BUILD_DIR)/$(V2_EXECUTABLE_NAME): $(BUILD_DIR) $(SRCS) generate-ls-protocol-metadata
+.PHONY: helpdocs-manifest
+helpdocs-manifest:
+	@set -e; \
+	md_count=$$(ls $(HELPDOCS_SOURCE) 2>/dev/null | wc -l | tr -d ' '); \
+	if [ "$$md_count" -eq 0 ]; then \
+		echo "$(LOG_PREFIX) ERROR: no .md files found in help/cli-commands ($(HELPDOCS_SOURCE))"; \
+		exit 1; \
+	fi; \
+	ls $(HELPDOCS_SOURCE) | xargs -n1 basename | sort > $(HELPDOCS_MANIFEST)
+
+$(BUILD_DIR)/$(V2_EXECUTABLE_NAME): $(BUILD_DIR) $(SRCS) generate-ls-protocol-metadata $(HELPDOCS_MANIFEST)
 	$(eval LS_PROTOCOL_VERSION := $(shell cat $(LS_PROTOCOL_VERSION_FILE)))
 	$(eval LS_COMMIT_HASH := $(shell cat $(LS_COMMIT_HASH_FILE)))
 	$(eval EXTRA_FLAGS := -X github.com/snyk/snyk-ls/application/config.Version=$(LS_COMMIT_HASH) -X github.com/snyk/snyk-ls/application/config.LsProtocolVersion=$(LS_PROTOCOL_VERSION)  -X github.com/snyk/cli/cliv2/pkg/core.internalOS=$(GOOS) -X github.com/snyk/cli/cliv2/internal/embedded/cliv1.snykCLIVersion=$(CLI_V1_VERSION_TAG) -X github.com/snyk/cli-extension-iac/internal/commands/iactest.internalRulesClientURL=$(IAC_RULES_URL) -X github.com/snyk/cli/cliv2/internal/constants.StaticNodeJsBinary=$(STATIC_NODE_BINARY))
@@ -247,7 +260,7 @@ openboxtest:
 	@$(GOCMD) test -cover ./...
 
 .PHONY: test
-test: openboxtest
+test: helpdocs-manifest openboxtest
 
 .PHONY: lint
 lint: $(TOOLS_BIN)/golangci-lint

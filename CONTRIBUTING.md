@@ -280,6 +280,33 @@ User-facing documentation is [available on GitBook](https://docs.snyk.io/feature
 `snyk help` output must also be [edited on GitBook](https://docs.snyk.io/features/snyk-cli/commands). Changes will
 automatically be pulled into Snyk CLI as pull requests.
 
+### CLI help command files (`help/cli-commands`)
+
+The Go CLI reads user-facing command help from markdown files under `help/cli-commands/`. These files are synced from
+GitBook into this repository (see the `sync-cli-help-to-user-docs` workflow). At build time, the CLI embeds a manifest
+of available help files (`cliv2/pkg/helpdocs/manifest.txt`) and uses it to decide whether to show legacy GitBook help
+or native Cobra help for a given command.
+
+When you add, remove, or rename files in `help/cli-commands/`, regenerate the manifest and commit the result:
+
+```sh
+make -C cliv2 helpdocs-manifest
+git add cliv2/pkg/helpdocs/manifest.txt
+```
+
+`make -C cliv2 test` and `make build` run this target automatically, but you still need to commit the updated
+`manifest.txt` when it changes. Go tests in `cliv2/pkg/helpdocs` verify that the manifest stays in sync with
+`help/cli-commands/`.
+
+To test help routing locally after building:
+
+```sh
+./binary-releases/snyk-macos-arm64 help test          # documented command → GitBook help
+./binary-releases/snyk-macos-arm64 help agent-scan    # undocumented command → Cobra help
+```
+
+Adjust the binary path for your platform (see [Building](#building)).
+
 ## Creating a branch
 
 Create a new branch before making any changes. Make sure to give it a descriptive name so that you can find it later.
