@@ -337,6 +337,22 @@ export interface RemediationChanges {
   pin: DependencyPins;
 }
 
+export function normalizeRemediationChanges(
+  remediation?: RemediationChanges,
+): RemediationChanges | undefined {
+  if (!remediation) {
+    return undefined;
+  }
+
+  return {
+    unresolved: remediation.unresolved ?? [],
+    upgrade: remediation.upgrade ?? {},
+    patch: remediation.patch ?? {},
+    ignore: remediation.ignore ?? {},
+    pin: remediation.pin ?? {},
+  };
+}
+
 async function convertTestDepGraphResultToLegacy(
   res: TestDepGraphResponse,
   depGraph: depGraphLib.DepGraph,
@@ -451,7 +467,7 @@ async function convertTestDepGraphResultToLegacy(
     docker: result.docker,
     summary: getSummary(vulns, severityThreshold),
     severityThreshold,
-    remediation: result.remediation,
+    remediation: normalizeRemediationChanges(result.remediation),
   };
 
   if (options['print-deps'] && options['json-file-output']) {
