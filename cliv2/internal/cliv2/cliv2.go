@@ -587,7 +587,6 @@ func DeriveExitCode(err error) int {
 	return returnCode
 }
 
-
 func (e EnvironmentWarning) Error() string {
 	return e.message
 }
