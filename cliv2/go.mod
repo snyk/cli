@@ -13,10 +13,10 @@ require (
 	github.com/snyk/cli-extension-agent-scan v0.0.0-20260505093105-90d9442ea939
 	github.com/snyk/cli-extension-ai-bom v0.0.0-20260319140413-ac7392950603
 	github.com/snyk/cli-extension-ai-redteam v0.0.0-20260331152502-ce341aeaff9e
-	github.com/snyk/cli-extension-dep-graph v1.23.0
+	github.com/snyk/cli-extension-dep-graph/v2 v2.6.0
 	github.com/snyk/cli-extension-iac v0.0.0-20260515092252-505c498f1077
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20260515141409-fb475901bb8e
-	github.com/snyk/cli-extension-os-flows v0.0.0-20260604170628-bdbe89c716c2
+	github.com/snyk/cli-extension-os-flows v0.0.0-20260612113257-168edb822665
 	github.com/snyk/cli-extension-sbom v0.0.0-20260428131356-48881c6270fa
 	github.com/snyk/cli-extension-secrets v0.0.0-20260610073002-c53205f61449
 	github.com/snyk/code-client-go v1.27.0
@@ -194,6 +194,7 @@ require (
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/otiai10/copy v1.14.1 // indirect
 	github.com/otiai10/mint v1.6.3 // indirect
+	github.com/package-url/packageurl-go v0.1.3 // indirect
 	github.com/patrickmn/go-cache v2.1.0+incompatible // indirect
 	github.com/pelletier/go-toml/v2 v2.2.4 // indirect
 	github.com/peterh/liner v1.2.2 // indirect

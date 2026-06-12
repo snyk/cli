@@ -4,7 +4,7 @@ import (
 	"github.com/snyk/cli-extension-agent-scan/pkg/agentscan"
 	"github.com/snyk/cli-extension-ai-bom/pkg/aibom"
 	"github.com/snyk/cli-extension-ai-redteam/pkg/redteam"
-	"github.com/snyk/cli-extension-dep-graph/pkg/depgraph"
+	"github.com/snyk/cli-extension-dep-graph/v2/pkg/depgraph"
 	"github.com/snyk/cli-extension-iac-rules/iacrules"
 	"github.com/snyk/cli-extension-iac/pkg/iac"
 	"github.com/snyk/cli-extension-os-flows/pkg/osflows"
