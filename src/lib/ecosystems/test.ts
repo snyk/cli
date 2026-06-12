@@ -13,7 +13,8 @@ import {
   assembleQueryString,
   printDepGraph,
   printDepGraphJsonl,
-  shouldPrintDepGraph,
+  shouldPrintGraph,
+  isJsonl,
 } from '../snyk-test/common';
 import { getAuthHeader } from '../api-token';
 import { resolveAndTestFacts } from './resolve-test-facts';
@@ -55,10 +56,7 @@ export async function testEcosystem(
   }
   spinner.clearAll();
 
-  if (
-    isUnmanagedEcosystem(ecosystem) &&
-    (shouldPrintDepGraph(options) || options['print-output-jsonl-with-errors'])
-  ) {
+  if (isUnmanagedEcosystem(ecosystem) && shouldPrintGraph(options)) {
     const [target] = paths;
     return printUnmanagedDepGraph(results, target, process.stdout, options);
   }
@@ -108,7 +106,7 @@ export async function printUnmanagedDepGraph(
   const [result] = await getUnmanagedDepGraph(results);
   const depGraph = convertDepGraph(result);
 
-  if (options['print-output-jsonl-with-errors']) {
+  if (isJsonl(options)) {
     await printDepGraphJsonl(
       depGraph,
       target,

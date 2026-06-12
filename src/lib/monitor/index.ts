@@ -317,7 +317,8 @@ export async function monitorDepGraph(
     analytics.add('targetBranch', target.branch);
   }
 
-  const pruneIsRequired = options.pruneRepeatedSubdependencies;
+  const pruneIsRequired =
+    options.pruneRepeatedSubdependencies || !!options['prune'];
   depGraph = await pruneGraph(depGraph, packageManager, pruneIsRequired);
 
   let callGraphPayload;

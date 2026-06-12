@@ -18,6 +18,7 @@ import { convertMultiResultToMultiCustom } from './convert-multi-plugin-res-to-m
 import { PluginMetadata } from '@snyk/cli-interface/legacy/plugin';
 import { CallGraph } from '@snyk/cli-interface/legacy/common';
 import { errorMessageWithRetry, FailedToRunTestError } from '../errors';
+import { shouldEmbedErrors } from '../snyk-test/common';
 import { processYarnWorkspaces } from './nodejs-plugin/yarn-workspaces-parser';
 import { processNpmWorkspaces } from './nodejs-plugin/npm-workspaces-parser';
 import { processPnpmWorkspaces } from 'snyk-nodejs-plugin';
@@ -203,7 +204,7 @@ export async function getMultiPluginResult(
   }
 
   if (!allResults.length) {
-    if (options['print-output-jsonl-with-errors']) {
+    if (shouldEmbedErrors(options)) {
       return {
         plugin: {
           name: 'custom-auto-detect',
