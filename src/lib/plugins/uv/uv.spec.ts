@@ -1,7 +1,8 @@
 import { DepGraphData } from '@snyk/dep-graph';
 import { CLI, ProblemError } from '@snyk/error-catalog-nodejs-public';
+import * as path from 'path';
 import { CustomError } from '../../errors';
-import { inspect } from './index';
+import { inspect, getResolvedTargetFile } from './index';
 import * as goBridge from '../../go-bridge';
 
 const MOCK_DEP_GRAPH_DATA: DepGraphData = {
@@ -388,6 +389,84 @@ describe('uv plugin', () => {
     expect(result.scannedProjects[0].depGraph?.rootPkg).toEqual({
       name: 'uv-project',
       version: '0.1.0',
+    });
+  });
+
+  // Regression coverage for absolute --file project identity.
+  describe('absolute --file paths (UNIFY-1419)', () => {
+    it('strips an absolute --file prefix when the lockfile sits at the project root', async () => {
+      const root = path.resolve('/tmp/builds/smb-api');
+      const absLockfile = path.join(root, 'uv.lock');
+
+      const result = await inspect(root, absLockfile);
+
+      expect(result.plugin.targetFile).toBe('pyproject.toml');
+      expect(result.scannedProjects[0].targetFile).toBe('pyproject.toml');
+      expect((result.scannedProjects[0] as any).plugin?.targetFile).toBe(
+        'pyproject.toml',
+      );
+    });
+
+    it('relativises an absolute --file in a nested project dir', async () => {
+      const root = path.resolve('/tmp/builds/smb-api');
+      const absLockfile = path.join(root, 'nested', 'uv.lock');
+
+      const result = await inspect(root, absLockfile);
+
+      const expected = path.join('nested', 'pyproject.toml');
+      expect(result.plugin.targetFile).toBe(expected);
+      expect(result.scannedProjects[0].targetFile).toBe(expected);
+    });
+
+    it('forwards the original --file value to the Go subprocess', async () => {
+      const root = path.resolve('/tmp/builds/smb-api');
+      const absLockfile = path.join(root, 'uv.lock');
+
+      await inspect(root, absLockfile);
+
+      expect(execGoCommandSpy).toHaveBeenCalledWith(
+        [
+          'depgraph',
+          `--file=${absLockfile}`,
+          '--use-sbom-resolution',
+          '--json',
+        ],
+        { cwd: root },
+      );
+    });
+
+    it('absolute and relative --file produce identical identity', async () => {
+      const root = path.resolve('/tmp/builds/smb-api');
+
+      const relResult = await inspect(root, 'uv.lock');
+      const absResult = await inspect(root, path.join(root, 'uv.lock'));
+
+      expect(absResult.plugin.targetFile).toBe(relResult.plugin.targetFile);
+      expect(absResult.scannedProjects[0].targetFile).toBe(
+        relResult.scannedProjects[0].targetFile,
+      );
+    });
+
+    it('getResolvedTargetFile is a pure function with the documented contract', () => {
+      const root = path.resolve('/tmp/builds/smb-api');
+
+      expect(getResolvedTargetFile(root, 'uv.lock')).toBe('pyproject.toml');
+
+      expect(getResolvedTargetFile(root, 'pkg/uv.lock')).toBe(
+        path.join('pkg', 'pyproject.toml'),
+      );
+
+      expect(getResolvedTargetFile(root, path.join(root, 'uv.lock'))).toBe(
+        'pyproject.toml',
+      );
+
+      expect(
+        getResolvedTargetFile(root, path.join(root, 'pkg', 'uv.lock')),
+      ).toBe(path.join('pkg', 'pyproject.toml'));
+
+      expect(getResolvedTargetFile(root, 'pyproject.toml')).toBe(
+        'pyproject.toml',
+      );
     });
   });
 });

@@ -58,7 +58,7 @@ export async function inspect(
     throw createDepgraphError(extractErrorDetail(result));
   }
 
-  const resolvedTargetFile = getResolvedTargetFile(targetFile);
+  const resolvedTargetFile = getResolvedTargetFile(root, targetFile);
 
   let scannedProjects: ScannedProjectCustom[];
   try {
@@ -115,6 +115,27 @@ export async function inspect(
   };
 }
 
+// Return the manifest path used for uv project identity. Keep it relative to
+// root so TS monitor and Go test use the same targetFile for absolute --file.
+export function getResolvedTargetFile(
+  root: string,
+  targetFile: string,
+): string {
+  if (path.basename(targetFile) !== UV_LOCKFILE_NAME) {
+    return targetFile;
+  }
+
+  const resolvedRoot = path.resolve(root);
+  const resolvedLockfile = path.resolve(resolvedRoot, targetFile);
+  const relativeLockfile = path.relative(resolvedRoot, resolvedLockfile);
+
+  const targetFileDir = path.dirname(relativeLockfile);
+  if (targetFileDir === '.') {
+    return PYPROJECT_MANIFEST_NAME;
+  }
+  return path.join(targetFileDir, PYPROJECT_MANIFEST_NAME);
+}
+
 function createDepgraphError(detail: string): CustomError {
   const error = new CustomError(detail);
   error.userMessage = detail;
@@ -136,13 +157,4 @@ function extractErrorDetail(result: GoCommandResult): string {
     }
   }
   return result.stderr || 'Unable to process dependency information';
-}
-
-function getResolvedTargetFile(targetFile: string): string {
-  if (path.basename(targetFile) !== UV_LOCKFILE_NAME) {
-    return targetFile;
-  }
-
-  const targetFileDir = path.dirname(targetFile);
-  return path.join(targetFileDir, PYPROJECT_MANIFEST_NAME);
 }
