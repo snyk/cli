@@ -7,6 +7,6 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "lodash": "4.17.15"
+    "lodash": "4.17.21"
   }
 }
