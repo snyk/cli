@@ -445,8 +445,11 @@ commands:
           key: acceptance-tests-macos-<< parameters.items >>
       - run:
           name: Installing sdks and tools via homebrew
+          # HOMEBREW_NO_ASK disables the install/upgrade confirmation prompt that
+          # Homebrew made the default in 6.0.0 (https://github.com/Homebrew/brew/issues/22645);
+          # without it `brew install` waits on a [y/n] prompt and the step times out.
           command: |
-            brew install << parameters.items >>
+            HOMEBREW_NO_ASK=1 brew install << parameters.items >>
             echo 'export PATH="/opt/homebrew/opt/gradle@9/bin:$PATH"' >> "$BASH_ENV"
       - save_cache:
           key: acceptance-tests-macos-<< parameters.items >>
