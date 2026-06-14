@@ -188,3 +188,54 @@ extension/
 - ❌ Domain logic inside the callback — extract into domain packages
 - ❌ Passing `InvocationContext` into domain code — pass concrete values
 - ❌ Deep workflow call chains — keep composition flat
+
+## Cursor Cloud specific instructions
+
+The startup update script runs `npm install` only. Everything below is context for running
+things by hand; the standard commands themselves live in the sections above and in `package.json`.
+
+### Toolchain notes (already provisioned in the VM image)
+
+- **Node/npm**: `npm` is upgraded to `>=11.10` (required by `.npmrc` `engine-strict=true`; the
+  base image ships npm 10.x which would make `npm install` fail). `node` is `^22` and satisfies
+  `engines`. Do not downgrade npm.
+- **Go**: the system `go` is older than `cliv2/go.mod`'s `go` directive. `GOTOOLCHAIN=auto`
+  (the default) transparently downloads the pinned toolchain from `proxy.golang.org` on first
+  `go`/`make` invocation — leave it on. No manual Go install is needed.
+- **`convco`**: required by `make build` (via `release-scripts/next-version.sh`). Installed at
+  `/usr/local/cargo/bin/convco`. Pin is `0.6.2` — newer `convco` needs a newer `rustc` than the
+  image provides.
+
+### Build the CLI — `make build BUILD_MODE=public`
+
+- Always use `BUILD_MODE=public`. `cliv2-private/` is present but its modules need private
+  GitHub access that this VM does not have, so private auto-detection / `BUILD_MODE=private`
+  fails.
+- TS unit tests need the workspace packages built first (`@snyk/fix`, `@snyk/protect`):
+  run `npm run build --workspaces` once, otherwise a few suites fail with
+  `Cannot find module '@snyk/fix'`. `make build` does this for you.
+
+### Network egress is restricted — expected failures
+
+Outbound HTTPS to most non-package hosts is blocked (`go.dev`, `downloads.snyk.io`,
+`api.snyk.io` all fail; npm registry and `proxy.golang.org` work).
+
+- **`make build` license step**: `cliv2/scripts/prepare_licenses.go` fetches a license from
+  `go.dev` and aborts the build. Workaround used here: pre-seed it from the local Go toolchain —
+  `cp "$(cd cliv2 && go env GOROOT)/LICENSE" cliv2/internal/embedded/_data/licenses/go.dev/LICENSE`
+  before `make build` (the script skips any license file that already exists). `make clean`
+  removes it, so re-seed after cleaning. Allowing `go.dev` egress removes the need for this.
+- **Tests that need the Snyk API / a token**: a handful of `npm run test:unit` suites and the
+  Go `internal/proxy` tests reach `api.snyk.io` / `downloads.snyk.io` and fail with network
+  errors or `MissingApiTokenError`. This is environment-only; ~1050/1076 unit tests pass.
+- **Acceptance tests** spin up a local fake server (`test/acceptance/fake-server.ts`) and run
+  fully offline against the built binary, e.g.
+  `TEST_SNYK_COMMAND="$PWD/binary-releases/snyk-linux" npx jest --maxWorkers=1 test/jest/acceptance/print-graph.spec.ts`.
+
+### Running the built CLI directly
+
+The Go wrapper performs an auth/feature-flag preflight to `api.snyk.io` on startup, so direct
+`snyk test`/`snyk iac test` invocations fail without network + a token. For an offline smoke
+test of real scanning logic, use the acceptance harness above (it builds real dependency graphs)
+or point `SNYK_API` at a local fake server. The TS-only dev entrypoint (`npm run dev -- ...`)
+runs without building the Go binary.
