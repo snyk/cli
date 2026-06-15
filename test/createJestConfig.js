@@ -59,4 +59,5 @@ const createJestConfig = (config = {}) => {
 
 module.exports = {
   createJestConfig,
+  getTestSnykIgnoreListPatterns,
 };
