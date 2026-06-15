@@ -1,5 +1,6 @@
 import { SpawnOptionsWithoutStdio } from 'child_process';
 import { spawn } from 'cross-spawn';
+import { stripRetryWarnings } from './stripRetryWarnings';
 
 type RunCommandResult = {
   code: number;
@@ -50,7 +51,11 @@ const runCommand = (
         result.stderrBuffer = Buffer.concat(stderr);
       } else {
         result.stdout = Buffer.concat(stdout).toString('utf-8');
-        result.stderr = Buffer.concat(stderr).toString('utf-8');
+        // Remove rate-limit retry warnings from stderr so tests expecting
+        // empty stderr don't fail when CI is throttled. Real failures stay.
+        result.stderr = stripRetryWarnings(
+          Buffer.concat(stderr).toString('utf-8'),
+        );
       }
 
       if (options?.logErrors && result.code !== 0) {
