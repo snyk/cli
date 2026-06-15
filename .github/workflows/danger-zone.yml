@@ -4,33 +4,19 @@ on:
     types: [opened, synchronize, reopened, edited]
     branches: [master, main, release-candidate]
 
-permissions: {}
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
   build:
     name: Danger JS
-    runs-on: ubuntu-24.04
-    timeout-minutes: 5
-    permissions:
-      contents: read
-      pull-requests: write
-      statuses: write
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          persist-credentials: false
-      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
           cache: 'npm'
           # registry-url triggers setup-node to create an .npmrc with auth token interpolation,
           # required to install private @snyk packages
           registry-url: 'https://registry.npmjs.org'
-      - run: npm install -g npm@^11.10
       - run: npm ci
         env:
           NODE_AUTH_TOKEN: ${{ secrets.HAMMERHEAD_NPM_TOKEN }}
