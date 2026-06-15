@@ -14,10 +14,7 @@ const TEMP_LOCAL_PATH = '/tmp/snyk-goof';
 beforeAll(() => {
   if (!existsSync(TEMP_LOCAL_PATH)) {
     execSync(
-      // engine-strict=false: snyk-goof pins engines.node 6.14.1, and the CLI's
-      // .npmrc engine-strict leaks in via npm_config_* env from `npm run test:acceptance`,
-      // which would otherwise make this install fail (EBADENGINE) on modern Node.
-      `git clone ${TEST_REPO_URL} ${TEMP_LOCAL_PATH} && cd ${TEMP_LOCAL_PATH} && npm install --ignore-scripts --engine-strict=false`,
+      `git clone ${TEST_REPO_URL} ${TEMP_LOCAL_PATH} && cd ${TEMP_LOCAL_PATH} && npm install --ignore-scripts`,
       {
         stdio: 'inherit',
       },

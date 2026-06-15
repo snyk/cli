@@ -5,7 +5,6 @@ import {
 import { isWindowsOperatingSystem, testIf } from '../../../utils';
 import { createProject } from '../../util/createProject';
 import { getAvailableServerPort } from '../../util/getServerPort';
-import { runCommand } from '../../util/runCommand';
 import { runSnykCLI } from '../../util/runSnykCLI';
 
 jest.setTimeout(1000 * 60 * 5);
@@ -109,17 +108,6 @@ type AnyBom = CycloneDxBom | SpdxBom;
 
 const ORG = 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee';
 
-async function getJdkMajorVersion(): Promise<number | undefined> {
-  try {
-    // `java -version` prints to stderr, e.g. `openjdk version "25" ...`
-    const { stdout, stderr } = await runCommand('java', ['-version']);
-    const match = `${stderr}\n${stdout}`.match(/version "(\d+)/);
-    return match ? Number(match[1]) : undefined;
-  } catch {
-    return undefined;
-  }
-}
-
 function isCycloneDx(bom: AnyBom): bom is CycloneDxBom {
   return (bom as CycloneDxBom).specVersion !== undefined;
 }
@@ -201,12 +189,8 @@ describe('snyk sbom --allow-incomplete-sbom (acceptance, mocked server)', () => 
   const runSbom = async (
     cwd: string,
     extraArgs: string,
-    extraEnv: Record<string, string> = {},
   ): Promise<{ code: number; stdout: string; stderr: string }> => {
-    return runSnykCLI(`sbom --org ${ORG} --debug ${extraArgs}`, {
-      cwd,
-      env: { ...env, ...extraEnv },
-    });
+    return runSnykCLI(`sbom --org ${ORG} --debug ${extraArgs}`, { cwd, env });
   };
 
   const parseSbom = (stdout: string): AnyBom => {
@@ -348,20 +332,9 @@ describe('snyk sbom --allow-incomplete-sbom (acceptance, mocked server)', () => 
         );
 
         // ── WHEN ─────────────────────────────────────────────────────────
-
-        // Currently, JDK >= 24 needs an extra env var for the Maven scan to behave as expected by snyk-mvn-plugin
-        const jdk = await getJdkMajorVersion();
-        expect(jdk).toEqual(expect.any(Number));
-
-        const extraEnv: Record<string, string> | undefined =
-          jdk && jdk >= 24
-            ? { MAVEN_OPTS: '--sun-misc-unsafe-memory-access=allow' }
-            : {};
-
         const { code, stdout, stderr } = await runSbom(
           project.path(),
           '--format cyclonedx1.6+json --all-projects --allow-incomplete-sbom',
-          extraEnv,
         );
         if (code !== 0) {
           // eslint-disable-next-line no-console
