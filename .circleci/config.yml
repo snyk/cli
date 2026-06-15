@@ -417,6 +417,9 @@ commands:
       - run:
           name: Installing Rosetta
           command: softwareupdate --install-rosetta --agree-to-license
+      - run:
+          name: Update Homebrew
+          command: brew update
       - restore_cache:
           key: acceptance-tests-macos-<< parameters.items >>
       - run:
@@ -1763,7 +1766,7 @@ jobs:
               pattern: '^macos.*'
               value: << parameters.executor >>
           steps:
-            - run: brew install coreutils curl python3
+            - run: brew update && HOMEBREW_NO_ASK=1 brew install coreutils curl python3
       - when:
           condition:
             matches:
