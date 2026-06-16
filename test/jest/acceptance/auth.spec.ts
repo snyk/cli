@@ -184,7 +184,7 @@ describe('Auth', () => {
         env: {
           ...env,
           // SNYK_API will actually be used up until the auth workflow
-          SNYK_API: 'https://api.this.should.not.be.used.io',
+          SNYK_API: 'https://api.this.should.not.be.used.invalid',
           // override the auth host regex check, else fakeServerHost will be rejected
           INTERNAL_OAUTH_ALLOWED_HOSTS: '.*',
         },
