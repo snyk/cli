@@ -13,6 +13,7 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/rs/zerolog"
+	"github.com/snyk/cli/cliv2/internal/helprouting"
 	"github.com/snyk/error-catalog-golang-public/code"
 	"github.com/snyk/error-catalog-golang-public/snyk_errors"
 	"github.com/snyk/go-application-framework/pkg/apiclients/testapi"
@@ -144,7 +145,7 @@ func Test_CreateCommandsForWorkflowWithSubcommands(t *testing.T) {
 	}
 
 	_ = globalEngine.Init()
-	rootCommand := prepareRootCommand()
+	rootCommand := prepareRootCommand(testHelpRouter())
 
 	// invoke method under test
 	createCommandsForWorkflows(rootCommand, globalEngine)
@@ -762,4 +763,10 @@ func loadJsonFile(t *testing.T, filename string) []byte {
 	byteValue, err := io.ReadAll(jsonFile)
 	assert.NoError(t, err)
 	return byteValue
+}
+
+func testHelpRouter() *helprouting.Router {
+	return &helprouting.Router{
+		LegacyHelp: func() error { return nil },
+	}
 }
