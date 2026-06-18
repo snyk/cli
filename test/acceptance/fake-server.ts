@@ -1860,6 +1860,9 @@ ${componentsXml}
   ): Promise<void> => {
     return new Promise((resolve, reject) => {
       server = https.createServer(options, app);
+      server.on('connection', (socket) => {
+        sockets.add(socket);
+      });
       server.once('listening', () => {
         resolve();
       });
@@ -1870,23 +1873,26 @@ ${componentsXml}
     });
   };
 
+  const destroySockets = () => {
+    for (const socket of sockets) {
+      (socket as net.Socket)?.destroy();
+      sockets.delete(socket);
+    }
+  };
+
   const closePromise = () => {
     return new Promise<void>((resolve) => {
       if (!server) {
         resolve();
         return;
       }
+      destroySockets();
       server.close(() => resolve());
       server = undefined;
     });
   };
 
   const close = (callback: () => void) => {
-    for (const socket of sockets) {
-      (socket as net.Socket)?.destroy();
-      sockets.delete(socket);
-    }
-
     closePromise().then(callback);
   };
 

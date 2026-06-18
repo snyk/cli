@@ -1008,7 +1008,7 @@ workflows:
           test_cmd: |
             Get-ChildItem -Recurse -Path test/jest/acceptance,ts-binary-wrapper/test/acceptance -Filter *.spec.ts |
               ForEach-Object { (Resolve-Path -Relative $_.FullName) -replace '\\', '/' -replace '^\./', '' } |
-              circleci tests run --command "xargs npx jest --maxWorkers=1 --selectProjects coreCli --reporters=jest-junit --reporters=default --" --split-by=timings --timings-type=file
+              circleci tests run --command "xargs npx jest --maxWorkers=1 --selectProjects coreCli --reporters=jest-junit --reporters=default --forceExit --" --split-by=timings --timings-type=file
 
       - sign:
           name: sign windows amd64
@@ -1702,7 +1702,7 @@ jobs:
         default: |
           find test/jest/acceptance ts-binary-wrapper/test/acceptance -name '*.spec.ts' \
             | circleci tests run \
-                --command="xargs npx jest --maxWorkers=1 --selectProjects coreCli --reporters=jest-junit --reporters=default --" \
+                --command="xargs npx jest --maxWorkers=1 --selectProjects coreCli --reporters=jest-junit --reporters=default --forceExit --" \
                 --split-by=timings \
                 --timings-type=file
     executor: << parameters.executor >>
