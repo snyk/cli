@@ -35,6 +35,7 @@ import (
 	"github.com/snyk/cli/cliv2/cmd/cliv2/behavior/legacy"
 	"github.com/snyk/cli/cliv2/internal/cliv2"
 	"github.com/snyk/cli/cliv2/internal/constants"
+	"github.com/snyk/cli/cliv2/internal/persona"
 
 	cliv2utils "github.com/snyk/cli/cliv2/internal/utils"
 
@@ -648,6 +649,7 @@ func mainWithErrorCode(additionalExts []workflow.ExtensionInit) int {
 	cliAnalytics.GetInstrumentation().SetCategory(instrumentation.DetermineCategory(os.Args, globalEngine))
 	cliAnalytics.GetInstrumentation().SetStage(instrumentation.DetermineStage(cliAnalytics.IsCiEnvironment()))
 	cliAnalytics.GetInstrumentation().SetStatus(analytics.Success)
+	persona.Report(cliAnalytics)
 
 	setTimeout(globalConfiguration, func() {
 		tearDownOnce.Do(func() {
