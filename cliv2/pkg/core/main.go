@@ -1,9 +1,10 @@
 package core
 
 // !!! This import needs to be the first import, please do not change this !!!
+import _ "github.com/snyk/go-application-framework/pkg/networking/fips_enable"
 import (
+	"github.com/snyk/cli/cliv2/internal/helpdocs"
 	"github.com/snyk/cli/cliv2/internal/helprouting"
-	_ "github.com/snyk/go-application-framework/pkg/networking/fips_enable"
 )
 
 import (
@@ -546,9 +547,11 @@ func mainWithErrorCode(additionalExts []workflow.ExtensionInit) int {
 	var err error
 	rInfo := runtimeinfo.New(runtimeinfo.WithName("snyk-cli"), runtimeinfo.WithVersion(cliv2.GetFullVersion()))
 
+	helpDocs := helpdocs.DefaultCommandHelp()
 	helpRouter := &helprouting.Router{
 		LegacyHelp:   runLegacyHelp,
 		OnHelpCalled: func() { helpProvided = true },
+		HasUserDoc:   helpDocs.HasUserDoc,
 	}
 	rootCommand := prepareRootCommand(helpRouter)
 	// omit the first arg which is always `snyk`
