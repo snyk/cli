@@ -49,6 +49,14 @@ func initLegacycli(engine workflow.Engine) error {
 	}
 	entry.SetVisibility(false)
 
+	// Register the feature-flag config defaults on the engine at init time, so
+	// they are present in the configuration each invocation is given (which is a
+	// clone of the engine configuration). Registering later — e.g. while building
+	// the proxy — would land on the engine configuration only, after the
+	// invocation's clone was already taken, and the interceptor would never see
+	// the default. See RegisterFeatureFlagDefaults.
+	interceptor.RegisterFeatureFlagDefaults(engine)
+
 	return nil
 }
 
@@ -189,6 +197,10 @@ func createInternalProxy(config configuration.Configuration, debugLogger *zerolo
 	}
 
 	wrapperProxy.RegisterInterceptor(interceptor.NewV1AnalyticsInterceptor(invocation))
+	// The legacy feature-flag interceptor resolves all known feature-flag lookups
+	// from the CLIv2 configuration (which caches each value for the process),
+	// instead of letting the legacy CLI query the API for every flag. The config
+	// defaults it relies on are registered at init time (see initLegacycli).
 	wrapperProxy.RegisterInterceptor(interceptor.NewLegacyFeatureFlagInterceptor(invocation))
 	// The networkinjector intercepts all requests from the legacy CLI and re-routes them to the existing networking
 	// layer. It should therefore be kept as the last interceptor in the chain, as it circuit breaks goproxy's own

@@ -16,28 +16,65 @@ import (
 )
 
 func TestLegacyFeatureFlagInterceptor_Routing(t *testing.T) {
+	// The condition matches every /cli-config/feature-flags/<flag> URL; the
+	// handler then decides whether to serve or pass through.
+	cases := map[string]bool{
+		"https://example.com/v1/cli-config/feature-flags/show-maven-build-scope?org=abc": true,
+		"https://example.com/v1/cli-config/feature-flags/cliDotnetRuntimeResolution":     true,
+		"https://example.com/v1/cli-config/feature-flags/someUnknownFlag":                true,
+		"https://example.com/api/v1/other-endpoint":                                      false,
+	}
+
+	for path, shouldMatch := range cases {
+		t.Run(path, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			i := NewLegacyFeatureFlagInterceptor(mocks.NewMockInvocationContext(ctrl))
+			req := httptest.NewRequest(http.MethodGet, path, nil)
+			assert.Equal(t, shouldMatch, i.GetCondition().HandleReq(req, &goproxy.ProxyCtx{}))
+		})
+	}
+}
+
+func TestLegacyFeatureFlagInterceptor_Handler(t *testing.T) {
+	const base = "https://example.com/v1/cli-config/feature-flags/"
 	tests := []struct {
 		name         string
 		path         string
-		shouldHandle bool
-		configKey    string // only used when shouldHandle == true
+		configKey    string // "" => handler should not read config
+		configValue  bool
+		configErr    error
+		expectServed bool
+		expectOK     bool
 	}{
 		{
-			name:         "maven path",
-			path:         "https://example.com/v1/cli-config/feature-flags/show-maven-build-scope?org=abc",
-			shouldHandle: true,
+			name:         "maven scope served from its override key",
+			path:         base + "show-maven-build-scope?org=abc",
 			configKey:    FeatureFlagShowMavenBuildScope,
+			configValue:  true,
+			expectServed: true,
+			expectOK:     true,
 		},
 		{
-			name:         "npm path",
-			path:         "https://example.com/v1/cli-config/feature-flags/show-npm-scope?org=abc",
-			shouldHandle: true,
-			configKey:    FeatureFlagShowNpmBuildScope,
+			name:         "general flag served from its prefixed API-backed key",
+			path:         base + "cliDotnetRuntimeResolution",
+			configKey:    generalFeatureFlagConfigKey("cliDotnetRuntimeResolution"),
+			configValue:  false,
+			expectServed: true,
+			expectOK:     false,
 		},
 		{
-			name:         "other path",
-			path:         "https://example.com/api/v1/other-endpoint",
-			shouldHandle: false,
+			name:         "resolution error passes through to network",
+			path:         base + "cliDotnetRuntimeResolution",
+			configKey:    generalFeatureFlagConfigKey("cliDotnetRuntimeResolution"),
+			configErr:    assert.AnError,
+			expectServed: false,
+		},
+		{
+			name:         "unknown flag passes through to network",
+			path:         base + "someUnknownFlag",
+			expectServed: false,
 		},
 	}
 
@@ -47,50 +84,37 @@ func TestLegacyFeatureFlagInterceptor_Routing(t *testing.T) {
 			defer ctrl.Finish()
 
 			configMock := mocks.NewMockConfiguration(ctrl)
-
-			// Only expect config access when the interceptor should handle the path.
-			if tt.shouldHandle {
+			if tt.configKey != "" {
 				configMock.EXPECT().
-					GetBool(tt.configKey).
-					Return(true).
+					GetBoolWithError(tt.configKey).
+					Return(tt.configValue, tt.configErr).
 					AnyTimes()
 			}
 
 			invocationCtxMock := mocks.NewMockInvocationContext(ctrl)
-			invocationCtxMock.EXPECT().
-				GetConfiguration().
-				Return(configMock).
-				AnyTimes()
-
-			interceptor := NewLegacyFeatureFlagInterceptor(invocationCtxMock)
-			handler := interceptor.GetHandler()
-
-			req := httptest.NewRequest(http.MethodGet, tt.path, nil)
-			proxyCtx := &goproxy.ProxyCtx{}
-
-			matched := interceptor.GetCondition().HandleReq(req, proxyCtx)
-			assert.Equal(t, tt.shouldHandle, matched)
-
-			if !tt.shouldHandle {
-				return
-			}
-
+			invocationCtxMock.EXPECT().GetConfiguration().Return(configMock).AnyTimes()
 			logger := zerolog.Nop()
 			invocationCtxMock.EXPECT().GetEnhancedLogger().Return(&logger).AnyTimes()
 
-			_, resp := handler(req, proxyCtx)
+			handler := NewLegacyFeatureFlagInterceptor(invocationCtxMock).GetHandler()
+			req := httptest.NewRequest(http.MethodGet, tt.path, nil)
+			_, resp := handler(req, &goproxy.ProxyCtx{})
+
+			if !tt.expectServed {
+				assert.Nil(t, resp)
+				return
+			}
+
 			assert.NotNil(t, resp)
 			defer func() { _ = resp.Body.Close() }()
-
 			assert.Equal(t, http.StatusOK, resp.StatusCode)
 			assert.Equal(t, "application/json", resp.Header.Get("Content-Type"))
 
-			bodyBytes, err := io.ReadAll(resp.Body)
+			body, err := io.ReadAll(resp.Body)
 			assert.NoError(t, err)
-
 			var parsed featureFlagResponse
-			assert.NoError(t, json.Unmarshal(bodyBytes, &parsed))
-			assert.True(t, parsed.OK)
+			assert.NoError(t, json.Unmarshal(body, &parsed))
+			assert.Equal(t, tt.expectOK, parsed.OK)
 		})
 	}
 }
