@@ -648,6 +648,7 @@ func mainWithErrorCode(additionalExts []workflow.ExtensionInit) int {
 	cliAnalytics.GetInstrumentation().SetCategory(instrumentation.DetermineCategory(os.Args, globalEngine))
 	cliAnalytics.GetInstrumentation().SetStage(instrumentation.DetermineStage(cliAnalytics.IsCiEnvironment()))
 	cliAnalytics.GetInstrumentation().SetStatus(analytics.Success)
+	cliAnalytics.AddExtensionBoolValue("persona.interactive", cliv2utils.IsInteractive())
 
 	setTimeout(globalConfiguration, func() {
 		tearDownOnce.Do(func() {
