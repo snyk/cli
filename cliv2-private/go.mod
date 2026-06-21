@@ -222,7 +222,7 @@ require (
 	github.com/snyk/policy-engine v1.1.4 // indirect
 	github.com/snyk/snyk-iac-capture v0.6.5 // indirect
 	github.com/snyk/snyk-ls v0.0.0-20260619144009-adcbe94634e1 // indirect
-	github.com/snyk/studio-mcp v1.11.0 // indirect
+	github.com/snyk/studio-mcp v1.13.2 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/sourcegraph/go-lsp v0.0.0-20240223163137-f80c5dd31dfd // indirect
 	github.com/spf13/afero v1.14.0 // indirect
