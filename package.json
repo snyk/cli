@@ -193,6 +193,9 @@
     "snyk-python-plugin": {
       "tmp@<0.2.6": "^0.2.6"
     },
+    "snyk-sbt-plugin": {
+      "tmp@<0.2.6": "^0.2.6"
+    },
     "@yarnpkg/core@4.5.0": {
       "tar": "7.5.11"
     },
