@@ -1,6 +1,6 @@
 module github.com/snyk/cli/cliv2
 
-go 1.26.3
+go 1.26.4
 
 require (
 	github.com/elazarl/goproxy v1.7.2
@@ -18,7 +18,7 @@ require (
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20260515141409-fb475901bb8e
 	github.com/snyk/cli-extension-os-flows v0.0.0-20260515090326-f505ef5d1ead
 	github.com/snyk/cli-extension-sbom v0.0.0-20260428131356-48881c6270fa
-	github.com/snyk/cli-extension-secrets v0.0.0-20260519130658-5bc07275ad09
+	github.com/snyk/cli-extension-secrets v0.0.0-20260610073002-c53205f61449
 	github.com/snyk/code-client-go v1.27.0
 	github.com/snyk/container-cli v0.0.0-20260213211631-cd2b2cf8f3ea
 	github.com/snyk/error-catalog-golang-public v0.0.0-20260505112649-a5103d411663
@@ -26,7 +26,7 @@ require (
 	github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65
 	github.com/snyk/snyk-iac-capture v0.6.5
 	github.com/snyk/snyk-ls v0.0.0-20260519104610-d16ea9b8a8b1
-	github.com/snyk/studio-mcp v1.11.0
+	github.com/snyk/studio-mcp v1.13.2
 	github.com/spf13/cobra v1.9.1
 	github.com/spf13/pflag v1.0.10
 	github.com/stretchr/testify v1.11.1
@@ -122,7 +122,7 @@ require (
 	github.com/getsentry/sentry-go v0.31.1 // indirect
 	github.com/go-git/gcfg v1.5.1-0.20230307220236-3a3c6141e376 // indirect
 	github.com/go-git/go-billy/v5 v5.9.0 // indirect
-	github.com/go-git/go-git/v5 v5.19.0 // indirect
+	github.com/go-git/go-git/v5 v5.19.1 // indirect
 	github.com/go-ini/ini v1.67.0 // indirect
 	github.com/go-jose/go-jose/v4 v4.1.4 // indirect
 	github.com/go-logr/logr v1.4.3 // indirect
@@ -252,7 +252,7 @@ require (
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/crypto v0.52.0 // indirect
 	golang.org/x/exp v0.0.0-20260410095643-746e56fc9e2f // indirect
-	golang.org/x/net v0.54.0 // indirect
+	golang.org/x/net v0.55.0 // indirect
 	golang.org/x/oauth2 v0.36.0 // indirect
 	golang.org/x/sync v0.20.0 // indirect
 	golang.org/x/sys v0.45.0 // indirect

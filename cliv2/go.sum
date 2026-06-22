@@ -253,8 +253,8 @@ github.com/go-git/go-billy/v5 v5.9.0 h1:jItGXszUDRtR/AlferWPTMN4j38BQ88XnXKbilmm
 github.com/go-git/go-billy/v5 v5.9.0/go.mod h1:jCnQMLj9eUgGU7+ludSTYoZL/GGmii14RxKFj7ROgHw=
 github.com/go-git/go-git-fixtures/v4 v4.3.2-0.20231010084843-55a94097c399 h1:eMje31YglSBqCdIqdhKBW8lokaMrL3uTkpGYlE2OOT4=
 github.com/go-git/go-git-fixtures/v4 v4.3.2-0.20231010084843-55a94097c399/go.mod h1:1OCfN199q1Jm3HZlxleg+Dw/mwps2Wbk9frAWm+4FII=
-github.com/go-git/go-git/v5 v5.19.0 h1:+WkVUQZSy/F1Gb13udrMKjIM2PrzsNfDKFSfo5tkMtc=
-github.com/go-git/go-git/v5 v5.19.0/go.mod h1:Pb1v0c7/g8aGQJwx9Us09W85yGoyvSwuhEGMH7zjDKQ=
+github.com/go-git/go-git/v5 v5.19.1 h1:nX27AnaU43/K5bKktKwgBmR9lawoYVe1Ckg0rgzzN00=
+github.com/go-git/go-git/v5 v5.19.1/go.mod h1:Pb1v0c7/g8aGQJwx9Us09W85yGoyvSwuhEGMH7zjDKQ=
 github.com/go-ini/ini v1.67.0 h1:z6ZrTEZqSWOTyH2FlglNbNgARyHG8oLW9gMELqKr06A=
 github.com/go-ini/ini v1.67.0/go.mod h1:ByCAeIL28uOIIG0E3PJtZPDL8WnHpFKFOtgjp+3Ies8=
 github.com/go-jose/go-jose/v4 v4.1.4 h1:moDMcTHmvE6Groj34emNPLs/qtYXRVcd6S7NHbHz3kA=
@@ -551,8 +551,8 @@ github.com/snyk/cli-extension-os-flows v0.0.0-20260515090326-f505ef5d1ead h1:fZk
 github.com/snyk/cli-extension-os-flows v0.0.0-20260515090326-f505ef5d1ead/go.mod h1:Kcp6erjNclWvjR3v4UAQocXYn1kXDii1Eq9c0ozle4A=
 github.com/snyk/cli-extension-sbom v0.0.0-20260428131356-48881c6270fa h1:9GSKXrRCaRkBAj+jglUBuhO09I1xs2G5GxwrPxlj34M=
 github.com/snyk/cli-extension-sbom v0.0.0-20260428131356-48881c6270fa/go.mod h1:SJ624HENWG4yjM6jNuLebTeNsMriozf1LcKhMYVm1aY=
-github.com/snyk/cli-extension-secrets v0.0.0-20260519130658-5bc07275ad09 h1:B5RFt9zJeGsyQdKllKGNKGGCKxW6WR/ZyIYn/DxAcs4=
-github.com/snyk/cli-extension-secrets v0.0.0-20260519130658-5bc07275ad09/go.mod h1:PaTasSfdAP6nUyxYR8vB/82nC1FRHC24sPuTzzsR6Qk=
+github.com/snyk/cli-extension-secrets v0.0.0-20260610073002-c53205f61449 h1:SQioCm++bYUnpHBPyPJQ2+G/V1HLwHgqQKtiLShLbec=
+github.com/snyk/cli-extension-secrets v0.0.0-20260610073002-c53205f61449/go.mod h1:D/Bk0EH8np/d6c1tG7wazpHI6iU9m8KzxytFcIQkEvQ=
 github.com/snyk/code-client-go v1.27.0 h1:FOX4JzgHssm5fei4ALyrBAIL9eJGnG52yTkqWcM1Qew=
 github.com/snyk/code-client-go v1.27.0/go.mod h1:DQHr0nRchfrc54aciYyrveKWEpBhJwUoc1XoDhWt6W4=
 github.com/snyk/container-cli v0.0.0-20260213211631-cd2b2cf8f3ea h1:/v48hCMPiZVjplylgE2FX1ib8Qd8LN/vf8ZIKfA+wkI=
@@ -571,8 +571,8 @@ github.com/snyk/snyk-iac-capture v0.6.5 h1:992DXCAJSN97KtUh8T5ndaWwd/6ZCal2bDkRX
 github.com/snyk/snyk-iac-capture v0.6.5/go.mod h1:e47i55EmM0F69ZxyFHC4sCi7vyaJW6DLoaamJJCzWGk=
 github.com/snyk/snyk-ls v0.0.0-20260519104610-d16ea9b8a8b1 h1:WhQwoEcYFIFofMU1dvDVFUJzOSZYJgwrt1s9nFAJlZ4=
 github.com/snyk/snyk-ls v0.0.0-20260519104610-d16ea9b8a8b1/go.mod h1:r9mhmI6/SvHDXDrzB59DFFCtuplgUILmSu8l2MZ0DzQ=
-github.com/snyk/studio-mcp v1.11.0 h1:WfvWqqHu5+Stb/y+LTVdWWiazc0i4BapxqMCJyGRArA=
-github.com/snyk/studio-mcp v1.11.0/go.mod h1:CiMKFs/PJrAMjG8Zjkvx+XwuM0XlxGJ7jP5yCr5hm5w=
+github.com/snyk/studio-mcp v1.13.2 h1:oGTAar33yZ8ILHsfO6Zqcek1k4tjMH5zbjiN0oTA8xw=
+github.com/snyk/studio-mcp v1.13.2/go.mod h1:S5utY5ieoPd7axW1yB2Kz3TeN8nRQ8iEDx4jGBdCygQ=
 github.com/sourcegraph/conc v0.3.0 h1:OQTbbt6P72L20UqAkXXuLOj79LfEanQ+YQFNpLA9ySo=
 github.com/sourcegraph/conc v0.3.0/go.mod h1:Sdozi7LEKbFPqYX2/J+iBAM6HpqSLTASQIKqDmF7Mt0=
 github.com/sourcegraph/go-lsp v0.0.0-20240223163137-f80c5dd31dfd h1:Dq5WSzWsP1TbVi10zPWBI5LKEBDg4Y1OhWEph1wr5WQ=
@@ -714,8 +714,8 @@ golang.org/x/net v0.0.0-20211112202133-69e39bad7dc2/go.mod h1:9nx3DQGgdP8bBQD5qx
 golang.org/x/net v0.0.0-20220722155237-a158d28d115b/go.mod h1:XRhObCWvk6IyKnWLug+ECip1KBveYUHfp+8e9klMJ9c=
 golang.org/x/net v0.6.0/go.mod h1:2Tu9+aMcznHK/AK1HMvgo6xiTLG5rD5rZLDS+rp2Bjs=
 golang.org/x/net v0.7.0/go.mod h1:2Tu9+aMcznHK/AK1HMvgo6xiTLG5rD5rZLDS+rp2Bjs=
-golang.org/x/net v0.54.0 h1:2zJIZAxAHV/OHCDTCOHAYehQzLfSXuf/5SoL/Dv6w/w=
-golang.org/x/net v0.54.0/go.mod h1:Sj4oj8jK6XmHpBZU/zWHw3BV3abl4Kvi+Ut7cQcY+cQ=
+golang.org/x/net v0.55.0 h1:bcvxaJn3e1U6InsFWt1JUq1aSjnRxLzT2rtD2KfkDF8=
+golang.org/x/net v0.55.0/go.mod h1:L5U2KuzuOe1lY7Z+aWVIKK6qEeJXnXV9yzGA+WCHJww=
 golang.org/x/oauth2 v0.36.0 h1:peZ/1z27fi9hUOFCAZaHyrpWG5lwe0RJEEEeH0ThlIs=
 golang.org/x/oauth2 v0.36.0/go.mod h1:YDBUJMTkDnJS+A4BP4eZBjCqtokkg1hODuPjwiGPO7Q=
 golang.org/x/sync v0.0.0-20190423024810-112230192c58/go.mod h1:RxMgew5VJxzue5/jJTE5uejpjVlOe/izrB70Jof72aM=
