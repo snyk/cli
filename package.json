@@ -71,7 +71,7 @@
     "@snyk/fix": "file:packages/snyk-fix",
     "@snyk/gemfile": "1.2.0",
     "@snyk/snyk-cocoapods-plugin": "3.1.0",
-    "@snyk/snyk-hex-plugin": "2.1.0",
+    "@snyk/snyk-hex-plugin": "2.1.1",
     "@types/marked": "^4.0.0",
     "abbrev": "^1.1.1",
     "adm-zip": "^0.5.9",
@@ -116,7 +116,7 @@
     "snyk-config": "^5.0.0",
     "snyk-cpp-plugin": "^2.24.3",
     "snyk-docker-plugin": "9.7.0",
-    "snyk-go-plugin": "2.1.1",
+    "snyk-go-plugin": "2.1.2",
     "snyk-gradle-plugin": "6.0.0",
     "snyk-module": "3.1.0",
     "snyk-mvn-plugin": "^4.7.0",
@@ -190,6 +190,12 @@
   "overrides": {
     "cross-spawn@7.0.3": "7.0.6",
     "minimatch@^3.1.2": "3.1.3",
+    "snyk-python-plugin": {
+      "tmp@<0.2.6": "^0.2.6"
+    },
+    "snyk-sbt-plugin": {
+      "tmp@<0.2.6": "^0.2.6"
+    },
     "@yarnpkg/core@4.5.0": {
       "tar": "7.5.11"
     },
