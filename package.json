@@ -71,7 +71,7 @@
     "@snyk/error-catalog-nodejs-public": "^5.79.0",
     "@snyk/fix": "file:packages/snyk-fix",
     "@snyk/gemfile": "1.2.0",
-    "@snyk/snyk-cocoapods-plugin": "3.1.0",
+    "@snyk/snyk-cocoapods-plugin": "3.1.1",
     "@snyk/snyk-hex-plugin": "2.1.1",
     "@types/marked": "^4.0.0",
     "abbrev": "^1.1.1",
