@@ -24,6 +24,8 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 
+	"github.com/snyk-playground/cli-extension-axi/pkg/agent"
+
 	"github.com/snyk/go-application-framework/pkg/ui/consoleui"
 
 	"github.com/snyk/go-application-framework/pkg/analytics"
@@ -376,45 +378,16 @@ func createCommandsForWorkflows(rootCommand *cobra.Command, engine workflow.Engi
 			// to preserve backwards compatibility we will need to relax flag validation
 			parentCommand.FParseErrWhitelist.UnknownFlags = true
 		case "agent":
-			// AXI: the `snyk agent` command surface is designed to be minimal for
-			// agents. Hide the root's inherited "Global Flags" from its --help so it
-			// only shows its own flags. The template is inherited by all descendants
-			// (agent test, agent test sca, agent setup hooks, ...).
-			parentCommand.SetUsageTemplate(agentUsageTemplate)
+			// AXI: the `snyk agent` command surface is agent-ergonomic and owns its
+			// own help. Replace cobra's default help (Usage/Available Commands/Flags/
+			// Global Flags) with the extension's curated HelpText for the whole agent
+			// subtree (children inherit this help func).
+			parentCommand.SetHelpFunc(func(cmd *cobra.Command, _ []string) {
+				_, _ = fmt.Fprint(cmd.OutOrStdout(), agent.HelpText())
+			})
 		}
 	}
 }
-
-// agentUsageTemplate is the cobra default usage template with the "Global Flags"
-// (inherited flags) section removed, so `snyk agent ...` --help stays focused on
-// the command's own flags.
-const agentUsageTemplate = `Usage:{{if .Runnable}}
-  {{.UseLine}}{{end}}{{if .HasAvailableSubCommands}}
-  {{.CommandPath}} [command]{{end}}{{if gt (len .Aliases) 0}}
-
-Aliases:
-  {{.NameAndAliases}}{{end}}{{if .HasExample}}
-
-Examples:
-{{.Example}}{{end}}{{if .HasAvailableSubCommands}}{{$cmds := .Commands}}{{if eq (len .Groups) 0}}
-
-Available Commands:{{range $cmds}}{{if (or .IsAvailableCommand (eq .Name "help"))}}
-  {{rpad .Name .NamePadding }} {{.Short}}{{end}}{{end}}{{else}}{{range $group := .Groups}}
-
-{{.Title}}{{range $cmds}}{{if (and (eq .GroupID $group.ID) (or .IsAvailableCommand (eq .Name "help")))}}
-  {{rpad .Name .NamePadding }} {{.Short}}{{end}}{{end}}{{end}}{{if not .AllChildCommandsHaveGroup}}
-
-Additional Commands:{{range $cmds}}{{if (and (eq .GroupID "") (or .IsAvailableCommand (eq .Name "help")))}}
-  {{rpad .Name .NamePadding }} {{.Short}}{{end}}{{end}}{{end}}{{end}}{{end}}{{if .HasAvailableLocalFlags}}
-
-Flags:
-{{.LocalFlags.FlagUsages | trimTrailingWhitespaces}}{{end}}{{if .HasHelpSubCommands}}
-
-Additional help topics:{{range .Commands}}{{if .IsAdditionalHelpTopicCommand}}
-  {{rpad .CommandPath .CommandPathPadding}} {{.Short}}{{end}}{{end}}{{end}}{{if .HasAvailableSubCommands}}
-
-Use "{{.CommandPath}} [command] --help" for more information about a command.{{end}}
-`
 
 func prepareRootCommand(router *helprouting.Router) *cobra.Command {
 	rootCommand := cobra.Command{
