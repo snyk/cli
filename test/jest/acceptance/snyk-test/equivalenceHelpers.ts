@@ -64,6 +64,14 @@ export async function runBothFlows(
   server: FakeServer,
   env: Record<string, string | undefined>,
   runOptions: RunCommandOptions = {},
+  /**
+   * Extra feature flags to enable ONLY in the unified (FF-on) run — e.g. a
+   * native resolver gate like 'internal_new_gradle_resolver'. The legacy run
+   * never sees these, so the comparison becomes "native resolver vs legacy
+   * CLI". Empty (the default) keeps both runs on the legacy resolver, which is
+   * the Phase 1 endpoint-parity comparison.
+   */
+  unifiedFlags: string[] = [],
 ): Promise<EquivalenceResult> {
   const argsWithJson = argsString.includes('--json')
     ? argsString
@@ -83,6 +91,9 @@ export async function runBothFlows(
 
   server.restore();
   server.setFeatureFlag(UNIFIED_TEST_API_FF, true);
+  for (const flag of unifiedFlags) {
+    server.setFeatureFlag(flag, true);
+  }
   const unifiedRun = await runSnykCLI(argsWithJson, {
     ...runOptions,
     cwd,
@@ -162,6 +173,11 @@ export type AssertOptions = {
   /** Set true for fixtures that legitimately produce no submissions
    *  (e.g. "no supported target files"). */
   expectNoSubmissions?: boolean;
+  /** Set true for fixtures expected to be REJECTED by both flows (e.g. an
+   *  out-of-sync lockfile). The two flows have intentional exit-code
+   *  differences for failures (TS CLI exits 3, os-flows exits 2), so this
+   *  asserts the tolerance invariant "both fail" rather than equal codes. */
+  expectError?: boolean;
 };
 
 export function assertEquivalent(
@@ -169,6 +185,23 @@ export function assertEquivalent(
   options: AssertOptions = {},
 ): EquivalenceDiff {
   const { legacy, unified } = result;
+
+  // Error-parity mode: the fixture should be rejected by BOTH flows. Exit-code
+  // values legitimately differ between the TS CLI and os-flows, so we assert
+  // only the invariant that neither flow reported success.
+  if (options.expectError) {
+    if (legacy.code !== 0 && unified.code !== 0) {
+      return { ok: true };
+    }
+    return {
+      ok: false,
+      reason: `expected both flows to fail: legacy=${legacy.code} unified=${unified.code}`,
+      detail: {
+        legacyStderr: legacy.stderr,
+        unifiedStderr: unified.stderr,
+      },
+    };
+  }
 
   const bothEmpty =
     legacy.submissionCount === 0 && unified.submissionCount === 0;
