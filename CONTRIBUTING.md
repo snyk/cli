@@ -283,20 +283,14 @@ automatically be pulled into Snyk CLI as pull requests.
 ### CLI help command files (`help/cli-commands`)
 
 The Go CLI reads user-facing command help from markdown files under `help/cli-commands/`. These files are synced from
-GitBook into this repository (see the `sync-cli-help-to-user-docs` workflow). At build time, the CLI embeds a manifest
-of available help files (`cliv2/pkg/helpdocs/manifest.txt`) and uses it to decide whether to show legacy GitBook help
-or native Cobra help for a given command.
+GitBook into this repository (see the `sync-cli-help-to-user-docs` workflow). At **build** time, the Makefile copies
+`help/cli-commands/` into `cliv2/internal/helpdocs/cli-commands/` so the Go embed can read them, then removes the copy
+afterward. Go unit tests read `help/cli-commands/` from disk (or use a small in-memory fixture when that directory is
+unavailable), so `make -C cliv2 test` does not run that copy step. The embedded filenames decide whether to show legacy
+GitBook help or native Cobra help for a given command.
 
-When you add, remove, or rename files in `help/cli-commands/`, regenerate the manifest and commit the result:
-
-```sh
-make -C cliv2 helpdocs-manifest
-git add cliv2/pkg/helpdocs/manifest.txt
-```
-
-`make -C cliv2 test` and `make build` run this target automatically, but you still need to commit the updated
-`manifest.txt` when it changes. Go tests in `cliv2/pkg/helpdocs` verify that the manifest stays in sync with
-`help/cli-commands/`.
+When you add, remove, or rename files in `help/cli-commands/`, no extra manifest step is required. Help routing tests
+pick up the changes on the next `make -C cliv2 test`; the shipped binary picks them up on the next `make build`.
 
 To test help routing locally after building:
 

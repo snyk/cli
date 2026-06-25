@@ -125,12 +125,15 @@ func Test_Router_Help(t *testing.T) {
 
 	for _, tc := range append(documented, undocumented...) {
 		t.Run(tc.name, func(t *testing.T) {
+			help := testCommandHelp(t)
+
 			legacyCalled := false
 			router := &Router{
 				LegacyHelp: func() error {
 					legacyCalled = true
 					return nil
 				},
+				HasUserDoc: help.HasUserDoc,
 			}
 
 			cmd, buf := tc.command(t, root)
@@ -162,9 +165,10 @@ func Test_commandSegmentsFromCobra(t *testing.T) {
 
 func Test_commandSegments(t *testing.T) {
 	root := setupTestRoot(t)
+	help := testCommandHelp(t)
 
 	assert.Equal(t, []string{"container"}, commandSegments(root, root, []string{"-h", "container"}))
-	assert.True(t, helpdocs.HasUserDoc([]string{"container"}))
+	assert.True(t, help.HasUserDoc([]string{"container"}))
 
 	assert.Equal(t, []string{"container"}, commandSegments(root, root, []string{"--help=container"}))
 }
@@ -222,4 +226,9 @@ func findCommand(t *testing.T, root *cobra.Command, path ...string) *cobra.Comma
 
 func helpSubcommand() *cobra.Command {
 	return &cobra.Command{Use: "help"}
+}
+
+func testCommandHelp(t *testing.T) *helpdocs.CommandHelp {
+	t.Helper()
+	return helpdocs.FixtureCommandHelp()
 }
