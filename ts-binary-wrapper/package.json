@@ -44,6 +44,7 @@
     "access": "public"
   },
   "devDependencies": {
+    "@types/global-agent": "^3.0.0",
     "jest": "^29.4.1",
     "rimraf": "^4.1.2",
     "ts-jest": "^29.0.5",
@@ -51,6 +52,6 @@
   },
   "dependencies": {
     "@sentry/node": "^7.36.0",
-    "global-agent": "^3.0.0"
+    "global-agent": "^4.1.3"
   }
 }

@@ -1,11 +1,13 @@
-// must be set before we import 'global-agent/bootstrap'
+// must be set before we bootstrap global-agent
 process.env.GLOBAL_AGENT_ENVIRONMENT_VARIABLE_NAMESPACE = '';
 process.env.HTTPS_PROXY =
   process.env.HTTPS_PROXY ?? process.env.https_proxy ?? '';
 process.env.HTTP_PROXY = process.env.HTTP_PROXY ?? process.env.http_proxy ?? '';
 process.env.NO_PROXY = process.env.NO_PROXY ?? process.env.no_proxy ?? '';
 
-import 'global-agent/bootstrap';
+import { bootstrap } from 'global-agent';
+bootstrap();
+
 import * as path from 'path';
 import * as os from 'os';
 import * as fs from 'fs';
