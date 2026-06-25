@@ -541,8 +541,8 @@ github.com/sirupsen/logrus v1.9.3 h1:dueUQJ1C2q9oE3F7wvmSGAaVtTmUizReu6fjN8uqzbQ
 github.com/sirupsen/logrus v1.9.3/go.mod h1:naHLuLoDiP4jHNo9R0sCBMtWGeIprob74mVsIT4qYEQ=
 github.com/skeema/knownhosts v1.3.2 h1:EDL9mgf4NzwMXCTfaxSD/o/a5fxDw/xL9nkU28JjdBg=
 github.com/skeema/knownhosts v1.3.2/go.mod h1:bEg3iQAuw+jyiw+484wwFJoKSLwcfd7fqRy+N0QTiow=
-github.com/snyk-playground/cli-extension-axi v0.0.0-20260625150332-1b319e31784c h1:RxJsXQHMwrZjDckxsw+A9Gn7/6z2CfDH8c7kD4GxSlc=
-github.com/snyk-playground/cli-extension-axi v0.0.0-20260625150332-1b319e31784c/go.mod h1:wRi0pApLCFhXXdxQv8/2VPhg/emxmjvuUo83iGbt96A=
+github.com/snyk-playground/cli-extension-axi v0.0.0-20260625153332-3cd72b8ef6d9 h1:F/6WdnsR4dK4GPJYvXVpYO8yozChHGaKsHn6Nom6cNE=
+github.com/snyk-playground/cli-extension-axi v0.0.0-20260625153332-3cd72b8ef6d9/go.mod h1:wRi0pApLCFhXXdxQv8/2VPhg/emxmjvuUo83iGbt96A=
 github.com/snyk/cli-extension-agent-scan v0.0.0-20260505093105-90d9442ea939 h1:GvW35inJZTr2AD1c/sIRkVOajom0kEY8nN30cqes+u0=
 github.com/snyk/cli-extension-agent-scan v0.0.0-20260505093105-90d9442ea939/go.mod h1:+Znlgu2v7sOTNAVjsoldFjDZUIo8tpdKnFlMptZHzz0=
 github.com/snyk/cli-extension-ai-bom v0.0.0-20260319140413-ac7392950603 h1:uZyw9OvOGCMFloZy8Fyu6l4K5y77o4k0KdxHuUKAp8M=
