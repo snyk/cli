@@ -1,0 +1,9 @@
+{
+  "name": "b",
+  "version": "1.0.0",
+  "license": "ISC",
+  "dependencies": {
+    "is-number": "7.0.0",
+    "a": "^1.0.0"
+  }
+}

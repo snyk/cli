@@ -14,6 +14,8 @@ import {
 import { Options } from '../types';
 import { DepGraph } from '@snyk/dep-graph';
 
+const defaultIncludeComponentMetadata = false;
+
 export async function parse(
   root: string,
   targetFile: string,
@@ -75,6 +77,8 @@ export async function parse(
         pruneCycles: true,
         honorAliases: true,
         showNpmScope: options.showNpmScope,
+        includeComponentMetadata:
+          options.includeComponentMetadata || defaultIncludeComponentMetadata,
       },
     );
   }
@@ -89,6 +93,7 @@ export async function parse(
       strictOutOfSync,
       true,
       options.showNpmScope,
+      options.includeComponentMetadata || defaultIncludeComponentMetadata,
     );
   } finally {
     await spinner.clear<void>(resolveModuleSpinnerLabel)();
