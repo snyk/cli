@@ -113,16 +113,6 @@ async function ensureUniqueBundleIsUsed(path: string): Promise<string> {
 
 const userJourneyWorkflows: Workflow[] = [
   {
-    type: 'typescript',
-    env: {
-      // force use of legacy implementation
-      INTERNAL_SNYK_CODE_IGNORES_ENABLED: 'false',
-      INTERNAL_SNYK_CODE_NATIVE_IMPLEMENTATION: 'false',
-      SNYK_CFG_ORG: process.env.TEST_SNYK_ORG_SLUGNAME,
-      PROJECT_ID: 'this_should_be_ignored',
-    },
-  },
-  {
     type: 'golang/native',
     env: {
       INTERNAL_SNYK_CODE_NATIVE_IMPLEMENTATION: 'true',
@@ -206,32 +196,6 @@ describe('snyk code test', () => {
 
             expect(code).toBe(EXIT_CODE_SUCCESS);
           });
-
-          if (type === 'typescript') {
-            it('works with --org', async () => {
-              const MADE_UP_ORG_WITH_NO_SNYK_CODE_PERMISSIONS =
-                'madeUpOrgWithNoSnykCodePermissions';
-
-              const path = await ensureUniqueBundleIsUsed(
-                projectWithCodeIssues,
-              );
-
-              const { stdout, code } = await runSnykCLI(
-                `code test ${path} --org=${MADE_UP_ORG_WITH_NO_SNYK_CODE_PERMISSIONS}`,
-                {
-                  env: {
-                    ...process.env,
-                    ...integrationEnv,
-                  },
-                },
-              );
-
-              expect(stdout).toContain(
-                `Org ${MADE_UP_ORG_WITH_NO_SNYK_CODE_PERMISSIONS} was not found`,
-              );
-              expect(code).toBe(EXIT_CODE_FAIL_WITH_ERROR);
-            });
-          }
         });
 
         it('works on projects with no git context', async () => {

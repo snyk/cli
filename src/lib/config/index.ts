@@ -26,7 +26,6 @@ interface Config {
   timeout: number;
   PROJECT_NAME: string;
   TOKEN: string;
-  CODE_CLIENT_PROXY_URL: string;
   DISABLE_ANALYTICS: unknown;
   CACHE_PATH?: string;
   DRIFTCTL_PATH?: string;
@@ -89,7 +88,5 @@ if (!config.ROOT) {
 
 config.PUBLIC_VULN_DB_URL = 'https://security.snyk.io';
 config.PUBLIC_LICENSE_URL = 'https://snyk.io';
-
-config.CODE_CLIENT_PROXY_URL = process.env.SNYK_CODE_CLIENT_PROXY_URL || '';
 
 export default config;
