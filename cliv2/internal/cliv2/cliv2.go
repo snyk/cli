@@ -31,6 +31,7 @@ import (
 
 	cli_errors "github.com/snyk/cli/cliv2/internal/errors"
 
+	"github.com/snyk/cli/cliv2/cmd/cliv2/behavior"
 	"github.com/snyk/cli/cliv2/internal/constants"
 	debug_utils "github.com/snyk/cli/cliv2/internal/debug"
 	"github.com/snyk/cli/cliv2/internal/embedded"
@@ -584,6 +585,7 @@ func DeriveExitCode(err error) int {
 	if err != nil {
 		var exitError *exec.ExitError
 		var errorWithExitCode *cli_errors.ErrorWithExitCode
+		var snykErr snyk_errors.Error
 
 		if errors.As(err, &exitError) {
 			returnCode = exitError.ExitCode()
@@ -593,6 +595,8 @@ func DeriveExitCode(err error) int {
 			}
 		} else if errors.As(err, &errorWithExitCode) {
 			returnCode = errorWithExitCode.ExitCode
+		} else if errors.As(err, &snykErr) {
+			returnCode = behavior.MapErrorCatalogToExitCode(&snykErr, constants.SNYK_EXIT_CODE_ERROR)
 		} else {
 			// got an error but it's not an ExitError
 			returnCode = constants.SNYK_EXIT_CODE_ERROR

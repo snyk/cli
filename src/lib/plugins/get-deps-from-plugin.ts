@@ -17,6 +17,7 @@ import {
   detectPackageManagerFromFile,
 } from '../detect';
 import * as analytics from '../analytics';
+import { shouldEmbedErrors } from '../snyk-test/common';
 import { convertSingleResultToMultiCustom } from './convert-single-splugin-res-to-multi-custom';
 import { convertMultiResultToMultiCustom } from './convert-multi-plugin-res-to-multi-custom';
 import { processYarnWorkspaces } from './nodejs-plugin/yarn-workspaces-parser';
@@ -65,7 +66,7 @@ export async function getDepsFromPlugin(
     );
     if (targetFiles.length === 0) {
       const error = NoSupportedManifestsFoundError([root]);
-      if (options['print-output-jsonl-with-errors']) {
+      if (shouldEmbedErrors(options)) {
         return {
           plugin: { name: 'custom-auto-detect' },
           scannedProjects: [],
@@ -138,7 +139,7 @@ export async function getDepsFromPlugin(
   }
   if (!options.docker && !(options.file || options.packageManager)) {
     const error = NoSupportedManifestsFoundError([root]);
-    if (options['print-output-jsonl-with-errors']) {
+    if (shouldEmbedErrors(options)) {
       return {
         plugin: { name: 'custom-auto-detect' },
         scannedProjects: [],
@@ -158,7 +159,7 @@ export async function getDepsFromPlugin(
   try {
     inspectRes = await getSinglePluginResult(root, options, '', featureFlags);
   } catch (error) {
-    if (options['print-output-jsonl-with-errors']) {
+    if (shouldEmbedErrors(options)) {
       const errMessage =
         error?.message ?? 'Something went wrong getting dependencies';
       debug(
