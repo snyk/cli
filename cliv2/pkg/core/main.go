@@ -37,6 +37,7 @@ import (
 	"github.com/snyk/cli/cliv2/internal/constants"
 
 	cliv2utils "github.com/snyk/cli/cliv2/internal/utils"
+	persona "github.com/snyk/cli/cliv2/internal/persona"
 
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/config_utils"
@@ -648,7 +649,7 @@ func mainWithErrorCode(additionalExts []workflow.ExtensionInit) int {
 	cliAnalytics.GetInstrumentation().SetCategory(instrumentation.DetermineCategory(os.Args, globalEngine))
 	cliAnalytics.GetInstrumentation().SetStage(instrumentation.DetermineStage(cliAnalytics.IsCiEnvironment()))
 	cliAnalytics.GetInstrumentation().SetStatus(analytics.Success)
-	cliAnalytics.AddExtensionBoolValue("persona.interactive", cliv2utils.IsInteractive())
+	persona.Report(cliAnalytics)
 
 	setTimeout(globalConfiguration, func() {
 		tearDownOnce.Do(func() {
