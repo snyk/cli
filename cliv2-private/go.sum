@@ -609,8 +609,8 @@ github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65 h1:CEQuYv0Go6MEyR
 github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65/go.mod h1:88KbbvGYlmLgee4OcQ19yr0bNpXpOr2kciOthaSzCAg=
 github.com/snyk/policy-engine v1.1.4 h1:0XpaMpl7ixSk4+dlpHYg2iKEBuv+5Ci+QIcbsmhktao=
 github.com/snyk/policy-engine v1.1.4/go.mod h1:yAlMDZhzORiZcbJCW0GEk/nHkc4DBDKp8BRoiGTWkBE=
-github.com/snyk/remy-cli-extension v1.20.0 h1:3vOZSt+6aH+Eqk2xpcvd+1qEarNphX7LstLlHOJgfZw=
-github.com/snyk/remy-cli-extension v1.20.0/go.mod h1:qpL64pAGKDAbApnP8CLIAIOLPD6R+Ge6qA4m0L2auKo=
+github.com/snyk/remy-cli-extension v1.20.1 h1:Y5h3oqbKghkkObRqwvF8qkX6OtmmKDAbh+OTW7oNppc=
+github.com/snyk/remy-cli-extension v1.20.1/go.mod h1:qpL64pAGKDAbApnP8CLIAIOLPD6R+Ge6qA4m0L2auKo=
 github.com/snyk/snyk-iac-capture v0.6.5 h1:992DXCAJSN97KtUh8T5ndaWwd/6ZCal2bDkRXqM1u/E=
 github.com/snyk/snyk-iac-capture v0.6.5/go.mod h1:e47i55EmM0F69ZxyFHC4sCi7vyaJW6DLoaamJJCzWGk=
 github.com/snyk/snyk-ls v0.0.0-20260624144357-470296debe0f h1:l7FSJlUnnuxjmbon6swh174Ildtwqj08GpX8htHJH+4=
