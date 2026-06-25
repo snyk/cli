@@ -379,11 +379,12 @@ func createCommandsForWorkflows(rootCommand *cobra.Command, engine workflow.Engi
 			parentCommand.FParseErrWhitelist.UnknownFlags = true
 		case "agent":
 			// AXI: the `snyk agent` command surface is agent-ergonomic and owns its
-			// own help. Replace cobra's default help (Usage/Available Commands/Flags/
-			// Global Flags) with the extension's curated HelpText for the whole agent
-			// subtree (children inherit this help func).
+			// own help. Replace cobra's default help with the extension's renderer for
+			// the whole agent subtree (children inherit this help func). The engine is
+			// passed so the extension can introspect each scanner's underlying workflow
+			// flags for per-command help — without hardcoding other extensions' flags.
 			parentCommand.SetHelpFunc(func(cmd *cobra.Command, _ []string) {
-				_, _ = fmt.Fprint(cmd.OutOrStdout(), agent.HelpText())
+				agent.RenderHelp(cmd.OutOrStdout(), engine, os.Args[1:])
 			})
 		}
 	}
