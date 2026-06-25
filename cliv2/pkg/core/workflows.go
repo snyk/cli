@@ -3,7 +3,6 @@ package core
 import (
 	"github.com/snyk/cli-extension-agent-scan/pkg/agentscan"
 	"github.com/snyk/cli-extension-ai-bom/pkg/aibom"
-	"github.com/snyk/cli-extension-ai-redteam/pkg/redteam"
 	"github.com/snyk/cli-extension-dep-graph/v2/pkg/depgraph"
 	"github.com/snyk/cli-extension-iac-rules/iacrules"
 	"github.com/snyk/cli-extension-iac/pkg/iac"
@@ -29,7 +28,6 @@ func initExtensions(engine workflow.Engine, config configuration.Configuration, 
 	engine.AddExtensionInitializer(iac.Init)
 	engine.AddExtensionInitializer(sbom.Init)
 	engine.AddExtensionInitializer(aibom.Init)
-	engine.AddExtensionInitializer(redteam.Init)
 	engine.AddExtensionInitializer(depgraph.Init)
 	engine.AddExtensionInitializer(capture.Init)
 	engine.AddExtensionInitializer(iacrules.Init)
