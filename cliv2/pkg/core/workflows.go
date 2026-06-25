@@ -1,6 +1,7 @@
 package core
 
 import (
+	"github.com/snyk-playground/cli-extension-axi/pkg/agent"
 	"github.com/snyk/cli-extension-agent-scan/pkg/agentscan"
 	"github.com/snyk/cli-extension-ai-bom/pkg/aibom"
 	"github.com/snyk/cli-extension-dep-graph/v2/pkg/depgraph"
@@ -39,6 +40,7 @@ func initExtensions(engine workflow.Engine, config configuration.Configuration, 
 	engine.AddExtensionInitializer(ignore_workflow.InitIgnoreWorkflows)
 	engine.AddExtensionInitializer(agentscan.Init)
 	engine.AddExtensionInitializer(secrets.Init)
+	engine.AddExtensionInitializer(agent.Init)
 
 	// Register additional extensions injected via Run(WithAdditionalExtensions(...))
 	for _, ext := range additionalExts {
