@@ -416,6 +416,8 @@ github.com/mark3labs/mcp-go v0.31.0 h1:4UxSV8aM770OPmTvaVe/b1rA2oZAjBMhGBfUgOGut
 github.com/mark3labs/mcp-go v0.31.0/go.mod h1:rXqOudj/djTORU/ThxYx8fqEVj/5pvTuuebQ2RC7uk4=
 github.com/maruel/natural v1.1.1 h1:Hja7XhhmvEFhcByqDoHz9QZbkWey+COd9xWfCfn1ioo=
 github.com/maruel/natural v1.1.1/go.mod h1:v+Rfd79xlw1AgVBjbO0BEQmptqb5HvL/k9GRHB7ZKEg=
+github.com/mattdolan-snyk/axi-sdk-go v0.0.0-20260624052311-475083281cb3 h1:4hjDjUe8mxUPwvpXpd4VrrR2ewrvoE1VnLhnNBAw5LA=
+github.com/mattdolan-snyk/axi-sdk-go v0.0.0-20260624052311-475083281cb3/go.mod h1:PAGxDYllJTF1m+RemOPn6WLGf9WrCUlP0M8tSOaiNAQ=
 github.com/mattn/go-colorable v0.1.9/go.mod h1:u6P/XSegPjTcexA+o6vUJrdnUu04hMope9wVRipJSqc=
 github.com/mattn/go-colorable v0.1.12/go.mod h1:u5H1YNBxpqRaxsYJYSkiCWKzEfiAb1Gb520KVy5xxl4=
 github.com/mattn/go-colorable v0.1.13/go.mod h1:7S9/ev0klgBDR4GtXTXX8a3vIGJpMovkB8vQcUbaXHg=
@@ -539,6 +541,8 @@ github.com/sirupsen/logrus v1.9.3 h1:dueUQJ1C2q9oE3F7wvmSGAaVtTmUizReu6fjN8uqzbQ
 github.com/sirupsen/logrus v1.9.3/go.mod h1:naHLuLoDiP4jHNo9R0sCBMtWGeIprob74mVsIT4qYEQ=
 github.com/skeema/knownhosts v1.3.2 h1:EDL9mgf4NzwMXCTfaxSD/o/a5fxDw/xL9nkU28JjdBg=
 github.com/skeema/knownhosts v1.3.2/go.mod h1:bEg3iQAuw+jyiw+484wwFJoKSLwcfd7fqRy+N0QTiow=
+github.com/snyk-playground/cli-extension-axi v0.0.0-20260625161408-6f13b7a941b0 h1:HXymdUISQYO8jdx2VfyisDKMvwSR0ujzpo/L6tQ1t2A=
+github.com/snyk-playground/cli-extension-axi v0.0.0-20260625161408-6f13b7a941b0/go.mod h1:wRi0pApLCFhXXdxQv8/2VPhg/emxmjvuUo83iGbt96A=
 github.com/snyk/cli-extension-agent-scan v0.0.0-20260505093105-90d9442ea939 h1:GvW35inJZTr2AD1c/sIRkVOajom0kEY8nN30cqes+u0=
 github.com/snyk/cli-extension-agent-scan v0.0.0-20260505093105-90d9442ea939/go.mod h1:+Znlgu2v7sOTNAVjsoldFjDZUIo8tpdKnFlMptZHzz0=
 github.com/snyk/cli-extension-ai-bom v0.0.0-20260319140413-ac7392950603 h1:uZyw9OvOGCMFloZy8Fyu6l4K5y77o4k0KdxHuUKAp8M=
@@ -629,6 +633,8 @@ github.com/tklauser/go-sysconf v0.3.14 h1:g5vzr9iPFFz24v2KZXs/pvpvh8/V9Fw6vQK5ZZ
 github.com/tklauser/go-sysconf v0.3.14/go.mod h1:1ym4lWMLUOhuBOPGtRcJm7tEGX4SCYNEEEtghGG/8uY=
 github.com/tklauser/numcpus v0.8.0 h1:Mx4Wwe/FjZLeQsK/6kt2EOepwwSl7SmJrK5bV/dXYgY=
 github.com/tklauser/numcpus v0.8.0/go.mod h1:ZJZlAY+dmR4eut8epnzf0u/VwodKmryxR8txiloSqBE=
+github.com/toon-format/toon-go v0.0.0-20251202084852-7ca0e27c4e8c h1:D8lDFovBMZywze1eh9iwMLcYor5f11mHBocLhO7cBe8=
+github.com/toon-format/toon-go v0.0.0-20251202084852-7ca0e27c4e8c/go.mod h1:j/BOnpF2ihnz4lELs99h9mwGJBx/zdleOUCnLLRPCsc=
 github.com/ulikunitz/xz v0.5.15 h1:9DNdB5s+SgV3bQ2ApL10xRc35ck0DuIX/isZvIk+ubY=
 github.com/ulikunitz/xz v0.5.15/go.mod h1:nbz6k7qbPmH4IRqmfOplQw/tblSgqTqBwxkY0oWt/14=
 github.com/vincent-petithory/dataurl v1.0.0 h1:cXw+kPto8NLuJtlMsI152irrVw9fRDX8AbShPRpg2CI=
