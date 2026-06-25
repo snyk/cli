@@ -13,6 +13,7 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/rs/zerolog"
+	"github.com/snyk/cli/cliv2/internal/helpdocs"
 	"github.com/snyk/cli/cliv2/internal/helprouting"
 	"github.com/snyk/error-catalog-golang-public/code"
 	"github.com/snyk/error-catalog-golang-public/snyk_errors"
@@ -766,7 +767,9 @@ func loadJsonFile(t *testing.T, filename string) []byte {
 }
 
 func testHelpRouter() *helprouting.Router {
+	helpDocs := helpdocs.FixtureCommandHelp()
 	return &helprouting.Router{
 		LegacyHelp: func() error { return nil },
+		HasUserDoc: helpDocs.HasUserDoc,
 	}
 }

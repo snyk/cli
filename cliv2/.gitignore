@@ -12,3 +12,4 @@ _cache
 bin
 internal/embedded/_data
 /.bin/
+internal/helpdocs/cli-commands
