@@ -209,14 +209,14 @@ require (
 	github.com/snyk/cli-extension-dep-graph/v2 v2.6.0 // indirect
 	github.com/snyk/cli-extension-iac v0.0.0-20260515092252-505c498f1077 // indirect
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20260515141409-fb475901bb8e // indirect
-	github.com/snyk/cli-extension-os-flows v0.0.0-20260617143547-fe76369c867a // indirect
+	github.com/snyk/cli-extension-os-flows v0.0.0-20260625140351-2bb6cb470073 // indirect
 	github.com/snyk/cli-extension-sbom v0.0.0-20260428131356-48881c6270fa // indirect
 	github.com/snyk/cli-extension-secrets v0.0.0-20260619070019-764c5c87eda3 // indirect
 	github.com/snyk/code-client-go v1.27.5 // indirect
 	github.com/snyk/container-cli v0.0.0-20260213211631-cd2b2cf8f3ea // indirect
 	github.com/snyk/dep-graph/go v0.0.0-20260127160647-c836da762c62 // indirect
 	github.com/snyk/error-catalog-golang-public v0.0.0-20260505112649-a5103d411663 // indirect
-	github.com/snyk/go-application-framework v0.5.0 // indirect
+	github.com/snyk/go-application-framework v0.6.1 // indirect
 	github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65 // indirect
 	github.com/snyk/policy-engine v1.1.4 // indirect
 	github.com/snyk/snyk-iac-capture v0.6.5 // indirect
@@ -268,15 +268,15 @@ require (
 	go.opentelemetry.io/otel/trace v1.43.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.yaml.in/yaml/v4 v4.0.0-rc.2 // indirect
-	golang.org/x/crypto v0.52.0 // indirect
+	golang.org/x/crypto v0.53.0 // indirect
 	golang.org/x/exp v0.0.0-20260410095643-746e56fc9e2f // indirect
-	golang.org/x/mod v0.35.0 // indirect
+	golang.org/x/mod v0.36.0 // indirect
 	golang.org/x/net v0.55.0 // indirect
 	golang.org/x/oauth2 v0.36.0 // indirect
-	golang.org/x/sync v0.20.0 // indirect
-	golang.org/x/sys v0.45.0 // indirect
-	golang.org/x/term v0.43.0 // indirect
-	golang.org/x/text v0.37.0 // indirect
+	golang.org/x/sync v0.21.0 // indirect
+	golang.org/x/sys v0.46.0 // indirect
+	golang.org/x/term v0.44.0 // indirect
+	golang.org/x/text v0.38.0 // indirect
 	golang.org/x/time v0.15.0 // indirect
 	google.golang.org/api v0.271.0 // indirect
 	google.golang.org/genai v1.60.0 // indirect
