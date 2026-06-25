@@ -11,7 +11,7 @@ require (
 	github.com/mattn/go-isatty v0.0.20
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.34.0
-	github.com/snyk-playground/cli-extension-axi v0.0.0-20260625133711-dac332aae84b
+	github.com/snyk-playground/cli-extension-axi v0.0.0-20260625142929-4a38bf07091d
 	github.com/snyk/cli-extension-agent-scan v0.0.0-20260505093105-90d9442ea939
 	github.com/snyk/cli-extension-ai-bom v0.0.0-20260319140413-ac7392950603
 	github.com/snyk/cli-extension-ai-redteam v0.0.0-20260331152502-ce341aeaff9e
@@ -301,3 +301,5 @@ replace github.com/mattn/go-localereader v0.0.1 => github.com/mattn/go-localerea
 // replace github.com/snyk/cli-extension-sbom => ../../cli-extension-sbom
 
 // replace github.com/snyk/cli-extension-secrets => ../../cli-extension-secrets
+
+replace github.com/snyk/studio-mcp => ../../studio-mcp
