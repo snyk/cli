@@ -18,7 +18,7 @@ Clone this repository with git.
 
 ```sh
 git clone git@github.com/snyk/cli.git
-cd snyk
+cd cli
 ```
 
 You will now be on our `main` branch. You should never commit to this branch, but you should keep it up-to-date to
@@ -51,6 +51,35 @@ Then run `ls binary-releases` to confirm the name of the binary. For instance, i
 ```sh
 ./binary-releases/snyk-macos-arm64 --version
 ```
+
+### Public vs Private Builds
+
+The CLI supports two build modes:
+
+- **Private build** (default): The full-featured build including proprietary extensions. Requires access to private repositories.
+- **Public/OSS build**: Contains only open-source extensions. This is the fallback for external contributors without access to private repos.
+
+The build system auto-detects which mode to use based on your access to the `cliv2-private` module. You can also explicitly set the mode:
+
+```sh
+# Force public build
+make build BUILD_MODE=public
+
+# Force private build (will fail if you don't have access)
+make build BUILD_MODE=private
+```
+
+To check which build you have, run:
+
+```sh
+./binary-releases/snyk-macos-arm64 --version
+# Private: 1.1234.0
+# Public:  1.1234.0-oss
+```
+
+### Managing Go Dependencies
+
+When updating Go dependencies, run `make tidy` to tidy both the public and private Go modules.
 
 ## Debugging the go binary with VSCode
 
@@ -158,6 +187,38 @@ You can run acceptance tests with:
 npm run test:acceptance -- --selectProjects coreCli
 ```
 
+#### Skipping acceptance spec files via CircleCI context
+
+The `TEST_SNYK_IGNORE_LIST` environment variable enables selective exclusion of acceptance test files from CI
+execution without modifying repository code. This feature is particularly useful for blocking failures outside
+the CLI scope.
+
+##### Configuration
+
+Set the environment variable **`TEST_SNYK_IGNORE_LIST`** to a comma-separated list of **patterns**. Split on commas,
+trim each segment, omit empty segments, then merge the rest into Jest's `testPathIgnorePatterns` (same as setting
+that option in config; behaviour follows Jest's documentation for ignore patterns).
+
+##### CircleCI Setup
+
+- **Context**: Add the variable to the **`team-cli-workflow-context`** context
+- **Variable Name**: `TEST_SNYK_IGNORE_LIST`
+- **Value Format**: Pattern text only (e.g., `snyk-code-user-journey\.spec\.ts`) — not
+  `TEST_SNYK_IGNORE_LIST=...`
+- **Workflow Attachment**: These workflows automatically attach the context to **`acceptance-tests`** jobs,
+  making the environment variable available
+
+##### Precedence Rules
+
+1. **`TEST_SNYK_IGNORE_LIST` takes precedence over `TEST_SNYK_DONT_SKIP_ANYTHING`** for matching paths (the file
+   is excluded from collection)
+2. **`TEST_SNYK_DONT_SKIP_ANYTHING` still applies** to specs that remain in the test run
+
+##### Limitations
+
+`testPathIgnorePatterns` applies to entire files only; it cannot skip individual `it()` blocks within a spec
+file.
+
 ### Smoke Tests
 
 Smoke tests typically don't run on branches unless the branch is specifically prefixed with `smoke/`. They usually run
@@ -195,14 +256,18 @@ increases visibility in the state of the feature being used.
 To ensure your changes follow formatting guidelines, you can run the linter.
 
 ```
-npm run lint
+make lint
 ```
+
+This lints both TypeScript (ESLint) and Go (golangci-lint) code.
 
 To fix various issues automatically, you can install ESLint and Prettier plugins for your IDE or run the following:
 
 ```
-npm run format
+make format
 ```
+
+This formats both TypeScript (Prettier + ESLint autofix) and Go (gofmt) code, and also runs `make tidy` to ensure Go modules are tidy.
 
 You will need to fix any remaining issues manually.
 
@@ -214,6 +279,27 @@ User-facing documentation is [available on GitBook](https://docs.snyk.io/feature
 
 `snyk help` output must also be [edited on GitBook](https://docs.snyk.io/features/snyk-cli/commands). Changes will
 automatically be pulled into Snyk CLI as pull requests.
+
+### CLI help command files (`help/cli-commands`)
+
+The Go CLI reads user-facing command help from markdown files under `help/cli-commands/`. These files are synced from
+GitBook into this repository (see the `sync-cli-help-to-user-docs` workflow). At **build** time, the Makefile copies
+`help/cli-commands/` into `cliv2/internal/helpdocs/cli-commands/` so the Go embed can read them, then removes the copy
+afterward. Go unit tests read `help/cli-commands/` from disk (or use a small in-memory fixture when that directory is
+unavailable), so `make -C cliv2 test` does not run that copy step. The embedded filenames decide whether to show legacy
+GitBook help or native Cobra help for a given command.
+
+When you add, remove, or rename files in `help/cli-commands/`, no extra manifest step is required. Help routing tests
+pick up the changes on the next `make -C cliv2 test`; the shipped binary picks them up on the next `make build`.
+
+To test help routing locally after building:
+
+```sh
+./binary-releases/snyk-macos-arm64 help test          # documented command → GitBook help
+./binary-releases/snyk-macos-arm64 help agent-scan    # undocumented command → Cobra help
+```
+
+Adjust the binary path for your platform (see [Building](#building)).
 
 ## Creating a branch
 
@@ -396,7 +482,7 @@ If you have made changes to the `go-application-framework`, you can run
 
 - Fetch the most recent commit from the `main` branch of the framework
 - Go get that version of the framework
-- Run `go mod tidy` to ensure the `go.mod` file matches the source code in the module
+- Run `make tidy` to ensure the `go.mod` files match the source code in both modules
 
 You can then raise a pr with the relevant changes.
 

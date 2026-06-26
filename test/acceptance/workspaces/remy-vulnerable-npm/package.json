@@ -1,0 +1,14 @@
+{
+  "name": "remy-test-project",
+  "version": "1.0.0",
+  "description": "Throwaway project for exercising `snyk remy --auto-approve`. Pinned to a known-vulnerable minimist version.",
+  "private": true,
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "node -e \"require('./index.js'); console.log('ok')\""
+  },
+  "dependencies": {
+    "minimist": "1.2.0"
+  }
+}

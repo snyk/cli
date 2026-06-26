@@ -45,12 +45,12 @@ describe('debug log', () => {
         DEBUG: '*',
         SNYK_LOG_LEVEL: 'trace',
         SNYK_TOKEN: token,
-        HTTP_PROXY: 'http://user:password@myproxy.com',
+        HTTP_PROXY: 'http://user:password@myproxy.invalid',
       },
     });
 
     expect(stderr).not.toContain(token);
-    expect(stderr).not.toContain('http://user:password@myproxy.com');
+    expect(stderr).not.toContain('http://user:password@myproxy.invalid');
   });
 
   it('redacts token from config file', async () => {
@@ -65,12 +65,12 @@ describe('debug log', () => {
         DEBUG: '*',
         SNYK_LOG_LEVEL: 'trace',
         SNYK_TOKEN: token,
-        HTTP_PROXY: 'http://user:password@myproxy.com',
+        HTTP_PROXY: 'http://user:password@myproxy.invalid',
       },
     });
 
     expect(stderr).not.toContain(token);
-    expect(stderr).not.toContain('http://user:password@myproxy.com');
+    expect(stderr).not.toContain('http://user:password@myproxy.invalid');
   });
 
   it('redacts token from config file', async () => {

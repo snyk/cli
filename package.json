@@ -21,7 +21,8 @@
     "snyk": "bin/snyk"
   },
   "engines": {
-    "node": "^22"
+    "node": "^22 || ^24",
+    "npm": "^11.10"
   },
   "workspaces": [
     "packages/*"
@@ -66,11 +67,11 @@
     "@snyk/cloud-config-parser": "^1.14.5",
     "@snyk/code-client": "^4.23.5",
     "@snyk/dep-graph": "^2.16.3",
-    "@snyk/docker-registry-v2-client": "^2.24.1",
+    "@snyk/docker-registry-v2-client": "^4.0.2",
     "@snyk/error-catalog-nodejs-public": "^5.79.0",
     "@snyk/fix": "file:packages/snyk-fix",
     "@snyk/gemfile": "1.2.0",
-    "@snyk/snyk-cocoapods-plugin": "3.1.0",
+    "@snyk/snyk-cocoapods-plugin": "3.1.1",
     "@snyk/snyk-hex-plugin": "2.1.1",
     "@types/marked": "^4.0.0",
     "abbrev": "^1.1.1",
@@ -105,7 +106,7 @@
     "lodash.values": "^4.3.0",
     "marked": "^4.0.1",
     "micromatch": "4.0.8",
-    "needle": "^3.3.0",
+    "needle": "3.3.0",
     "open": "^7.0.3",
     "ora": "5.4.0",
     "os-name": "^5.1.0",
@@ -115,20 +116,20 @@
     "semver": "^6.0.0",
     "snyk-config": "^5.0.0",
     "snyk-cpp-plugin": "^2.24.3",
-    "snyk-docker-plugin": "9.7.0",
+    "snyk-docker-plugin": "^9.11.0",
     "snyk-go-plugin": "2.1.2",
-    "snyk-gradle-plugin": "6.0.0",
+    "snyk-gradle-plugin": "7.0.0",
     "snyk-module": "3.1.0",
     "snyk-mvn-plugin": "^4.7.0",
-    "snyk-nodejs-lockfile-parser": "2.7.1",
-    "snyk-nodejs-plugin": "^2.0.0",
-    "snyk-nuget-plugin": "4.2.0",
+    "snyk-nodejs-lockfile-parser": "2.8.1",
+    "snyk-nodejs-plugin": "^2.0.1",
+    "snyk-nuget-plugin": "4.2.3",
     "snyk-php-plugin": "1.12.1",
     "snyk-policy": "^4.1.6",
     "snyk-python-plugin": "^3.2.1",
     "snyk-resolve-deps": "4.10.0",
-    "snyk-sbt-plugin": "3.1.0",
-    "snyk-swiftpm-plugin": "1.4.1",
+    "snyk-sbt-plugin": "3.1.1",
+    "snyk-swiftpm-plugin": "1.5.1",
     "strip-ansi": "^6.0.1",
     "tar": "^7.5.8",
     "uuid": "^8.3.2",
@@ -193,9 +194,6 @@
     "snyk-python-plugin": {
       "tmp@<0.2.6": "^0.2.6"
     },
-    "snyk-sbt-plugin": {
-      "tmp@<0.2.6": "^0.2.6"
-    },
     "@yarnpkg/core@4.5.0": {
       "tar": "7.5.11"
     },
@@ -224,6 +222,7 @@
     "access": "public"
   },
   "jest-junit": {
-    "reportTestSuiteErrors": "true"
+    "reportTestSuiteErrors": "true",
+    "addFileAttribute": "true"
   }
 }

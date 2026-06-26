@@ -14,7 +14,10 @@ const TEMP_LOCAL_PATH = '/tmp/snyk-goof';
 beforeAll(() => {
   if (!existsSync(TEMP_LOCAL_PATH)) {
     execSync(
-      `git clone ${TEST_REPO_URL} ${TEMP_LOCAL_PATH} && cd ${TEMP_LOCAL_PATH} && npm install --ignore-scripts`,
+      // engine-strict=false: snyk-goof pins engines.node 6.14.1, and the CLI's
+      // .npmrc engine-strict leaks in via npm_config_* env from `npm run test:acceptance`,
+      // which would otherwise make this install fail (EBADENGINE) on modern Node.
+      `git clone ${TEST_REPO_URL} ${TEMP_LOCAL_PATH} && cd ${TEMP_LOCAL_PATH} && npm install --ignore-scripts --engine-strict=false`,
       {
         stdio: 'inherit',
       },
@@ -211,7 +214,7 @@ describe('snyk test --reachability', () => {
     expect(code).toBe(EXIT_CODES.VULNS_FOUND);
   });
 
-  test('renders a warning if no files were uploaded', async () => {
+  test('warns and still returns results when source dir has no reachability-supported files', async () => {
     const pathWithNoValidFiles = join(
       __dirname,
       '../../../fixtures/npm/with-vulnerable-lodash-dep',
@@ -228,7 +231,7 @@ describe('snyk test --reachability', () => {
 
     expect(stdout).not.toBe('');
     expect(stderr).toContainText(
-      'failed to upload source code for reachability analysis',
+      'no reachability-supported source files were found; skipping reachability analysis',
     );
 
     const jsonOutput = JSON.parse(stdout);

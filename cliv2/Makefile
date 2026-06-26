@@ -19,6 +19,31 @@ export LS_PROTOCOL_VERSION=
 STATIC_NODE_BINARY = false
 CGO_ENABLED = 1
 
+# BUILD_MODE is typically set by the root Makefile. When running cliv2/Makefile
+# directly, it defaults to auto-detection based on access to cliv2-private.
+# Can be overridden: make build BUILD_MODE=public
+PRIVATE_DIR = $(WORKING_DIR)/../cliv2-private
+ifndef BUILD_MODE
+  _CAN_BUILD_PRIVATE = $(shell if [ -f "$(PRIVATE_DIR)/go.mod" ] && cd "$(PRIVATE_DIR)" && $(GOCMD) mod download > /dev/null 2>&1; then echo yes; fi)
+  BUILD_MODE = $(if $(_CAN_BUILD_PRIVATE),private,public)
+endif
+BUILD_ROOT_DIR = $(if $(filter private,$(BUILD_MODE)),$(PRIVATE_DIR),$(WORKING_DIR))
+
+# Validation target for BUILD_MODE=private (called by build targets, not at parse time)
+.PHONY: _validate-build-mode
+_validate-build-mode:
+	@if [ "$(BUILD_MODE)" = "private" ]; then \
+		if [ ! -f "$(PRIVATE_DIR)/go.mod" ]; then \
+			echo "ERROR: BUILD_MODE=private requested but $(PRIVATE_DIR)/go.mod not found." >&2; \
+			exit 1; \
+		fi; \
+		if ! (cd "$(PRIVATE_DIR)" && $(GOCMD) mod download > /dev/null 2>&1); then \
+			echo "ERROR: BUILD_MODE=private requested but private module dependencies cannot be resolved." >&2; \
+			echo "       Check GOPRIVATE and network connectivity." >&2; \
+			exit 1; \
+		fi; \
+	fi
+
 # Build tools
 GO_BIN := $(shell pwd)/.bin
 OVERRIDE_GOCI_LINT_V := v2.9.0
@@ -36,7 +61,7 @@ CACHE_DIR = $(WORKING_DIR)/_cache
 LS_PROTOCOL_VERSION_FILE = $(CACHE_DIR)/ls-protocol-version
 LS_COMMIT_HASH_FILE = $(CACHE_DIR)/ls-commit-hash
 LS_COMMIT_HASH = $(if $(wildcard $(LS_COMMIT_HASH_FILE)),$(shell cat $(LS_COMMIT_HASH_FILE)),determined during LS metadata generation)
-SRCS = $(shell find $(WORKING_DIR) -type f -name '*.go')
+SRCS = $(shell $(GOCMD) list -f '{{range .GoFiles}}{{$$.Dir}}/{{.}} {{end}}' ./...)
 
 # load cached variables if available
 -include $(CACHE_DIR)/variables.mk
@@ -101,6 +126,9 @@ HASH_STRING = $(HASH)$(HASH_ALGORITHM)
 SIGN_SCRIPT = $(WORKING_DIR)/scripts/sign_$(_GO_OS).sh
 ISSIGNED_SCRIPT = $(WORKING_DIR)/scripts/issigned_$(_GO_OS).sh
 EMBEDDED_DATA_DIR = $(WORKING_DIR)/internal/embedded/_data
+HELPDOCS_DIR = $(WORKING_DIR)/internal/helpdocs
+HELPDOCS_EMBED_DIR = $(HELPDOCS_DIR)/cli-commands
+HELPDOCS_SOURCE = $(WORKING_DIR)/../help/cli-commands
 
 ifeq ($(GOHOSTOS), windows)
 	SPECIAL_SHELL = powershell
@@ -149,6 +177,8 @@ summary:
 	@echo "$(LOG_PREFIX)  Non-Standard Crypto-Backend:  $(FIPS_CRYPTO_BACKEND)"
 	@echo "$(LOG_PREFIX)  MS_GO_NOSYSTEMCRYPTO:         $(MS_GO_NOSYSTEMCRYPTO)"
 	@echo "$(LOG_PREFIX)  Building Binary:              $(BUILD_DIR)/$(V2_EXECUTABLE_NAME)"
+	@echo "$(LOG_PREFIX)  Build mode:                   $(BUILD_MODE)"
+	@echo "$(LOG_PREFIX)  Build root:                   $(BUILD_ROOT_DIR)"
 	@echo "$(LOG_PREFIX)  Building version:             $(CLI_V1_VERSION_TAG)"
 	@echo "$(LOG_PREFIX)  LS version:                   $(LS_COMMIT_HASH)"
 	@if [ -z "$(IAC_RULES_URL)" ]; then \
@@ -159,19 +189,30 @@ summary:
 
 # prepare the workspace and cache global parameters
 .PHONY: configure
-configure: summary $(CACHE_DIR) $(CACHE_DIR)/variables.mk $(V1_DIRECTORY)/$(V1_EMBEDDED_FILE_OUTPUT) dependencies $(CACHE_DIR)/prepare-3rd-party-licenses
+configure: _validate-build-mode summary $(CACHE_DIR) $(CACHE_DIR)/variables.mk $(V1_DIRECTORY)/$(V1_EMBEDDED_FILE_OUTPUT) dependencies $(CACHE_DIR)/prepare-3rd-party-licenses
 
-$(BUILD_DIR)/$(V2_EXECUTABLE_NAME): $(BUILD_DIR) $(SRCS) generate-ls-protocol-metadata
+.PHONY: _helpdocs-prepare
+_helpdocs-prepare:
+	@set -e; \
+	md_count=$$(ls $(HELPDOCS_SOURCE)/*.md 2>/dev/null | wc -l | tr -d ' '); \
+	if [ "$$md_count" -eq 0 ]; then \
+		echo "$(LOG_PREFIX) ERROR: no .md files found in $(HELPDOCS_SOURCE)"; \
+		exit 1; \
+	fi; \
+	rm -rf $(HELPDOCS_EMBED_DIR)/*.md; \
+	cp $(HELPDOCS_SOURCE)/*.md $(HELPDOCS_EMBED_DIR)/
+
+$(BUILD_DIR)/$(V2_EXECUTABLE_NAME): $(BUILD_DIR) $(SRCS) generate-ls-protocol-metadata _helpdocs-prepare
 	$(eval LS_PROTOCOL_VERSION := $(shell cat $(LS_PROTOCOL_VERSION_FILE)))
 	$(eval LS_COMMIT_HASH := $(shell cat $(LS_COMMIT_HASH_FILE)))
-	$(eval EXTRA_FLAGS := -X github.com/snyk/snyk-ls/application/config.Version=$(LS_COMMIT_HASH) -X github.com/snyk/snyk-ls/application/config.LsProtocolVersion=$(LS_PROTOCOL_VERSION)  -X main.internalOS=$(GOOS) -X github.com/snyk/cli/cliv2/internal/embedded/cliv1.snykCLIVersion=$(CLI_V1_VERSION_TAG) -X github.com/snyk/cli-extension-iac/internal/commands/iactest.internalRulesClientURL=$(IAC_RULES_URL) -X github.com/snyk/cli/cliv2/internal/constants.StaticNodeJsBinary=$(STATIC_NODE_BINARY))
+	$(eval EXTRA_FLAGS := -X github.com/snyk/snyk-ls/application/config.Version=$(LS_COMMIT_HASH) -X github.com/snyk/snyk-ls/application/config.LsProtocolVersion=$(LS_PROTOCOL_VERSION)  -X github.com/snyk/cli/cliv2/pkg/core.internalOS=$(GOOS) -X github.com/snyk/cli/cliv2/internal/embedded/cliv1.snykCLIVersion=$(CLI_V1_VERSION_TAG) -X github.com/snyk/cli-extension-iac/internal/commands/iactest.internalRulesClientURL=$(IAC_RULES_URL) -X github.com/snyk/cli/cliv2/internal/constants.StaticNodeJsBinary=$(STATIC_NODE_BINARY))
 	@echo "$(LOG_PREFIX) Building ( $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) )"
 	@echo "$(LOG_PREFIX)  CGO_ENABLED: $(CGO_ENABLED)"
 	@echo "$(LOG_PREFIX)  LDFLAGS:     $(LDFLAGS)"
 	@echo "$(LOG_PREFIX)  EXTRA_FLAGS: "
 	@$(foreach flag,$(filter -X%,$(subst -X ,$(space)-X,$(EXTRA_FLAGS))),echo "$(LOG_PREFIX)    $(flag)";)
 	@echo "$(LOG_PREFIX)  GCFLAGS:     $(GCFLAGS)"
-	@CGO_ENABLED=$(CGO_ENABLED)  GOEXPERIMENT=$(FIPS_CRYPTO_BACKEND) MS_GO_NOSYSTEMCRYPTO=$(MS_GO_NOSYSTEMCRYPTO) GOOS=$(_GO_OS) GOARCH=$(GOARCH) $(GOCMD) build -tags=application -ldflags="$(LDFLAGS) $(EXTRA_FLAGS)" $(GCFLAGS) -o $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) $(WORKING_DIR)/cmd/cliv2/*.go
+	@cd $(BUILD_ROOT_DIR) && CGO_ENABLED=$(CGO_ENABLED)  GOEXPERIMENT=$(FIPS_CRYPTO_BACKEND) MS_GO_NOSYSTEMCRYPTO=$(MS_GO_NOSYSTEMCRYPTO) GOOS=$(_GO_OS) GOARCH=$(GOARCH) $(GOCMD) build -tags=application -ldflags="$(LDFLAGS) $(EXTRA_FLAGS)" $(GCFLAGS) -o $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) ./cmd/cliv2
 
 .PHONY: fips
 fips:
@@ -191,7 +232,7 @@ experimental:
 
 .PHONY: debug
 debug:
-	$(eval LDFLAGS := -X github.com/snyk/snyk-ls/application/config.Development=true -X main.buildType=debug)
+	$(eval LDFLAGS := -X github.com/snyk/snyk-ls/application/config.Development=true -X github.com/snyk/cli/cliv2/pkg/core.buildType=debug)
 	$(eval GCFLAGS := -gcflags="all=-N -l")
 	@echo "$(LOG_PREFIX) DEBUG"
 
@@ -232,6 +273,19 @@ $(TOOLS_BIN)/golangci-lint:
 .PHONY: format
 format:
 	gofmt -w -l -e .
+
+# Tidy both public and private modules. The private module depends on the public
+# module via a replace directive, so we tidy the public module first.
+.PHONY: tidy
+tidy:
+	@echo "$(LOG_PREFIX) Running go mod tidy in cliv2 (public)"
+	@cd $(WORKING_DIR) && $(GOCMD) mod tidy
+	@if [ -f "$(PRIVATE_DIR)/go.mod" ]; then \
+		echo "$(LOG_PREFIX) Running go mod tidy in cliv2-private"; \
+		cd "$(PRIVATE_DIR)" && $(GOCMD) mod tidy; \
+	else \
+		echo "$(LOG_PREFIX) Skipping cliv2-private (not found or no access)"; \
+	fi
 
 .PHONY: SIGN_SCRIPT
 SIGN_SCRIPT:
@@ -307,6 +361,7 @@ help:
 	@echo "\n Main targets (Golang only):"
 	@echo "$(LOG_PREFIX) lint"
 	@echo "$(LOG_PREFIX) format"
+	@echo "$(LOG_PREFIX) tidy                       Run go mod tidy in both cliv2 and cliv2-private"
 	@echo "$(LOG_PREFIX) fips"
 	@echo "$(LOG_PREFIX) build"
 	@echo "$(LOG_PREFIX) sign"
@@ -322,5 +377,6 @@ help:
 	@echo "$(LOG_PREFIX) GOARCH                     Specify Architecture to compile for (see golang GOARCH, default=$(GOARCH))"
 	@echo "$(LOG_PREFIX) CLI_V1_VERSION_TAG         Version of the CLIv1 to bundle"
 	@echo "$(LOG_PREFIX) CLI_V1_LOCATION            Filesystem location of CLIv1 binaries to bundle, if specified, CLI_V1_VERSION_TAG is also required"
+	@echo "$(LOG_PREFIX) BUILD_MODE                 Build mode: 'public' (default) or 'private' (auto-detected based on access)"
 	@echo "$(LOG_PREFIX) prefix                     Installation prefix (default=$(prefix))"
 	@echo "$(LOG_PREFIX) DESTDIR                    For staged installations"
