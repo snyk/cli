@@ -56,6 +56,10 @@ export interface Options {
   mavenAggregateProject?: boolean;
   mavenSkipWrapper?: boolean;
   mavenVerboseIncludeAllVersions?: boolean;
+  // Internal/undocumented flag, read directly off the dashed key (see
+  // get-single-plugin-result.ts). Intentionally not part of
+  // SupportedUserReachableFacingCliArgs so it stays off the documented surface.
+  'include-component-metadata'?: boolean;
   includeProvenance?: boolean;
   fingerprintAlgorithm?: string;
   'project-name'?: string;

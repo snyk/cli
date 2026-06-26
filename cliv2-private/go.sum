@@ -565,8 +565,8 @@ github.com/snyk/cli-extension-agent-scan v0.0.0-20260505093105-90d9442ea939 h1:G
 github.com/snyk/cli-extension-agent-scan v0.0.0-20260505093105-90d9442ea939/go.mod h1:+Znlgu2v7sOTNAVjsoldFjDZUIo8tpdKnFlMptZHzz0=
 github.com/snyk/cli-extension-ai-bom v0.0.0-20260319140413-ac7392950603 h1:uZyw9OvOGCMFloZy8Fyu6l4K5y77o4k0KdxHuUKAp8M=
 github.com/snyk/cli-extension-ai-bom v0.0.0-20260319140413-ac7392950603/go.mod h1:RnMP+tFTeKygfXSx7z+heyMZoOps67u5HFytjptHjuk=
-github.com/snyk/cli-extension-dep-graph/v2 v2.6.0 h1:tv21E++s5tVF8L54fJ485Grb9jo14lE3ubT3cXPHN3k=
-github.com/snyk/cli-extension-dep-graph/v2 v2.6.0/go.mod h1:I0GXbV6Rk8T0AEC9EugE4AgYE5SbDn0m0bGgAjZqy5U=
+github.com/snyk/cli-extension-dep-graph/v2 v2.7.1 h1:vnDp55PWtYBKYww8nQoCWfJ58huIR9iocax9jxvXe+Q=
+github.com/snyk/cli-extension-dep-graph/v2 v2.7.1/go.mod h1:I0GXbV6Rk8T0AEC9EugE4AgYE5SbDn0m0bGgAjZqy5U=
 github.com/snyk/cli-extension-iac v0.0.0-20260515092252-505c498f1077 h1:lteivlSoQL0zYyFcGQjEPZcQgDkzM5PcgIHlIgzRuhg=
 github.com/snyk/cli-extension-iac v0.0.0-20260515092252-505c498f1077/go.mod h1:wRpQrWCjzWTPA5WK1xaHjWWI5zfY0qKe12PfKb+lcMk=
 github.com/snyk/cli-extension-iac-rules v0.0.0-20260515141409-fb475901bb8e h1:HE22F5/ivTJ4TlTUnjasZqfkDKVyfmYjf36RaIZqrs4=
