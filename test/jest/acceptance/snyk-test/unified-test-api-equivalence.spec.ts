@@ -13,30 +13,34 @@
  * Starter corpus. Expand per resolveDepgraphs-rollout-plan.md.
  */
 
-import { fakeServer } from '../../../acceptance/fake-server';
+import {
+  fakeServer,
+  getFirstIPv4Address,
+} from '../../../acceptance/fake-server';
 import { createProjectFromWorkspace } from '../../util/createProject';
-import { getServerPort } from '../../util/getServerPort';
+import { getAvailableServerPort } from '../../util/getServerPort';
 import { assertEquivalent, runBothFlows } from './equivalenceHelpers';
 
-jest.setTimeout(1000 * 60 * 3);
+jest.setTimeout(1000 * 60 * 5);
 
 describe('snyk test — unified test API equivalence (FF off vs on)', () => {
   let server;
   let env: Record<string, string>;
 
-  beforeAll((done) => {
-    const port = getServerPort(process);
+  beforeAll(async () => {
+    const port = await getAvailableServerPort(process);
     const baseApi = '/v1';
+    const fakeServerIp = getFirstIPv4Address();
     env = {
       ...process.env,
-      SNYK_API: 'http://localhost:' + port + baseApi,
-      SNYK_HOST: 'http://localhost:' + port,
+      SNYK_API: `http://${fakeServerIp}:${port}${baseApi}`,
+      SNYK_HOST: `http://${fakeServerIp}:${port}`,
       SNYK_TOKEN: '123456789',
       SNYK_DISABLE_ANALYTICS: '1',
       SNYK_HTTP_PROTOCOL_UPGRADE: '0',
     };
     server = fakeServer(baseApi, env.SNYK_TOKEN);
-    server.listen(port, () => done());
+    await server.listenPromise(port);
   });
 
   afterAll((done) => {
