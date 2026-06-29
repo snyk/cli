@@ -146,7 +146,7 @@ $ snyk ignore --id='SNYK-JS-PATHPARSE-1077067' --expiry='2021-01-10' --path='nyc
 In this example, `snyk iac test` on Windows returned a Path containing single quotes and a File specification containing back slashes:
 
 Rule: [https://security.snyk.io/rules/cloud/SNYK-CC-TF-118](https://security.snyk.io/rules/cloud/SNYK-CC-TF-118)\
-Path: resource > aws_iam_role\[OrganizationAccountAccessRole] > assume_role_policy\['Statement']\[0]\
+Path: resource > aws\_iam\_role\[OrganizationAccountAccessRole] > assume\_role\_policy\['Statement']\[0]\
 File: terraform\environment\com\iam.tf
 
 The corresponding `snyk ignore` command would be:
@@ -160,7 +160,7 @@ $ snyk ignore --id=SNYK-CC-TF-118 --path="terraform\environment\com\iam.tf > res
 In this example, `snyk iac test` on Linux or Mac OS returned a Path containing single quotes and a File specification containing forward slashes:
 
 Rule: [https://security.snyk.io/rules/cloud/SNYK-CC-TF-118](https://security.snyk.io/rules/cloud/SNYK-CC-TF-118)\
-Path: resource > aws_iam_role\[OrganizationAccountAccessRole] > assume_role_policy\['Statement']\[0]\
+Path: resource > aws\_iam\_role\[OrganizationAccountAccessRole] > assume\_role\_policy\['Statement']\[0]\
 File: terraform/environment/com/iam.tf
 
 The corresponding `snyk ignore` command would be:

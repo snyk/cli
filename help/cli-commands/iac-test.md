@@ -17,7 +17,7 @@ For more information see [Snyk CLI for IaC](https://docs.snyk.io/snyk-cli/scan-a
 Possible exit codes and their meaning:
 
 **0**: success (scan completed), no vulnerabilities found\
-**1**: action_needed (scan completed), vulnerabilities found\
+**1**: action\_needed (scan completed), vulnerabilities found\
 **2**: failure, try to re-run the command. Use `-d` to output the debug logs.\
 **3**: failure, no supported projects detected
 
@@ -85,7 +85,7 @@ Return results in SARIF format.
 
 ### `--sarif-file-output=<OUTPUT_FILE_PATH>`
 
-Save test output in SARIF format directly to the \<OUTPUT_FILE_PATH> file, regardless of whether or not you use the `--sarif` option.
+Save test output in SARIF format directly to the \<OUTPUT\_FILE\_PATH> file, regardless of whether or not you use the `--sarif` option.
 
 This is especially useful if you want to display the human-readable test output using stdout and at the same time save the SARIF format output to a file.
 
