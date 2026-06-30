@@ -4,7 +4,7 @@ go 1.26.4
 
 require (
 	github.com/snyk/cli/cliv2 v0.0.0
-	github.com/snyk/remy-cli-extension v1.20.1
+	github.com/snyk/remy-cli-extension v1.22.1
 )
 
 require (
