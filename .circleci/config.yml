@@ -1323,7 +1323,6 @@ workflows:
       - release-npm:
           name: upload npm
           context:
-            - team-hammerhead-common-deploy-tokens
             - devex_cli_docker_hub
           requires:
             - upload github
@@ -1855,7 +1854,9 @@ jobs:
           version: << pipeline.parameters.aws_version >>
       - run:
           name: Pre-Publishing
-          command: make release-pre
+          command: |
+            export NPM_ID_TOKEN=$(circleci run oidc get --claims '{"aud": "npm:registry.npmjs.org"}')
+            make release-pre
       - failed-release-notification
 
   npm-validation:
@@ -1988,7 +1989,9 @@ jobs:
           deployment: stable
       - run:
           name: Publish to npm
-          command: ./release-scripts/upload-artifacts.sh npm
+          command: |
+            export NPM_ID_TOKEN=$(circleci run oidc get --claims '{"aud": "npm:registry.npmjs.org"}')
+            ./release-scripts/upload-artifacts.sh npm
       - failed-release-notification
 
   trigger-building-distribution-channels:
