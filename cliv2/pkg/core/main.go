@@ -37,8 +37,8 @@ import (
 	"github.com/snyk/cli/cliv2/internal/cliv2"
 	"github.com/snyk/cli/cliv2/internal/constants"
 
-	cliv2utils "github.com/snyk/cli/cliv2/internal/utils"
 	persona "github.com/snyk/cli/cliv2/internal/persona"
+	cliv2utils "github.com/snyk/cli/cliv2/internal/utils"
 
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/config_utils"
