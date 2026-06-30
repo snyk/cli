@@ -74,7 +74,7 @@ describe('setDefaultTestOptions', () => {
       code: true,
     };
     await expect(validateFixCommandIsSupported(options)).rejects.toThrowError(
-      new FeatureNotSupportedByEcosystemError('snyk fix', 'code'),
+      '`snyk fix` is not supported for Snyk Code projects.',
     );
   });
 });

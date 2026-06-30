@@ -212,7 +212,7 @@ require (
 	github.com/snyk/cli-extension-os-flows v0.0.0-20260625140351-2bb6cb470073 // indirect
 	github.com/snyk/cli-extension-sbom v0.0.0-20260623143454-0e7dabd69db4 // indirect
 	github.com/snyk/cli-extension-secrets v0.0.0-20260619070019-764c5c87eda3 // indirect
-	github.com/snyk/code-client-go v1.27.5 // indirect
+	github.com/snyk/code-client-go v1.28.0 // indirect
 	github.com/snyk/container-cli v0.0.0-20260213211631-cd2b2cf8f3ea // indirect
 	github.com/snyk/dep-graph/go v0.0.0-20260127160647-c836da762c62 // indirect
 	github.com/snyk/error-catalog-golang-public v0.0.0-20260505112649-a5103d411663 // indirect
