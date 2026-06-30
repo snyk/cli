@@ -1856,6 +1856,7 @@ jobs:
           name: Pre-Publishing
           command: |
             export NPM_ID_TOKEN=$(circleci run oidc get --claims '{"aud": "npm:registry.npmjs.org"}')
+            if [ -z "${NPM_ID_TOKEN}" ]; then echo "ERROR: Failed to obtain NPM OIDC token"; exit 1; fi
             make release-pre
       - failed-release-notification
 
@@ -1991,6 +1992,7 @@ jobs:
           name: Publish to npm
           command: |
             export NPM_ID_TOKEN=$(circleci run oidc get --claims '{"aud": "npm:registry.npmjs.org"}')
+            if [ -z "${NPM_ID_TOKEN}" ]; then echo "ERROR: Failed to obtain NPM OIDC token"; exit 1; fi
             ./release-scripts/upload-artifacts.sh npm
       - failed-release-notification
 
