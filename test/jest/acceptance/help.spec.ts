@@ -57,6 +57,23 @@ describe('help', () => {
       expect(stderr).toBe('');
     });
 
+    it('prints specific help info for ignore', async () => {
+      const { stdout, code, stderr } = await runSnykCLI('ignore --help');
+
+      expect(stdout).toContain('snyk ignore create');
+      expect(code).toBe(0);
+      expect(stderr).toBe('');
+    });
+
+    it('prints specific help info for ignore create', async () => {
+      const { stdout, code, stderr } = await runSnykCLI('ignore create --help');
+
+      expect(stdout).toContain('Ignore create');
+      expect(stdout).toContain('snyk ignore create [<OPTIONS>]');
+      expect(code).toBe(0);
+      expect(stderr).toBe('');
+    });
+
     it('prints specific help info when called with flag and equals sign', async () => {
       const { stdout, code, stderr } = await runSnykCLI('--help=iac');
 
