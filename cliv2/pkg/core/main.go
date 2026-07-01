@@ -25,6 +25,8 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 
+	"github.com/snyk-playground/cli-extension-axi/pkg/agent"
+
 	"github.com/snyk/go-application-framework/pkg/ui/consoleui"
 
 	"github.com/snyk/go-application-framework/pkg/analytics"
@@ -37,8 +39,8 @@ import (
 	"github.com/snyk/cli/cliv2/internal/cliv2"
 	"github.com/snyk/cli/cliv2/internal/constants"
 
-	cliv2utils "github.com/snyk/cli/cliv2/internal/utils"
 	persona "github.com/snyk/cli/cliv2/internal/persona"
+	cliv2utils "github.com/snyk/cli/cliv2/internal/utils"
 
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/config_utils"
@@ -377,6 +379,15 @@ func createCommandsForWorkflows(rootCommand *cobra.Command, engine workflow.Engi
 		case "fix":
 			// to preserve backwards compatibility we will need to relax flag validation
 			parentCommand.FParseErrWhitelist.UnknownFlags = true
+		case "agent":
+			// AXI: the `snyk agent` command surface is agent-ergonomic and owns its
+			// own help. Replace cobra's default help with the extension's renderer for
+			// the whole agent subtree (children inherit this help func). The engine is
+			// passed so the extension can introspect each scanner's underlying workflow
+			// flags for per-command help — without hardcoding other extensions' flags.
+			parentCommand.SetHelpFunc(func(cmd *cobra.Command, _ []string) {
+				agent.RenderHelp(cmd.OutOrStdout(), engine, os.Args[1:])
+			})
 		}
 	}
 }
