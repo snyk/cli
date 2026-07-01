@@ -57,6 +57,9 @@ enum TrackedIntegration {
 
   // CLI_V1_PLUGIN integration
   CLI_V1_PLUGIN = 'CLI_V1_PLUGIN',
+
+  // Studio integration
+  STUDIO = 'STUDIO',
 }
 
 export const getIntegrationName = (args: ArgsOptions[]): string => {
