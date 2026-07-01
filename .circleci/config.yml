@@ -436,7 +436,7 @@ commands:
     parameters:
       items:
         type: string
-        default: go gradle python pipenv elixir composer gradle@9 maven sbt dotnet uv
+        default: go gradle python pipenv elixir composer gradle@9 maven dotnet uv
     steps:
       - run:
           name: Installing Rosetta
@@ -460,6 +460,16 @@ commands:
       - run:
           name: Upgrade npm to satisfy package.json engine requirements (>=11.10)
           command: npm install -g npm@^11.10
+      - restore_cache:
+          keys:
+            - acceptance-{{ checksum "scripts/install-sbt.sh" }}
+      - run:
+          name: Installing sbt 1.x
+          command: ./scripts/install-sbt.sh
+      - save_cache:
+          key: acceptance-{{ checksum "scripts/install-sbt.sh" }}
+          paths:
+            - ~/sbt
 
   install-deps-macos-build:
     parameters:
