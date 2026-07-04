@@ -33,6 +33,15 @@ export async function getSinglePluginResult(
       cliDotnetRuntimeResolutionEnabled: featureFlags.has(
         CLI_DOTNET_RUNTIME_RESOLUTION,
       ),
+      // Internal/undocumented flag: surfaced to the plugin in camelCase here
+      // rather than via the user-facing arg transform list, so it stays off the
+      // documented CLI surface. Single convergence point for single- and
+      // multi-project (all-projects/aggregate) scans. Only added when set so the
+      // default plugin-options shape is unchanged (the flag is gateway-driven
+      // and absent for the vast majority of scans).
+      ...(options['include-component-metadata'] !== undefined && {
+        includeComponentMetadata: options['include-component-metadata'],
+      }),
     },
     snykHttpClient,
   );

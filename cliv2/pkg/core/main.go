@@ -1,9 +1,10 @@
 package core
 
 // !!! This import needs to be the first import, please do not change this !!!
+import _ "github.com/snyk/go-application-framework/pkg/networking/fips_enable"
 import (
+	"github.com/snyk/cli/cliv2/internal/helpdocs"
 	"github.com/snyk/cli/cliv2/internal/helprouting"
-	_ "github.com/snyk/go-application-framework/pkg/networking/fips_enable"
 )
 
 import (
@@ -37,6 +38,7 @@ import (
 	"github.com/snyk/cli/cliv2/internal/constants"
 
 	cliv2utils "github.com/snyk/cli/cliv2/internal/utils"
+	persona "github.com/snyk/cli/cliv2/internal/persona"
 
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/config_utils"
@@ -545,9 +547,11 @@ func mainWithErrorCode(additionalExts []workflow.ExtensionInit) int {
 	var err error
 	rInfo := runtimeinfo.New(runtimeinfo.WithName("snyk-cli"), runtimeinfo.WithVersion(cliv2.GetFullVersion()))
 
+	helpDocs := helpdocs.DefaultCommandHelp()
 	helpRouter := &helprouting.Router{
 		LegacyHelp:   runLegacyHelp,
 		OnHelpCalled: func() { helpProvided = true },
+		HasUserDoc:   helpDocs.HasUserDoc,
 	}
 	rootCommand := prepareRootCommand(helpRouter)
 	// omit the first arg which is always `snyk`
@@ -648,7 +652,7 @@ func mainWithErrorCode(additionalExts []workflow.ExtensionInit) int {
 	cliAnalytics.GetInstrumentation().SetCategory(instrumentation.DetermineCategory(os.Args, globalEngine))
 	cliAnalytics.GetInstrumentation().SetStage(instrumentation.DetermineStage(cliAnalytics.IsCiEnvironment()))
 	cliAnalytics.GetInstrumentation().SetStatus(analytics.Success)
-	cliAnalytics.AddExtensionBoolValue("persona.interactive", cliv2utils.IsInteractive())
+	persona.Report(cliAnalytics)
 
 	setTimeout(globalConfiguration, func() {
 		tearDownOnce.Do(func() {

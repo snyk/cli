@@ -24,6 +24,7 @@ func init() {
 type Router struct {
 	LegacyHelp   func() error
 	OnHelpCalled func()
+	HasUserDoc   func([]string) bool
 }
 
 // Help picks legacy user-doc help or Cobra help for the given context.
@@ -42,7 +43,7 @@ func (r *Router) Help(c *cobra.Command, root *cobra.Command, argv []string) erro
 	}
 
 	segments := commandSegments(c, root, argv)
-	if helpdocs.HasUserDoc(segments) {
+	if r.hasUserDoc(segments) {
 		return r.LegacyHelp()
 	}
 
@@ -51,11 +52,18 @@ func (r *Router) Help(c *cobra.Command, root *cobra.Command, argv []string) erro
 		return r.LegacyHelp()
 	}
 
-	if helpdocs.HasUserDoc(commandSegmentsFromCobra(target)) {
+	if r.hasUserDoc(commandSegmentsFromCobra(target)) {
 		return r.LegacyHelp()
 	}
 
 	return renderCobraHelp(target)
+}
+
+func (r *Router) hasUserDoc(segments []string) bool {
+	if r.HasUserDoc != nil {
+		return r.HasUserDoc(segments)
+	}
+	return helpdocs.DefaultCommandHelp().HasUserDoc(segments)
 }
 
 func commandSegments(c *cobra.Command, root *cobra.Command, argv []string) []string {

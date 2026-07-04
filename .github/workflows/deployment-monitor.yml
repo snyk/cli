@@ -94,7 +94,7 @@ jobs:
       - name: Install Snyk
         run: |
           brew tap snyk/tap
-          brew install snyk
+          brew install snyk/tap/snyk
       - name: Capture version and shasum metadata
         env:
           SNYK_VERSION_DIR: ${{ env.SNYK_VERSION_DIR }}
