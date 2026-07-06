@@ -1,0 +1,11 @@
+.commit-progress
+.verify-range
+.commit-reviewed
+.pr-review-*.md
+.verify-complete
+.verify-precommit-hash
+.verify-agents
+.verify-counts
+.verify-staged-hash
+.verify-metrics-pending
+.verify-agent-progress
