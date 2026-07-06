@@ -37,6 +37,11 @@ parameters:
   windows_bash_env_script:
     type: string
     default: 'snyk-env.sh'
+  # TEMPORARY (CLI-1633): set true to run only the minimal Windows/Linux build workflow.
+  # Revert to false before merging to main.
+  minimal_ci_test:
+    type: boolean
+    default: true
 
 orbs:
   prodsec: snyk/prodsec-orb@1
@@ -551,7 +556,68 @@ commands:
 ####################################################################################################
 
 workflows:
+  # TEMPORARY (CLI-1633): isolated build perf test — prepare-build + linux amd64 + windows x2.
+  # Toggle pipeline parameter minimal_ci_test=false to restore full CI.
+  test_windows_build_perf:
+    when: << pipeline.parameters.minimal_ci_test >>
+    jobs:
+      - prepare-build:
+          context:
+            - devex_cli_docker_hub
+            - go-private-modules
+
+      - build-artifact:
+          name: build linux amd64
+          context:
+            - iac-cli
+            - go-private-modules
+            - devex_cli_docker_hub
+          go_target_os: linux
+          go_os: linux
+          go_arch: amd64
+          static_binary: true
+          go_download_base_url: << pipeline.parameters.go_download_base_url >>
+          executor: docker-amd64-xl
+          requires:
+            - prepare-build
+
+      - build-artifact:
+          name: build windows amd64
+          go_target_os: windows
+          go_os: windows
+          go_arch: amd64
+          go_download_base_url: << pipeline.parameters.fips_go_download_base_url >>
+          make_target: build BUILD_MODE=private
+          install_deps_extension: windows-native-full-signing
+          install_path: 'C:\'
+          executor: win-server2022-amd64
+          context:
+            - snyk-windows-signing
+            - iac-cli
+            - go-private-modules
+          requires:
+            - prepare-build
+
+      - build-artifact:
+          name: build windows fips amd64
+          go_target_os: windows
+          go_os: windows
+          go_arch: amd64
+          go_download_base_url: << pipeline.parameters.fips_go_download_base_url >>
+          make_target: build-fips BUILD_MODE=private
+          install_deps_extension: windows-native-full-signing
+          install_path: 'C:\'
+          executor: win-server2022-amd64
+          context:
+            - snyk-windows-signing
+            - iac-cli
+            - go-private-modules
+          requires:
+            - prepare-build
+
   test_and_release:
+    when:
+      not: << pipeline.parameters.minimal_ci_test >>
     jobs:
       - prodsec/secrets-scan:
           name: secrets-scan
@@ -817,7 +883,24 @@ workflows:
           go_os: windows
           go_arch: amd64
           go_download_base_url: << pipeline.parameters.fips_go_download_base_url >>
-          make_target: build clean-golang build-fips BUILD_MODE=private
+          make_target: build BUILD_MODE=private
+          install_deps_extension: windows-native-full-signing
+          install_path: 'C:\'
+          executor: win-server2022-amd64
+          context:
+            - snyk-windows-signing
+            - iac-cli
+            - go-private-modules
+          requires:
+            - prepare-build
+
+      - build-artifact:
+          name: build windows fips amd64
+          go_target_os: windows
+          go_os: windows
+          go_arch: amd64
+          go_download_base_url: << pipeline.parameters.fips_go_download_base_url >>
+          make_target: build-fips BUILD_MODE=private
           install_deps_extension: windows-native-full-signing
           install_path: 'C:\'
           executor: win-server2022-amd64
@@ -1025,6 +1108,7 @@ workflows:
           context: snyk-windows-signing
           requires:
             - build windows amd64
+            - build windows fips amd64
           go_os: windows
           go_arch: amd64
           make_target: sign sign-fips
