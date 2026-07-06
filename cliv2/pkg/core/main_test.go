@@ -254,6 +254,87 @@ func Test_runMainWorkflow_unknownargs(t *testing.T) {
 	}
 }
 
+// Test_runMainWorkflow_doubleDashArgsDoNotLeakIntoInputDirectory reproduces CLI-1631.
+//
+// `snyk test <path> -d -- -s /root/.m2/settings.xml` must treat only <path> as an input
+// directory. The passthrough tokens after "--" ("-s", "/root/.m2/settings.xml") must NOT end up
+// in INPUT_DIRECTORY, otherwise the downstream package-vs-path heuristic stats "-s", finds it
+// missing, and force-routes the test to the legacy flow (which silently drops Risk Score).
+//
+// The bug triggers for ANY positional path shape, not just ".", so we cover the current dir,
+// a relative subdirectory, and a fully qualified absolute path.
+func Test_runMainWorkflow_doubleDashArgsDoNotLeakIntoInputDirectory(t *testing.T) {
+	tests := map[string]struct {
+		path string
+	}{
+		"current directory":    {path: "."},
+		"relative path":        {path: "sub/project"},
+		"fully qualified path": {path: "/home/user/project"},
+	}
+
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			defer cleanup()
+			globalConfiguration = configuration.New()
+			globalConfiguration.Set(configuration.DEBUG, true)
+			globalEngine = workflow.NewWorkFlowEngine(globalConfiguration)
+
+			fn := func(invocation workflow.InvocationContext, input []workflow.Data) ([]workflow.Data, error) {
+				return []workflow.Data{}, nil
+			}
+
+			commandList := []string{"command", localworkflows.WORKFLOWID_OUTPUT_WORKFLOW.Host}
+			for _, v := range commandList {
+				workflowConfig := workflow.ConfigurationOptionsFromFlagset(pflag.NewFlagSet("pla", pflag.ContinueOnError))
+				_, err := globalEngine.Register(workflow.NewWorkflowIdentifier(v), workflowConfig, fn)
+				assert.NoError(t, err)
+			}
+
+			err := localworkflows.InitDataTransformationWorkflow(globalEngine)
+			assert.NoError(t, err)
+			_ = globalEngine.Init()
+			err = localworkflows.InitFilterFindingsWorkflow(globalEngine)
+			assert.NoError(t, err)
+
+			config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
+			cmd := &cobra.Command{Use: "command"}
+
+			// cobra hands us the positional path plus everything after "--".
+			positionalArgs := []string{tc.path, "-s", "/root/.m2/settings.xml"}
+			rawArgs := []string{"snyk", "test", "--project-name=TestProj", tc.path, "-d", "--", "-s", "/root/.m2/settings.xml"}
+
+			err = runMainWorkflow(config, cmd, positionalArgs, rawArgs)
+			assert.Nil(t, err)
+
+			// Only the positional path before "--" is an input directory.
+			inputDirs := config.GetStringSlice(configuration.INPUT_DIRECTORY)
+			assert.Equal(t, []string{tc.path}, inputDirs, "passthrough args after -- must not leak into INPUT_DIRECTORY")
+
+			// Passthrough args are preserved separately.
+			unknownArgs := config.GetStringSlice(configuration.UNKNOWN_ARGS)
+			assert.Equal(t, []string{"-s", "/root/.m2/settings.xml"}, unknownArgs)
+		})
+	}
+}
+
+// Test_updateConfigFromParameter_fallbackWhenArgsShorterThanDoubleDash exercises the defensive
+// else branch. cobra always appends every post-"--" token to args, so len(args) >= len(doubleDashArgs)
+// normally holds and this branch is unreachable in production. We call the function directly with
+// invariant-violating inputs (fewer positional args than post-"--" tokens) to prove that, even
+// then, passthrough args never leak into INPUT_DIRECTORY.
+func Test_updateConfigFromParameter_fallbackWhenArgsShorterThanDoubleDash(t *testing.T) {
+	config := configuration.New()
+
+	// args has 1 element, but rawArgs has 2 tokens after "--" -> len(args) < len(doubleDashArgs).
+	args := []string{"."}
+	rawArgs := []string{"snyk", "test", "--", "-s", "settings.xml"}
+
+	updateConfigFromParameter(config, args, rawArgs)
+
+	assert.Nil(t, config.Get(configuration.INPUT_DIRECTORY), "must not set INPUT_DIRECTORY in the fallback")
+	assert.Equal(t, []string{"-s", "settings.xml"}, config.GetStringSlice(configuration.UNKNOWN_ARGS))
+}
+
 func Test_getErrorFromWorkFlowData(t *testing.T) {
 	engine := workflow.NewWorkFlowEngine(configuration.New())
 	assert.NoError(t, engine.Init())

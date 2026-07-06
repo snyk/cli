@@ -162,10 +162,30 @@ func updateConfigFromParameter(config configuration.Configuration, args []string
 	}
 	config.Set(configuration.UNKNOWN_ARGS, doubleDashArgs)
 
-	// only consider the first positional argument as input directory if it is not behind a double dash.
-	if len(args) > 0 && !utils.Contains(doubleDashArgs, args[0]) {
-		config.Set(configuration.INPUT_DIRECTORY, args)
-		config.Set(localworkflows.ConfigurationNewAuthenticationToken, args[0])
+	// Only positional args before "--" are input directories. Everything after "--" is
+	// passthrough (e.g. build-tool flags like `-s settings.xml`) and must not leak into
+	// INPUT_DIRECTORY, otherwise it gets misread as a path/package and force-routes to legacy.
+	// cobra appends the post-"--" tokens as the suffix of args, so trim them off.
+	positionalArgs := args
+	if len(doubleDashArgs) > 0 {
+		if len(args) >= len(doubleDashArgs) {
+			positionalArgs = args[:len(args)-len(doubleDashArgs)]
+		} else {
+			// Unreachable in practice: cobra always appends every post-"--" token to args, so
+			// len(args) >= len(doubleDashArgs) always holds. Guard anyway so we never leak
+			// passthrough args into INPUT_DIRECTORY; fall back to the default (CWD) resolver.
+			globalLogger.Warn().
+				Int("positionalArgCount", len(args)).
+				Int("argsAfterDoubleDashCount", len(doubleDashArgs)).
+				Msg("Unexpected argument layout: more arguments after '--' than positional arguments. " +
+					"Ignoring the provided path arguments and scanning the current working directory instead.")
+			positionalArgs = nil
+		}
+	}
+
+	if len(positionalArgs) > 0 {
+		config.Set(configuration.INPUT_DIRECTORY, positionalArgs)
+		config.Set(localworkflows.ConfigurationNewAuthenticationToken, positionalArgs[0])
 	}
 }
 
