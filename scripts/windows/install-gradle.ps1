@@ -34,29 +34,36 @@ try {
     throw "Checksum verification failed for $zipPath. Expected $expectedSha256 but got $($hash.Hash.ToLower())."
   }
 
-  if (Test-Path $installDir) {
-    Write-Host "Cleaning existing Gradle directory at $installDir ..."
-    Remove-Item -Recurse -Force $installDir
+  $existingGradle = Get-ChildItem -Path $installDir -Recurse -Filter 'gradle.bat' -File -ErrorAction SilentlyContinue | Select-Object -First 1
+  if ($existingGradle) {
+    Write-Host "[gradle-cache] HIT: Gradle already extracted at $($existingGradle.FullName); skipping."
+    $binPath = Split-Path $existingGradle.FullName -Parent
   }
+  else {
+    if (Test-Path $installDir) {
+      Write-Host "Cleaning existing Gradle directory at $installDir ..."
+      Remove-Item -Recurse -Force $installDir
+    }
 
-  New-Item -ItemType Directory -Path $installDir | Out-Null
+    New-Item -ItemType Directory -Path $installDir | Out-Null
 
-  Write-Host "Extracting Gradle $gradleVersion..."
-  Add-Type -AssemblyName System.IO.Compression.FileSystem
-  [System.IO.Compression.ZipFile]::ExtractToDirectory($zipPath, $installDir)
+    Write-Host "Extracting Gradle $gradleVersion..."
+    Add-Type -AssemblyName System.IO.Compression.FileSystem
+    [System.IO.Compression.ZipFile]::ExtractToDirectory($zipPath, $installDir)
 
-  $gradleRoot = Get-ChildItem -Path $installDir -Directory -Filter "gradle-$gradleVersion" -ErrorAction SilentlyContinue | Select-Object -First 1
-  if (-not $gradleRoot) {
-    $gradleRoot = Get-ChildItem -Path $installDir -Directory -ErrorAction SilentlyContinue | Select-Object -First 1
-  }
+    $gradleRoot = Get-ChildItem -Path $installDir -Directory -Filter "gradle-$gradleVersion" -ErrorAction SilentlyContinue | Select-Object -First 1
+    if (-not $gradleRoot) {
+      $gradleRoot = Get-ChildItem -Path $installDir -Directory -ErrorAction SilentlyContinue | Select-Object -First 1
+    }
 
-  if (-not $gradleRoot) {
-    throw "Failed to locate Gradle root directory under $installDir"
-  }
+    if (-not $gradleRoot) {
+      throw "Failed to locate Gradle root directory under $installDir"
+    }
 
-  $binPath = Join-Path $gradleRoot.FullName 'bin'
-  if (-not (Test-Path (Join-Path $binPath 'gradle.bat'))) {
-    throw "gradle.bat not found in $binPath after extraction"
+    $binPath = Join-Path $gradleRoot.FullName 'bin'
+    if (-not (Test-Path (Join-Path $binPath 'gradle.bat'))) {
+      throw "gradle.bat not found in $binPath after extraction"
+    }
   }
 
   Write-Host "Adding $binPath to PATH for current session..."

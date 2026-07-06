@@ -37,6 +37,11 @@ parameters:
   windows_bash_env_script:
     type: string
     default: 'snyk-env.sh'
+  # TEMPORARY (CLI-1633): set true to run only the minimal Windows/Linux build workflow.
+  # Revert to false before merging to main.
+  minimal_ci_test:
+    type: boolean
+    default: false
 
 orbs:
   prodsec: snyk/prodsec-orb@1
@@ -264,6 +269,53 @@ commands:
                   $bashLine = 'export PATH="' + $bashPath + ':$PATH"'
                   [System.IO.File]::AppendAllText($bashEnvScript, $bashLine + "`n", (New-Object System.Text.UTF8Encoding $false))
 
+  # Minimal Windows toolchain for COMPILING the CLI: Node, Python, Make only.
+  # Excludes .NET/Maven/Gradle (needed only by acceptance tests), which keeps
+  # this cache small and fast to restore compared to the full tools cache.
+  install-deps-windows-native-build-min:
+    steps:
+      - run:
+          name: Ensure tools cache directory
+          shell: powershell
+          command: |
+            $cacheDir = '<< pipeline.parameters.windows_cache_dir >>'
+            if (-not (Test-Path $cacheDir)) {
+              New-Item -ItemType Directory -Path $cacheDir | Out-Null
+            }
+      - restore_cache:
+          name: Restoring Windows build tools cache
+          keys:
+            - windows-build-tools-cache-v1-{{ arch }}-{{ checksum ".nvmrc" }}
+      - run:
+          name: Install Node.js (native)
+          shell: powershell
+          command: |
+            .\scripts\windows\install-node.ps1
+      - run:
+          name: Install Python 3.12.8 (native)
+          shell: powershell
+          command: |
+            .\scripts\windows\install-python3.ps1
+      - run:
+          name: Install GNU Make 4.4.1 (native)
+          shell: powershell
+          command: |
+            .\scripts\windows\install-make.ps1
+      - run:
+          name: Ensure Python and uv
+          shell: powershell
+          command: |
+            if (Test-Path '<< pipeline.parameters.windows_cache_dir >>/<< pipeline.parameters.windows_env_script >>') { . '<< pipeline.parameters.windows_cache_dir >>/<< pipeline.parameters.windows_env_script >>' }
+            .\scripts\windows\ensure-python-uv.ps1
+      - save_cache:
+          name: Saving Windows build tools cache
+          key: windows-build-tools-cache-v1-{{ arch }}-{{ checksum ".nvmrc" }}
+          paths:
+            - << pipeline.parameters.windows_cache_dir >>
+            - C:\ProgramData\nvm
+            - C:\tools\make
+            - C:\Program Files\Python312
+
   install-deps-windows-native-build:
     steps:
       - run:
@@ -277,6 +329,7 @@ commands:
       - restore_cache:
           name: Restoring Windows tools cache
           keys:
+            - windows-tools-cache-v6-{{ arch }}-{{ checksum ".nvmrc" }}
             - windows-tools-cache-v5-{{ arch }}-{{ checksum ".nvmrc" }}
       - run:
           name: Install Node.js (native)
@@ -316,10 +369,14 @@ commands:
             .\scripts\windows\ensure-python-uv.ps1
       - save_cache:
           name: Saving Windows tools cache
-          key: windows-tools-cache-v5-{{ arch }}-{{ checksum ".nvmrc" }}
+          key: windows-tools-cache-v6-{{ arch }}-{{ checksum ".nvmrc" }}
           paths:
             - << pipeline.parameters.windows_cache_dir >>
             - C:\ProgramData\nvm
+            - C:\tools\maven
+            - C:\tools\make
+            - C:\Program Files\dotnet
+            - C:\Program Files\Python312
 
   install-deps-windows-native-full-signing:
     steps:
@@ -379,6 +436,22 @@ commands:
       - run:
           name: No dependencies to install
           command: echo all done!
+
+  setup-go-build-cache:
+    description: >-
+      Pin GOMODCACHE and GOCACHE to workspace paths so CircleCI cache
+      restore/save works on Linux, macOS, and Windows executors.
+    steps:
+      - run:
+          name: Configure Go module and build cache paths
+          shell: bash
+          command: |
+            if [ -f "/c/tools-cache/<< pipeline.parameters.windows_bash_env_script >>" ]; then
+              source "/c/tools-cache/<< pipeline.parameters.windows_bash_env_script >>"
+            fi
+            mkdir -p .go-cache/mod .go-cache/build
+            echo "export GOMODCACHE=\"$(pwd)/.go-cache/mod\"" >> "$BASH_ENV"
+            echo "export GOCACHE=\"$(pwd)/.go-cache/build\"" >> "$BASH_ENV"
 
   setup-go-private-modules:
     description: >-
@@ -551,7 +624,74 @@ commands:
 ####################################################################################################
 
 workflows:
+  # TEMPORARY (CLI-1633): isolated build perf test — prepare-build + linux amd64 + windows x2.
+  # Toggle pipeline parameter minimal_ci_test=false to restore full CI.
+  test_windows_build_perf:
+    when: << pipeline.parameters.minimal_ci_test >>
+    jobs:
+      - prepare-build:
+          context:
+            - devex_cli_docker_hub
+            - go-private-modules
+
+      - build-artifact:
+          name: build linux amd64
+          context:
+            - iac-cli
+            - go-private-modules
+            - devex_cli_docker_hub
+          go_target_os: linux
+          go_os: linux
+          go_arch: amd64
+          static_binary: true
+          go_download_base_url: << pipeline.parameters.go_download_base_url >>
+          executor: docker-amd64-xl
+          requires:
+            - prepare-build
+
+      - build-artifact:
+          name: build windows amd64
+          go_target_os: windows
+          go_os: windows
+          go_arch: amd64
+          go_download_base_url: << pipeline.parameters.fips_go_download_base_url >>
+          make_target: build build-fips verify-fips-artifacts BUILD_MODE=private
+          install_deps_extension: windows-native-build-min
+          install_path: 'C:\'
+          executor: win-server2022-amd64
+          context:
+            - iac-cli
+            - go-private-modules
+          requires:
+            - prepare-build
+
+      - acceptance-tests:
+          name: acceptance-tests windows amd64
+          go_target_os: windows
+          go_os: windows
+          go_arch: amd64
+          go_download_base_url: << pipeline.parameters.go_download_base_url >>
+          context:
+            - nodejs-install
+            - team_hammerhead-cli
+            - team-cli-workflow-context
+          requires:
+            - build windows amd64
+          executor: win-server2022-amd64
+          test_snyk_command: binary-releases\\snyk-win.exe
+          install_deps_extension: windows-native-build
+          dont_skip_tests: 0
+          shards: 8
+          pre_test_cmds: |
+            if (Test-Path '<< pipeline.parameters.windows_cache_dir >>/<< pipeline.parameters.windows_env_script >>') { . '<< pipeline.parameters.windows_cache_dir >>/<< pipeline.parameters.windows_env_script >>' }
+          test_cmd: |
+            Get-ChildItem -Recurse -Path test/jest/acceptance,ts-binary-wrapper/test/acceptance -Filter *.spec.ts |
+              ForEach-Object { (Resolve-Path -Relative $_.FullName) -replace '\\', '/' -replace '^\./', '' } |
+              circleci tests run --command "xargs npx jest --maxWorkers=1 --selectProjects coreCli --reporters=jest-junit --reporters=default --forceExit --" --split-by=timings --timings-type=file
+
   test_and_release:
+    when:
+      not: << pipeline.parameters.minimal_ci_test >>
     jobs:
       - prodsec/secrets-scan:
           name: secrets-scan
@@ -817,12 +957,11 @@ workflows:
           go_os: windows
           go_arch: amd64
           go_download_base_url: << pipeline.parameters.fips_go_download_base_url >>
-          make_target: build clean-golang build-fips BUILD_MODE=private
-          install_deps_extension: windows-native-full-signing
+          make_target: build build-fips verify-fips-artifacts BUILD_MODE=private
+          install_deps_extension: windows-native-build-min
           install_path: 'C:\'
           executor: win-server2022-amd64
           context:
-            - snyk-windows-signing
             - iac-cli
             - go-private-modules
           requires:
@@ -1681,8 +1820,13 @@ jobs:
           base_url: << parameters.go_download_base_url >>
           extraction_path: << parameters.install_path >>
       - setup-go-private-modules
+      - setup-go-build-cache
       - restore_cache:
-          key: go-build-{{ arch }}-{{ checksum "cliv2/go.sum" }}
+          name: Restoring Go module and build cache
+          keys:
+            - go-build-v2-{{ arch }}-{{ checksum "cliv2/go.sum" }}
+            - go-build-v2-{{ arch }}-
+            - go-build-{{ arch }}-{{ checksum "cliv2/go.sum" }}
       - make-binary:
           static: << parameters.static_binary >>
           go_arch: << parameters.go_arch >>
@@ -1690,8 +1834,11 @@ jobs:
           make_target: << parameters.make_target >>
           c_compiler: << parameters.c_compiler >>
       - save_cache:
-          key: go-build-{{ arch }}-{{ checksum "cliv2/go.sum" }}
-          paths: [/home/circleci/go/pkg/mod]
+          name: Saving Go module and build cache
+          key: go-build-v2-{{ arch }}-{{ checksum "cliv2/go.sum" }}
+          paths:
+            - .go-cache/mod
+            - .go-cache/build
       - store_artifacts:
           path: binary-releases
       - persist_to_workspace:
