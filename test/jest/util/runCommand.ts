@@ -24,6 +24,8 @@ const runCommand = (
 ): Promise<RunCommandResult> => {
   return new Promise((resolve, reject) => {
     const child = spawn(command, args, options);
+    // default pipe stdin blocks commands that read until EOF (e.g. doctor)
+    child.stdin?.end();
     const stdout: Buffer[] = [];
     const stderr: Buffer[] = [];
 
