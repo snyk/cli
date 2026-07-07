@@ -10,10 +10,8 @@ describe('snyk doctor', () => {
 
   describe('use doctor on the current system (live checks)', () => {
     it('outputs a human readable report', async () => {
-      const { code, stdout, stderr } = await runSnykCLI('doctor dahsjdhkas', {
-        env,
-      });
-      console.log(stderr);
+      const { code, stdout } = await runSnykCLI('doctor --live', { env });
+
       expect(code).toBe(0);
       expect(stdout).toContain('Snyk Doctor Diagnostic Report');
     });
