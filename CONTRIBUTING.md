@@ -420,6 +420,44 @@ Your PR checks will run every time you push changes to your branch.
 The [test pipeline](https://app.circleci.com/pipelines/github/snyk/cli?filter=mine) is on CircleCI. This is where your
 changes are built and tested.
 
+A short **setup** job runs first. It compares your branch to the **PR base branch** (or `main` for non-PR pushes) and continues one of two configs:
+
+| Path            | When                                                                                    | `test_and_release` runs                                                     |
+| --------------- | --------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| **Full**        | Any changed file is **not** on the [light-path list](#what-triggers-the-light-pipeline) | Builds, unit tests, acceptance tests, and the rest of the existing pipeline |
+| **Lightweight** | Every changed file is on the light-path list                                            | `secrets-scan` only                                                         |
+
+Mixed PRs (for example `.md` and `.ts`) always take the **full** path.
+
+**Branches named `docs/*`** use the same full vs lightweight rules. Md-only `docs/*` PRs are lightweight
+(`secrets-scan` only), not a separate pipeline.
+
+`docs-only-check` (full config, `docs/*` only) allows `.md`, `.svg`, and `.jpg`—see
+[`scripts/ci/is-docs-only-changes.sh`](scripts/ci/is-docs-only-changes.sh) and
+[`scripts/ci/docs-only-pathspecs.txt`](scripts/ci/docs-only-pathspecs.txt). It runs only when the full
+config is selected, not on typical md-only PRs. Repo help assets: `help/ide.svg`, `help/monitor.svg`;
+`help/snyk-cli-screenshot.png` is not in that allowlist.
+
+#### What triggers the light pipeline
+
+The setup job uses a **fail-closed** allowlist: the **full** pipeline runs unless **every** changed file (vs merge-base
+with the PR base branch or `main`, excluding `node_modules/`) matches a path in
+[`scripts/ci/light-pipeline-pathspecs.txt`](scripts/ci/light-pipeline-pathspecs.txt). Unknown or unlisted file types
+default to **full** CI.
+
+Light-path examples:
+
+- Docs / assets: `*.md`, `*.svg`, `*.jpg`
+- GitHub metadata: `.github/**`, `CODEOWNERS`
+- CI config that only affects the light pipeline: `.circleci/continue_config_light.yml`
+- Other YAML outside `.circleci/`: `*.yml`, `*.yaml`
+
+Everything else — source files, Makefiles, lockfiles, `.nvmrc`, `.circleci/**` (except `continue_config_light.yml`),
+`Dockerfile`, new languages, and so on — triggers the **full** pipeline.
+
+[`scripts/ci/has-code-changes.sh`](scripts/ci/has-code-changes.sh) implements this check. The setup job resolves the
+base branch via [`scripts/ci/resolve-base-branch.sh`](scripts/ci/resolve-base-branch.sh).
+
 If any checks fail, fix them and force push your changes again. Make sure to review and tidy up your branch so that it
 remains easy to follow.
 

@@ -1,0 +1,14 @@
+version: 2.1
+
+# Lightweight continuation for non-code PRs (CLI-1625).
+orbs:
+  prodsec: snyk/prodsec-orb@1
+
+workflows:
+  light_test_and_release:
+    jobs:
+      - prodsec/secrets-scan:
+          name: secrets-scan
+          context: snyk-bot-slack
+          channel: cli-alerts
+          trusted-branch: main
