@@ -19,6 +19,7 @@ import (
 	"github.com/snyk/snyk-ls/ls_extension"
 	"github.com/snyk/studio-mcp/pkg/mcp"
 
+	"github.com/snyk/cli/cliv2/internal/internal_workflows"
 	"github.com/snyk/cli/cliv2/pkg/basic_workflows"
 )
 
@@ -47,5 +48,9 @@ func initExtensions(engine workflow.Engine, config configuration.Configuration, 
 
 	if config.GetBool(configuration.PREVIEW_FEATURES_ENABLED) {
 		config.Set("INTERNAL_USE_UFM_PRESENTER", true)
+
+		// Preview-only hidden workflow that reports the owning team of every
+		// registered workflow (consumed by the analytics-service).
+		engine.AddExtensionInitializer(internal_workflows.InitExtensionOwnershipWorkflow)
 	}
 }

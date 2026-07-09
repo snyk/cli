@@ -202,7 +202,7 @@ _helpdocs-prepare:
 	rm -rf $(HELPDOCS_EMBED_DIR)/*.md; \
 	cp $(HELPDOCS_SOURCE)/*.md $(HELPDOCS_EMBED_DIR)/
 
-$(BUILD_DIR)/$(V2_EXECUTABLE_NAME): $(BUILD_DIR) $(SRCS) generate-ls-protocol-metadata _helpdocs-prepare
+$(BUILD_DIR)/$(V2_EXECUTABLE_NAME): $(BUILD_DIR) $(SRCS) generate-ls-protocol-metadata _helpdocs-prepare _generate-extension-owners
 	$(eval LS_PROTOCOL_VERSION := $(shell cat $(LS_PROTOCOL_VERSION_FILE)))
 	$(eval LS_COMMIT_HASH := $(shell cat $(LS_COMMIT_HASH_FILE)))
 	$(eval EXTRA_FLAGS := -X github.com/snyk/snyk-ls/application/config.Version=$(LS_COMMIT_HASH) -X github.com/snyk/snyk-ls/application/config.LsProtocolVersion=$(LS_PROTOCOL_VERSION)  -X github.com/snyk/cli/cliv2/pkg/core.internalOS=$(GOOS) -X github.com/snyk/cli/cliv2/internal/embedded/cliv1.snykCLIVersion=$(CLI_V1_VERSION_TAG) -X github.com/snyk/cli-extension-iac/internal/commands/iactest.internalRulesClientURL=$(IAC_RULES_URL) -X github.com/snyk/cli/cliv2/internal/constants.StaticNodeJsBinary=$(STATIC_NODE_BINARY))
@@ -252,8 +252,13 @@ $(CACHE_DIR)/prepare-3rd-party-licenses:
 		|| (cat $(CACHE_DIR)/prepare-3rd-party-licenses.log && exit 1)
 	@echo "$(LOG_PREFIX) 3rd party licenses: ok"
 
+.PHONY: _generate-extension-owners
+_generate-extension-owners:
+	@echo "$(LOG_PREFIX) Generating extension owners ( $(BUILD_MODE) )"
+	@cd $(WORKING_DIR) && SNYK_EXTOWNER_MODULE_DIR="$(BUILD_ROOT_DIR)" $(GOCMD) generate ./internal/internal_workflows/...
+
 .PHONY: generate
-generate: $(WORKING_DIR)/internal/httpauth/generated/httpauth_generated_mock.go $(WORKING_DIR)/internal/httpauth/generated/spnego_generated_mock.go
+generate: $(WORKING_DIR)/internal/httpauth/generated/httpauth_generated_mock.go $(WORKING_DIR)/internal/httpauth/generated/spnego_generated_mock.go _generate-extension-owners
 
 .PHONY: openboxtest
 openboxtest:

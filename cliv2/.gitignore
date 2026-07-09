@@ -13,3 +13,4 @@ bin
 internal/embedded/_data
 /.bin/
 internal/helpdocs/cli-commands
+internal/internal_workflows/owners_gen.go
