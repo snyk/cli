@@ -1,0 +1,5 @@
+# Git pathspecs allowed on docs/* branches (strict subset of light-pipeline-pathspecs.txt).
+# Used by: scripts/ci/is-docs-only-changes.sh
+*.md
+*.svg
+*.jpg

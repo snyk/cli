@@ -1,0 +1,11 @@
+# Git pathspecs safe for the lightweight CI pipeline (one per line).
+# Used by: scripts/ci/has-code-changes.sh
+# Fail-closed: anything not listed here triggers the full pipeline.
+# Docs-only pathspecs (docs/* branch gate) are a strict subset — see docs-only-pathspecs.txt.
+# YAML outside .circleci/ is handled in has-code-changes.sh (pathspec exclude cannot re-include files).
+*.md
+*.svg
+*.jpg
+.github/
+CODEOWNERS
+.circleci/continue_config_light.yml
