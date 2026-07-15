@@ -1,3 +1,9 @@
+## [1.1306.1](https://github.com/snyk/snyk/compare/v1.1306.0...v1.1306.1) (2026-07-15)
+
+### Bug Fixes
+
+* **all**: Ensures stable CLI releases are built with private build mode enforced in the release pipeline. ([15b2ed9](https://github.com/snyk/snyk/commit/15b2ed9bf9668a4b7234f3060e5bb72aa7ac2ed8))
+
 ## [1.1306.0](https://github.com/snyk/snyk/compare/v1.1305.2...v1.1306.0) (2026-07-09)
 
 The Snyk CLI is being deployed to different deployment channels, users can select the stability level according to their needs. For details please see [this documentation](https://docs.snyk.io/snyk-cli/releases-and-channels-for-the-snyk-cli)
