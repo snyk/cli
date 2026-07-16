@@ -43,8 +43,8 @@ async function startProxyEnvironment(): Promise<void> {
   await stopProxyEnvironment();
 
   const dockerUp = await startCommand(
-    'docker-compose',
-    ['--file', dockerComposeFile, 'up', '--build'],
+    'docker',
+    ['compose', '--file', dockerComposeFile, 'up', '--build'],
     getDockerOptions(),
   );
   await expect(dockerUp).toDisplay('Kerberos setup complete.', {
@@ -54,8 +54,8 @@ async function startProxyEnvironment(): Promise<void> {
 
 async function stopProxyEnvironment(): Promise<void> {
   const dockerDown = await startCommand(
-    'docker-compose',
-    ['--file', dockerComposeFile, 'down'],
+    'docker',
+    ['compose', '--file', dockerComposeFile, 'down'],
     getDockerOptions(),
   );
   await expect(dockerDown).toExitWith(0, { timeout: 30_000 });

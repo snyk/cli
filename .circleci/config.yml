@@ -904,7 +904,16 @@ workflows:
               ignore:
                 - main
                 - '/release.*/'
-          pre_test_cmds: export BROWSER="curl -L"
+          pre_test_cmds: |
+            export BROWSER="curl -L"
+            mkdir -p "$HOME/.docker/cli-plugins"
+            curl --fail --location --silent --show-error \
+              https://github.com/docker/compose/releases/download/v5.1.4/docker-compose-linux-x86_64 \
+              --output "$HOME/.docker/cli-plugins/docker-compose"
+            echo "33b208d7e76639db742fae84b966cc01dacae58ca3fc4dabbc907045aefdf0c4  $HOME/.docker/cli-plugins/docker-compose" \
+              | sha256sum --check
+            chmod +x "$HOME/.docker/cli-plugins/docker-compose"
+            docker compose version
           requires:
             - build linux amd64
           executor: docker-amd64
