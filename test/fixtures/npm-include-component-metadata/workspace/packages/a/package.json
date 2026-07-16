@@ -1,0 +1,8 @@
+{
+  "name": "a",
+  "version": "1.0.0",
+  "license": "ISC",
+  "dependencies": {
+    "ms": "2.1.3"
+  }
+}

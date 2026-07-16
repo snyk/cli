@@ -11,9 +11,9 @@ require (
 	github.com/mattn/go-isatty v0.0.20
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.34.0
-	github.com/snyk/cli-extension-agent-scan v0.0.0-20260505093105-90d9442ea939
+	github.com/snyk/cli-extension-agent-scan v0.0.0-20260715092951-4f8fa1b9886c
 	github.com/snyk/cli-extension-ai-bom v0.0.0-20260319140413-ac7392950603
-	github.com/snyk/cli-extension-dep-graph/v2 v2.6.0
+	github.com/snyk/cli-extension-dep-graph/v2 v2.7.1
 	github.com/snyk/cli-extension-iac v0.0.0-20260515092252-505c498f1077
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20260515141409-fb475901bb8e
 	github.com/snyk/cli-extension-os-flows v0.0.0-20260625140351-2bb6cb470073
@@ -22,7 +22,7 @@ require (
 	github.com/snyk/code-client-go v1.27.0
 	github.com/snyk/container-cli v0.0.0-20260213211631-cd2b2cf8f3ea
 	github.com/snyk/error-catalog-golang-public v0.0.0-20260505112649-a5103d411663
-	github.com/snyk/go-application-framework v0.7.1
+	github.com/snyk/go-application-framework v0.7.2
 	github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65
 	github.com/snyk/snyk-iac-capture v0.6.5
 	github.com/snyk/snyk-ls v0.0.0-20260626083941-77c2abaeaaaa

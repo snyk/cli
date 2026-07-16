@@ -566,7 +566,9 @@ workflows:
           trusted-branch: main
 
       - docs-only-check:
-          context: devex_cli_docker_hub
+          context:
+            - devex_cli_docker_hub
+            - go-private-modules
           filters:
             branches:
               only:
@@ -645,6 +647,7 @@ workflows:
               ignore:
                 - main
                 - '/release.*/'
+                - '/^docs\/.*/'
 
       - test-legacy-tap:
           context:
@@ -1525,9 +1528,14 @@ jobs:
       - run:
           name: Check if all changed files are documentation (.md)
           command: |
-            CHANGED_FILES=$(git diff --name-only main)
+            PR_URL="https://api.github.com/repos/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/pulls?head=${CIRCLE_PROJECT_USERNAME}:${CIRCLE_BRANCH}&state=open"
+            BASE_REF=$(curl -fsSL -H 'Accept: application/vnd.github+json' "${PR_URL}" \
+              | jq -r '.[0].base.ref // ""' || true)
+            [ -n "${BASE_REF}" ] || BASE_REF=$(git symbolic-ref --short refs/remotes/origin/HEAD | sed 's@^origin/@@')
+            git fetch origin "${BASE_REF}"
+            CHANGED_FILES=$(git diff --name-only "$(git merge-base HEAD "origin/${BASE_REF}")" HEAD)
 
-            # If this step fails, check if you need to add another extension, 
+            # If this step fails, check if you need to add another extension,
             # or indeed if this PR adds more than docs-related changes.
             ALLOWED_DOCS_EXTENSIONS="(\.md|\.svg|\.jpg)$"
 
@@ -1541,6 +1549,24 @@ jobs:
               fi
             done
             exit 0
+      - restore_cache:
+          name: Restore npm cache
+          keys:
+            - prepare-v1-build-npm-deps-{{ checksum "package-lock.json" }}
+            - prepare-v1-build-npm-deps
+      - run:
+          name: Installing npm dependencies
+          command: npm ci --no-audit --no-progress --cache .npm --prefer-offline
+      - install-go:
+          go_os: linux
+          go_target_os: linux
+          go_arch: amd64
+          base_url: << pipeline.parameters.go_download_base_url >>
+          extraction_path: /tmp
+      - setup-go-private-modules
+      - run:
+          name: Linting project
+          command: make lint
 
   test-node:
     executor: docker-amd64

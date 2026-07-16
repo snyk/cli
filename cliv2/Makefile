@@ -189,7 +189,7 @@ summary:
 
 # prepare the workspace and cache global parameters
 .PHONY: configure
-configure: _validate-build-mode summary $(CACHE_DIR) $(CACHE_DIR)/variables.mk $(V1_DIRECTORY)/$(V1_EMBEDDED_FILE_OUTPUT) dependencies $(CACHE_DIR)/prepare-3rd-party-licenses
+configure: _validate-build-mode _verify-private-build summary $(CACHE_DIR) $(CACHE_DIR)/variables.mk $(V1_DIRECTORY)/$(V1_EMBEDDED_FILE_OUTPUT) dependencies $(CACHE_DIR)/prepare-3rd-party-licenses
 
 .PHONY: _helpdocs-prepare
 _helpdocs-prepare:
@@ -238,6 +238,15 @@ debug:
 
 .PHONY: build
 build: configure $(BUILD_DIR)/$(V2_EXECUTABLE_NAME)
+
+# Pre-build check: the version file must be consistent with BUILD_MODE.
+# Delegates to next-version.sh --verify so suffix logic lives in one place.
+.PHONY: _verify-private-build
+_verify-private-build:
+	@VERSION_FILE="$(DESTDIR)$(bindir)/version"; \
+	if [ -f "$$VERSION_FILE" ]; then \
+		BUILD_MODE=$(BUILD_MODE) $(V1_WORKING_DIR)/release-scripts/next-version.sh --verify "$$(cat "$$VERSION_FILE")"; \
+	fi
 
 $(WORKING_DIR)/internal/httpauth/generated/httpauth_generated_mock.go:
 	@$(GOCMD) generate ./internal/httpauth/

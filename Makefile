@@ -323,7 +323,7 @@ release-mgt-create:
 lint:
 	@echo "-- Linting code"
 	@npm run lint
-	@pushd $(EXTENSIBLE_CLI_DIR); export CGO_ENABLED=1; $(MAKE) lint; popd
+	@cd $(EXTENSIBLE_CLI_DIR) && $(MAKE) lint
 	@echo "-- Verifying go.mod files are tidy"
 	@cd $(EXTENSIBLE_CLI_DIR) && $(GOCMD) mod tidy -diff > /dev/null || \
 		(echo "ERROR: cliv2/go.mod is not tidy. Run 'make format' and commit the changes." && exit 1)
@@ -337,7 +337,7 @@ format:
 	@$(MAKE) tidy
 	@echo "-- Formatting code"
 	@npm run format
-	@pushd $(EXTENSIBLE_CLI_DIR); $(MAKE) format; popd
+	@cd $(EXTENSIBLE_CLI_DIR) && $(MAKE) format
 
 .PHONY: tidy
 tidy:

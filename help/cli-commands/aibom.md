@@ -1,3 +1,7 @@
+---
+description: The snyk aibom command that generates an AI bill of materials
+---
+
 # AI-BOM
 
 ## Prerequisites

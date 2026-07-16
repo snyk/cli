@@ -22,6 +22,7 @@ export interface Options {
   scanAllUnmanaged?: boolean;
   showNpmScope?: boolean;
   allProjects?: boolean;
+  includeComponentMetadata?: boolean;
 }
 
 export interface Plugin {

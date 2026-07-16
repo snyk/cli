@@ -72,7 +72,7 @@
     "@snyk/fix": "file:packages/snyk-fix",
     "@snyk/gemfile": "1.2.0",
     "@snyk/snyk-cocoapods-plugin": "3.1.1",
-    "@snyk/snyk-hex-plugin": "2.1.1",
+    "@snyk/snyk-hex-plugin": "2.2.1",
     "@types/marked": "^4.0.0",
     "abbrev": "^1.1.1",
     "adm-zip": "^0.5.9",
@@ -120,9 +120,9 @@
     "snyk-go-plugin": "2.1.2",
     "snyk-gradle-plugin": "7.0.0",
     "snyk-module": "3.1.0",
-    "snyk-mvn-plugin": "^4.7.0",
-    "snyk-nodejs-lockfile-parser": "2.8.1",
-    "snyk-nodejs-plugin": "^2.0.1",
+    "snyk-mvn-plugin": "4.8.2",
+    "snyk-nodejs-lockfile-parser": "2.10.0",
+    "snyk-nodejs-plugin": "^2.2.0",
     "snyk-nuget-plugin": "4.2.3",
     "snyk-php-plugin": "1.12.1",
     "snyk-policy": "^4.1.6",
@@ -204,7 +204,7 @@
     "@snyk/error-catalog-nodejs-public@4.0.4": {
       "uuid": "$uuid"
     },
-    "snyk-nodejs-lockfile-parser@2.8.1": {
+    "snyk-nodejs-lockfile-parser@2.10.0": {
       "uuid": "$uuid"
     }
   },

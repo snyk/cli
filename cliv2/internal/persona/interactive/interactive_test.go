@@ -66,8 +66,8 @@ func Test_InteractiveMode_Has(t *testing.T) {
 func Test_isTerminal_pipeIsNotATerminal(t *testing.T) {
 	r, w, err := os.Pipe()
 	require.NoError(t, err)
-	defer r.Close()
-	defer w.Close()
+	defer func() { _ = r.Close() }()
+	defer func() { _ = w.Close() }()
 
 	assert.False(t, isTerminal(r), "read end of a pipe is not a terminal")
 	assert.False(t, isTerminal(w), "write end of a pipe is not a terminal")
@@ -76,7 +76,7 @@ func Test_isTerminal_pipeIsNotATerminal(t *testing.T) {
 func Test_isTerminal_regularFileIsNotATerminal(t *testing.T) {
 	f, err := os.CreateTemp(t.TempDir(), "interactive-test")
 	require.NoError(t, err)
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	assert.False(t, isTerminal(f), "a regular file is not a terminal")
 }
