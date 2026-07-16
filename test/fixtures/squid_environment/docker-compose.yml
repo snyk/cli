@@ -15,3 +15,5 @@ services:
     hostname: "${PROXY_HOSTNAME}"
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    volumes:
+      - ${SCRIPTS_PATH}:/etc/cliv2/scripts

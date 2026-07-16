@@ -8,6 +8,4 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     squid \
     && mkdir -p /etc/cliv2/bin && touch /etc/cliv2/bin/snyk
 
-COPY scripts /etc/cliv2/scripts
-
 ENTRYPOINT [ "/etc/cliv2/scripts/setup.sh" ]
