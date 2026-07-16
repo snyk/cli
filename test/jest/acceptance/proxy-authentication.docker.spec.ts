@@ -34,9 +34,19 @@ function getDockerOptions() {
       PROXY_HOSTNAME: hostnameProxy,
       SNYK_API: SNYK_API,
       CONTAINER_NAME: containerName,
-      SCRIPTS_PATH: scriptsPath,
     },
   };
+}
+
+async function copyProxyAuthenticationFiles(): Promise<void> {
+  for (const filename of [KRB5_CACHE_FILE, KRB5_CONFIG_FILE]) {
+    const copy = await startCommand('docker', [
+      'cp',
+      `${containerName}:/etc/cliv2/scripts/${filename}`,
+      path.join(scriptsPath, filename),
+    ]);
+    await expect(copy).toExitWith(0);
+  }
 }
 
 async function startProxyEnvironment(): Promise<void> {
@@ -50,6 +60,7 @@ async function startProxyEnvironment(): Promise<void> {
   await expect(dockerUp).toDisplay('Kerberos setup complete.', {
     timeout: 60_000,
   });
+  await copyProxyAuthenticationFiles();
 }
 
 async function stopProxyEnvironment(): Promise<void> {
