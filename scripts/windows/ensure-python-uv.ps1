@@ -3,6 +3,11 @@ Param()
 $ErrorActionPreference = 'Stop'
 
 try {
+  if (Get-Command uv -ErrorAction SilentlyContinue) {
+    Write-Host "[uv-cache] HIT: uv already installed; skipping pip install."
+    return
+  }
+
   $python = Get-Command python -ErrorAction SilentlyContinue
   if (-not $python) {
     $python = Get-Command python3 -ErrorAction SilentlyContinue

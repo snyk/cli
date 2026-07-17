@@ -14,27 +14,50 @@ if (Test-Path $envScript) {
 
 try {
   $pythonVersion = '3.12.8'
-  $pythonInstaller = Join-Path $cacheDir "python-$pythonVersion-amd64.exe"
-  $expectedSha256 = '71bd44e6b0e91c17558963557e4cdb80b483de9b0a0a9717f06cf896f95ab598'
+  $pythonCandidates = @(
+    'C:\Program Files\Python312\python.exe',
+    'C:\Python312\python.exe',
+    (Join-Path $Env:LOCALAPPDATA 'Programs\Python\Python312\python.exe')
+  )
+  $skipInstall = $false
 
-  if (-not (Test-Path $cacheDir)) {
-    New-Item -ItemType Directory -Path $cacheDir | Out-Null
+  foreach ($candidate in $pythonCandidates) {
+    if (-not (Test-Path $candidate)) {
+      continue
+    }
+    $reportedVersion = (& $candidate --version 2>&1).Trim()
+    # Require the exact version to be followed by whitespace or end-of-string so
+    # a different patch (e.g. 3.12.80) is not treated as 3.12.8.
+    if ($reportedVersion -match '3\.12\.8(\s|$)') {
+      Write-Host "[python-cache] HIT: Python $reportedVersion already installed at $candidate; skipping installer."
+      $skipInstall = $true
+      break
+    }
   }
 
-  if (-not (Test-Path $pythonInstaller)) {
-    Write-Host "Downloading Python $pythonVersion (amd64) installer..."
-    $url = "https://www.python.org/ftp/python/$pythonVersion/python-$pythonVersion-amd64.exe"
-    curl.exe -L $url -o $pythonInstaller
-  }
+  if (-not $skipInstall) {
+    $pythonInstaller = Join-Path $cacheDir "python-$pythonVersion-amd64.exe"
+    $expectedSha256 = '71bd44e6b0e91c17558963557e4cdb80b483de9b0a0a9717f06cf896f95ab598'
 
-  Write-Host 'Verifying Python installer checksum...'
-  $hash = Get-FileHash -Path $pythonInstaller -Algorithm SHA256
-  if ($hash.Hash.ToLower() -ne $expectedSha256.ToLower()) {
-    throw "Checksum verification failed for $pythonInstaller. Expected $expectedSha256 but got $($hash.Hash.ToLower())."
-  }
+    if (-not (Test-Path $cacheDir)) {
+      New-Item -ItemType Directory -Path $cacheDir | Out-Null
+    }
 
-  Write-Host "Installing Python $pythonVersion..."
-  & $pythonInstaller /quiet InstallAllUsers=1 PrependPath=1 Include_test=0
+    if (-not (Test-Path $pythonInstaller)) {
+      Write-Host "Downloading Python $pythonVersion (amd64) installer..."
+      $url = "https://www.python.org/ftp/python/$pythonVersion/python-$pythonVersion-amd64.exe"
+      curl.exe -L $url -o $pythonInstaller
+    }
+
+    Write-Host 'Verifying Python installer checksum...'
+    $hash = Get-FileHash -Path $pythonInstaller -Algorithm SHA256
+    if ($hash.Hash.ToLower() -ne $expectedSha256.ToLower()) {
+      throw "Checksum verification failed for $pythonInstaller. Expected $expectedSha256 but got $($hash.Hash.ToLower())."
+    }
+
+    Write-Host "Installing Python $pythonVersion..."
+    & $pythonInstaller /quiet InstallAllUsers=1 PrependPath=1 Include_test=0
+  }
 
   # Persist a single primary installation location for this Python so it is preferred in subsequent steps.
   # We rely on the checksum for integrity and PATH ordering for preference, instead of failing hard on version mismatches.
