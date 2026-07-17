@@ -209,6 +209,8 @@ $(BINARY_WRAPPER_DIR)/src/generated/sha256sums.txt:
 
 .PHONY: build-binary-wrapper
 build-binary-wrapper: pre-build-binary-wrapper $(BINARY_WRAPPER_DIR)/src/generated/version $(BINARY_WRAPPER_DIR)/src/generated/sha256sums.txt
+	@echo "-- Installing Typescript Binary Wrapper dependencies"
+	@cd $(BINARY_WRAPPER_DIR); npm ci --ignore-scripts
 	@echo "-- Building Typescript Binary Wrapper ($(BINARY_WRAPPER_DIR)/dist/)"
 	@cd $(BINARY_WRAPPER_DIR); npm run build
 
