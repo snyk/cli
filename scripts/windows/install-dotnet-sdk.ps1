@@ -14,35 +14,53 @@ if (Test-Path $envScript) {
 
 try {
   $dotnetVersion = '8.0.100'
-  $installerPath = Join-Path $cacheDir "dotnet-sdk-$dotnetVersion-win-x64.exe"
-  $expectedSha256 = 'd77a87a78264fcfb1703a7064795ccb10938cdfaea64a03cb0f36b1cda379f82'
+  $dotnetExe = 'C:\Program Files\dotnet\dotnet.exe'
+  $dotnetPath = $null
 
-  if (-not (Test-Path $cacheDir)) {
-    New-Item -ItemType Directory -Path $cacheDir | Out-Null
+  if (Test-Path $dotnetExe) {
+    # `dotnet --version` reports the SDK selected for the current dir (usually the
+    # newest installed), so it can't confirm a specific version. `--list-sdks`
+    # enumerates every installed SDK, which is what we need to detect 8.0.100.
+    $installedSdks = & $dotnetExe --list-sdks 2>&1
+    # `--list-sdks` prints "<version> [<path>]"; require the exact version to be
+    # followed by whitespace or end-of-line so e.g. "8.0.100-preview" is not
+    # treated as "8.0.100", while a bare version line still matches.
+    if ($installedSdks | Where-Object { $_ -match ('^' + [regex]::Escape($dotnetVersion) + '(\s|$)') }) {
+      Write-Host "[dotnet-cache] HIT: .NET SDK $dotnetVersion already installed; skipping installer."
+      $dotnetPath = Split-Path $dotnetExe -Parent
+    }
   }
 
-  if (-not (Test-Path $installerPath)) {
-    Write-Host "Downloading .NET SDK $dotnetVersion installer..."
-    $url = "https://builds.dotnet.microsoft.com/dotnet/Sdk/$dotnetVersion/dotnet-sdk-$dotnetVersion-win-x64.exe"
-    curl.exe -L $url -o $installerPath
+  if (-not $dotnetPath) {
+    $installerPath = Join-Path $cacheDir "dotnet-sdk-$dotnetVersion-win-x64.exe"
+    $expectedSha256 = 'd77a87a78264fcfb1703a7064795ccb10938cdfaea64a03cb0f36b1cda379f82'
+
+    if (-not (Test-Path $cacheDir)) {
+      New-Item -ItemType Directory -Path $cacheDir | Out-Null
+    }
+
+    if (-not (Test-Path $installerPath)) {
+      Write-Host "Downloading .NET SDK $dotnetVersion installer..."
+      $url = "https://builds.dotnet.microsoft.com/dotnet/Sdk/$dotnetVersion/dotnet-sdk-$dotnetVersion-win-x64.exe"
+      curl.exe -L $url -o $installerPath
+    }
+
+    Write-Host 'Verifying .NET SDK installer checksum...'
+    $hash = Get-FileHash -Path $installerPath -Algorithm SHA256
+    if ($hash.Hash.ToLower() -ne $expectedSha256.ToLower()) {
+      throw "Checksum verification failed for $installerPath. Expected $expectedSha256 but got $($hash.Hash.ToLower())."
+    }
+
+    Write-Host "Installing .NET SDK $dotnetVersion..."
+    & $installerPath /install /quiet /norestart /log "$cacheDir\dotnet-sdk-install.log"
+
+    # Locate installed dotnet.exe using the known default installation path (%ProgramFiles%\dotnet)
+    if (-not (Test-Path $dotnetExe)) {
+      throw ".NET SDK $dotnetVersion did not install correctly; expected $dotnetExe to exist."
+    }
+
+    $dotnetPath = Split-Path $dotnetExe -Parent
   }
-
-  Write-Host 'Verifying .NET SDK installer checksum...'
-  $hash = Get-FileHash -Path $installerPath -Algorithm SHA256
-  if ($hash.Hash.ToLower() -ne $expectedSha256.ToLower()) {
-    throw "Checksum verification failed for $installerPath. Expected $expectedSha256 but got $($hash.Hash.ToLower())."
-  }
-
-  Write-Host "Installing .NET SDK $dotnetVersion..."
-  & $installerPath /install /quiet /norestart /log "$cacheDir\dotnet-sdk-install.log"
-
-  # Locate installed dotnet.exe using the known default installation path (%ProgramFiles%\dotnet)
-  $dotnetExe = "C:\Program Files\dotnet\dotnet.exe"
-  if (-not (Test-Path $dotnetExe)) {
-    throw ".NET SDK $dotnetVersion did not install correctly; expected $dotnetExe to exist."
-  }
-
-  $dotnetPath = Split-Path $dotnetExe -Parent
 
   Write-Host "Adding $dotnetPath to PATH for current session..."
   $Env:Path = "$dotnetPath;" + $Env:Path

@@ -34,30 +34,39 @@ try {
     throw "Checksum verification failed for $zipPath. Expected $expectedSha256 but got $($hash.Hash.ToLower())."
   }
 
-  if (Test-Path $installDir) {
-    Write-Host "Cleaning existing Maven directory at $installDir ..."
-    Remove-Item -Recurse -Force $installDir
+  # Version-specific check: only skip if the pinned version is present, so a
+  # version bump forces a reinstall even when the tools cache is warm.
+  $expectedMvn = Join-Path $installDir "apache-maven-$mavenVersion\bin\mvn.cmd"
+  if (Test-Path $expectedMvn) {
+    Write-Host "[maven-cache] HIT: Maven $mavenVersion already extracted; skipping."
+    $binPath = Split-Path $expectedMvn -Parent
   }
+  else {
+    if (Test-Path $installDir) {
+      Write-Host "Cleaning existing Maven directory at $installDir ..."
+      Remove-Item -Recurse -Force $installDir
+    }
 
-  New-Item -ItemType Directory -Path $installDir | Out-Null
+    New-Item -ItemType Directory -Path $installDir | Out-Null
 
-  Write-Host "Extracting Apache Maven $mavenVersion..."
-  Add-Type -AssemblyName System.IO.Compression.FileSystem
-  [System.IO.Compression.ZipFile]::ExtractToDirectory($zipPath, $installDir)
+    Write-Host "Extracting Apache Maven $mavenVersion..."
+    Add-Type -AssemblyName System.IO.Compression.FileSystem
+    [System.IO.Compression.ZipFile]::ExtractToDirectory($zipPath, $installDir)
 
-  # Many Maven zips extract to apache-maven-<version>; ensure bin on PATH
-  $mavenRoot = Get-ChildItem -Path $installDir -Directory -Filter "apache-maven-$mavenVersion" -ErrorAction SilentlyContinue | Select-Object -First 1
-  if (-not $mavenRoot) {
-    $mavenRoot = Get-ChildItem -Path $installDir -Directory -ErrorAction SilentlyContinue | Select-Object -First 1
-  }
+    # Many Maven zips extract to apache-maven-<version>; ensure bin on PATH
+    $mavenRoot = Get-ChildItem -Path $installDir -Directory -Filter "apache-maven-$mavenVersion" -ErrorAction SilentlyContinue | Select-Object -First 1
+    if (-not $mavenRoot) {
+      $mavenRoot = Get-ChildItem -Path $installDir -Directory -ErrorAction SilentlyContinue | Select-Object -First 1
+    }
 
-  if (-not $mavenRoot) {
-    throw "Failed to locate Maven root directory under $installDir"
-  }
+    if (-not $mavenRoot) {
+      throw "Failed to locate Maven root directory under $installDir"
+    }
 
-  $binPath = Join-Path $mavenRoot.FullName 'bin'
-  if (-not (Test-Path (Join-Path $binPath 'mvn.cmd'))) {
-    throw "mvn.cmd not found in $binPath after extraction"
+    $binPath = Join-Path $mavenRoot.FullName 'bin'
+    if (-not (Test-Path (Join-Path $binPath 'mvn.cmd'))) {
+      throw "mvn.cmd not found in $binPath after extraction"
+    }
   }
 
   Write-Host "Adding $binPath to PATH for current session..."

@@ -126,10 +126,8 @@ func detectAgent(l lookup) (Agent, bool) {
 // canonicalAgent normalises an explicitly declared AI_AGENT value onto the set
 // of canonical agent names.
 func canonicalAgent(name string) Agent {
-	switch Agent(name) {
-	case "github-copilot-cli":
+	if name == "github-copilot-cli" {
 		return AgentGitHubCopilot
-	default:
-		return Agent(name)
 	}
+	return Agent(name)
 }

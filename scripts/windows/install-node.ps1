@@ -65,8 +65,8 @@ try {
   # Node 22 bundles npm ~10.9, below package.json "engines" (>=11.10). Upgrade the
   # active Node's npm so engine-strict (.npmrc) doesn't fail the build.
   $npmCmd = "C:\Program Files\nodejs\npm.cmd"
-  Write-Host "Upgrading npm to npm@^11.10 ..."
-  & $npmCmd install -g "npm@^11.10"
+  Write-Host "Upgrading npm to npm@^11.12.1 ..."
+  & $npmCmd install -g "npm@^11.12.1"
   if ($LASTEXITCODE -ne 0) { throw "npm upgrade failed with exit code $LASTEXITCODE" }
   Write-Host "npm $((& $npmCmd -v).Trim()) active"
 

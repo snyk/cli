@@ -1,3 +1,3 @@
 module github.com/snyk/cli/.github/scripts/deployment-monitor
 
-go 1.26.4
+go 1.26.5

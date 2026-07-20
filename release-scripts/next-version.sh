@@ -6,6 +6,31 @@ set -euo pipefail
 # Environment variables:
 #   BUILD_MODE - "public" or "private" (default: "private")
 #                Public builds get an "-oss" suffix appended to the version.
+#
+# Modes:
+#   (default)            Generate the next version and print it to stdout.
+#   --verify <version>   Check that <version> is consistent with BUILD_MODE.
+#                        Exits 0 if consistent, 1 if not. No git/convco needed.
+
+if [ "${1:-}" = "--verify" ]; then
+  VERSION="${2:?Usage: next-version.sh --verify <version> (BUILD_MODE must be set)}"
+  MODE="${BUILD_MODE:-private}"
+  HAS_OSS=false
+  if echo "$VERSION" | grep -qE '[-.]oss$'; then
+    HAS_OSS=true
+  fi
+  if [ "$MODE" = "private" ] && [ "$HAS_OSS" = "true" ]; then
+    echo "ERROR: BUILD_MODE=$MODE but version '$VERSION' contains oss suffix." >&2
+    echo "       Version was generated for a public build." >&2
+    exit 1
+  fi
+  if [ "$MODE" = "public" ] && [ "$HAS_OSS" = "false" ]; then
+    echo "ERROR: BUILD_MODE=$MODE but version '$VERSION' is missing oss suffix." >&2
+    echo "       Version was generated for a private build." >&2
+    exit 1
+  fi
+  exit 0
+fi
 
 NEXT_VERSION="$(convco version --bump)"
 CURRENT_TAG="$(git describe --tags `git rev-list --tags --max-count=1`)"

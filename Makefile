@@ -254,6 +254,14 @@ build-fips: pre-build $(BINARY_OUTPUT_FOLDER)/fips/version
 	@cd $(EXTENSIBLE_CLI_DIR); $(MAKE) fips build-full install bindir=$(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER)/fips USE_LEGACY_EXECUTABLE_NAME=1 BUILD_MODE=$(BUILD_MODE)
 	@$(MAKE) clean-package-files
 
+# Confirms the FIPS binary is genuinely distinct from the normal binary. This is
+# the safety net that lets us build normal + FIPS in one job without clean-golang:
+# if the FIPS build were ever skipped, the two binaries would be identical and
+# this target fails. Requires both `build` and `build-fips` to have run first.
+.PHONY: verify-fips-artifacts
+verify-fips-artifacts:
+	@bash ./scripts/verify-fips-build.sh $(BINARY_OUTPUT_FOLDER) $(BINARY_OUTPUT_FOLDER)/fips
+
 .PHONY: build-experimental
 build-experimental: pre-build $(BINARY_OUTPUT_FOLDER)/experimental/version
 	@cd $(EXTENSIBLE_CLI_DIR); $(MAKE) experimental build-full install bindir=$(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER)/experimental USE_LEGACY_EXECUTABLE_NAME=1 BUILD_MODE=$(BUILD_MODE)
@@ -323,7 +331,7 @@ release-mgt-create:
 lint:
 	@echo "-- Linting code"
 	@npm run lint
-	@pushd $(EXTENSIBLE_CLI_DIR); export CGO_ENABLED=1; $(MAKE) lint; popd
+	@cd $(EXTENSIBLE_CLI_DIR) && $(MAKE) lint
 	@echo "-- Verifying go.mod files are tidy"
 	@cd $(EXTENSIBLE_CLI_DIR) && $(GOCMD) mod tidy -diff > /dev/null || \
 		(echo "ERROR: cliv2/go.mod is not tidy. Run 'make format' and commit the changes." && exit 1)
@@ -337,7 +345,7 @@ format:
 	@$(MAKE) tidy
 	@echo "-- Formatting code"
 	@npm run format
-	@pushd $(EXTENSIBLE_CLI_DIR); $(MAKE) format; popd
+	@cd $(EXTENSIBLE_CLI_DIR) && $(MAKE) format
 
 .PHONY: tidy
 tidy:

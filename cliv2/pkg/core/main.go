@@ -37,8 +37,8 @@ import (
 	"github.com/snyk/cli/cliv2/internal/cliv2"
 	"github.com/snyk/cli/cliv2/internal/constants"
 
-	cliv2utils "github.com/snyk/cli/cliv2/internal/utils"
 	persona "github.com/snyk/cli/cliv2/internal/persona"
+	cliv2utils "github.com/snyk/cli/cliv2/internal/utils"
 
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/config_utils"
@@ -49,6 +49,7 @@ import (
 	"github.com/snyk/go-application-framework/pkg/networking/middleware"
 	"github.com/snyk/go-application-framework/pkg/runtimeinfo"
 	"github.com/snyk/go-application-framework/pkg/ui"
+	"github.com/snyk/go-application-framework/pkg/ui/uitypes"
 	"github.com/snyk/go-application-framework/pkg/utils"
 	"github.com/snyk/go-application-framework/pkg/workflow"
 	"github.com/snyk/go-httpauth/pkg/httpauth"
@@ -162,10 +163,18 @@ func updateConfigFromParameter(config configuration.Configuration, args []string
 	}
 	config.Set(configuration.UNKNOWN_ARGS, doubleDashArgs)
 
-	// only consider the first positional argument as input directory if it is not behind a double dash.
-	if len(args) > 0 && !utils.Contains(doubleDashArgs, args[0]) {
-		config.Set(configuration.INPUT_DIRECTORY, args)
-		config.Set(localworkflows.ConfigurationNewAuthenticationToken, args[0])
+	// Only positional args before "--" are input directories. Everything after "--" is
+	// passthrough (e.g. build-tool flags like `-s settings.xml`) and must not leak into
+	// INPUT_DIRECTORY, otherwise it gets misread as a path/package and force-routes to legacy.
+	// cobra appends the post-"--" tokens as the suffix of args, so trim them off.
+	positionalArgs := args
+	if len(doubleDashArgs) > 0 && len(args) >= len(doubleDashArgs) {
+		positionalArgs = args[:len(args)-len(doubleDashArgs)]
+	}
+
+	if len(positionalArgs) > 0 {
+		config.Set(configuration.INPUT_DIRECTORY, positionalArgs)
+		config.Set(localworkflows.ConfigurationNewAuthenticationToken, positionalArgs[0])
 	}
 }
 
@@ -439,7 +448,14 @@ func handleError(err error) HandleError {
 	return resultError
 }
 
-func displayError(err error, userInterface ui.UserInterface, config configuration.Configuration, ctx context.Context) {
+func doctorTip(isCI bool) string {
+	if isCI {
+		return "Give the snyk doctor your logs to debug: `snyk doctor --input <log-file>`"
+	}
+	return "Try snyk doctor: `snyk <command> -d 2>&1 | snyk doctor --stdin`"
+}
+
+func displayError(err error, userInterface ui.UserInterface, config configuration.Configuration, ctx context.Context, isCI bool) {
 	if err != nil {
 		_, isExitError := err.(*exec.ExitError)
 		_, isErrorWithCode := err.(*cli_errors.ErrorWithExitCode)
@@ -459,6 +475,7 @@ func displayError(err error, userInterface ui.UserInterface, config configuratio
 			jsonErrorBuffer, _ := json.MarshalIndent(jsonError, "", "  ")
 			_ = userInterface.OutputError(fmt.Errorf("%s", jsonErrorBuffer))
 		} else {
+			ctx = context.WithValue(ctx, uitypes.ErrorTipKey, doctorTip(isCI))
 			uiError := userInterface.OutputError(err, ui.WithContext(ctx))
 			if uiError != nil {
 				globalLogger.Err(uiError).Msg("ui failed to show error")
@@ -506,7 +523,7 @@ func tearDown(err error, errorList []error, startTime time.Time, ua networking.U
 	exitCode := cliv2.DeriveExitCode(outputError)
 	globalLogger.Printf("Deriving Exit Code %d (cause: %v)", exitCode, outputError)
 
-	displayError(outputError, globalEngine.GetUserInterface(), globalConfiguration, globalContext)
+	displayError(outputError, globalEngine.GetUserInterface(), globalConfiguration, globalContext, cliAnalytics.IsCiEnvironment())
 
 	updateInstrumentationDataBeforeSending(cliAnalytics, startTime, ua, exitCode)
 

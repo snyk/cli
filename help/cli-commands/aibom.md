@@ -1,3 +1,7 @@
+---
+description: The snyk aibom command that generates an AI bill of materials
+---
+
 # AI-BOM
 
 ## Prerequisites
@@ -13,7 +17,7 @@
 
 ## Description
 
-The `snyk aibom` command generates an AI-BOM for a local software Project that is written in Python. You can use the `snyk aibom` command to identify AI models, datasets, and map the AI supply chain, including connections to external tools and services using the Model Context Protocol (MCP).
+The `snyk aibom` command generates an AI-BOM for a local software Project written in Python, Java, JavaScript, or Go. You can use the `snyk aibom` command to identify AI models, datasets, and map the AI supply chain, including connections to external tools and services using the Model Context Protocol (MCP).
 
 The supported format is CycloneDX v1.6 (JSON).
 
