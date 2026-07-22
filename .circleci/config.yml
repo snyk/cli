@@ -1484,8 +1484,8 @@ workflows:
                 - main
                 - '/release.*/'
 
-      - trigger-build-agentic-integration:
-          name: Trigger building agentic-integration (stable)
+      - trigger-downstream-builds:
+          name: Trigger downstream builds
           context:
             - team-hammerhead-common-deploy-tokens
             - devex_cli_docker_hub
@@ -2177,13 +2177,13 @@ jobs:
           command: ./release-scripts/upload-artifacts.sh trigger-distribution-channels
       - failed-release-notification
 
-  trigger-build-agentic-integration:
+  trigger-downstream-builds:
     executor: docker-amd64
     steps:
       - prepare-workspace
       - run:
-          name: Trigger build-and-release workflow at agentic-integration-wrappers
-          command: ./release-scripts/upload-artifacts.sh trigger_build_agentic_integration
+          name: Trigger downstream builds
+          command: ./release-scripts/upload-artifacts.sh trigger_downstream_builds
       - failed-release-notification
 
   noop:

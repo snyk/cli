@@ -130,7 +130,7 @@ upload_npm() {
 # Arguments:
 #   repository: The GitHub repository name (e.g., "scoop-snyk
 #   event_type: The event type to trigger (default: "build_and_release")
-trigger_repository_event() {
+  trigger_repository_event() {
   repository=$1
   event_type=$2
 
@@ -167,32 +167,6 @@ trigger_repository_event() {
     echo "Details:"
     cat $response_file
     return 1
-  fi
-}
-
-trigger_build_agentic_integration() {
-  echo "Triggering build-and-release workflow at agentic-integration-wrappers..."
-  echo "Version: $VERSION_TAG"
-  echo "Release Channel: $RELEASE_CHANNEL"
-  response_file=$TMPDIR/trigger_build_agentic_integration.txt
-  RESPONSE=$(curl -L \
-    -X POST \
-    -H "Accept: application/vnd.github+json" \
-    -H "Authorization: Bearer $HAMMERHEAD_GITHUB_PAT" \
-    -H "X-GitHub-Api-Version: 2022-11-28" \
-    https://api.github.com/repos/snyk/agentic-integration-wrappers/dispatches \
-    -d "{\"event_type\":\"cli_release\", \"client_payload\": {\"cli_version\": \"$VERSION_TAG\"}}" \
-    -w "%{http_code}" \
-    -s  \
-    -o "$response_file")
-  if [ "$RESPONSE" -eq 204 ]; then
-    echo "Successfully triggered build-and-release workflow at agentic-integration-wrappers."
-  else
-    echo "Failed to trigger build-and-release workflow at agentic-integration-wrappers."
-    echo "Response status code: $RESPONSE"
-    echo "Details:"
-    cat $response_file
-    exit 1
   fi
 }
 
@@ -315,9 +289,17 @@ for arg in "${@}"; do
     fi
 
 
-  # Trigger building DXT in agentic-integration-wrappers repository
-  elif [ "${arg}" == "trigger_build_agentic_integration" ]; then
-    trigger_build_agentic_integration
+  # Trigger downstream builds in external repositories
+  elif [ "${arg}" == "trigger_downstream_builds" ]; then
+    DOWNSTREAM_FAILURE=0
+
+    trigger_repository_event "agentic-integration-wrappers" "cli_release" || DOWNSTREAM_FAILURE=1
+    trigger_repository_event "snyk-axi" "cli_release" || DOWNSTREAM_FAILURE=1
+
+    if [ $DOWNSTREAM_FAILURE -eq 1 ]; then
+        echo "One or more downstream build triggers failed. Exiting with error."
+        exit 1
+    fi
 
   # Upload files to S3 bucket
   else
