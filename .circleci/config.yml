@@ -567,7 +567,7 @@ commands:
             *) arch="amd64";;
             esac
             echo "using architecture: $arch"
-            apk add --update nodejs npm bash maven git python3 py3-pip elixir composer unzip xdg-utils docker
+            apk add --update nodejs npm bash maven git python3 py3-pip elixir composer unzip xdg-utils
             # apk's npm is < package.json engines floor (>=11.10); upgrade in place.
             npm install -g npm@^11.10
             pip3 install pipenv requests PyYAML setuptools==70.3.0
@@ -950,6 +950,36 @@ workflows:
           test_snyk_command: ./binary-releases/snyk-linux
 
       - acceptance-tests:
+          name: acceptance-tests docker daemon
+          go_target_os: linux
+          go_os: linux
+          go_arch: amd64
+          go_download_base_url: << pipeline.parameters.go_download_base_url >>
+          shards: 1
+          remote_docker: true
+          context:
+            - nodejs-install
+            - team_hammerhead-cli
+            - devex_cli_docker_hub
+            - team-cli-workflow-context
+          filters:
+            branches:
+              ignore:
+                - main
+                - '/release.*/'
+          pre_test_cmds: export BROWSER="curl -L"
+          requires:
+            - build linux amd64
+          executor: docker-amd64
+          test_snyk_command: ./binary-releases/snyk-linux
+          test_cmd: |
+            find test/jest/acceptance ts-binary-wrapper/test/acceptance -name '*.docker.spec.ts' \
+              | circleci tests run \
+                  --command="xargs npx jest --maxWorkers=1 --selectProjects coreCli --reporters=jest-junit --reporters=default --forceExit --" \
+                  --split-by=timings \
+                  --timings-type=file
+
+      - acceptance-tests:
           name: acceptance-tests linux arm64
           go_target_os: linux
           go_os: linux
@@ -1093,6 +1123,7 @@ workflows:
             if (Test-Path '<< pipeline.parameters.windows_cache_dir >>/<< pipeline.parameters.windows_env_script >>') { . '<< pipeline.parameters.windows_cache_dir >>/<< pipeline.parameters.windows_env_script >>' }
           test_cmd: |
             Get-ChildItem -Recurse -Path test/jest/acceptance,ts-binary-wrapper/test/acceptance -Filter *.spec.ts |
+              Where-Object { $_.Name -notlike '*.docker.spec.ts' } |
               ForEach-Object { (Resolve-Path -Relative $_.FullName) -replace '\\', '/' -replace '^\./', '' } |
               circleci tests run --command "xargs npx jest --maxWorkers=1 --selectProjects coreCli --reporters=jest-junit --reporters=default --forceExit --" --split-by=timings --timings-type=file
 
@@ -1855,10 +1886,13 @@ jobs:
       shards:
         type: integer
         default: 6
+      remote_docker:
+        type: boolean
+        default: false
       test_cmd:
         type: string
         default: |
-          find test/jest/acceptance ts-binary-wrapper/test/acceptance -name '*.spec.ts' \
+          find test/jest/acceptance ts-binary-wrapper/test/acceptance -name '*.spec.ts' ! -name '*.docker.spec.ts' \
             | circleci tests run \
                 --command="xargs npx jest --maxWorkers=1 --selectProjects coreCli --reporters=jest-junit --reporters=default --forceExit --" \
                 --split-by=timings \
@@ -1886,10 +1920,7 @@ jobs:
             - acceptance-maven-v1-<< parameters.executor >>-{{ .Environment.CIRCLE_NODE_INDEX }}-{{ checksum "maven-cache-key.txt" }}
             - acceptance-maven-v1-<< parameters.executor >>-{{ .Environment.CIRCLE_NODE_INDEX }}-
       - when:
-          condition:
-            matches:
-              pattern: '^(docker.*|alpine.*)'
-              value: << parameters.executor >>
+          condition: << parameters.remote_docker >>
           steps:
             - setup_remote_docker:
                 docker_layer_caching: false
