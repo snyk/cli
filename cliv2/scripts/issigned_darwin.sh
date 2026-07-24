@@ -8,9 +8,19 @@ if [[ "$OSTYPE" != *"darwin"* ]]; then
   exit 1
 fi
 
-if ! codesign --verify --deep --strict "$1"; then
-  echo "$LOG_PREFIX NOT signed!"
+if [[ $# -eq 0 ]]; then
+  echo "$LOG_PREFIX ERROR! Usage: $0 <file> [file...]"
   exit 1
-else
-  echo "$LOG_PREFIX is signed!"
 fi
+
+status=0
+for file in "$@"; do
+  if ! codesign --verify --deep --strict "$file"; then
+    echo "$LOG_PREFIX NOT signed: $file"
+    status=1
+  else
+    echo "$LOG_PREFIX is signed: $file"
+  fi
+done
+
+exit $status

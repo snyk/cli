@@ -317,6 +317,11 @@ commands:
             - C:\tools\make
             - C:\Program Files\Python312
 
+  install-deps-windows-native-build-min-signing:
+    steps:
+      - install-deps-windows-signing
+      - install-deps-windows-native-build-min
+
   install-deps-windows-native-build:
     steps:
       - run:
@@ -426,10 +431,6 @@ commands:
           key: digicert-cache-v3-{{ arch }}-{{ checksum "~/cache_key.txt" }}
           paths:
             - ~\smtools-windows-x64.msi
-
-  install-deps-windows-full-signing:
-    steps:
-      - install-deps-windows-signing
 
   install-deps-noop:
     steps:
@@ -894,10 +895,11 @@ workflows:
           go_download_base_url: << pipeline.parameters.fips_go_download_base_url >>
           go_version: << pipeline.parameters.fips_go_version >>
           make_target: build build-fips verify-fips-artifacts BUILD_MODE=private
-          install_deps_extension: windows-native-build-min
+          install_deps_extension: windows-native-build-min-signing
           install_path: 'C:\'
           executor: win-server2022-amd64
           context:
+            - snyk-windows-signing
             - iac-cli
             - team-cli-go-private-modules
           requires:
@@ -2101,10 +2103,41 @@ jobs:
           environment:
             SNYK_DISABLE_ANALYTICS: 1
           command: |
+            export SNYK_CACHE_PATH="$(pwd)/.snyk-cache"
+            if command -v cygpath >/dev/null 2>&1; then
+              export SNYK_CACHE_PATH="$(cygpath -w "$SNYK_CACHE_PATH")"
+            fi
+            echo "export SNYK_CACHE_PATH=\"$SNYK_CACHE_PATH\"" >> "$BASH_ENV"
             PIP_BREAK_SYSTEM_PACKAGES=1 pip install --user --upgrade requests || PIP_BREAK_SYSTEM_PACKAGES=1 pip3 install --user --upgrade requests
             python scripts/install-snyk.py --base_url=<< parameters.cli_download_base_url >>  $(cat binary-releases/version) || python3 scripts/install-snyk.py --base_url=<< parameters.cli_download_base_url >> $(cat binary-releases/version)
             SNYK_TOKEN=${TEST_SNYK_TOKEN} ./snyk whoami --experimental
             SNYK_TOKEN=${TEST_SNYK_TOKEN} ./snyk woof
+
+      - when:
+          condition:
+            matches:
+              pattern: '^macos.*'
+              value: << parameters.executor >>
+          steps:
+            - run:
+                name: Verify release binaries are signed (macOS)
+                shell: bash
+                command: |
+                  ts_binary=$(./cliv2/scripts/find_ts_binary.sh "$SNYK_CACHE_PATH")
+                  ./cliv2/scripts/issigned_darwin.sh ./snyk "$ts_binary"
+
+      - when:
+          condition:
+            matches:
+              pattern: '^win.*'
+              value: << parameters.executor >>
+          steps:
+            - run:
+                name: Verify release binaries are signed (Windows)
+                shell: bash
+                command: |
+                  ts_binary=$(./cliv2/scripts/find_ts_binary.sh "$SNYK_CACHE_PATH")
+                  powershell ./cliv2/scripts/issigned_windows.ps1 snyk.exe "$ts_binary"
 
   test-release-static:
     parameters:
