@@ -206,7 +206,8 @@
     },
     "snyk-nodejs-lockfile-parser@2.8.1": {
       "uuid": "$uuid"
-    }
+    },
+    "shescape@<2.1.14": "2.1.14"
   },
   "repository": {
     "type": "git",
