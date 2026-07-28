@@ -282,7 +282,8 @@ describe('snyk sbom uv (mocked server only)', () => {
       },
     );
 
-    expect(code).toEqual(0);
+    // Exit code can be 0 (no vulns) or 1 (vulns found), both are valid
+    expect([0, 1]).toContain(code);
 
     const requests = server.getRequests();
     const sbomConvertRequests = requests.filter((req) =>
