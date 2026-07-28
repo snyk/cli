@@ -310,3 +310,32 @@ extension/
 - ❌ Domain logic inside the callback — extract into domain packages
 - ❌ Passing `InvocationContext` into domain code — pass concrete values
 - ❌ Deep workflow call chains — keep composition flat
+
+## Cursor Cloud specific instructions
+
+Environment notes for Cursor Cloud agents (dependencies are pre-installed by the
+startup update script; the caveats below are the non-obvious bits).
+
+- **Node/npm:** `/exec-daemon/node` is first on `PATH` but ships **no npm**. Use
+  the nvm-managed Node `22.22.3` (the `.nvmrc` version, set as the nvm default),
+  which provides **npm `11.12.1`** — this repo pins `engine-strict=true` with
+  `npm ^11.12.1`, so the default `/exec-daemon` node fails `npm ci`. Prepend it:
+  `PATH="$HOME/.nvm/versions/node/v22.22.3/bin:$PATH"` before `npm`/`make build`.
+- **Go toolchain is pinned to `go1.26.5`** via `go env -w GOTOOLCHAIN=go1.26.5`
+  (the CLI needs Go 1.26.x and the toolchain auto-download from `go.dev` is
+  blocked; the pin routes it through `proxy.golang.org`).
+- **Build:** use `make build BUILD_MODE=public` — `cliv2-private/` is not
+  accessible here. Output binary: `binary-releases/snyk-linux`.
+- **`convco`** (used by `release-scripts/next-version.sh`) is installed at
+  `/usr/local/bin/convco`; without it `make build` fails at the version step.
+- **3rd-party licenses step:** `make build` runs `prepare-3rd-party-licenses`,
+  which downloads Go's LICENSE from the blocked `go.dev`. A copy of Go's LICENSE
+  is pre-placed at the gitignored
+  `cliv2/internal/embedded/_data/licenses/go.dev/LICENSE`; the script skips the
+  download when that file exists. Keep it in place.
+- **Tests:** standard commands (see [Running Tests](#running-tests)). Go tests
+  `cd cliv2 && go test ./...` pass. Acceptance tests run against the built binary
+  + fake server, e.g.
+  `TEST_SNYK_COMMAND=./binary-releases/snyk-linux npx jest --runInBand test/jest/acceptance/snyk-test/all-projects.spec.ts`.
+  Some acceptance specs reach real package registries and fail under restricted
+  egress — that is an environment limit, not a regression.
