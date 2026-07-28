@@ -347,6 +347,14 @@ items below are setup context and gotchas, not install steps to repeat.
   `./binary-releases/snyk-linux`. Verified green here: `cd cliv2 && go test ./pkg/... ./internal/...`;
   `npx jest --runInBand test/jest/unit/lib/formatters` (120 pass);
   `TEST_SNYK_COMMAND=./binary-releases/snyk-linux npx jest --runInBand test/jest/acceptance/snyk-test/all-projects.spec.ts` (20 pass, fake-server).
+- **Lint gotcha.** `make lint` runs `npm run lint` (TS eslint) then
+  `cd cliv2 && make lint`. In `cliv2`, `TOOLS_BIN` is empty, so the `make lint`
+  prerequisite `$(TOOLS_BIN)/golangci-lint` resolves to a missing `/golangci-lint`
+  and re-triggers the curl-based installer. Note `cliv2` pins golangci-lint
+  **v2.9.0** (the root Go repos use v2.10.1). To avoid the installer, put v2.9.0 in
+  `cliv2/.bin/` (`GOBIN=$(pwd)/.bin go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.9.0`)
+  and run the linters directly: `npm run lint` and `cd cliv2 && ./.bin/golangci-lint run ./...`
+  (both report `0 issues` here).
 - **Some acceptance specs hit real registries** (e.g. `basic-test-all-languages`)
   and fail under restricted egress; `all-projects.spec.ts` is fake-server-only and
   is a clean demo. **Reachable:** `proxy.golang.org`, `github.com`,
