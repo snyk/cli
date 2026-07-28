@@ -270,53 +270,6 @@ commands:
                   $bashLine = 'export PATH="' + $bashPath + ':$PATH"'
                   [System.IO.File]::AppendAllText($bashEnvScript, $bashLine + "`n", (New-Object System.Text.UTF8Encoding $false))
 
-  # Minimal Windows toolchain for COMPILING the CLI: Node, Python, Make only.
-  # Excludes .NET/Maven/Gradle (needed only by acceptance tests), which keeps
-  # this cache small and fast to restore compared to the full tools cache.
-  install-deps-windows-native-build-min:
-    steps:
-      - run:
-          name: Ensure tools cache directory
-          shell: powershell
-          command: |
-            $cacheDir = '<< pipeline.parameters.windows_cache_dir >>'
-            if (-not (Test-Path $cacheDir)) {
-              New-Item -ItemType Directory -Path $cacheDir | Out-Null
-            }
-      - restore_cache:
-          name: Restoring Windows build tools cache
-          keys:
-            - windows-build-tools-cache-v2-{{ arch }}-{{ checksum ".nvmrc" }}
-      - run:
-          name: Install Node.js (native)
-          shell: powershell
-          command: |
-            .\scripts\windows\install-node.ps1
-      - run:
-          name: Install Python 3.12.8 (native)
-          shell: powershell
-          command: |
-            .\scripts\windows\install-python3.ps1
-      - run:
-          name: Install GNU Make 4.4.1 (native)
-          shell: powershell
-          command: |
-            .\scripts\windows\install-make.ps1
-      - run:
-          name: Ensure Python and uv
-          shell: powershell
-          command: |
-            if (Test-Path '<< pipeline.parameters.windows_cache_dir >>/<< pipeline.parameters.windows_env_script >>') { . '<< pipeline.parameters.windows_cache_dir >>/<< pipeline.parameters.windows_env_script >>' }
-            .\scripts\windows\ensure-python-uv.ps1
-      - save_cache:
-          name: Saving Windows build tools cache
-          key: windows-build-tools-cache-v2-{{ arch }}-{{ checksum ".nvmrc" }}
-          paths:
-            - << pipeline.parameters.windows_cache_dir >>
-            - C:\ProgramData\nvm
-            - C:\tools\make
-            - C:\Program Files\Python312
-
   install-deps-windows-native-build:
     steps:
       - run:
@@ -330,7 +283,7 @@ commands:
       - restore_cache:
           name: Restoring Windows tools cache
           keys:
-            - windows-tools-cache-v7-{{ arch }}-{{ checksum ".nvmrc" }}
+            - windows-tools-cache-v5-{{ arch }}-{{ checksum ".nvmrc" }}
       - run:
           name: Install Node.js (native)
           shell: powershell
@@ -369,14 +322,10 @@ commands:
             .\scripts\windows\ensure-python-uv.ps1
       - save_cache:
           name: Saving Windows tools cache
-          key: windows-tools-cache-v7-{{ arch }}-{{ checksum ".nvmrc" }}
+          key: windows-tools-cache-v5-{{ arch }}-{{ checksum ".nvmrc" }}
           paths:
             - << pipeline.parameters.windows_cache_dir >>
             - C:\ProgramData\nvm
-            - C:\tools\maven
-            - C:\tools\make
-            - C:\Program Files\dotnet
-            - C:\Program Files\Python312
 
   install-deps-windows-native-full-signing:
     steps:
@@ -436,19 +385,6 @@ commands:
       - run:
           name: No dependencies to install
           command: echo all done!
-
-  setup-go-build-cache:
-    description: >-
-      Pin GOMODCACHE and GOCACHE to workspace paths so CircleCI cache
-      restore/save works on Linux, macOS, and Windows executors.
-    steps:
-      - run:
-          name: Configure Go module and build cache paths
-          shell: bash
-          command: |
-            mkdir -p .go-cache/mod .go-cache/build
-            echo "export GOMODCACHE=\"$(pwd)/.go-cache/mod\"" >> "$BASH_ENV"
-            echo "export GOCACHE=\"$(pwd)/.go-cache/build\"" >> "$BASH_ENV"
 
   setup-go-private-modules:
     description: >-
@@ -893,11 +829,12 @@ workflows:
           go_arch: amd64
           go_download_base_url: << pipeline.parameters.fips_go_download_base_url >>
           go_version: << pipeline.parameters.fips_go_version >>
-          make_target: build build-fips verify-fips-artifacts BUILD_MODE=private
-          install_deps_extension: windows-native-build-min
+          make_target: build clean-golang build-fips BUILD_MODE=private
+          install_deps_extension: windows-native-full-signing
           install_path: 'C:\'
           executor: win-server2022-amd64
           context:
+            - snyk-windows-signing
             - iac-cli
             - team-cli-go-private-modules
           requires:
@@ -1793,12 +1730,8 @@ jobs:
           go_version: << parameters.go_version >>
           extraction_path: << parameters.install_path >>
       - setup-go-private-modules
-      - setup-go-build-cache
       - restore_cache:
-          name: Restoring Go module and build cache
-          keys:
-            - go-build-v2-{{ arch }}-{{ checksum "cliv2/go.sum" }}
-            - go-build-v2-{{ arch }}-
+          key: go-build-{{ arch }}-{{ checksum "cliv2/go.sum" }}
       - make-binary:
           static: << parameters.static_binary >>
           go_arch: << parameters.go_arch >>
@@ -1806,11 +1739,8 @@ jobs:
           make_target: << parameters.make_target >>
           c_compiler: << parameters.c_compiler >>
       - save_cache:
-          name: Saving Go module and build cache
-          key: go-build-v2-{{ arch }}-{{ checksum "cliv2/go.sum" }}
-          paths:
-            - .go-cache/mod
-            - .go-cache/build
+          key: go-build-{{ arch }}-{{ checksum "cliv2/go.sum" }}
+          paths: [/home/circleci/go/pkg/mod]
       - store_artifacts:
           path: binary-releases
       - persist_to_workspace:
@@ -1948,11 +1878,7 @@ jobs:
       - install-deps-<< parameters.install_deps_extension >>
       - run:
           name: Signing << parameters.go_os >> artifact
-          shell: bash
-          command: |
-            # Load Windows $Env:Path values of tools necessary for signing (like make).
-            if [ -f "/c/tools-cache/<< pipeline.parameters.windows_bash_env_script >>" ]; then source "/c/tools-cache/<< pipeline.parameters.windows_bash_env_script >>"; fi
-            make << parameters.make_target >> GOOS=<< parameters.go_os >> GOARCH=<< parameters.go_arch >>
+          command: make << parameters.make_target >> GOOS=<< parameters.go_os >> GOARCH=<< parameters.go_arch >>
       - store_artifacts:
           path: ./binary-releases
       - persist_to_workspace:
