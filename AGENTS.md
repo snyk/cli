@@ -310,3 +310,44 @@ extension/
 - ❌ Domain logic inside the callback — extract into domain packages
 - ❌ Passing `InvocationContext` into domain code — pass concrete values
 - ❌ Deep workflow call chains — keep composition flat
+
+## Cursor Cloud specific instructions
+
+Durable, non-obvious notes for agents running in the Cursor Cloud Linux VM. The
+update script already runs `npm ci` (root) and `go mod download` (`cliv2/`); the
+items below are setup context and gotchas, not install steps to repeat.
+
+- **Node/npm come from nvm, not `/exec-daemon/node`.** `/exec-daemon/node` is
+  first on `PATH` but ships **no npm**, and the preinstalled nvm `v22.22.2` has a
+  corrupted npm. Use the clean `v22.22.3` (matches `.nvmrc`) with `npm@11.12.1`
+  (root `.npmrc` sets `engine-strict=true`). **Always prepend**
+  `PATH="$HOME/.nvm/versions/node/v22.22.3/bin:$PATH"` before any `npm`/`make build`
+  — nvm is not auto-sourced in non-interactive shells and `nvm use` alone does not
+  beat `/exec-daemon/node`.
+- **Go toolchain — pin the exact patch.** `cliv2/go.mod` needs Go 1.26.x; with
+  `GOTOOLCHAIN=auto` Go tries the **blocked** `go.dev`. Keep
+  `GOTOOLCHAIN=go1.26.5` set (`go env -w GOTOOLCHAIN=go1.26.5`).
+- **Build public mode.** `cliv2-private/` is inaccessible here, so build with
+  `make build BUILD_MODE=public`. `convco` (a build dep from the Brewfile, not on
+  Linux) must be on `PATH`; install the `v0.7.0` musl release from GitHub into
+  `/usr/local/bin`. The `library.go:101` asm warnings during build are harmless.
+- **go.dev license workaround.** `make build` runs `cliv2/scripts/prepare_licenses.go`,
+  which (a) `go-licenses save --force` regenerates `cliv2/internal/embedded/_data/licenses/`,
+  then (b) downloads a few manual licenses — including `go.dev`'s, from the
+  **blocked** `go.dev`. Because `--force` wipes the tree first, pre-placing the
+  file before the build does not survive. Instead let the build run once so the
+  tree is generated, then place the file from the reachable GitHub mirror and
+  stamp the make target so the step is skipped next time:
+  `curl -fsSL -o cliv2/internal/embedded/_data/licenses/go.dev/LICENSE https://raw.githubusercontent.com/golang/go/master/LICENSE`
+  then `echo done > cliv2/_cache/prepare-3rd-party-licenses` (the target has no
+  prerequisites, so its mere presence makes `make` skip license prep). Both paths
+  are gitignored.
+- **Standard commands** are in [Running Tests](#running-tests) / [Running the CLI
+  Locally](#running-the-cli-locally). On Linux the built binary is
+  `./binary-releases/snyk-linux`. Verified green here: `cd cliv2 && go test ./pkg/... ./internal/...`;
+  `npx jest --runInBand test/jest/unit/lib/formatters` (120 pass);
+  `TEST_SNYK_COMMAND=./binary-releases/snyk-linux npx jest --runInBand test/jest/acceptance/snyk-test/all-projects.spec.ts` (20 pass, fake-server).
+- **Some acceptance specs hit real registries** (e.g. `basic-test-all-languages`)
+  and fail under restricted egress; `all-projects.spec.ts` is fake-server-only and
+  is a clean demo. **Reachable:** `proxy.golang.org`, `github.com`,
+  `raw.githubusercontent.com`, `registry.npmjs.org`. **Blocked:** `go.dev`.
