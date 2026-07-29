@@ -42,7 +42,9 @@ parameters:
     default: 'snyk-env.sh'
 
 orbs:
-  prodsec: snyk/prodsec-orb@1
+  # Trialling the agentic fix from snyk/prodsec-orb#166. Dev orb versions are mutable and
+  # expire after 90 days - switch back to snyk/prodsec-orb@1 once that PR is released.
+  prodsec: snyk/prodsec-orb@dev:31a2fb2e92f1f80de62249143bd3a816b3836971
   snyk: snyk/snyk@2.0.3
   aws-cli: circleci/aws-cli@2.0.3
   gh: circleci/github-cli@2.1.0
@@ -594,6 +596,9 @@ workflows:
             - devex_cli
             - devex_cli_docker_hub
             - team-cli-go-private-modules
+            # LITELLM_API_KEY, LITELLM_BASE_URL, LITELLM_MODEL and REMY_GITHUB_TOKEN for the
+            # agentic fix. Without this the feature skips, naming what is missing.
+            - prodsec-orb-runtime
           requires:
             - prepare-build
           filters:
@@ -1519,8 +1524,12 @@ jobs:
           iac-scan: disabled
           release-branch: main
           open-source-scan-reachability: true
-          open-source-scan: high
+          # medium for the agentic fix trial, so the gate surfaces more for it to work on.
+          # Note this repository also sets open-source-block-ignore-sla, so the gate already
+          # blocks regardless of remediation SLA - the two together widen this considerably.
+          open-source-scan: medium
           open-source-block-ignore-sla: true
+          open-source-agentic-fix-enabled: true
 
   docs-only-check:
     executor: docker-amd64
