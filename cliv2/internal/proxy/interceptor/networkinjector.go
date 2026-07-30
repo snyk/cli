@@ -1,15 +1,18 @@
 package interceptor
 
 import (
-	"github.com/elazarl/goproxy"
-	"github.com/snyk/go-application-framework/pkg/workflow"
+	"context"
 	"net/http"
 	"regexp"
+
+	"github.com/elazarl/goproxy"
+	"github.com/snyk/go-application-framework/pkg/workflow"
 )
 
 type networkInjector struct {
 	requestCondition goproxy.ReqCondition
 	invocationCtx    workflow.InvocationContext
+	requestContext   context.Context
 }
 
 func (ni networkInjector) GetCondition() goproxy.ReqCondition {
@@ -21,6 +24,9 @@ func (ni networkInjector) GetCondition() goproxy.ReqCondition {
 // and the gocli in two different places.
 func (ni networkInjector) GetHandler() goproxy.FuncReqHandler {
 	return func(req *http.Request, proxyCtx *goproxy.ProxyCtx) (*http.Request, *http.Response) {
+		if ni.requestContext != nil {
+			req = req.WithContext(ni.requestContext)
+		}
 		resp, err := ni.invocationCtx.GetNetworkAccess().GetRoundTripper().RoundTrip(req)
 		if err != nil {
 			ni.invocationCtx.GetEnhancedLogger().Trace().Msgf("intercepting call failed with error: %v", err)
@@ -35,10 +41,11 @@ func (ni networkInjector) GetHandler() goproxy.FuncReqHandler {
 	}
 }
 
-func NewNetworkInjector(invocationCtx workflow.InvocationContext) Interceptor {
+func NewNetworkInjector(invocationCtx workflow.InvocationContext, requestContext context.Context) Interceptor {
 	i := networkInjector{
 		requestCondition: goproxy.UrlMatches(regexp.MustCompile(".*")),
 		invocationCtx:    invocationCtx,
+		requestContext:   requestContext,
 	}
 	return i
 }

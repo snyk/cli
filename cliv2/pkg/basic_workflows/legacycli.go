@@ -3,6 +3,7 @@ package basic_workflows
 import (
 	"bufio"
 	"bytes"
+	"context"
 	"fmt"
 	"io"
 	"os"
@@ -18,6 +19,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 	"github.com/snyk/go-application-framework/pkg/configuration"
+	"github.com/snyk/go-application-framework/pkg/networking/contributorcapture"
 	pkg_utils "github.com/snyk/go-application-framework/pkg/utils"
 	"github.com/snyk/go-application-framework/pkg/workflow"
 	"github.com/spf13/pflag"
@@ -142,18 +144,23 @@ func legacycliWorkflow(
 		cli.SetIoStreams(os.Stdin, os.Stdout, stderr)
 	}
 
+	capture := contributorcapture.NewCapture()
+	invocationCtx := contributorcapture.WithCapture(invocation.Context(), capture)
+
 	wrapperProxy, err := createInternalProxy(
 		config,
 		debugLogger,
 		invocation,
+		invocationCtx,
 	)
 	if err != nil {
 		return output, err
 	}
+	defer wrapperProxy.Close()
 
 	// run the cli with context from invocation (allows cancellation on signal)
 	proxyInfo := wrapperProxy.ProxyInfo()
-	err = cli.Execute(invocation.Context(), proxyInfo, finalizeArguments(args, config.GetStringSlice(configuration.UNKNOWN_ARGS)))
+	err = cli.Execute(invocationCtx, proxyInfo, finalizeArguments(args, config.GetStringSlice(configuration.UNKNOWN_ARGS)))
 
 	if !useStdIo {
 		_ = outWriter.Flush()
@@ -174,10 +181,19 @@ func legacycliWorkflow(
 		invocation.GetAnalytics().AddExtensionIntegerValue("exitcode", exitError.ExitCode())
 	}
 
+	if err == nil {
+		emitLegacyContributorBilling(invocationCtx, invocation, capture, workingDirectory)
+	}
+
 	return output, err
 }
 
-func createInternalProxy(config configuration.Configuration, debugLogger *zerolog.Logger, invocation workflow.InvocationContext) (*proxy.WrapperProxy, error) {
+func createInternalProxy(
+	config configuration.Configuration,
+	debugLogger *zerolog.Logger,
+	invocation workflow.InvocationContext,
+	requestContext context.Context,
+) (*proxy.WrapperProxy, error) {
 	caData, err := GetGlobalCertAuthority(config, debugLogger)
 	if err != nil {
 		return nil, err
@@ -193,7 +209,7 @@ func createInternalProxy(config configuration.Configuration, debugLogger *zerolo
 	// The networkinjector intercepts all requests from the legacy CLI and re-routes them to the existing networking
 	// layer. It should therefore be kept as the last interceptor in the chain, as it circuit breaks goproxy's own
 	// routing. Any interceptor added later will not be called.
-	wrapperProxy.RegisterInterceptor(interceptor.NewNetworkInjector(invocation))
+	wrapperProxy.RegisterInterceptor(interceptor.NewNetworkInjector(invocation, requestContext))
 
 	err = wrapperProxy.Start()
 	if err != nil {

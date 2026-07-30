@@ -30,6 +30,7 @@ import (
 	"github.com/snyk/go-application-framework/pkg/analytics"
 	"github.com/snyk/go-application-framework/pkg/app"
 	"github.com/snyk/go-application-framework/pkg/configuration"
+	"github.com/snyk/go-application-framework/pkg/contributorbilling"
 	"github.com/snyk/go-application-framework/pkg/instrumentation"
 	"github.com/snyk/go-application-framework/pkg/logging"
 
@@ -541,6 +542,8 @@ func tearDown(err error, errorList []error, startTime time.Time, ua networking.U
 	if globalConfiguration.GetBool(configuration.DEBUG) {
 		writeLogFooter(exitCode, allErrors, globalConfiguration, networkAccess)
 	}
+
+	contributorbilling.WaitWithTimeout(contributorbilling.DefaultTimeout)
 
 	return exitCode
 }
