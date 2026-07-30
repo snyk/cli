@@ -36,25 +36,24 @@ require (
 	github.com/apparentlymart/go-textseg/v15 v15.0.0 // indirect
 	github.com/apparentlymart/go-versions v1.0.2 // indirect
 	github.com/atotto/clipboard v0.1.4 // indirect
-	github.com/aws/aws-sdk-go-v2 v1.41.5 // indirect
+	github.com/aws/aws-sdk-go-v2 v1.41.7 // indirect
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.7.8 // indirect
-	github.com/aws/aws-sdk-go-v2/config v1.32.12 // indirect
-	github.com/aws/aws-sdk-go-v2/credentials v1.19.12 // indirect
-	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.18.20 // indirect
-	github.com/aws/aws-sdk-go-v2/internal/configsources v1.4.21 // indirect
-	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.7.21 // indirect
-	github.com/aws/aws-sdk-go-v2/internal/ini v1.8.6 // indirect
-	github.com/aws/aws-sdk-go-v2/internal/v4a v1.4.22 // indirect
-	github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.13.7 // indirect
+	github.com/aws/aws-sdk-go-v2/config v1.32.17 // indirect
+	github.com/aws/aws-sdk-go-v2/credentials v1.19.16 // indirect
+	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.18.23 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/configsources v1.4.23 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.7.23 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/v4a v1.4.24 // indirect
+	github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.13.9 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/checksum v1.9.13 // indirect
-	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.13.21 // indirect
+	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.13.23 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/s3shared v1.19.21 // indirect
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.97.3 // indirect
-	github.com/aws/aws-sdk-go-v2/service/signin v1.0.8 // indirect
-	github.com/aws/aws-sdk-go-v2/service/sso v1.30.13 // indirect
-	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.35.17 // indirect
-	github.com/aws/aws-sdk-go-v2/service/sts v1.41.9 // indirect
-	github.com/aws/smithy-go v1.24.2 // indirect
+	github.com/aws/aws-sdk-go-v2/service/signin v1.0.11 // indirect
+	github.com/aws/aws-sdk-go-v2/service/sso v1.30.17 // indirect
+	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.35.21 // indirect
+	github.com/aws/aws-sdk-go-v2/service/sts v1.42.1 // indirect
+	github.com/aws/smithy-go v1.25.1 // indirect
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/bahlo/generic-list-go v0.2.0 // indirect
@@ -101,7 +100,7 @@ require (
 	github.com/erni27/imcache v1.2.1 // indirect
 	github.com/fatih/color v1.18.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
-	github.com/fsnotify/fsnotify v1.9.0 // indirect
+	github.com/fsnotify/fsnotify v1.10.1 // indirect
 	github.com/gertd/go-pluralize v0.2.1 // indirect
 	github.com/getsentry/sentry-go v0.31.1 // indirect
 	github.com/go-git/gcfg v1.5.1-0.20230307220236-3a3c6141e376 // indirect
@@ -204,24 +203,24 @@ require (
 	github.com/shirou/gopsutil v3.21.11+incompatible // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/skeema/knownhosts v1.3.2 // indirect
-	github.com/snyk/cli-extension-agent-scan v0.0.0-20260505093105-90d9442ea939 // indirect
-	github.com/snyk/cli-extension-ai-bom v0.0.0-20260319140413-ac7392950603 // indirect
-	github.com/snyk/cli-extension-dep-graph/v2 v2.6.0 // indirect
+	github.com/snyk/cli-extension-agent-scan v0.0.0-20260715092951-4f8fa1b9886c // indirect
+	github.com/snyk/cli-extension-ai-bom v0.0.0-20260721084000-da8dc26c77f2 // indirect
+	github.com/snyk/cli-extension-dep-graph/v2 v2.7.2 // indirect
 	github.com/snyk/cli-extension-iac v0.0.0-20260515092252-505c498f1077 // indirect
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20260515141409-fb475901bb8e // indirect
-	github.com/snyk/cli-extension-os-flows v0.0.0-20260625140351-2bb6cb470073 // indirect
-	github.com/snyk/cli-extension-sbom v0.0.0-20260623143454-0e7dabd69db4 // indirect
+	github.com/snyk/cli-extension-os-flows v0.0.0-20260722114313-168a09671091 // indirect
+	github.com/snyk/cli-extension-sbom v0.0.0-20260722102401-3c3af28e7b93 // indirect
 	github.com/snyk/cli-extension-secrets v0.0.0-20260619070019-764c5c87eda3 // indirect
-	github.com/snyk/code-client-go v1.27.5 // indirect
+	github.com/snyk/code-client-go v1.31.0 // indirect
 	github.com/snyk/container-cli v0.0.0-20260213211631-cd2b2cf8f3ea // indirect
 	github.com/snyk/dep-graph/go v0.0.0-20260127160647-c836da762c62 // indirect
 	github.com/snyk/error-catalog-golang-public v0.0.0-20260505112649-a5103d411663 // indirect
-	github.com/snyk/go-application-framework v0.7.1 // indirect
+	github.com/snyk/go-application-framework v0.9.0 // indirect
 	github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65 // indirect
 	github.com/snyk/policy-engine v1.1.4 // indirect
 	github.com/snyk/snyk-iac-capture v0.6.5 // indirect
-	github.com/snyk/snyk-ls v0.0.0-20260723155019-176f7433c014 // indirect
-	github.com/snyk/studio-mcp v1.14.0 // indirect
+	github.com/snyk/snyk-ls v0.0.0-20260727100503-17c420b24a76 // indirect
+	github.com/snyk/studio-mcp v1.15.1 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/sourcegraph/go-lsp v0.0.0-20240223163137-f80c5dd31dfd // indirect
 	github.com/spf13/afero v1.15.0 // indirect
@@ -315,3 +314,7 @@ replace github.com/snyk/cli/cliv2 => ../cliv2
 // replace github.com/snyk/cli-extension-sbom => ../../cli-extension-sbom
 
 // replace github.com/snyk/cli-extension-secrets => ../../cli-extension-secrets
+
+// replace github.com/snyk/cli-extension-cos => ../../cli-extension-cos
+
+// replace github.com/snyk/ambient-canary => ../../ambient-canary
