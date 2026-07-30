@@ -210,11 +210,11 @@ require (
 	github.com/skeema/knownhosts v1.3.2 // indirect
 	github.com/snyk/cli-extension-agent-scan v0.0.0-20260803112735-0ad462cba2af // indirect
 	github.com/snyk/cli-extension-ai-bom v0.0.0-20260804095026-fdfc28cd38b8 // indirect
-	github.com/snyk/cli-extension-dep-graph/v2 v2.7.2 // indirect
+	github.com/snyk/cli-extension-dep-graph/v2 v2.8.1 // indirect
 	github.com/snyk/cli-extension-iac v0.0.0-20260515092252-505c498f1077 // indirect
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20260515141409-fb475901bb8e // indirect
 	github.com/snyk/cli-extension-os-flows v0.0.0-20260722114313-168a09671091 // indirect
-	github.com/snyk/cli-extension-sbom v0.0.0-20260722102401-3c3af28e7b93 // indirect
+	github.com/snyk/cli-extension-sbom v0.0.0-20260728161808-90fff659c450 // indirect
 	github.com/snyk/cli-extension-secrets v0.0.0-20260728151749-3c88a5e044f3 // indirect
 	github.com/snyk/code-client-go v1.31.3 // indirect
 	github.com/snyk/container-cli v0.0.0-20260213211631-cd2b2cf8f3ea // indirect

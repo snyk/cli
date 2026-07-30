@@ -60,6 +60,11 @@ export interface Options {
   // get-single-plugin-result.ts). Intentionally not part of
   // SupportedUserReachableFacingCliArgs so it stays off the documented surface.
   'include-component-metadata'?: boolean;
+  // Internal/undocumented flag forwarded by cli-extension-dep-graph alongside
+  // include-component-metadata; makes the Gradle plugin force
+  // --refresh-dependencies so distribution:url provenance can be resolved. Kept
+  // off SupportedUserReachableFacingCliArgs for the same reason as above.
+  'gradle-refresh-dependencies'?: boolean;
   includeProvenance?: boolean;
   fingerprintAlgorithm?: string;
   'project-name'?: string;
