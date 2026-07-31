@@ -673,6 +673,80 @@ describe('snyk code test', () => {
           expect([EXIT_CODE_SUCCESS, EXIT_CODE_ACTION_NEEDED]).toContain(code);
         });
 
+        // File-upload-api is only supported on the golang/native implementation
+        if (type === 'golang/native') {
+          describe('file upload api', () => {
+            const fuaEnv = {
+              ...process.env,
+              ...integrationEnv,
+              // force use of file-upload-api instead of files-bundle-store
+              INTERNAL_UPLOAD_TO_FUA: 'true',
+            };
+
+            it('Stateless code test', async () => {
+              const path = await ensureUniqueBundleIsUsed(
+                projectWithCodeIssues,
+              );
+
+              const { stdout, stderr, code } = await runSnykCLI(
+                `code test ${path} --json`,
+                { env: fuaEnv },
+              );
+
+              expect(stderr).toBe('');
+              expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
+              expect(
+                JSON.parse(stdout)?.runs[0]?.results?.length,
+              ).toBeGreaterThan(0);
+            });
+
+            it('Stateful local code test --report', async () => {
+              const sarifFileName = 'sarifReportOutputFua.json';
+              const sarifFilePath = `${projectRoot}/${sarifFileName}`;
+
+              const args = [
+                'code',
+                'test',
+                '--report',
+                '--project-name=cicd-user-journey-test-fua',
+                `--sarif-file-output=${sarifFilePath}`,
+                await ensureUniqueBundleIsUsed(projectWithCodeIssues),
+              ];
+              const { stdout, stderr, code } = await runSnykCLIWithArray(args, {
+                env: fuaEnv,
+              });
+
+              expect(stderr).toBe('');
+              expect([EXIT_CODE_SUCCESS, EXIT_CODE_ACTION_NEEDED]).toContain(
+                code,
+              );
+
+              const sarifOutput = JSON.parse(
+                readFileSync(sarifFilePath, 'utf8'),
+              );
+
+              // ensure that uploadResult metadata exists
+              const uploadResult = sarifOutput.runs[0].properties.uploadResult;
+              expect(uploadResult.projectId).toBeDefined();
+              expect(uploadResult.projectId).not.toBe('');
+              expect(uploadResult.snapshotId).toBeDefined();
+              expect(uploadResult.snapshotId).not.toBe('');
+              expect(uploadResult.reportUrl).toBeDefined();
+              expect(uploadResult.reportUrl).not.toBe('');
+
+              // ensure that the same report url is displayed in the stdout and in the sarif file
+              expect(stdout).toContain(uploadResult.reportUrl);
+
+              // cleanup file
+              try {
+                unlinkSync(sarifFilePath);
+              } catch (error) {
+                console.error('failed to remove file.', error);
+              }
+            });
+          });
+        }
+
         const validProjectTestList: ValidProjectTest[] = [
           {
             name: 'returns SNYK-CODE-0006 with unsupported files',
