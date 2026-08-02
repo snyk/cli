@@ -289,7 +289,7 @@ func runTestCommandWithSarifEqualJson(cmd *cobra.Command, args []string, templat
 }
 
 func runCodeTestCommand(cmd *cobra.Command, args []string) error {
-	return runTestCommandWithSarifEqualJson(cmd, args, output_workflow.ApplicationSarifTemplates)
+	return runTestCommandWithSarifEqualJson(cmd, args, nil)
 }
 
 func runSecretsTestCommand(cmd *cobra.Command, args []string) error {
