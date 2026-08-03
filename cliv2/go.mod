@@ -270,6 +270,8 @@ require (
 // version 2491eb6c1c75 contains a valid license
 replace github.com/mattn/go-localereader v0.0.1 => github.com/mattn/go-localereader v0.0.2-0.20220822084749-2491eb6c1c75
 
+// Requires go-application-framework release with IANDT-237, IANDT-238, and IANDT-240
+// (contributorbilling, capture middleware, CaptureEngine). For local dev:
 // replace github.com/snyk/go-application-framework => ../../go-application-framework
 
 // replace github.com/snyk/snyk-ls => ../../snyk-ls

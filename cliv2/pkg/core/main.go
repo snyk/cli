@@ -29,6 +29,7 @@ import (
 
 	"github.com/snyk/go-application-framework/pkg/analytics"
 	"github.com/snyk/go-application-framework/pkg/app"
+	"github.com/snyk/go-application-framework/pkg/clibilling"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	"github.com/snyk/go-application-framework/pkg/instrumentation"
 	"github.com/snyk/go-application-framework/pkg/logging"
@@ -212,7 +213,7 @@ func runMainWorkflow(config configuration.Configuration, cmd *cobra.Command, arg
 	globalLogger.Print("Running ", name)
 	globalEngine.GetAnalytics().SetCommand(name)
 
-	err = runWorkflowAndProcessData(globalContext, globalEngine, globalLogger, name)
+	err = runWorkflowAndProcessData(clibilling.BeginCommand(globalContext, globalEngine, config), globalEngine, globalLogger, name)
 
 	return err
 }
@@ -250,7 +251,10 @@ func defaultCmd(args []string) error {
 	// * by specifying the raw cmd args for it
 	globalConfiguration.Set(configuration.WORKFLOW_USE_STDIO, true)
 	globalConfiguration.Set(configuration.RAW_CMD_ARGS, args)
-	_, err := globalEngine.Invoke(basic_workflows.WORKFLOWID_LEGACY_CLI)
+	_, err := globalEngine.Invoke(
+		basic_workflows.WORKFLOWID_LEGACY_CLI,
+		workflow.WithContext(clibilling.BeginCommand(globalContext, globalEngine, globalConfiguration)),
+	)
 	return err
 }
 
@@ -542,6 +546,8 @@ func tearDown(err error, errorList []error, startTime time.Time, ua networking.U
 		writeLogFooter(exitCode, allErrors, globalConfiguration, networkAccess)
 	}
 
+	clibilling.FinishCommand(teardownCtx, globalEngine, globalConfiguration, exitCode == 0)
+
 	return exitCode
 }
 
@@ -592,7 +598,12 @@ func mainWithErrorCode(additionalExts []workflow.ExtensionInit) int {
 	debugEnabled := globalConfiguration.GetBool(configuration.DEBUG)
 
 	globalLogger, scrubbedLogger = initDebugLogger(globalConfiguration)
-	globalEngine = app.CreateAppEngineWithOptions(app.WithZeroLogger(globalLogger), app.WithConfiguration(globalConfiguration), app.WithRuntimeInfo(rInfo))
+	globalEngine = clibilling.EnableIfConfigured(app.CreateAppEngineWithOptions(
+		app.WithZeroLogger(globalLogger),
+		app.WithConfiguration(globalConfiguration),
+		app.WithRuntimeInfo(rInfo),
+		app.WithContributorBillingCapture(),
+	))
 
 	globalConfiguration.AddDefaultValue(configuration.FF_OAUTH_AUTH_FLOW_ENABLED, defaultOAuthFF(globalConfiguration))
 	globalConfiguration.AddDefaultValue(configuration.FF_TRANSFORMATION_WORKFLOW, configuration.StandardDefaultValueFunction(true))
