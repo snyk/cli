@@ -22,7 +22,7 @@ require (
 	github.com/snyk/code-client-go v1.27.0
 	github.com/snyk/container-cli v0.0.0-20260213211631-cd2b2cf8f3ea
 	github.com/snyk/error-catalog-golang-public v0.0.0-20260505112649-a5103d411663
-	github.com/snyk/go-application-framework v0.7.2
+	github.com/snyk/go-application-framework v0.10.1-0.20260803054435-e1e028c3dd98
 	github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65
 	github.com/snyk/snyk-iac-capture v0.6.5
 	github.com/snyk/snyk-ls v0.0.0-20260626083941-77c2abaeaaaa
@@ -270,9 +270,8 @@ require (
 // version 2491eb6c1c75 contains a valid license
 replace github.com/mattn/go-localereader v0.0.1 => github.com/mattn/go-localereader v0.0.2-0.20220822084749-2491eb6c1c75
 
-// Requires go-application-framework release with IANDT-237, IANDT-238, and IANDT-240
-// (contributorbilling, capture middleware, CaptureEngine). For local dev:
-// replace github.com/snyk/go-application-framework => ../../go-application-framework
+// Pinned to GAF IANDT-237+238+240 pre-release; bump to tagged release after #681 merges.
+// For local dev: replace github.com/snyk/go-application-framework => ../../go-application-framework
 
 // replace github.com/snyk/snyk-ls => ../../snyk-ls
 
