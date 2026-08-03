@@ -81,7 +81,7 @@ func Test_proxyWithErrorHandler(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			config.Set(configuration.API_URL, tc.configureApiUrl)
-			wp, err := createInternalProxy(config, &logger, invocationCtxMock, context.Background())
+			wp, err := createInternalProxy(config, &logger, invocationCtxMock)
 			assert.Nil(t, err)
 
 			defer wp.Close()

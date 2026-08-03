@@ -29,6 +29,7 @@ import (
 
 	"github.com/snyk/go-application-framework/pkg/analytics"
 	"github.com/snyk/go-application-framework/pkg/app"
+	"github.com/snyk/go-application-framework/pkg/clibilling"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	"github.com/snyk/go-application-framework/pkg/instrumentation"
 	"github.com/snyk/go-application-framework/pkg/logging"
@@ -212,7 +213,7 @@ func runMainWorkflow(config configuration.Configuration, cmd *cobra.Command, arg
 	globalLogger.Print("Running ", name)
 	globalEngine.GetAnalytics().SetCommand(name)
 
-	err = runWorkflowAndProcessData(beginContributorBilling(globalContext, config), globalEngine, globalLogger, name)
+	err = runWorkflowAndProcessData(beginContributorBilling(globalContext, globalEngine, config), globalEngine, globalLogger, name)
 
 	return err
 }
@@ -252,7 +253,7 @@ func defaultCmd(args []string) error {
 	globalConfiguration.Set(configuration.RAW_CMD_ARGS, args)
 	_, err := globalEngine.Invoke(
 		basic_workflows.WORKFLOWID_LEGACY_CLI,
-		workflow.WithContext(beginContributorBilling(globalContext, globalConfiguration)),
+		workflow.WithContext(beginContributorBilling(globalContext, globalEngine, globalConfiguration)),
 	)
 	return err
 }
@@ -597,7 +598,12 @@ func mainWithErrorCode(additionalExts []workflow.ExtensionInit) int {
 	debugEnabled := globalConfiguration.GetBool(configuration.DEBUG)
 
 	globalLogger, scrubbedLogger = initDebugLogger(globalConfiguration)
-	globalEngine = app.CreateAppEngineWithOptions(app.WithZeroLogger(globalLogger), app.WithConfiguration(globalConfiguration), app.WithRuntimeInfo(rInfo))
+	globalEngine = clibilling.EnableIfConfigured(app.CreateAppEngineWithOptions(
+		app.WithZeroLogger(globalLogger),
+		app.WithConfiguration(globalConfiguration),
+		app.WithRuntimeInfo(rInfo),
+		app.WithContributorBillingCapture(),
+	))
 
 	globalConfiguration.AddDefaultValue(configuration.FF_OAUTH_AUTH_FLOW_ENABLED, defaultOAuthFF(globalConfiguration))
 	globalConfiguration.AddDefaultValue(configuration.FF_TRANSFORMATION_WORKFLOW, configuration.StandardDefaultValueFunction(true))
