@@ -213,7 +213,7 @@ func runMainWorkflow(config configuration.Configuration, cmd *cobra.Command, arg
 	globalLogger.Print("Running ", name)
 	globalEngine.GetAnalytics().SetCommand(name)
 
-	err = runWorkflowAndProcessData(beginContributorBilling(globalContext, globalEngine, config), globalEngine, globalLogger, name)
+	err = runWorkflowAndProcessData(clibilling.BeginCommand(globalContext, globalEngine, config), globalEngine, globalLogger, name)
 
 	return err
 }
@@ -253,7 +253,7 @@ func defaultCmd(args []string) error {
 	globalConfiguration.Set(configuration.RAW_CMD_ARGS, args)
 	_, err := globalEngine.Invoke(
 		basic_workflows.WORKFLOWID_LEGACY_CLI,
-		workflow.WithContext(beginContributorBilling(globalContext, globalEngine, globalConfiguration)),
+		workflow.WithContext(clibilling.BeginCommand(globalContext, globalEngine, globalConfiguration)),
 	)
 	return err
 }
@@ -546,7 +546,7 @@ func tearDown(err error, errorList []error, startTime time.Time, ua networking.U
 		writeLogFooter(exitCode, allErrors, globalConfiguration, networkAccess)
 	}
 
-	finishContributorBilling(teardownCtx, globalEngine, globalConfiguration, exitCode == 0)
+	clibilling.FinishCommand(teardownCtx, globalEngine, globalConfiguration, exitCode == 0)
 
 	return exitCode
 }
