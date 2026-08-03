@@ -6,8 +6,6 @@ import {
   SURFACE_PROVENANCE_ATTESTATIONS_FEATURE_FLAG,
 } from '../../cli/commands/constants';
 
-// Provenance attestations are gated behind their own feature flag so they can be
-// rolled out independently of the broader "new container facts" flag.
 const PROVENANCE_METADATA_FACT_TYPE = 'provenanceMetadata';
 
 export function isUnmanagedEcosystem(ecosystem: Ecosystem): boolean {
@@ -59,8 +57,6 @@ export async function filterDockerFacts(
     false,
   );
 
-  // Provenance attestations have a dedicated flag so they can ship separately
-  // from the broader new-facts flag.
   const includeProvenanceAttestations = await hasFeatureFlagOrDefault(
     SURFACE_PROVENANCE_ATTESTATIONS_FEATURE_FLAG,
     options,
@@ -77,8 +73,6 @@ export async function filterDockerFacts(
       (scanResult: ScanResult, index: number) => ({
         ...scanResult,
         facts: scanResult.facts.filter((fact) => {
-          // Provenance attestations are only surfaced when their flag is on,
-          // independently of the new-facts flag.
           if (fact.type === PROVENANCE_METADATA_FACT_TYPE) {
             return includeProvenanceAttestations;
           }
