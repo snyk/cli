@@ -24,6 +24,14 @@ ignore:
         reason: None Given
         expires: 2026-03-13T00:00:00.000Z
         created: 2026-02-13T09:59:15.673Z
+  SNYK-JS-INFLIGHT-6095116:
+    - '*':
+        reason: >-
+          No fix available for inflight@1.0.6. This package is used transitively
+          through glob@7.x and rimraf@2.x. Upgrading would require major version
+          breaking changes to those dependencies.
+        expires: 2122-12-14T16:35:38.252Z
+        created: 2026-08-03T00:00:00.000Z
 patch: {}
 exclude:
   code:
