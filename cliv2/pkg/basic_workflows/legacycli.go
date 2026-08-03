@@ -18,8 +18,8 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
+	"github.com/snyk/go-application-framework/pkg/clibilling"
 	"github.com/snyk/go-application-framework/pkg/configuration"
-	"github.com/snyk/go-application-framework/pkg/networking/contributorcapture"
 	pkg_utils "github.com/snyk/go-application-framework/pkg/utils"
 	"github.com/snyk/go-application-framework/pkg/workflow"
 	"github.com/spf13/pflag"
@@ -144,8 +144,10 @@ func legacycliWorkflow(
 		cli.SetIoStreams(os.Stdin, os.Stdout, stderr)
 	}
 
-	capture := contributorcapture.NewCapture()
-	invocationCtx := contributorcapture.WithCapture(invocation.Context(), capture)
+	invocationCtx := invocation.Context()
+	if clibilling.FromContext(invocationCtx) == nil {
+		invocationCtx = clibilling.WithCapture(invocationCtx, clibilling.NewCapture())
+	}
 
 	wrapperProxy, err := createInternalProxy(
 		config,
@@ -179,10 +181,6 @@ func legacycliWorkflow(
 	var exitError *exec.ExitError
 	if errors.As(err, &exitError) {
 		invocation.GetAnalytics().AddExtensionIntegerValue("exitcode", exitError.ExitCode())
-	}
-
-	if err == nil {
-		emitLegacyContributorBilling(invocationCtx, invocation, capture, workingDirectory)
 	}
 
 	return output, err

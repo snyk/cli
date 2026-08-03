@@ -9,7 +9,7 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/rs/zerolog"
 	"github.com/snyk/go-application-framework/pkg/mocks"
-	"github.com/snyk/go-application-framework/pkg/networking/contributorcapture"
+	"github.com/snyk/go-application-framework/pkg/clibilling"
 
 	"github.com/elazarl/goproxy"
 	"github.com/stretchr/testify/assert"
@@ -64,8 +64,8 @@ func TestNetworkInjector_AttachesRequestContext(t *testing.T) {
 	defer ctrl.Finish()
 
 	logger := zerolog.Nop()
-	capture := contributorcapture.NewCapture()
-	requestContext := contributorcapture.WithCapture(context.Background(), capture)
+	capture := clibilling.NewCapture()
+	requestContext := clibilling.WithCapture(context.Background(), capture)
 
 	var capturedContext context.Context
 	roundTripperMock := mockRoundTripperWithContext{onRoundTrip: func(req *http.Request) {
@@ -87,7 +87,7 @@ func TestNetworkInjector_AttachesRequestContext(t *testing.T) {
 	_, _ = handler(req, proxyCtx)
 
 	assert.Equal(t, requestContext, capturedContext)
-	assert.Equal(t, capture, contributorcapture.FromContext(capturedContext))
+	assert.Equal(t, capture, clibilling.FromContext(capturedContext))
 }
 
 type mockRoundTripperWithContext struct {

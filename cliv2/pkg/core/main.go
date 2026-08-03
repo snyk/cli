@@ -30,7 +30,6 @@ import (
 	"github.com/snyk/go-application-framework/pkg/analytics"
 	"github.com/snyk/go-application-framework/pkg/app"
 	"github.com/snyk/go-application-framework/pkg/configuration"
-	"github.com/snyk/go-application-framework/pkg/contributorbilling"
 	"github.com/snyk/go-application-framework/pkg/instrumentation"
 	"github.com/snyk/go-application-framework/pkg/logging"
 
@@ -213,7 +212,7 @@ func runMainWorkflow(config configuration.Configuration, cmd *cobra.Command, arg
 	globalLogger.Print("Running ", name)
 	globalEngine.GetAnalytics().SetCommand(name)
 
-	err = runWorkflowAndProcessData(globalContext, globalEngine, globalLogger, name)
+	err = runWorkflowAndProcessData(beginContributorBilling(globalContext, config), globalEngine, globalLogger, name)
 
 	return err
 }
@@ -251,7 +250,10 @@ func defaultCmd(args []string) error {
 	// * by specifying the raw cmd args for it
 	globalConfiguration.Set(configuration.WORKFLOW_USE_STDIO, true)
 	globalConfiguration.Set(configuration.RAW_CMD_ARGS, args)
-	_, err := globalEngine.Invoke(basic_workflows.WORKFLOWID_LEGACY_CLI)
+	_, err := globalEngine.Invoke(
+		basic_workflows.WORKFLOWID_LEGACY_CLI,
+		workflow.WithContext(beginContributorBilling(globalContext, globalConfiguration)),
+	)
 	return err
 }
 
@@ -543,7 +545,7 @@ func tearDown(err error, errorList []error, startTime time.Time, ua networking.U
 		writeLogFooter(exitCode, allErrors, globalConfiguration, networkAccess)
 	}
 
-	contributorbilling.WaitWithTimeout(contributorbilling.DefaultTimeout)
+	finishContributorBilling(teardownCtx, globalEngine, globalConfiguration, exitCode == 0)
 
 	return exitCode
 }
