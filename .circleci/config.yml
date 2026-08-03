@@ -561,7 +561,9 @@ workflows:
     jobs:
       - prodsec/secrets-scan:
           name: secrets-scan
-          context: snyk-bot-slack
+          context:
+            - snyk-bot-slack
+            - prodsec-orb-runtime
           channel: cli-alerts
           trusted-branch: main
 
@@ -594,6 +596,7 @@ workflows:
             - devex_cli
             - devex_cli_docker_hub
             - team-cli-go-private-modules
+            - prodsec-orb-runtime
           requires:
             - prepare-build
           filters:
