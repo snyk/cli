@@ -11,7 +11,7 @@ require (
 	github.com/mattn/go-isatty v0.0.20
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.34.0
-	github.com/snyk/cli-extension-agent-scan v0.0.0-20260715092951-4f8fa1b9886c
+	github.com/snyk/cli-extension-agent-scan v0.0.0-20260803112735-0ad462cba2af
 	github.com/snyk/cli-extension-ai-bom v0.0.0-20260721084000-da8dc26c77f2
 	github.com/snyk/cli-extension-dep-graph/v2 v2.7.2
 	github.com/snyk/cli-extension-iac v0.0.0-20260515092252-505c498f1077

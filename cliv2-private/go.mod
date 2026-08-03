@@ -208,7 +208,7 @@ require (
 	github.com/shirou/gopsutil v3.21.11+incompatible // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/skeema/knownhosts v1.3.2 // indirect
-	github.com/snyk/cli-extension-agent-scan v0.0.0-20260715092951-4f8fa1b9886c // indirect
+	github.com/snyk/cli-extension-agent-scan v0.0.0-20260803112735-0ad462cba2af // indirect
 	github.com/snyk/cli-extension-ai-bom v0.0.0-20260721084000-da8dc26c77f2 // indirect
 	github.com/snyk/cli-extension-dep-graph/v2 v2.7.2 // indirect
 	github.com/snyk/cli-extension-iac v0.0.0-20260515092252-505c498f1077 // indirect

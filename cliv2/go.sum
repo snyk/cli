@@ -523,8 +523,8 @@ github.com/sirupsen/logrus v1.9.3 h1:dueUQJ1C2q9oE3F7wvmSGAaVtTmUizReu6fjN8uqzbQ
 github.com/sirupsen/logrus v1.9.3/go.mod h1:naHLuLoDiP4jHNo9R0sCBMtWGeIprob74mVsIT4qYEQ=
 github.com/skeema/knownhosts v1.3.2 h1:EDL9mgf4NzwMXCTfaxSD/o/a5fxDw/xL9nkU28JjdBg=
 github.com/skeema/knownhosts v1.3.2/go.mod h1:bEg3iQAuw+jyiw+484wwFJoKSLwcfd7fqRy+N0QTiow=
-github.com/snyk/cli-extension-agent-scan v0.0.0-20260715092951-4f8fa1b9886c h1:of6wc3Cq5Ta6BRzdMgSYphJRp0TsRjILV3Dzi6cGjg8=
-github.com/snyk/cli-extension-agent-scan v0.0.0-20260715092951-4f8fa1b9886c/go.mod h1:g1qxNvAl2Qb0V4UJivop+hCqehHVqzB0taEjwTm6VlU=
+github.com/snyk/cli-extension-agent-scan v0.0.0-20260803112735-0ad462cba2af h1:AgYHuCfs6oNkd/QFwsuEtvswclfBujhBfwbZUB4xEU4=
+github.com/snyk/cli-extension-agent-scan v0.0.0-20260803112735-0ad462cba2af/go.mod h1:u4d7qoWWVx3II+ZnpLQGjAegaJLmgPefXKXJD/jp/wM=
 github.com/snyk/cli-extension-ai-bom v0.0.0-20260721084000-da8dc26c77f2 h1:fYTWYiCqw+NqeETMP/0TdVKjCHrHRng8M6+nxvrmluo=
 github.com/snyk/cli-extension-ai-bom v0.0.0-20260721084000-da8dc26c77f2/go.mod h1:axE+HO8U9CIcTjQ7k7BOLgdyZfNGqMn5QvZ0aIkUY4U=
 github.com/snyk/cli-extension-dep-graph/v2 v2.7.2 h1:+D/r8zDdREbrZs1EZ4DmVzEf7oMHA2rRozhuaVFyg8U=
