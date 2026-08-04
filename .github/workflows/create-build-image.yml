@@ -1,8 +1,6 @@
 name: Create Build Image
 
 on:
-  schedule:
-    - cron: '0 4 * * 2' # Every Tuesday at 04:00 UTC
   workflow_dispatch:
 
 jobs:

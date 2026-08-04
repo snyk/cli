@@ -1,6 +1,5 @@
 # When upgrading golang, make sure to update the docker executors that use snyklabs/cli-build-private in .circleci/config.yml
-# Using debian:bullseye instead of golang:X-bookworm to avoid glibc compatibility issues
-FROM debian:bullseye
+FROM debian:trixie-slim
 
 ARG NODEVERSION
 ARG ARCH

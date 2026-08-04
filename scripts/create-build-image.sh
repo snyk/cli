@@ -41,8 +41,7 @@ pushd "$SCRIPT_DIR/.."
   NODEVERSION=$(head -1 .nvmrc)
   export NODEVERSION
 
-  # Extract go_version from .circleci/config.yml (single source of truth)
-  GOVERSION=$(grep -A3 "go_version:" .circleci/config.yml | grep "default:" | sed "s/.*default: *['\"]\\([^'\"]*\\)['\"].*/\\1/")
+  GOVERSION=$(sed -n 's/^go //p' cliv2/go.mod)
   export GOVERSION
 
   echo "Building Docker image for $TARGET_ARCH with Node version: $NODEVERSION, Go version: $GOVERSION"
