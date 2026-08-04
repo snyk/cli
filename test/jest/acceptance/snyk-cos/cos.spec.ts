@@ -10,23 +10,15 @@ import { getAvailableServerPort } from '../../util/getServerPort';
 
 jest.setTimeout(1000 * 60);
 
-// The cos (Continuous Offensive Security / AI pen test) extension talks to the
-// hidden API, grouped by resource under the /cos namespace:
-//   POST   /hidden/tenants/:tenantId/cos/scans             (scan start)
-//   GET    /hidden/tenants/:tenantId/cos/scans             (scan list)
-//   GET    /hidden/tenants/:tenantId/cos/scans/:id         (scan status)
-//   POST   /hidden/tenants/:tenantId/cos/scans/:id/cancel  (scan cancel)
-//   GET    /hidden/tenants/:tenantId/cos/scans/:id/report  (scan report)
-//   POST   /hidden/tenants/:tenantId/cos/targets           (target create)
-//   GET    /hidden/tenants/:tenantId/cos/targets           (target list)
-//   GET    /hidden/tenants/:tenantId/cos/targets/:id       (target get, dump, lookup)
-//   PATCH  /hidden/tenants/:tenantId/cos/targets/:id       (target update)
-//   DELETE /hidden/tenants/:tenantId/cos/targets/:id       (target delete)
-//   GET    /hidden/tenants/:tenantId/cos/findings          (finding list)
-//   GET    /hidden/tenants/:tenantId/cos/findings/:id      (finding get)
+// The cos (Continuous Offensive Security / AI pen test) extension is a client
+// of the hidden API under /hidden/tenants/:tenantId/cos, plus the tenant
+// discovery call to /rest/tenants when --tenant-id is omitted. Requests are
+// JSON:API (application/vnd.api+json); the PDF report is a binary download.
 //
-// Requests are JSON:API (application/vnd.api+json). Passing --tenant-id skips
-// the tenant auto-discovery call, so only the resource endpoint is hit.
+// The endpoint contract is owned by github.com/snyk/cli-extension-cos, so it is
+// not restated here: every test registers the endpoints it expects and asserts
+// the requests the binary actually made, keeping the routes documented where
+// they are exercised.
 
 const tenantId = 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee';
 const scanId = '11111111-2222-3333-4444-555555555555';
@@ -39,6 +31,7 @@ const targetsPath = `/api/hidden/tenants/${tenantId}/cos/targets`;
 const targetPath = `${targetsPath}/${targetId}`;
 const findingsPath = `/api/hidden/tenants/${tenantId}/cos/findings`;
 const findingPath = `${findingsPath}/${findingId}`;
+const tenantsPath = '/api/rest/tenants';
 
 function scanResource(overrides: Record<string, unknown> = {}) {
   return {
@@ -92,7 +85,7 @@ describe('snyk cos (mocked servers only)', () => {
   let server: ReturnType<typeof fakeServer>;
   let env: Record<string, string>;
   let envWithoutAuth: Record<string, string>;
-  let tmpDir: string | undefined;
+  let tmpDirs: string[] = [];
   let configHome: string | undefined;
 
   const projectRoot = resolve(__dirname, '../../../..');
@@ -139,10 +132,10 @@ describe('snyk cos (mocked servers only)', () => {
   afterEach(() => {
     jest.resetAllMocks();
     server.restore();
-    if (tmpDir) {
-      rmSync(tmpDir, { recursive: true, force: true });
-      tmpDir = undefined;
+    for (const dir of tmpDirs) {
+      rmSync(dir, { recursive: true, force: true });
     }
+    tmpDirs = [];
   });
 
   afterAll(() => {
@@ -155,17 +148,31 @@ describe('snyk cos (mocked servers only)', () => {
     });
   });
 
-  // Only matches the hidden /cos endpoints, keeping assertions resilient to the
-  // auth/analytics/config requests the CLI makes around them.
-  function cosRequests(): { method: string; path: string }[] {
+  // Every directory handed out here is removed after the test that asked for it.
+  function makeTmpDir(): string {
+    const dir = mkdtempSync(join(tmpdir(), 'snyk-cos-'));
+    tmpDirs.push(dir);
+    return dir;
+  }
+
+  type RecordedRequest = { method: string; path: string };
+
+  // Matching on a URL fragment keeps assertions resilient to the
+  // auth/analytics/config requests the CLI makes around the ones under test.
+  function requestsMatching(fragment: string): RecordedRequest[] {
     return server
       .getRequests()
-      .filter((req) => req.url?.includes('/hidden/tenants/'))
+      .filter((req) => req.url?.includes(fragment))
       .map((req) => ({
         method: req.method as string,
         path: (req.url as string).split('?')[0],
       }));
   }
+
+  // The hidden /cos endpoints. Tenant discovery lives in another namespace, so
+  // it is asserted separately.
+  const cosRequests = () => requestsMatching('/hidden/tenants/');
+  const tenantRequests = () => requestsMatching('/rest/tenants');
 
   describe('experimental gate', () => {
     test('`scan list` requires --experimental', async () => {
@@ -177,6 +184,30 @@ describe('snyk cos (mocked servers only)', () => {
       expect(stdout).toContain('experimental');
       // No API call should be made before the gate.
       expect(cosRequests()).toEqual([]);
+    });
+  });
+
+  // Every other test passes --tenant-id, which skips discovery.
+  describe('tenant discovery', () => {
+    test('resolves the tenant when --tenant-id is omitted', async () => {
+      server.setEndpointResponse(tenantsPath, {
+        data: [{ type: 'tenant', id: tenantId, attributes: { name: 'Acme' } }],
+      });
+      server.setEndpointResponse(scansPath, {
+        data: [scanResource()],
+        links: { self: scansPath },
+      });
+
+      const { code, stdout } = await runSnykCLI(
+        `cos scan list --experimental`,
+        { env },
+      );
+      expect(code).toEqual(0);
+      expect(stdout).toContain(scanId);
+
+      expect(tenantRequests()).toEqual([{ method: 'GET', path: tenantsPath }]);
+      // The discovered tenant scopes the request: its id is part of the path.
+      expect(cosRequests()).toEqual([{ method: 'GET', path: scansPath }]);
     });
   });
 
@@ -394,8 +425,7 @@ describe('snyk cos (mocked servers only)', () => {
         },
       });
 
-      tmpDir = mkdtempSync(join(tmpdir(), 'snyk-cos-'));
-      const outFile = join(tmpDir, 'report.json');
+      const outFile = join(makeTmpDir(), 'report.json');
 
       const { code } = await runSnykCLI(
         `cos scan report --experimental --tenant-id=${tenantId} --scan-id=${scanId} --output-file=${outFile}`,
@@ -405,6 +435,32 @@ describe('snyk cos (mocked servers only)', () => {
 
       const written = JSON.parse(readFileSync(outFile, 'utf-8'));
       expect(written).toMatchObject({ summary: { issues: 0 } });
+    });
+
+    test('downloads the PDF report with -o pdf', async () => {
+      const pdfPath = `${scanPath}/report/pdf`;
+      const pdfBody = '%PDF-1.4 pretend report';
+      server.setEndpointHeaders(pdfPath, { 'Content-Type': 'application/pdf' });
+      server.setEndpointResponse(pdfPath, pdfBody);
+
+      const outFile = join(makeTmpDir(), 'report.pdf');
+
+      const { code, stdout } = await runSnykCLI(
+        `cos scan report --experimental --tenant-id=${tenantId} --scan-id=${scanId} -o pdf --output-file=${outFile}`,
+        { env },
+      );
+      expect(code).toEqual(0);
+      // A binary report is written to disk, with only a summary on stdout.
+      expect(stdout).toContain(outFile);
+      expect(readFileSync(outFile, 'utf-8')).toEqual(pdfBody);
+
+      expect(cosRequests()).toEqual([{ method: 'GET', path: pdfPath }]);
+
+      // The download negotiates a different media type than the JSON:API reads.
+      const pdfRequest = server
+        .getRequests()
+        .find((req) => req.url?.includes('/report/pdf'));
+      expect(pdfRequest?.headers.accept).toContain('application/pdf');
     });
 
     test('fails without --scan-id', async () => {
@@ -613,8 +669,7 @@ describe('snyk cos (mocked servers only)', () => {
         links: { self: targetPath },
       });
 
-      tmpDir = mkdtempSync(join(tmpdir(), 'snyk-cos-'));
-      const outFile = join(tmpDir, 'cos.yaml');
+      const outFile = join(makeTmpDir(), 'cos.yaml');
 
       const { code } = await runSnykCLI(
         `cos target dump --experimental --tenant-id=${tenantId} --target-id=${targetId} --output-file=${outFile}`,

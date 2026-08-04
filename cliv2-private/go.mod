@@ -4,7 +4,7 @@ go 1.26.5
 
 require (
 	github.com/snyk/ambient-canary v0.0.0-20260722064253-fba619a134a9
-	github.com/snyk/cli-extension-cos v0.0.0-20260730085209-d326e44b9140
+	github.com/snyk/cli-extension-cos v0.0.0-20260804092425-a7e642ae7b3b
 	github.com/snyk/cli/cliv2 v0.0.0
 	github.com/snyk/remy-cli-extension v1.36.1
 )
