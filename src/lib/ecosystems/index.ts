@@ -17,9 +17,6 @@ export function getEcosystemForTest(options: Options): Ecosystem | null {
   if (options.unmanaged) {
     return 'cpp';
   }
-  if (options.code) {
-    return 'code';
-  }
   return null;
 }
 
