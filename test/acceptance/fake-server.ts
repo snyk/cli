@@ -501,9 +501,13 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
 
   // Feature flag batch evaluation used by the Go binary's GAF layer
   // (config_utils.AddFeatureFlagToConfig → featureflaggateway.EvaluateFlags).
-  // Request: POST /hidden/orgs/:orgId/feature_flags/evaluation
   // Body: { data: { attributes: { flags: ["flag-name", ...] } } }
-  app.post('/hidden/orgs/:orgId/feature_flags/evaluation', (req, res) => {
+  // GAF derives the URL from the API URL, so the /api prefix may or may not be present.
+  const flagEvaluationPaths = [
+    '/hidden/orgs/:orgId/feature_flags/evaluation',
+    '/api/hidden/orgs/:orgId/feature_flags/evaluation',
+  ];
+  app.post(flagEvaluationPaths, (req, res) => {
     const flags: string[] = req.body?.data?.attributes?.flags ?? [];
     // Maps batch evaluation API flag names to their GAF config keys.
     // The batch endpoint receives short API names; tests call setFeatureFlag
