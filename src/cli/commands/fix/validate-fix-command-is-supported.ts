@@ -4,9 +4,8 @@ import { getEcosystemForTest } from '../../../lib/ecosystems';
 
 import { isFeatureFlagSupportedForOrg } from '../../../lib/feature-flags';
 import { FeatureNotSupportedByEcosystemError } from '../../../lib/errors/not-supported-by-ecosystem';
-import { CustomError } from '../../../lib/errors/custom-error';
 import { Options, TestOptions } from '../../../lib/types';
-import { AuthFailedError } from '../../../lib/errors';
+import { AuthFailedError, CustomError } from '../../../lib/errors';
 import chalk from 'chalk';
 
 const debug = Debug('snyk-fix');
