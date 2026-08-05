@@ -4,7 +4,7 @@ go 1.26.5
 
 require (
 	github.com/snyk/ambient-canary v0.0.0-20260722064253-fba619a134a9
-	github.com/snyk/cli-extension-cos v0.0.0-20260730085209-d326e44b9140
+	github.com/snyk/cli-extension-cos v0.0.0-20260804092425-a7e642ae7b3b
 	github.com/snyk/cli/cliv2 v0.0.0
 	github.com/snyk/remy-cli-extension v1.36.1
 )
@@ -209,14 +209,14 @@ require (
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/skeema/knownhosts v1.3.2 // indirect
 	github.com/snyk/cli-extension-agent-scan v0.0.0-20260803112735-0ad462cba2af // indirect
-	github.com/snyk/cli-extension-ai-bom v0.0.0-20260721084000-da8dc26c77f2 // indirect
+	github.com/snyk/cli-extension-ai-bom v0.0.0-20260804095026-fdfc28cd38b8 // indirect
 	github.com/snyk/cli-extension-dep-graph/v2 v2.7.2 // indirect
 	github.com/snyk/cli-extension-iac v0.0.0-20260515092252-505c498f1077 // indirect
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20260515141409-fb475901bb8e // indirect
 	github.com/snyk/cli-extension-os-flows v0.0.0-20260722114313-168a09671091 // indirect
 	github.com/snyk/cli-extension-sbom v0.0.0-20260722102401-3c3af28e7b93 // indirect
 	github.com/snyk/cli-extension-secrets v0.0.0-20260619070019-764c5c87eda3 // indirect
-	github.com/snyk/code-client-go v1.31.1 // indirect
+	github.com/snyk/code-client-go v1.31.3 // indirect
 	github.com/snyk/container-cli v0.0.0-20260213211631-cd2b2cf8f3ea // indirect
 	github.com/snyk/dep-graph/go v0.0.0-20260127160647-c836da762c62 // indirect
 	github.com/snyk/error-catalog-golang-public v0.0.0-20260505112649-a5103d411663 // indirect
