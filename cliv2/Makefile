@@ -273,10 +273,10 @@ openboxtest:
 test: openboxtest
 
 .PHONY: lint
-lint: $(TOOLS_BIN)/golangci-lint
+lint: $(GO_BIN)/golangci-lint
 	golangci-lint run -v
 
-$(TOOLS_BIN)/golangci-lint:
+$(GO_BIN)/golangci-lint:
 	curl -sSfL 'https://raw.githubusercontent.com/golangci/golangci-lint/${OVERRIDE_GOCI_LINT_V}/install.sh' | sh -s -- -b ${GO_BIN} ${OVERRIDE_GOCI_LINT_V}
 
 .PHONY: format
