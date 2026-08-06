@@ -213,7 +213,7 @@ func runMainWorkflow(config configuration.Configuration, cmd *cobra.Command, arg
 	globalLogger.Print("Running ", name)
 	globalEngine.GetAnalytics().SetCommand(name)
 
-	err = runWorkflowAndProcessData(clibilling.BeginCommand(globalContext, globalEngine, config), globalEngine, globalLogger, name)
+	err = runWorkflowAndProcessData(globalContext, globalEngine, globalLogger, name)
 
 	return err
 }
@@ -253,7 +253,7 @@ func defaultCmd(args []string) error {
 	globalConfiguration.Set(configuration.RAW_CMD_ARGS, args)
 	_, err := globalEngine.Invoke(
 		basic_workflows.WORKFLOWID_LEGACY_CLI,
-		workflow.WithContext(clibilling.BeginCommand(globalContext, globalEngine, globalConfiguration)),
+		workflow.WithContext(globalContext),
 	)
 	return err
 }
@@ -602,7 +602,6 @@ func mainWithErrorCode(additionalExts []workflow.ExtensionInit) int {
 		app.WithZeroLogger(globalLogger),
 		app.WithConfiguration(globalConfiguration),
 		app.WithRuntimeInfo(rInfo),
-		app.WithContributorBillingCapture(),
 	))
 
 	globalConfiguration.AddDefaultValue(configuration.FF_OAUTH_AUTH_FLOW_ENABLED, defaultOAuthFF(globalConfiguration))
