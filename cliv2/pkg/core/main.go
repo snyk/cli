@@ -44,6 +44,8 @@ import (
 	"github.com/snyk/go-application-framework/pkg/local_workflows/config_utils"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/network_utils"
 
+	"github.com/snyk/go-httpauth/pkg/httpauth"
+
 	"github.com/snyk/go-application-framework/pkg/local_workflows/output_workflow"
 	"github.com/snyk/go-application-framework/pkg/networking"
 	"github.com/snyk/go-application-framework/pkg/networking/middleware"
@@ -52,7 +54,6 @@ import (
 	"github.com/snyk/go-application-framework/pkg/ui/uitypes"
 	"github.com/snyk/go-application-framework/pkg/utils"
 	"github.com/snyk/go-application-framework/pkg/workflow"
-	"github.com/snyk/go-httpauth/pkg/httpauth"
 
 	cli_errors "github.com/snyk/cli/cliv2/internal/errors"
 	"github.com/snyk/cli/cliv2/pkg/basic_workflows"
@@ -211,31 +212,19 @@ func runMainWorkflow(config configuration.Configuration, cmd *cobra.Command, arg
 	name := getFullCommandString(cmd)
 	globalLogger.Print("Running ", name)
 	globalEngine.GetAnalytics().SetCommand(name)
+	config.Set(basic_workflows.MAIN_WORKFLOW_PARAMETER, name)
 
-	err = runWorkflowAndProcessData(globalContext, globalEngine, globalLogger, name)
+	_, err = globalEngine.Invoke(basic_workflows.MAIN_WORKLFOW_ID,
+		workflow.WithContext(globalContext),
+		workflow.WithInstrumentationCollector(globalEngine.GetAnalytics().GetInstrumentation()),
+		workflow.WithConfig(config),
+	)
 
-	return err
-}
-
-func runWorkflowAndProcessData(ctx context.Context, engine workflow.Engine, logger *zerolog.Logger, name string) error {
-	ic := engine.GetAnalytics().GetInstrumentation()
-
-	output, err := engine.Invoke(workflow.NewWorkflowIdentifier(name), workflow.WithContext(ctx), workflow.WithInstrumentationCollector(ic))
 	if err != nil {
-		logger.Print("Failed to execute the command! ", err)
+		globalLogger.Print("Failed to execute the command! ", err)
 		return err
 	}
 
-	outputFiltered, err := engine.Invoke(localworkflows.WORKFLOWID_FILTER_FINDINGS, workflow.WithContext(ctx), workflow.WithInput(output), workflow.WithInstrumentationCollector(ic))
-	if err != nil {
-		logger.Err(err).Msg(err.Error())
-		return err
-	}
-
-	_, err = engine.Invoke(localworkflows.WORKFLOWID_OUTPUT_WORKFLOW, workflow.WithContext(ctx), workflow.WithInput(outputFiltered), workflow.WithInstrumentationCollector(ic))
-	if err == nil {
-		err = getErrorFromWorkFlowData(engine, outputFiltered)
-	}
 	return err
 }
 

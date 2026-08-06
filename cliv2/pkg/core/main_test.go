@@ -4,15 +4,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"os"
 	"os/exec"
-	"strings"
 	"testing"
 	"time"
 
 	"github.com/golang/mock/gomock"
-	"github.com/rs/zerolog"
 	"github.com/snyk/cli/cliv2/internal/helpdocs"
 	"github.com/snyk/cli/cliv2/internal/helprouting"
 	"github.com/snyk/error-catalog-golang-public/code"
@@ -22,7 +19,6 @@ import (
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/content_type"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/json_schemas"
-	"github.com/snyk/go-application-framework/pkg/local_workflows/local_models"
 	"github.com/snyk/go-application-framework/pkg/mocks"
 	"github.com/snyk/go-application-framework/pkg/utils/ufm"
 	"github.com/snyk/go-application-framework/pkg/workflow"
@@ -34,6 +30,7 @@ import (
 	"github.com/snyk/cli/cliv2/internal/cliv2"
 	"github.com/snyk/cli/cliv2/internal/constants"
 	clierrors "github.com/snyk/cli/cliv2/internal/errors"
+	"github.com/snyk/cli/cliv2/pkg/basic_workflows"
 )
 
 func cleanup() {
@@ -202,9 +199,10 @@ func setupMainWorkflowTestEnv(t *testing.T) (configuration.Configuration, *cobra
 		_, err := globalEngine.Register(workflow.NewWorkflowIdentifier(name), opts, noopWorkflow)
 		require.NoError(t, err)
 	}
-	require.NoError(t, localworkflows.InitDataTransformationWorkflow(globalEngine))
-	_ = globalEngine.Init()
 	require.NoError(t, localworkflows.InitFilterFindingsWorkflow(globalEngine))
+	require.NoError(t, localworkflows.InitDataTransformationWorkflow(globalEngine))
+	require.NoError(t, basic_workflows.InitMainWorkflow(globalEngine))
+	require.NoError(t, globalEngine.Init())
 
 	return configuration.NewWithOpts(configuration.WithAutomaticEnv()), &cobra.Command{Use: "command"}
 }
@@ -422,181 +420,6 @@ func Test_getErrorFromWorkFlowData(t *testing.T) {
 	})
 }
 
-func Test_runWorkflowAndProcessData(t *testing.T) {
-	defer cleanup()
-	globalConfiguration = configuration.New()
-	globalConfiguration.Set(configuration.DEBUG, true)
-	globalEngine = workflow.NewWorkFlowEngine(globalConfiguration)
-
-	testCmnd := "subcmd1"
-	workflowId1 := workflow.NewWorkflowIdentifier("output")
-
-	outputFn := func(invocation workflow.InvocationContext, input []workflow.Data) ([]workflow.Data, error) {
-		summaryPayload, _ := json.Marshal(json_schemas.TestSummary{
-			Results: []json_schemas.TestSummaryResult{{
-				Severity: "critical",
-				Total:    99,
-				Open:     97,
-				Ignored:  2,
-			}, {
-				Severity: "medium",
-				Total:    99,
-				Open:     97,
-				Ignored:  2,
-			}},
-			Type: "sast",
-		})
-		data := workflow.NewData(workflow.NewTypeIdentifier(workflowId1, "workflowData"), content_type.TEST_SUMMARY, summaryPayload)
-		return []workflow.Data{
-			data,
-		}, nil
-	}
-
-	workflowConfig := workflow.ConfigurationOptionsFromFlagset(pflag.NewFlagSet("pla", pflag.ContinueOnError))
-
-	_, err := globalEngine.Register(workflowId1, workflowConfig, outputFn)
-	assert.NoError(t, err)
-	// Register our data filter workflow
-	err = localworkflows.InitFilterFindingsWorkflow(globalEngine)
-	assert.NoError(t, err)
-
-	fn := func(invocation workflow.InvocationContext, input []workflow.Data) ([]workflow.Data, error) {
-		typeId := workflow.NewTypeIdentifier(invocation.GetWorkflowIdentifier(), "workflowData")
-		testSummary := json_schemas.TestSummary{
-			Results: []json_schemas.TestSummaryResult{
-				{
-					Severity: "critical",
-					Total:    10,
-					Open:     10,
-					Ignored:  0,
-				},
-			},
-			Type: "sast",
-		}
-
-		var d []byte
-		d, err = json.Marshal(testSummary)
-		assert.NoError(t, err)
-
-		data := workflow.NewData(typeId, content_type.TEST_SUMMARY, d)
-		return []workflow.Data{
-			data,
-		}, nil
-	}
-
-	// setup workflow engine to contain a workflow with subcommands
-	wrkflowId := workflow.NewWorkflowIdentifier(testCmnd)
-
-	entry, err := globalEngine.Register(wrkflowId, workflowConfig, fn)
-	assert.Nil(t, err)
-	assert.NotNil(t, entry)
-
-	// Register our data transformation workflow
-	err = localworkflows.InitDataTransformationWorkflow(globalEngine)
-	assert.NoError(t, err)
-
-	err = globalEngine.Init()
-	assert.NoError(t, err)
-
-	// invoke method under test
-	logger := zerolog.New(os.Stderr)
-	err = runWorkflowAndProcessData(t.Context(), globalEngine, &logger, testCmnd)
-
-	var expectedError *clierrors.ErrorWithExitCode
-	assert.ErrorAs(t, err, &expectedError)
-	assert.Equal(t, constants.SNYK_EXIT_CODE_VULNERABILITIES_FOUND, expectedError.ExitCode)
-
-	actualCode := cliv2.DeriveExitCode(err)
-	assert.Equal(t, constants.SNYK_EXIT_CODE_VULNERABILITIES_FOUND, actualCode)
-}
-
-func Test_runWorkflowAndProcessData_with_Filtering(t *testing.T) {
-	defer cleanup()
-	globalConfiguration = configuration.New()
-	globalConfiguration.Set(configuration.DEBUG, true)
-	globalConfiguration.Set(configuration.IN_MEMORY_THRESHOLD_BYTES, -1)
-	globalConfiguration.Set(configuration.FLAG_SEVERITY_THRESHOLD, "high")
-	globalConfiguration.Set(configuration.FF_TRANSFORMATION_WORKFLOW, true)
-
-	globalEngine = workflow.NewWorkFlowEngine(globalConfiguration)
-
-	testCmnd := "subcmd1"
-	workflowId1 := workflow.NewWorkflowIdentifier("output")
-
-	outputFn := func(invocation workflow.InvocationContext, input []workflow.Data) ([]workflow.Data, error) {
-		var findings local_models.LocalFinding
-		for i := range input {
-			mimeType := input[i].GetContentType()
-
-			if strings.HasPrefix(mimeType, content_type.LOCAL_FINDING_MODEL) {
-				findingsBytes := input[i].GetPayload().([]byte)
-				err := json.Unmarshal(findingsBytes, &findings)
-				assert.NoError(t, err)
-			}
-		}
-
-		// expect all findings below high to be filtered out
-		assert.Equal(t, 1, len(findings.Findings))
-
-		return input, nil
-	}
-
-	workflowConfig := workflow.ConfigurationOptionsFromFlagset(pflag.NewFlagSet("pla", pflag.ContinueOnError))
-
-	_, err := globalEngine.Register(workflowId1, workflowConfig, outputFn)
-	assert.NoError(t, err)
-
-	// Register our data filter workflow
-	err = localworkflows.InitFilterFindingsWorkflow(globalEngine)
-	assert.NoError(t, err)
-
-	// Invoke a custom command that returns input
-	fn := func(invocation workflow.InvocationContext, input []workflow.Data) ([]workflow.Data, error) {
-		typeId := workflow.NewTypeIdentifier(invocation.GetWorkflowIdentifier(), "workflowData")
-		testSummary := json_schemas.TestSummary{
-			Results: []json_schemas.TestSummaryResult{
-				{
-					Severity: "critical",
-					Total:    10,
-					Open:     10,
-					Ignored:  0,
-				},
-			},
-			Type:             "sast",
-			SeverityOrderAsc: []string{"low", "medium", "high", "critical"},
-		}
-
-		var d []byte
-		d, err = json.Marshal(testSummary)
-		assert.NoError(t, err)
-
-		testSummaryData := workflow.NewData(typeId, content_type.TEST_SUMMARY, d)
-		sarifBytes := loadJsonFile(t, "sarif.json")
-
-		localFindings, errTransform := localworkflows.TransformSarifToLocalFindingModel(sarifBytes, d)
-		assert.NoError(t, errTransform)
-		localFindingsBytes, errMarsh := json.Marshal(localFindings)
-		assert.NoError(t, errMarsh)
-
-		findingsData := workflow.NewData(typeId, content_type.LOCAL_FINDING_MODEL, localFindingsBytes)
-
-		return []workflow.Data{
-			testSummaryData,
-			findingsData,
-		}, nil
-	}
-	wrkflowId := workflow.NewWorkflowIdentifier(testCmnd)
-	entry, err := globalEngine.Register(wrkflowId, workflowConfig, fn)
-	assert.NoError(t, err)
-	assert.NotNil(t, entry)
-
-	err = globalEngine.Init()
-	assert.NoError(t, err)
-
-	logger := zerolog.New(os.Stderr)
-	err = runWorkflowAndProcessData(t.Context(), globalEngine, &logger, testCmnd)
-}
-
 func Test_setTimeout(t *testing.T) {
 	exitedCh := make(chan struct{})
 	fakeExit := func() {
@@ -797,20 +620,6 @@ func Test_processError(t *testing.T) {
 		exitCode := cliv2.DeriveExitCode(err)
 		assert.Equal(t, constants.SNYK_EXIT_CODE_EX_TEMPFAIL, exitCode)
 	})
-}
-
-func loadJsonFile(t *testing.T, filename string) []byte {
-	t.Helper()
-
-	jsonFile, err := os.Open("./testdata/" + filename)
-	assert.NoError(t, err, "failed to load json")
-	defer func(jsonFile *os.File) {
-		jsonErr := jsonFile.Close()
-		assert.NoError(t, jsonErr)
-	}(jsonFile)
-	byteValue, err := io.ReadAll(jsonFile)
-	assert.NoError(t, err)
-	return byteValue
 }
 
 func testHelpRouter() *helprouting.Router {
