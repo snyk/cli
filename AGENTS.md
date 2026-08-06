@@ -177,8 +177,8 @@ The CLI follows a layered testing pyramid. Each layer has a different goal, syst
 ## Running Tests
 
 ```sh
-# TypeScript unit tests
-npm run test:unit
+# TypeScript unit tests (some suites validate credentials, so a token is required)
+TEST_SNYK_TOKEN=<token> npm run test:unit
 
 # TypeScript acceptance/user journey tests (requires a built binary)
 TEST_SNYK_COMMAND=./binary-releases/snyk-macos-arm64 npm run test:acceptance
@@ -190,6 +190,8 @@ cd cliv2 && make test
 # A single TS test file
 npx jest --runInBand test/jest/unit/path/to/test.spec.ts
 ```
+
+`SNYK_TOKEN` is **not** an alternative to `TEST_SNYK_TOKEN` — `test/setup.js` removes `SNYK_TOKEN` (and `SNYK_API_KEY`) from the environment when either is set, and writes `TEST_SNYK_TOKEN` into the CLI user config so tests run against a known configuration.
 
 ## Running the CLI Locally
 
