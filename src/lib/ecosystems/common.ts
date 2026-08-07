@@ -1,7 +1,12 @@
 import { Ecosystem, PluginResponse, ScanResult } from './types';
 import { hasFeatureFlagOrDefault } from '../feature-flags';
 import { Options } from '../types';
-import { CONTAINER_NEW_FACTS_FEATURE_FLAG } from '../../cli/commands/constants';
+import {
+  CONTAINER_NEW_FACTS_FEATURE_FLAG,
+  SURFACE_PROVENANCE_ATTESTATIONS_FEATURE_FLAG,
+} from '../../cli/commands/constants';
+
+const PROVENANCE_METADATA_FACT_TYPE = 'provenanceMetadata';
 
 export function isUnmanagedEcosystem(ecosystem: Ecosystem): boolean {
   return ecosystem === 'cpp';
@@ -52,18 +57,31 @@ export async function filterDockerFacts(
     false,
   );
 
-  if (includeAllFacts) {
+  const includeProvenanceAttestations = await hasFeatureFlagOrDefault(
+    SURFACE_PROVENANCE_ATTESTATIONS_FEATURE_FLAG,
+    options,
+    false,
+  );
+
+  if (includeAllFacts && includeProvenanceAttestations) {
     return pluginResponse;
   }
-  // Feature disabled = filter out specific facts
+  // At least one flag is disabled = filter out the corresponding facts
   return {
     ...pluginResponse,
     scanResults: pluginResponse.scanResults.map(
       (scanResult: ScanResult, index: number) => ({
         ...scanResult,
-        facts: scanResult.facts.filter(
-          (fact) => !shouldFilterFact(fact, index === 0),
-        ),
+        facts: scanResult.facts.filter((fact) => {
+          if (fact.type === PROVENANCE_METADATA_FACT_TYPE) {
+            return includeProvenanceAttestations;
+          }
+          // When the new-facts flag is on, keep all remaining facts.
+          if (includeAllFacts) {
+            return true;
+          }
+          return !shouldFilterFact(fact, index === 0);
+        }),
       }),
     ),
   };
