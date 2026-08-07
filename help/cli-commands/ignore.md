@@ -12,7 +12,7 @@ description: The snyk ignore command that ignores a specified issue
 
 The `snyk ignore` command modifies the `.snyk` policy file to ignore a specified issue according to its Snyk ID for all occurrences, its expiry date, a reason, or according to paths in the filesystem for the policy, the issue, or both.
 
-**Note:** Ignoring issues or vulnerabilities using the `.snyk` file is not supported for Snyk Code.
+**Note:** Ignoring issues or vulnerabilities using the `.snyk` file is not supported for Snyk Code. To ignore a Snyk Code finding from the command line, use the [`snyk ignore create`](ignore-create.md) command with Consistent Ignores for Snyk Code.
 
 ### Exclude
 
