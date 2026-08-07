@@ -216,6 +216,7 @@ require (
 	github.com/snyk/cli-extension-os-flows v0.0.0-20260722114313-168a09671091 // indirect
 	github.com/snyk/cli-extension-sbom v0.0.0-20260722102401-3c3af28e7b93 // indirect
 	github.com/snyk/cli-extension-secrets v0.0.0-20260619070019-764c5c87eda3 // indirect
+	github.com/snyk/cli-extension-studio v0.0.0-00010101000000-000000000000 // indirect
 	github.com/snyk/code-client-go v1.31.1 // indirect
 	github.com/snyk/container-cli v0.0.0-20260213211631-cd2b2cf8f3ea // indirect
 	github.com/snyk/dep-graph/go v0.0.0-20260127160647-c836da762c62 // indirect
@@ -298,6 +299,8 @@ require (
 
 // For local development, point to the sibling public module:
 replace github.com/snyk/cli/cliv2 => ../cliv2
+
+replace github.com/snyk/cli-extension-studio => ../../cli-extension-studio
 
 // replace github.com/snyk/remy-cli-extension => ../../remy-cli-extension
 

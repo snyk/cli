@@ -9,6 +9,7 @@ import (
 	"github.com/snyk/cli-extension-os-flows/pkg/osflows"
 	"github.com/snyk/cli-extension-sbom/pkg/sbom"
 	"github.com/snyk/cli-extension-secrets/pkg/secrets"
+	"github.com/snyk/cli-extension-studio/pkg/studio"
 	"github.com/snyk/code-client-go/pkg/code"
 	"github.com/snyk/container-cli/pkg/container"
 	"github.com/snyk/go-application-framework/pkg/configuration"
@@ -40,6 +41,7 @@ func initExtensions(engine workflow.Engine, config configuration.Configuration, 
 	engine.AddExtensionInitializer(ignore_workflow.InitIgnoreWorkflows)
 	engine.AddExtensionInitializer(agentscan.Init)
 	engine.AddExtensionInitializer(secrets.Init)
+	engine.AddExtensionInitializer(studio.Init)
 
 	// Register additional extensions injected via Run(WithAdditionalExtensions(...))
 	for _, ext := range additionalExts {
