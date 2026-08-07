@@ -5,7 +5,7 @@ import { getEcosystemForTest } from '../../../lib/ecosystems';
 import { isFeatureFlagSupportedForOrg } from '../../../lib/feature-flags';
 import { FeatureNotSupportedByEcosystemError } from '../../../lib/errors/not-supported-by-ecosystem';
 import { Options, TestOptions } from '../../../lib/types';
-import { AuthFailedError } from '../../../lib/errors';
+import { AuthFailedError, CustomError } from '../../../lib/errors';
 import chalk from 'chalk';
 
 const debug = Debug('snyk-fix');
@@ -16,6 +16,12 @@ export async function validateFixCommandIsSupported(
 ): Promise<boolean> {
   if (options.docker) {
     throw new FeatureNotSupportedByEcosystemError('snyk fix', 'docker');
+  }
+
+  if (options.code) {
+    throw new CustomError(
+      '`snyk fix` is not supported for Snyk Code projects.',
+    );
   }
 
   const ecosystem = getEcosystemForTest(options);

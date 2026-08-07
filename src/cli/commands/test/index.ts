@@ -8,6 +8,7 @@ import { MissingArgError } from '../../../lib/errors';
 import * as theme from '../../../lib/theme';
 
 import * as snyk from '../../../lib';
+import { CustomError } from '../../../lib/errors/custom-error';
 import { Options, TestOptions } from '../../../lib/types';
 import { MethodArgs } from '../../args';
 import { TestCommandResult } from '../../commands/types';
@@ -108,6 +109,12 @@ export default async function test(
   // a validation interface is implemented in the docker plugin.
   if (options.docker && paths.length === 0) {
     throw new MissingArgError();
+  }
+
+  if (options.code) {
+    throw new CustomError(
+      'Snyk Code testing is handled by the native CLI workflow. Use the packaged Snyk CLI binary to run `snyk code test`.',
+    );
   }
 
   if (options.docker) {
