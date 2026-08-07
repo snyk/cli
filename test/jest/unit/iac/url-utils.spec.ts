@@ -5,9 +5,9 @@ describe('url-utils.ts', function () {
     describe('Given a valid URL', function () {
       describe('With a protocol - it returns true', function () {
         it.each([
-          'https://valid.io/url',
-          'https://valid.io/url:latest',
-          'https://valid.io/url:0.1.0',
+          'https://valid.example/url',
+          'https://valid.example/url:latest',
+          'https://valid.example/url:0.1.0',
         ])('%s', function (urlStr) {
           // Act
           const result = isValidUrl(urlStr);
@@ -18,16 +18,17 @@ describe('url-utils.ts', function () {
       });
 
       describe('Without a protocol - it returns true', function () {
-        it.each(['valid.io/url', 'valid.io/url:latest', 'valid.io/url:0.1.0'])(
-          '%s',
-          function (urlStr) {
-            // Act
-            const result = isValidUrl(urlStr);
+        it.each([
+          'valid.example/url',
+          'valid.example/url:latest',
+          'valid.example/url:0.1.0',
+        ])('%s', function (urlStr) {
+          // Act
+          const result = isValidUrl(urlStr);
 
-            // Assert
-            expect(result).toBe(true);
-          },
-        );
+          // Assert
+          expect(result).toBe(true);
+        });
       });
     });
 

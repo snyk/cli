@@ -1,0 +1,109 @@
+{
+  "result": {
+    "issues": [
+      {
+        "issueId": "SNYK-UNMANAGED-CPIO-2319543",
+        "pkgName": "https://ftp.gnu.org|cpio",
+        "pkgVersion": "2.12",
+        "fixInfo": {
+          "isPatchable": false,
+          "nearestFixedInVersion": "",
+          "upgradePaths": []
+        }
+      }
+    ],
+    "issuesData": {
+      "SNYK-UNMANAGED-CPIO-2319543": {
+        "id": "SNYK-UNMANAGED-CPIO-2319543",
+        "packageManager": "Unmanaged (C/C++)",
+        "packageName": "https://ftp.gnu.org|cpio",
+        "severity": "medium",
+        "isIgnored": true,
+        "name": "https://ftp.gnu.org|cpio@2.12",
+        "version": "2.12",
+        "from": [
+          "https://ftp.gnu.org|cpio@2.12"
+        ],
+        "upgradePath": [
+          false
+        ],
+        "ignoreReasons": [
+          {
+            "reason": "Test ignore",
+            "created": "2024-01-01T00:00:00.000Z",
+            "expires": "2026-01-01T00:00:00.000Z"
+          }
+        ]
+      }
+    },
+    "depGraphData": {
+      "schemaVersion": "1.2.0",
+      "pkgManager": {
+        "name": "unmanaged",
+        "repositories": []
+      },
+      "pkgs": [
+        {
+          "id": "https://ftp.gnu.org|cpio@2.12",
+          "info": {
+            "name": "https://ftp.gnu.org|cpio",
+            "version": "2.12"
+          }
+        }
+      ],
+      "graph": {
+        "rootNodeId": "root-node",
+        "nodes": [
+          {
+            "nodeId": "root-node",
+            "pkgId": "https://ftp.gnu.org|cpio@2.12",
+            "deps": []
+          }
+        ]
+      }
+    },
+    "depsFilePaths": {
+      "https://ftp.gnu.org|cpio@2.12": [
+        "deps/cpio-2.12/src/cpio.c"
+      ]
+    },
+    "fileSignaturesDetails": {
+      "https://ftp.gnu.org|cpio@2.12": {
+        "filePaths": [
+          "deps/cpio-2.12/src/cpio.c"
+        ],
+        "confidence": 1
+      }
+    },
+    "vulnerabilities": [],
+    "filtered": {
+      "ignore": [
+        {
+          "id": "SNYK-UNMANAGED-CPIO-2319543",
+          "packageManager": "Unmanaged (C/C++)",
+          "name": "https://ftp.gnu.org|cpio@2.12",
+          "version": "2.12",
+          "from": [
+            "https://ftp.gnu.org|cpio@2.12"
+          ],
+          "upgradePath": [
+            false
+          ],
+          "isPatchable": false,
+          "ignoreReasons": [
+            {
+              "reason": "Test ignore",
+              "created": "2024-01-01T00:00:00.000Z",
+              "expires": "2026-01-01T00:00:00.000Z"
+            }
+          ]
+        }
+      ]
+    },
+    "dependencyCount": 1
+  },
+  "meta": {
+    "org": "test-org",
+    "isPrivate": false
+  }
+}

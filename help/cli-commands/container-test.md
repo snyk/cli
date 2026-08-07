@@ -1,3 +1,7 @@
+---
+description: The snyk container test command that tests a container image for vulnerabilities
+---
+
 # Container test
 
 ## Usage
@@ -87,6 +91,8 @@ Save test output in SARIF format directly to the `<OUTPUT_FILE_PATH>` file, rega
 
 This is especially useful if you want to display the human-readable test output using stdout and at the same time save the SARIF format output to a file.
 
+When running multiple scans, such as SCA and Code scans, the SARIF output includes data only from the most recently completed scan. If you run multiple scans sequentially and specify the same `--sarif-file-output` file path, each subsequent scan overwrites the previous SARIF file. To keep results separate, save each scan to a different SARIF output file.
+
 ### `--severity-threshold=<low|medium|high|critical>`
 
 Report only vulnerabilities at the specified level or higher.
@@ -118,11 +124,11 @@ In earlier releases, cannot be used with `--app-vulns`.
 
 ### `--exclude-node-modules`
 
-&#x20;Allow disabling the scan of `node_modules` directories inside node.js container images.
+Allow disabling the scan of `node_modules` directories inside node.js container images.
 
 In CLI versions v1.1292.0 and higher, `node_modules` scanning is enabled by default.
 
-&#x20;When `node_modules` scaning is disabled, Snyk reports vulnerabilities for npm Projects sourced from application file pairs: `[package.json, package-lock.json], [package.json, yarn.lock]`.
+When `node_modules` scaning is disabled, Snyk reports vulnerabilities for npm Projects sourced from application file pairs: `[package.json, package-lock.json], [package.json, yarn.lock]`.
 
 ### `--nested-jars-depth`
 
@@ -130,7 +136,7 @@ When `app-vulns` is enabled, use the `--nested-jars-depth=n` option to set how m
 
 ### `--exclude-base-image-vulns`
 
-Do not show vulnerabilities introduced only by the base image. Available when using `snyk container test` only. Works for operating system packages only.
+Do not show vulnerabilities introduced only by the base image. Works for operating system packages only.
 
 ### `--platform=<PLATFORM>`
 

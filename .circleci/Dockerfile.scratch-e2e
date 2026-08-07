@@ -1,0 +1,17 @@
+FROM alpine:3 AS builder
+
+ARG CLI_DOWNLOAD_BASE_URL
+ARG SNYK_VERSION
+
+RUN apk --no-cache add curl ca-certificates busybox-static
+RUN curl --compressed -sL \
+    "${CLI_DOWNLOAD_BASE_URL}cli/v${SNYK_VERSION}/snyk-linux" \
+    -o /usr/local/bin/snyk \
+    && chmod +x /usr/local/bin/snyk
+
+FROM scratch
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+COPY --from=builder /bin/busybox.static /bin/busybox
+COPY --from=builder /usr/local/bin/snyk /usr/local/bin/snyk
+ENV PATH="/usr/local/bin:/bin"
+ENTRYPOINT ["/bin/busybox", "sh"]

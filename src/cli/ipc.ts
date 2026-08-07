@@ -2,7 +2,6 @@ import { CLI, ProblemError } from '@snyk/error-catalog-nodejs-public';
 import { debug as Debug } from 'debug';
 import * as legacyErrors from '../lib/errors/legacy-errors';
 import stripAnsi = require('strip-ansi');
-import { CustomError } from '../lib/errors';
 import { writeFileSync } from 'fs';
 
 const debug = Debug('snyk:ipc');
@@ -39,8 +38,10 @@ export function sendError(err: Error, isJson: boolean): boolean {
     err.metadata.status = 0;
   }
 
-  if (err instanceof CustomError && err.errorCatalog) {
-    err = err.errorCatalog;
+  // Check for errorCatalog property regardless of error type, since it may be set
+  // on plain Error objects (e.g., in test/index.ts where errors are wrapped)
+  if ((err as any).errorCatalog) {
+    err = (err as any).errorCatalog;
   }
 
   const data = (err as ProblemError).toJsonApi().body();

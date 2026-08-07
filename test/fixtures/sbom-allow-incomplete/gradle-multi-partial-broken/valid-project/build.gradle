@@ -1,0 +1,19 @@
+// Gradle fixture with transitive dependencies for --allow-incomplete-sbom.
+//
+// org.apache.logging.log4j:log4j-core:2.17.1 transitively depends on
+// org.apache.logging.log4j:log4j-api:2.17.1, so the resulting SBOM
+// contains both, plus the project itself.
+plugins {
+  id 'java'
+}
+
+group = 'io.snyk.example'
+version = '1.0.0'
+
+repositories {
+  mavenCentral()
+}
+
+dependencies {
+  implementation 'org.apache.logging.log4j:log4j-core:2.17.1'
+}

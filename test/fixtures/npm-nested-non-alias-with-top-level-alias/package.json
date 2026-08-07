@@ -1,0 +1,10 @@
+{
+  "name": "snyk-package-lock-json-out-of-sync-repro",
+  "version": "0.0.0",
+  "devDependencies": {
+    "@types/node": "npm:@types/web@^0.0.148"
+  },
+  "dependencies": {
+    "@uwdata/mosaic-core": "^0.20.1"
+  }
+}

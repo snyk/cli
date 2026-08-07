@@ -11,6 +11,7 @@ import * as nodejsPlugin from 'snyk-nodejs-plugin';
 import * as cocoapodsPlugin from '@snyk/snyk-cocoapods-plugin';
 import * as hexPlugin from '@snyk/snyk-hex-plugin';
 import * as swiftPlugin from 'snyk-swiftpm-plugin';
+import * as uvPlugin from './uv';
 import * as types from './types';
 import { SupportedPackageManagers } from '../package-managers';
 import { UnsupportedPackageManagerError } from '../errors';
@@ -42,8 +43,7 @@ export function loadPlugin(
       return pythonPlugin;
     }
     case 'golangdep':
-    case 'gomodules':
-    case 'govendor': {
+    case 'gomodules': {
       return goPlugin;
     }
     case 'nuget': {
@@ -66,6 +66,9 @@ export function loadPlugin(
     }
     case 'pnpm': {
       return nodejsPlugin;
+    }
+    case 'uv': {
+      return uvPlugin;
     }
     default: {
       throw new UnsupportedPackageManagerError(packageManager);

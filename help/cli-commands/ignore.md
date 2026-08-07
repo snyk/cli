@@ -1,3 +1,7 @@
+---
+description: The snyk ignore command that ignores a specified issue
+---
+
 # Ignore
 
 ## Usage and description
@@ -8,7 +12,7 @@
 
 The `snyk ignore` command modifies the `.snyk` policy file to ignore a specified issue according to its Snyk ID for all occurrences, its expiry date, a reason, or according to paths in the filesystem for the policy, the issue, or both.
 
-**Note:** Ignoring issues or vulnerabilities using the `.snyk` file is not supported for Snyk Code.
+**Note:** Ignoring issues or vulnerabilities using the `.snyk` file is not supported for Snyk Code. To ignore a Snyk Code finding from the command line, use the [`snyk ignore create`](ignore-create.md) command with Consistent Ignores for Snyk Code.
 
 ### Exclude
 
@@ -79,7 +83,7 @@ Supported formats:
 
 Default: 30 days or none if used with `--file-path`
 
-Note: The `expiry` field is not required. If you need a permanent ignore, omit the option.
+Note: The `expiry` field is not required, it will use the default if omitted. If you need a permanent ignore, set the expiry to a date far in the future (for example, `9999-01-01`).
 
 To ensure that expiration dates are enforced for ignores, you must specify a valid expiration date. The date must be in the Date Time String Javascript format like YYYY-MM-DDThh:mm:ss.fffZ. If the specified expiration date does not adhere to this format, the ignore will be respected and persist indefinitely.
 
@@ -141,7 +145,7 @@ $ snyk ignore --id='SNYK-JS-PATHPARSE-1077067' --expiry='2021-01-10' --path='nyc
 $ snyk ignore --id='SNYK-JS-PATHPARSE-1077067' --expiry='2021-01-10' --path='nyc@11.9.0
 ```
 
-### Ignore a specific vulnerability with a resource path specified (Windows)&#x20;
+### Ignore a specific vulnerability with a resource path specified (Windows)
 
 In this example, `snyk iac test` on Windows returned a Path containing single quotes and a File specification containing back slashes:
 
@@ -151,9 +155,11 @@ File: terraform\environment\com\iam.tf
 
 The corresponding `snyk ignore` command would be:
 
-`snyk ignore --id=SNYK-CC-TF-118 --path="terraform\environment\com\iam.tf > resource > aws_iam_role[OrganizationAccountAccessRole] > assume_role_policy['Statement'][0]"`
+```
+$ snyk ignore --id=SNYK-CC-TF-118 --path="terraform\environment\com\iam.tf > resource > aws_iam_role[OrganizationAccountAccessRole] > assume_role_policy['Statement'][0]"
+```
 
-### Ignore a specific vulnerability with a resource path specified (Linux, Mac OS)&#x20;
+### Ignore a specific vulnerability with a resource path specified (Linux, Mac OS)
 
 In this example, `snyk iac test` on Linux or Mac OS returned a Path containing single quotes and a File specification containing forward slashes:
 
@@ -163,7 +169,9 @@ File: terraform/environment/com/iam.tf
 
 The corresponding `snyk ignore` command would be:
 
-`snyk ignore --id=SNYK-CC-TF-118 --path="terraform/environment/com/iam.tf > resource > aws_iam_role[OrganizationAccountAccessRole] > assume_role_policy['Statement'][0]"`
+```
+$ snyk ignore --id=SNYK-CC-TF-118 --path="terraform/environment/com/iam.tf > resource > aws_iam_role[OrganizationAccountAccessRole] > assume_role_policy['Statement'][0]"
+```
 
 ### Ignore a specific vulnerability for 30 days
 
@@ -178,7 +186,7 @@ Ignore a specific file.
 The rule created in the `.snyk` file is used by `snyk test --unmanaged` until 2031-01-20, with a description as a reference for the future.
 
 ```
-$ snyk ignore --file-path='./deps/curl-7.58.0/src/tool_msgs.c' --expiry='2031-01-20' --reason='patched file'
+$ snyk ignore --file-path='deps/curl-7.58.0/src/tool_msgs.c' --expiry='2031-01-20' --reason='patched file'
 ```
 
 ### Ignore files or folders using glob expression - Snyk Code and `unmanaged` only
@@ -188,7 +196,7 @@ To ignore files matching a glob expression, add them to a specific group.
 This applies to Snyk Code; it does not apply to Snyk Open Source except `unmanaged`, to Container, or to IaC.
 
 ```
-$ snyk ignore --file-path='./**/vendor/**/*.cpp' --file-path-group='global'
+$ snyk ignore --file-path='**/vendor/**/*.cpp' --file-path-group='global'
 ```
 
 ## More information about the `snyk ignore` command

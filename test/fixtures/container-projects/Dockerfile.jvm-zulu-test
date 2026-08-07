@@ -1,0 +1,11 @@
+FROM alpine:3.23
+
+# Simulate Azul Zulu JDK layout: release file lives under /usr/lib/jvm/<distro>/
+RUN mkdir -p /usr/lib/jvm/zulu-11-amd64
+
+RUN echo 'JAVA_VERSION="11.0.21"' > /usr/lib/jvm/zulu-11-amd64/release && \
+    echo 'OS_NAME="Linux"' >> /usr/lib/jvm/zulu-11-amd64/release && \
+    echo 'OS_VERSION="3.19"' >> /usr/lib/jvm/zulu-11-amd64/release && \
+    echo 'OS_ARCH="amd64"' >> /usr/lib/jvm/zulu-11-amd64/release
+
+RUN apk add --no-cache busybox

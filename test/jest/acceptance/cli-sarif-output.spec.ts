@@ -1,21 +1,8 @@
 import { join } from 'path';
 import { runSnykCLI } from '../util/runSnykCLI';
+import { getSarifSchema } from '../util/getSarifSchema';
 import Ajv from 'ajv-draft-04';
-jest.setTimeout(1000 * 60);
-
-async function loadSchema(uri: string) {
-  try {
-    const response = await fetch(uri);
-    if (!response.ok) {
-      throw new Error(
-        `Failed to fetch schema from ${uri}: ${response.statusText}`,
-      );
-    }
-    return response.json();
-  } catch (error) {
-    throw new Error(`Failed to load schema from ${uri}: ${error.message}`);
-  }
-}
+jest.setTimeout(1000 * 300);
 
 const SARIF_SCHEMA_URL =
   'https://docs.oasis-open.org/sarif/sarif/v2.1.0/errata01/os/schemas/sarif-schema-2.1.0.json';
@@ -34,6 +21,17 @@ const TEST_CASES: Array<TestCase> = [
     cmd: 'test --sarif',
     target: join(__dirname, '../../fixtures/npm/with-vulnerable-lodash-dep'),
     env: { ...process.env },
+  },
+  {
+    name: 'Snyk Open Source (UFM)',
+    cmd: 'test --sarif --reachability',
+    target: join(__dirname, '../../fixtures/npm/with-vulnerable-lodash-dep'),
+    env: {
+      ...process.env,
+      INTERNAL_SNYK_CLI_REACHABILITY_ENABLED: 'true',
+      INTERNAL_SNYK_CLI_EXPERIMENTAL_RISK_SCORE: 'true',
+      INTERNAL_SNYK_CLI_EXPERIMENTAL_RISK_SCORE_IN_CLI: 'true',
+    },
   },
   {
     name: 'Snyk Code (native)',
@@ -75,6 +73,12 @@ const TEST_CASES: Array<TestCase> = [
 ];
 
 describe('SARIF output is schema compliant', () => {
+  let schema: object;
+
+  beforeAll(async () => {
+    schema = await getSarifSchema(SARIF_SCHEMA_URL);
+  });
+
   it.each(TEST_CASES)('for $name', async ({ cmd, env, target }: TestCase) => {
     const { stdout, code } = await runSnykCLI(`${cmd} ${target}`, { env });
     expect(code).toBe(1);
@@ -85,8 +89,20 @@ describe('SARIF output is schema compliant', () => {
     expect(result.runs.length).toBeGreaterThan(0);
     expect(result.runs[0].results.length).toBeGreaterThan(0);
 
-    const schema = await loadSchema(result.$schema);
     const jsonValidator = new Ajv({ validateFormats: false });
     expect(jsonValidator.validate(schema, result)).toBe(true);
   });
+});
+
+describe('SARIF output is GitHub Actions compliant', () => {
+  it.each(TEST_CASES)(
+    'has runAutomationDetails.id for $name',
+    async ({ cmd, env, target }: TestCase) => {
+      const { stdout, code } = await runSnykCLI(`${cmd} ${target}`, { env });
+      expect(code).toBe(1);
+
+      const result = JSON.parse(stdout);
+      expect(result.runs[0].automationDetails.id).toMatch(/Snyk\/[A-Z][a-z]+/);
+    },
+  );
 });

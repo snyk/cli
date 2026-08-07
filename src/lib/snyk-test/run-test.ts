@@ -39,9 +39,14 @@ import { isCI } from '../is-ci';
 import {
   RETRY_ATTEMPTS,
   RETRY_DELAY,
+  getRequestConcurrency,
   printDepGraph,
+  printDepGraphJsonl,
+  printDepGraphError,
   assembleQueryString,
   shouldPrintDepGraph,
+  shouldPrintEffectiveDepGraph,
+  shouldPrintEffectiveDepGraphWithErrors,
 } from './common';
 import config from '../config';
 import * as analytics from '../analytics';
@@ -81,19 +86,14 @@ import { makeRequest } from '../request';
 import { spinner } from '../spinner';
 import { hasUnknownVersions } from '../dep-graph';
 import { sleep } from '../common';
-import {
-  PNPM_FEATURE_FLAG,
-  SUPPORTED_MANIFEST_FILES,
-} from '../package-managers';
+import { SUPPORTED_MANIFEST_FILES } from '../package-managers';
 import { PackageExpanded } from 'snyk-resolve-deps/dist/types';
 import { normalizeTargetFile } from '../normalize-target-file';
 import { EXIT_CODES } from '../../cli/exit-codes';
 import { headerSnykTsCliTerminate } from '../request/constants';
+import { ProblemError } from '@snyk/error-catalog-nodejs-public';
 
 const debug = debugModule('snyk:run-test');
-
-// Controls the number of simultaneous test requests that can be in-flight.
-const MAX_CONCURRENCY = 5;
 
 function prepareResponseForParsing(
   payload: Payload,
@@ -244,7 +244,11 @@ async function sendAndParseResults(
 ): Promise<TestResult[]> {
   const results: TestResult[] = [];
   const ecosystem = getEcosystem(options);
-  const depGraphs = new Map<string, depGraphLib.DepGraphData>();
+  const depGraphs: {
+    graph: depGraphLib.DepGraphData;
+    targetName: string;
+    targetFile: string;
+  }[] = [];
 
   await spinner.clear<void>(spinnerLbl)();
   if (!options.quiet) {
@@ -291,7 +295,7 @@ async function sendAndParseResults(
   };
 
   const responses = await pMap(payloads, sendRequest, {
-    concurrency: MAX_CONCURRENCY,
+    concurrency: getRequestConcurrency(),
   });
 
   for (const { payload, originalPayload, response } of responses) {
@@ -320,7 +324,11 @@ async function sendAndParseResults(
 
     if (ecosystem && depGraph) {
       const targetName = scanResult ? constructProjectName(scanResult) : '';
-      depGraphs.set(targetName, depGraph.toJSON());
+      depGraphs.push({
+        targetName,
+        graph: depGraph.toJSON(),
+        targetFile: targetFile || displayTargetFile || '',
+      });
     }
 
     const legacyRes = convertIssuesToAffectedPkgs(response);
@@ -350,9 +358,28 @@ async function sendAndParseResults(
 
   if (ecosystem && shouldPrintDepGraph(options)) {
     await spinner.clear<void>(spinnerLbl)();
-    for (const [targetName, depGraph] of depGraphs.entries()) {
-      await printDepGraph(depGraph, targetName, process.stdout);
+    if (options['print-output-jsonl-with-errors']) {
+      for (const { graph, targetFile, targetName } of depGraphs) {
+        await printDepGraphJsonl(
+          graph,
+          targetFile || targetName,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          process.stdout,
+        );
+      }
+    } else {
+      const depGraphsByTarget = new Map(
+        depGraphs.map(({ targetName, graph }) => [targetName, graph]),
+      );
+      for (const [targetName, graph] of depGraphsByTarget) {
+        await printDepGraph(graph, targetName, process.stdout);
+      }
     }
+
     return [];
   }
 
@@ -372,9 +399,13 @@ export async function runTest(
     // At this point managed ecosystems have dependency graphs printed.
     // Containers however require another roundtrip to get all the
     // dependency graph artifacts for printing.
-    if (!options.docker && shouldPrintDepGraph(options)) {
-      const results: TestResult[] = [];
-      return results;
+    if (
+      !options.docker &&
+      (shouldPrintDepGraph(options) ||
+        shouldPrintEffectiveDepGraph(options) ||
+        options['print-output-jsonl-with-errors'])
+    ) {
+      return [];
     }
 
     return await sendAndParseResults(payloads, spinnerLbl, root, options);
@@ -407,13 +438,20 @@ export async function runTest(
       throw new DockerImageNotFoundError(root);
     }
 
+    let catalogError: ProblemError | undefined;
+    if (error instanceof ProblemError || error.isErrorCatalogError) {
+      catalogError = error as ProblemError;
+    } else {
+      catalogError = error.errorCatalog;
+    }
+
     throw new FailedToRunTestError(
       error.userMessage ||
         error.message ||
         `Failed to test ${projectType} project`,
       error.code,
       error.innerError,
-      error.errorCatalog,
+      catalogError,
     );
   } finally {
     spinner.clear<void>(spinnerLbl)();
@@ -662,6 +700,16 @@ async function assembleLocalPayloads(
         'getDepsFromPlugin returned failed results, cannot run test/monitor',
         failedResults,
       );
+
+      if (
+        shouldPrintEffectiveDepGraphWithErrors(options) ||
+        options['print-output-jsonl-with-errors']
+      ) {
+        for (const failed of failedResults) {
+          await printDepGraphError(root, failed, process.stdout);
+        }
+      }
+
       if (options['fail-fast']) {
         // should include failure message if applicable
         const message = errorMessages.length
@@ -809,7 +857,20 @@ async function assembleLocalPayloads(
           );
         }
 
-        await printDepGraph(root.toJSON(), targetFile || '', process.stdout);
+        if (options['print-output-jsonl-with-errors']) {
+          await printDepGraphJsonl(
+            root.toJSON(),
+            targetFile || '',
+            project.plugin.targetFile,
+            target,
+            scannedProject.meta?.targetRuntime ?? project.plugin?.targetRuntime,
+            deps.plugin.name,
+            scannedProject.meta?.workspacePluginName,
+            process.stdout,
+          );
+        } else {
+          await printDepGraph(root.toJSON(), targetFile || '', process.stdout);
+        }
       }
 
       const body: PayloadBody = {
@@ -850,9 +911,24 @@ async function assembleLocalPayloads(
 
       const pruneIsRequired = options.pruneRepeatedSubdependencies;
 
-      if (packageManager) {
+      if (packageManager && !options['print-output-jsonl-with-errors']) {
         depGraph = await pruneGraph(depGraph, packageManager, pruneIsRequired);
       }
+
+      if (shouldPrintEffectiveDepGraph(options)) {
+        spinner.clear<void>(spinnerLbl)();
+        await printDepGraphJsonl(
+          depGraph.toJSON(),
+          targetFile,
+          project.plugin.targetFile,
+          target,
+          scannedProject.meta?.targetRuntime ?? project.plugin?.targetRuntime,
+          deps.plugin.name,
+          scannedProject.meta?.workspacePluginName,
+          process.stdout,
+        );
+      }
+
       body.depGraph = depGraph;
 
       const reqUrl =
@@ -872,7 +948,7 @@ async function assembleLocalPayloads(
         body,
       };
 
-      if (packageManager === 'pnpm' && featureFlags.has(PNPM_FEATURE_FLAG)) {
+      if (packageManager === 'pnpm') {
         const isLockFileBased =
           targetFile && targetFile.endsWith(SUPPORTED_MANIFEST_FILES.PNPM_LOCK);
         if (!isLockFileBased || options.traverseNodeModules) {

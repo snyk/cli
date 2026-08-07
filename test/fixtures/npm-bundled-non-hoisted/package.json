@@ -1,0 +1,12 @@
+{
+  "name": "test-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Synthetic test fixture - DO NOT npm install",
+  "scripts": {
+    "preinstall": "echo \"ERROR: This is a test fixture with synthetic dependencies. Do not run npm install here.\" && exit 1"
+  },
+  "dependencies": {
+    "@myorg/wrapper-tool": "1.0.0"
+  }
+}

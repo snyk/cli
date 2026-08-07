@@ -19,6 +19,11 @@ ignore:
         reason: Not directely exploitable
         expires: 2025-01-01T00:12:20.523Z
         created: 2024-11-08T10:22:20.531Z
+  SNYK-JS-AJV-15274295:
+    - '*':
+        reason: None Given
+        expires: 2026-03-13T00:00:00.000Z
+        created: 2026-02-13T09:59:15.673Z
 patch: {}
 exclude:
   code:

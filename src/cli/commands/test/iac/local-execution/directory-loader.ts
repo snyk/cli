@@ -1,5 +1,8 @@
 import * as path from 'path';
-import { makeFileAndDirectoryGenerator } from './file-utils';
+import {
+  makeFileAndDirectoryGenerator,
+  type ExclusionMatcher,
+} from './file-utils';
 import { VALID_FILE_TYPES } from './types';
 import { isLocalFolder } from '../../../../../lib/detect';
 
@@ -7,30 +10,40 @@ import { isLocalFolder } from '../../../../../lib/detect';
  * Gets all nested directories for the path that we ran a scan.
  * @param pathToScan - the path to scan provided by the user
  * @param maxDepth? - An optional `maxDepth` argument can be provided to limit how deep in the file tree the search will go.
+ * @param isExcluded - A pre-compiled matcher function to skip specific paths
  * @returns {string[]} An array with all the non-empty nested directories in this path
  */
 export function getAllDirectoriesForPath(
   pathToScan: string,
   maxDepth?: number,
+  isExcluded: ExclusionMatcher = () => false,
 ): string[] {
   // if it is a single file (it has an extension), we return the current path
   if (!isLocalFolder(pathToScan)) {
     return [path.resolve(pathToScan)];
   }
-  return [...getAllDirectoriesForPathGenerator(pathToScan, maxDepth)];
+  return [
+    ...getAllDirectoriesForPathGenerator(pathToScan, maxDepth, isExcluded),
+  ];
 }
 
 /**
  * Gets all the directories included in this path
  * @param pathToScan - the path to scan provided by the user
  * @param maxDepth? - An optional `maxDepth` argument can be provided to limit how deep in the file tree the search will go.
+ * @param isExcluded - A pre-compiled matcher function to skip specific paths
  * @returns {Generator<string>} - a generator which yields the filepaths for the path to scan
  */
 function* getAllDirectoriesForPathGenerator(
   pathToScan: string,
   maxDepth?: number,
+  isExcluded: ExclusionMatcher = () => false,
 ): Generator<string> {
-  for (const filePath of makeFileAndDirectoryGenerator(pathToScan, maxDepth)) {
+  for (const filePath of makeFileAndDirectoryGenerator(
+    pathToScan,
+    maxDepth,
+    isExcluded,
+  )) {
     if (filePath.directory) yield filePath.directory;
   }
 }
@@ -39,32 +52,37 @@ function* getAllDirectoriesForPathGenerator(
  * Gets all file paths for the specific directory
  * @param pathToScan - the path to scan provided by the user
  * @param currentDirectory - the directory which we want to return files for
+ * @param isExcluded - A pre-compiled matcher function to skip specific paths
  * @returns {string[]} An array with all the Terraform filePaths for this directory
  */
 export function getFilesForDirectory(
   pathToScan: string,
   currentDirectory: string,
+  isExcluded: ExclusionMatcher = () => false,
 ): string[] {
   if (!isLocalFolder(pathToScan)) {
     if (
       shouldBeParsed(pathToScan) &&
-      !isIgnoredFile(pathToScan, currentDirectory)
+      !isIgnoredFile(pathToScan, currentDirectory) &&
+      !isExcluded(pathToScan)
     ) {
       return [pathToScan];
     }
     return [];
   } else {
-    return [...getFilesForDirectoryGenerator(currentDirectory)];
+    return [...getFilesForDirectoryGenerator(currentDirectory, isExcluded)];
   }
 }
 
 /**
  * Iterates through the makeFileAndDirectoryGenerator function and gets all the Terraform files in the specified directory
  * @param pathToScan - the pathToScan to scan provided by the user
+ * @param isExcluded - A pre-compiled matcher function to skip specific paths
  * @returns {Generator<string>} - a generator which holds all the filepaths
  */
 export function* getFilesForDirectoryGenerator(
   pathToScan: string,
+  isExcluded: ExclusionMatcher = () => false,
 ): Generator<string> {
   for (const filePath of makeFileAndDirectoryGenerator(pathToScan)) {
     if (filePath.file && filePath.file.dir !== pathToScan) {
@@ -74,7 +92,8 @@ export function* getFilesForDirectoryGenerator(
     if (
       filePath.file &&
       shouldBeParsed(filePath.file.fileName) &&
-      !isIgnoredFile(filePath.file.fileName, pathToScan)
+      !isIgnoredFile(filePath.file.fileName, pathToScan) &&
+      !isExcluded(filePath.file.fileName)
     ) {
       yield filePath.file.fileName;
     }

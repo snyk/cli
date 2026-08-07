@@ -65,7 +65,7 @@ describe('PAT', () => {
     const whoamicmd = await runSnykCLI(`whoami --experimental -d`, {
       env: {
         ...env,
-        SNYK_API: 'https://api.this.should.not.be.used.io',
+        SNYK_API: 'https://api.this.should.not.be.used.invalid',
       },
       logErrors: true,
     });

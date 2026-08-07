@@ -2,6 +2,7 @@ import { fakeServer } from '../../../acceptance/fake-server';
 import { runSnykSbomCliCycloneDxJsonForFixture } from './common';
 import { createProjectFromFixture } from '../../util/createProject';
 import { runSnykCLI } from '../../util/runSnykCLI';
+import { getAvailableServerPort } from '../../util/getServerPort';
 
 jest.setTimeout(1000 * 60 * 5);
 
@@ -9,8 +10,8 @@ describe('snyk sbom: maven options (mocked server only)', () => {
   let server;
   let env: Record<string, string>;
 
-  beforeAll((done) => {
-    const port = process.env.PORT || process.env.SNYK_PORT || '58587';
+  beforeAll(async () => {
+    const port = await getAvailableServerPort(process);
     const baseApi = '/api/v1';
     env = {
       ...process.env,
@@ -20,9 +21,7 @@ describe('snyk sbom: maven options (mocked server only)', () => {
       SNYK_DISABLE_ANALYTICS: '1',
     };
     server = fakeServer(baseApi, env.SNYK_TOKEN);
-    server.listen(port, () => {
-      done();
-    });
+    await server.listenPromise(port);
   });
 
   afterEach(() => {
@@ -86,6 +85,29 @@ describe('snyk sbom: maven options (mocked server only)', () => {
     expect(sbom.dependencies[2].dependsOn.length).toEqual(1);
     expect(sbom.dependencies[2].dependsOn[0]).toEqual(
       'commons-logging:commons-logging@1.0.3',
+    );
+  });
+
+  // This is only testing that the flag is accepted and passed through,
+  // provenance data requires artifacts to be present in the local repository.
+  test('`sbom --include-provenance` flag is accepted and passed through', async () => {
+    server.setFeatureFlag('enableMavenDverboseExhaustiveDeps', false);
+    const sbom = await runSnykSbomCliCycloneDxJsonForFixture(
+      'maven-print-graph',
+      '--file=pom.xml',
+      env,
+    );
+
+    expect(sbom.metadata.component.name).toEqual(
+      'io.snyk.example:test-project',
+    );
+    expect(sbom.dependencies.length).toBeGreaterThanOrEqual(7);
+    expect(sbom.dependencies[2].ref).toEqual(
+      'commons-discovery:commons-discovery@0.2',
+    );
+    expect(sbom.dependencies[2].dependsOn.length).toEqual(1);
+    expect(sbom.dependencies[2].dependsOn[0]).toEqual(
+      'commons-logging:commons-logging@1.0.4',
     );
   });
 

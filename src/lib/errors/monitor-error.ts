@@ -1,5 +1,5 @@
-import { Snyk } from '@snyk/error-catalog-nodejs-public';
 import { CustomError } from './custom-error';
+import { createErrorCatalogFromStatusCode } from './error-catalog-factory';
 
 export class MonitorError extends CustomError {
   private static ERROR_MESSAGE =
@@ -9,8 +9,8 @@ export class MonitorError extends CustomError {
     const errorMessage = message ? `, response: ${message}` : '';
     const code = errorCode || 500;
     super(MonitorError.ERROR_MESSAGE + `Status code: ${code}${errorMessage}`);
-    this.code = errorCode;
+    this.code = code;
     this.userMessage = message;
-    this.errorCatalog = new Snyk.ServerError('');
+    this.errorCatalog = createErrorCatalogFromStatusCode(code);
   }
 }

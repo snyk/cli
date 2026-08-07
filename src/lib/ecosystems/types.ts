@@ -9,6 +9,7 @@ export type FindingType = 'iacIssue';
 
 export interface PluginResponse {
   scanResults: ScanResult[];
+  analytics?: Analytics[];
 }
 
 export interface GitTarget {
@@ -156,4 +157,5 @@ export interface MonitorDependenciesRequest {
   method?: 'cli';
   tags?: Tag[];
   attributes?: ProjectAttributes;
+  pruneRepeatedSubdependencies?: boolean;
 }

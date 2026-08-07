@@ -1,0 +1,7 @@
+{
+  "name": "alias-nested-deps-test",
+  "version": "1.0.0",
+  "dependencies": {
+    "lib-v3": "npm:@example/component-lib@3.0.0"
+  }
+}

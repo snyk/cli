@@ -111,4 +111,57 @@ describe('snyk test --yarn-workspaces (mocked server only)', () => {
     expect(stdout).toMatch('Could not detect supported target files');
     expect(stderr).toEqual('');
   });
+
+  test("`test --yarn-workspaces` does not leak a workspace member's devDependencies into a consumer's prod graph", async () => {
+    const project = await createProjectFromFixture('yarn-workspace-dev-deps');
+
+    const { code, stdout, stderr } = await runSnykCLI(
+      'test --yarn-workspaces --print-deps',
+      {
+        cwd: project.path(),
+        env,
+      },
+    );
+
+    expect(code).toEqual(0);
+    expect(stderr).toEqual('');
+
+    // @demo/shared-lib is a genuine prod dependency of my-app and must be reported.
+    expect(stdout).toContain('@demo/shared-lib');
+
+    // shared-lib's dev-only build tooling must NOT show up in any project's prod graph.
+    // (With --dev omitted, devDependencies are excluded across the board.)
+    for (const devPkg of [
+      '@babel/core',
+      '@babel/preset-env',
+      'babel-loader',
+      'webpack',
+      'webpack-cli',
+    ]) {
+      expect(stdout).not.toContain(devPkg);
+    }
+  });
+
+  test('`test yarn-v2-aliases-and-patches` handles npm aliases', async () => {
+    const project = await createProjectFromWorkspace(
+      'yarn-v2-aliases-and-patches',
+    );
+
+    const { code, stdout, stderr } = await runSnykCLI('test', {
+      cwd: project.path(),
+      env,
+    });
+
+    expect(code).toEqual(0);
+
+    // Verify the test completes without "Dependency not found" or "Invalid depGraph" errors
+    expect(stdout).toMatch('Package manager:   yarn');
+    expect(stdout).toMatch('Project name:      yarn-v2-aliases-and-patches');
+    expect(stdout).toMatch('Tested 3 dependencies');
+
+    // Verify no errors related to the fixes
+    expect(stdout).not.toMatch(/Dependency.*was not found in yarn\.lock/);
+    expect(stdout).not.toMatch(/Invalid depGraph/);
+    expect(stderr).toEqual('');
+  });
 });

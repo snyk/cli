@@ -20,6 +20,9 @@ export interface Options {
   composerPharIsFine?: boolean;
   systemVersions?: object;
   scanAllUnmanaged?: boolean;
+  showNpmScope?: boolean;
+  allProjects?: boolean;
+  includeComponentMetadata?: boolean;
 }
 
 export interface Plugin {

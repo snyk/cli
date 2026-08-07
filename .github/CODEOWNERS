@@ -1,1 +1,5 @@
-* @snyk/cli @snyk/productinfra_cli
+# CLI
+* @snyk/developer-experience_cli
+
+# Unify
+src/lib/plugins/uv/ @snyk/open-source_unify @snyk/developer-experience_cli

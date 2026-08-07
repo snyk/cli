@@ -1,7 +1,7 @@
 import * as baseDebug from 'debug';
 import * as pathUtil from 'path';
-const sortBy = require('lodash.sortby');
-const groupBy = require('lodash.groupby');
+import * as sortBy from 'lodash.sortby';
+import * as groupBy from 'lodash.groupby';
 import * as micromatch from 'micromatch';
 
 const debug = baseDebug('snyk-npm-workspaces');
@@ -19,6 +19,8 @@ export async function processNpmWorkspaces(
     strictOutOfSync?: boolean;
     dev?: boolean;
     yarnWorkspaces?: boolean;
+    showNpmScope?: boolean;
+    includeComponentMetadata?: boolean;
   },
   targetFiles: string[],
 ): Promise<MultiProjectResultCustom> {
@@ -101,6 +103,8 @@ export async function processNpmWorkspaces(
           strictOutOfSync: settings.strictOutOfSync || false,
           includeOptionalDeps: false,
           pruneCycles: true,
+          showNpmScope: settings.showNpmScope,
+          includeComponentMetadata: settings.includeComponentMetadata || false,
         },
       );
 

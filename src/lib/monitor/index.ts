@@ -58,6 +58,7 @@ interface MonitorBody {
   targetFileRelativePath: string;
   targetFile: string;
   contributors?: Contributor[];
+  reachabilityScanId?: string;
 }
 
 interface Meta {
@@ -227,7 +228,9 @@ async function monitorDepTree(
         master: snyk.config.isMaster,
         name: getNameDepTree(scannedProject, depTree, meta),
         version: depTree.version,
-        org: config.org ? decodeURIComponent(config.org) : undefined,
+        org:
+          config.orgId ||
+          (config.org ? decodeURIComponent(config.org) : undefined),
         pluginName: pluginMeta.name,
         pluginRuntime: pluginMeta.runtime,
         missingDeps: treeMissingDeps,
@@ -256,6 +259,7 @@ async function monitorDepTree(
       contributors,
       projectAttributes,
       tags,
+      reachabilityScanId: meta.reachabilityScanId,
     } as MonitorBody,
     gzip: true,
     method: 'PUT',
@@ -339,7 +343,9 @@ export async function monitorDepGraph(
         master: snyk.config.isMaster,
         name: getNameDepGraph(scannedProject, depGraph, meta),
         version: depGraph.rootPkg.version,
-        org: config.org ? decodeURIComponent(config.org) : undefined,
+        org:
+          config.orgId ||
+          (config.org ? decodeURIComponent(config.org) : undefined),
         pluginName: pluginMeta.name,
         pluginRuntime: pluginMeta.runtime,
         projectName: getProjectName(scannedProject, meta),
@@ -360,6 +366,7 @@ export async function monitorDepGraph(
       callGraph: callGraphPayload,
       projectAttributes,
       tags,
+      reachabilityScanId: meta.reachabilityScanId,
     } as MonitorBody,
     gzip: true,
     method: 'PUT',
@@ -458,7 +465,9 @@ async function monitorDepGraphFromDepTree(
         master: snyk.config.isMaster,
         name: getNameDepGraph(scannedProject, depGraph, meta),
         version: depGraph.rootPkg.version,
-        org: config.org ? decodeURIComponent(config.org) : undefined,
+        org:
+          config.orgId ||
+          (config.org ? decodeURIComponent(config.org) : undefined),
         pluginName: pluginMeta.name,
         pluginRuntime: pluginMeta.runtime,
         dockerImageId: pluginMeta.dockerImageId,
@@ -482,6 +491,7 @@ async function monitorDepGraphFromDepTree(
       contributors,
       projectAttributes,
       tags,
+      reachabilityScanId: meta.reachabilityScanId,
     } as MonitorBody,
     gzip: true,
     method: 'PUT',

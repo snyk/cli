@@ -5,6 +5,8 @@ import config from '../config';
 import { isCI } from '../is-ci';
 import { getPlugin } from '../ecosystems';
 import { Ecosystem, ContainerTarget, ScanResult } from '../ecosystems/types';
+import { filterDockerFacts } from '../ecosystems/common';
+import { extractAndApplyPluginAnalytics } from '../ecosystems/plugin-analytics';
 import { Options, PolicyOptions, TestOptions } from '../types';
 import { Payload } from './types';
 import { assembleQueryString } from './common';
@@ -38,7 +40,16 @@ export async function assembleEcosystemPayloads(
 
   try {
     const plugin = getPlugin(ecosystem);
-    const pluginResponse = await plugin.scan(options);
+    let pluginResponse = await plugin.scan(options);
+    pluginResponse = await filterDockerFacts(
+      pluginResponse,
+      ecosystem,
+      options,
+    );
+
+    if (pluginResponse.analytics) {
+      extractAndApplyPluginAnalytics(pluginResponse.analytics);
+    }
 
     const payloads: Payload[] = [];
 

@@ -1,7 +1,7 @@
 import { emitter as codeEmitter } from '@snyk/code-client';
 import { spinner } from '../../../spinner';
 import * as debugLib from 'debug';
-import { MAX_STRING_LENGTH } from '../../../constants';
+import { truncateForLog } from '../../../utils';
 
 export function analysisProgressUpdate(): void {
   let currentMessage = '';
@@ -33,14 +33,6 @@ export function analysisProgressUpdate(): void {
   });
   codeEmitter.on('apiRequestLog', (data) => {
     const debug = debugLib('snyk-code');
-    if (data.length > MAX_STRING_LENGTH) {
-      // limit the string length as truncation doesn't always happen, causing the CLI to end unexpectedly
-      debug(
-        '---> API request log ',
-        data.slice(0, MAX_STRING_LENGTH) + '...(log line truncated)',
-      );
-    } else {
-      debug('---> API request log ', data);
-    }
+    debug('---> API request log ', truncateForLog(data));
   });
 }

@@ -42,12 +42,17 @@ def get_os_arch():
         return None, None
 
 
-def download_snyk_cli(download_version, base_url):
+def download_snyk_cli(download_version, base_url, os_override, arch_override):
     success = 0
     fail = 1
     abort = 2
 
     os_type, arch_type = get_os_arch()
+
+    if os_override:
+        os_type = os_override
+    if arch_override:
+        arch_type = arch_override
 
     if not os_type or not arch_type:
         return abort
@@ -108,7 +113,7 @@ def download_snyk_cli(download_version, base_url):
 
 
 # will try to download via the base_url 'retries' amount of times
-def download_with_retry(retries, base_url):
+def download_with_retry(retries, base_url, os_type, arch_type):
     for retry in range(1, retries + 1):
         print(
             "Trying to download version "
@@ -118,8 +123,8 @@ def download_with_retry(retries, base_url):
             + " of #"
             + str(retries)
         )
-        download_status = download_snyk_cli(args.version, base_url)
-        
+        download_status = download_snyk_cli(args.version, base_url, os_type, arch_type)
+
         # download failed - retry
         if download_status == 1:
             sleep_time = retry * 10
@@ -129,12 +134,21 @@ def download_with_retry(retries, base_url):
                 + " seconds..."
             )
             time.sleep(sleep_time)
-        
+
         # download ok && 'abort' failures
         else:
             break
 
     return download_status
+
+def is_alpine():
+    try:
+        with open("/etc/os-release", "r") as f:
+            content = f.read().lower()
+            return "id=alpine" in content
+    except Exception:
+        return False
+
 
 def get_filename(arch_type, os_type):
     filename = ""
@@ -143,10 +157,11 @@ def get_filename(arch_type, os_type):
 
     if os_type == "linux" and arch_type == "arm64":
         filename = "snyk-linux-arm64"
+        if is_alpine():
+            filename = "snyk-alpine-arm64"
     if os_type == "linux" and arch_type == "amd64":
         filename = "snyk-linux"
-        stat_result = os.path.exists("/lib/ld-musl-x86_64.so.1")
-        if stat_result:
+        if is_alpine():
             filename = "snyk-alpine"
     if os_type == "windows" and arch_type == "amd64":
         filename = "snyk-win"
@@ -183,6 +198,12 @@ if __name__ == "__main__":
     parser.add_argument(
         "--base_url", help="Base URL to download from", default=primary_url
     )
+    parser.add_argument(
+        "--arch", help="Explicitly specify the architecture to download", default=None
+    )
+    parser.add_argument(
+        "--os", help="Explicitly specify the OS to download", default=None
+    )
     parser.add_argument("--retry", help="number of retries", default=3)
 
     args = parser.parse_args()
@@ -196,6 +217,6 @@ if __name__ == "__main__":
     # retry 'args.retry' times before iterating to the next URL
     # aborted downloads will iterate to the next URL without retrying
     for url in urls:
-        download_status = download_with_retry(args.retry, url)
+        download_status = download_with_retry(args.retry, url, args.os, args.arch)
         if download_status == 0:
             break

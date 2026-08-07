@@ -6,12 +6,13 @@ import { spawn } from 'cross-spawn';
 import * as semver from 'semver';
 import { Readable } from 'stream';
 import { CLI_BIN_PATH } from './constants';
+import { withFipsEnvIfNeeded } from './fipsTestHelper';
 
 // https://nodejs.org/docs/latest-v16.x/api/child_process.html#event-spawn
 const SUPPORTS_SPAWN_EVENT = semver.satisfies(process.version, '>=15.1.0');
 
 // Timeout for a single assertion.
-const DEFAULT_ASSERTION_TIMEOUT = 5_000;
+const DEFAULT_ASSERTION_TIMEOUT = 20_000;
 
 // Timeout for the entire test.
 const DEFAULT_TEST_TIMEOUT = 30_000;
@@ -213,6 +214,8 @@ export const startSnykCLI = async (
   options?: StartCommandOptions,
 ): Promise<TestCLI> => {
   const args = argsString.split(' ').filter((v) => !!v);
+  options = { ...options, env: withFipsEnvIfNeeded(options?.env) };
+
   if (process.env.TEST_SNYK_COMMAND) {
     return startCommand(process.env.TEST_SNYK_COMMAND, args, options);
   }

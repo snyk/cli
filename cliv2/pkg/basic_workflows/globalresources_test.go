@@ -87,7 +87,7 @@ func Test_RestoreCertAuthority(t *testing.T) {
 	assert.FileExists(t, ca1.CertFile)
 
 	t.Run("manual removal of file", func(t *testing.T) {
-		os.Remove(ca1.CertFile)
+		_ = os.Remove(ca1.CertFile)
 
 		ca2, err := GetGlobalCertAuthority(config, &logger)
 		assert.NoError(t, err)
@@ -96,7 +96,7 @@ func Test_RestoreCertAuthority(t *testing.T) {
 	})
 
 	t.Run("manual removal of file and deletion of cached values", func(t *testing.T) {
-		os.Remove(ca1.CertFile)
+		_ = os.Remove(ca1.CertFile)
 		caSingleton.CertPem = ""
 		caSingleton.CertFile = ""
 

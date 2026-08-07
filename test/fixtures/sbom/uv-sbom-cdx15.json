@@ -1,0 +1,74 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.5",
+  "version": 1,
+  "serialNumber": "urn:uuid:360d9923-6729-4332-9370-ee0dc4758e04",
+  "metadata": {
+    "timestamp": "2026-04-10T10:40:16.133339000Z",
+    "tools": [
+      {
+        "vendor": "Astral Software Inc.",
+        "name": "uv",
+        "version": "0.11.3"
+      }
+    ],
+    "component": {
+      "type": "library",
+      "bom-ref": "simple-project-1@0.1.0",
+      "name": "simple-project",
+      "version": "0.1.0",
+      "properties": [
+        {
+          "name": "uv:package:is_project_root",
+          "value": "true"
+        }
+      ]
+    }
+  },
+  "components": [
+    {
+      "type": "library",
+      "bom-ref": "jinja2-2@2.11.2",
+      "name": "jinja2",
+      "version": "2.11.2",
+      "purl": "pkg:pypi/jinja2@2.11.2"
+    },
+    {
+      "type": "library",
+      "bom-ref": "markupsafe-3@3.0.3",
+      "name": "markupsafe",
+      "version": "3.0.3",
+      "purl": "pkg:pypi/markupsafe@3.0.3"
+    },
+    {
+      "type": "library",
+      "bom-ref": "urllib3-4@1.24.3",
+      "name": "urllib3",
+      "version": "1.24.3",
+      "purl": "pkg:pypi/urllib3@1.24.3"
+    }
+  ],
+  "dependencies": [
+    {
+      "ref": "jinja2-2@2.11.2",
+      "dependsOn": [
+        "markupsafe-3@3.0.3"
+      ]
+    },
+    {
+      "ref": "markupsafe-3@3.0.3",
+      "dependsOn": []
+    },
+    {
+      "ref": "simple-project-1@0.1.0",
+      "dependsOn": [
+        "jinja2-2@2.11.2",
+        "urllib3-4@1.24.3"
+      ]
+    },
+    {
+      "ref": "urllib3-4@1.24.3",
+      "dependsOn": []
+    }
+  ]
+}
