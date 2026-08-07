@@ -49,7 +49,8 @@ interface FindFilesRes {
   allFilesFound: string[];
 }
 
-const ignoreFolders = ['node_modules', '.build'];
+// ensure we ignore find against node_modules path, .build folder for swift, and .git
+const ignoreFolders = ['node_modules', '.build', '.git'];
 
 interface FindFilesConfig {
   path: string;
@@ -91,8 +92,8 @@ export async function find(findConfig: FindFilesConfig): Promise<FindFilesRes> {
   const found: string[] = [];
   const foundAll: string[] = [];
 
-  // ensure we ignore find against node_modules path and .build folder for swift.
-  if (config.path.endsWith('node_modules') || config.path.endsWith('/.build')) {
+  // ensure we never scan the ignored folders, even when one is the scan root
+  if (ignoreFolders.includes(pathLib.basename(config.path))) {
     return { files: found, allFilesFound: foundAll };
   }
 
