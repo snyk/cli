@@ -603,8 +603,8 @@ github.com/snyk/remy-cli-extension v1.36.1 h1:TFiJL7XlqXklGsplIhlnhyRp+nyi4rV7L2
 github.com/snyk/remy-cli-extension v1.36.1/go.mod h1:ez/NUC+xzLRJB7+H0GTUjv4O1x2U+UWArSLdLVCcY3w=
 github.com/snyk/snyk-iac-capture v0.6.5 h1:992DXCAJSN97KtUh8T5ndaWwd/6ZCal2bDkRXqM1u/E=
 github.com/snyk/snyk-iac-capture v0.6.5/go.mod h1:e47i55EmM0F69ZxyFHC4sCi7vyaJW6DLoaamJJCzWGk=
-github.com/snyk/snyk-ls v0.0.0-20260804092303-865b318b1c8f h1:egNW6/d4pz/yXxq7RKRXgD/JkqQRr1LEeiTWJE9iv6s=
-github.com/snyk/snyk-ls v0.0.0-20260804092303-865b318b1c8f/go.mod h1:zd9hsXBqnftPgvmqrUzQlb+qGg/IXMa9/HQTl5ScLWw=
+github.com/snyk/snyk-ls v0.0.0-20260807121902-1cf40fcabd33 h1:M2jeR6KhfpNQJF75xMneCfPNU1UtEU8Eum6ZaiAdDcI=
+github.com/snyk/snyk-ls v0.0.0-20260807121902-1cf40fcabd33/go.mod h1:zd9hsXBqnftPgvmqrUzQlb+qGg/IXMa9/HQTl5ScLWw=
 github.com/snyk/studio-mcp v1.15.1 h1:g0dw46B+EOQjd7LWa+O1t9SEzgzlcYFxbgo5cp2xaFc=
 github.com/snyk/studio-mcp v1.15.1/go.mod h1:3ZISZCgorkGg/iLQrryvmP34Db4KkvtfAARi7vMqM/4=
 github.com/sourcegraph/conc v0.3.0 h1:OQTbbt6P72L20UqAkXXuLOj79LfEanQ+YQFNpLA9ySo=
