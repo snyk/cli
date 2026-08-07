@@ -557,8 +557,8 @@ github.com/snyk/snyk-iac-capture v0.6.5 h1:992DXCAJSN97KtUh8T5ndaWwd/6ZCal2bDkRX
 github.com/snyk/snyk-iac-capture v0.6.5/go.mod h1:e47i55EmM0F69ZxyFHC4sCi7vyaJW6DLoaamJJCzWGk=
 github.com/snyk/snyk-ls v0.0.0-20260804092303-865b318b1c8f h1:egNW6/d4pz/yXxq7RKRXgD/JkqQRr1LEeiTWJE9iv6s=
 github.com/snyk/snyk-ls v0.0.0-20260804092303-865b318b1c8f/go.mod h1:zd9hsXBqnftPgvmqrUzQlb+qGg/IXMa9/HQTl5ScLWw=
-github.com/snyk/studio-mcp v1.15.1 h1:g0dw46B+EOQjd7LWa+O1t9SEzgzlcYFxbgo5cp2xaFc=
-github.com/snyk/studio-mcp v1.15.1/go.mod h1:3ZISZCgorkGg/iLQrryvmP34Db4KkvtfAARi7vMqM/4=
+github.com/snyk/studio-mcp v1.15.3 h1:t+vBRKGMWS6FLY1BAMzP2Vp+z8k8hK7kYKuAYlKEBHU=
+github.com/snyk/studio-mcp v1.15.3/go.mod h1:3ZISZCgorkGg/iLQrryvmP34Db4KkvtfAARi7vMqM/4=
 github.com/sourcegraph/conc v0.3.0 h1:OQTbbt6P72L20UqAkXXuLOj79LfEanQ+YQFNpLA9ySo=
 github.com/sourcegraph/conc v0.3.0/go.mod h1:Sdozi7LEKbFPqYX2/J+iBAM6HpqSLTASQIKqDmF7Mt0=
 github.com/sourcegraph/go-lsp v0.0.0-20240223163137-f80c5dd31dfd h1:Dq5WSzWsP1TbVi10zPWBI5LKEBDg4Y1OhWEph1wr5WQ=
