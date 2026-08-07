@@ -122,7 +122,7 @@
     "snyk-module": "3.1.0",
     "snyk-mvn-plugin": "4.9.2",
     "snyk-nodejs-lockfile-parser": "2.10.0",
-    "snyk-nodejs-plugin": "^2.2.0",
+    "snyk-nodejs-plugin": "^2.2.1",
     "snyk-nuget-plugin": "4.2.3",
     "snyk-php-plugin": "1.12.1",
     "snyk-policy": "^4.1.6",
