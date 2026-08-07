@@ -7,6 +7,7 @@ require (
 	github.com/snyk/cli-extension-cos v0.0.0-20260804092425-a7e642ae7b3b
 	github.com/snyk/cli/cliv2 v0.0.0
 	github.com/snyk/remy-cli-extension v1.36.1
+	github.com/snyk/rift-cli-extension v1.1.1
 )
 
 require (
@@ -324,3 +325,5 @@ replace github.com/snyk/cli/cliv2 => ../cliv2
 // replace github.com/snyk/cli-extension-cos => ../../cli-extension-cos
 
 // replace github.com/snyk/ambient-canary => ../../ambient-canary
+
+// replace github.com/snyk/rift-cli-extension => ../../rift-cli-extension
