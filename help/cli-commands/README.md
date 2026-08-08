@@ -48,6 +48,10 @@ These commands find and report security issues in Infrastructure as Code files; 
 
 The `snyk code test` command finds security issues using Static Code Analysis.
 
+### [`snyk secrets`](secrets-test.md)
+
+The `snyk secrets test` command scans text files in a repository for hardcoded secrets.
+
 ### [`snyk sbom`](sbom.md)
 
 Generate or test an SBOM document in ecosystems supported by Snyk.

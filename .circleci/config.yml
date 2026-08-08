@@ -270,53 +270,6 @@ commands:
                   $bashLine = 'export PATH="' + $bashPath + ':$PATH"'
                   [System.IO.File]::AppendAllText($bashEnvScript, $bashLine + "`n", (New-Object System.Text.UTF8Encoding $false))
 
-  # Minimal Windows toolchain for COMPILING the CLI: Node, Python, Make only.
-  # Excludes .NET/Maven/Gradle (needed only by acceptance tests), which keeps
-  # this cache small and fast to restore compared to the full tools cache.
-  install-deps-windows-native-build-min:
-    steps:
-      - run:
-          name: Ensure tools cache directory
-          shell: powershell
-          command: |
-            $cacheDir = '<< pipeline.parameters.windows_cache_dir >>'
-            if (-not (Test-Path $cacheDir)) {
-              New-Item -ItemType Directory -Path $cacheDir | Out-Null
-            }
-      - restore_cache:
-          name: Restoring Windows build tools cache
-          keys:
-            - windows-build-tools-cache-v2-{{ arch }}-{{ checksum ".nvmrc" }}
-      - run:
-          name: Install Node.js (native)
-          shell: powershell
-          command: |
-            .\scripts\windows\install-node.ps1
-      - run:
-          name: Install Python 3.12.8 (native)
-          shell: powershell
-          command: |
-            .\scripts\windows\install-python3.ps1
-      - run:
-          name: Install GNU Make 4.4.1 (native)
-          shell: powershell
-          command: |
-            .\scripts\windows\install-make.ps1
-      - run:
-          name: Ensure Python and uv
-          shell: powershell
-          command: |
-            if (Test-Path '<< pipeline.parameters.windows_cache_dir >>/<< pipeline.parameters.windows_env_script >>') { . '<< pipeline.parameters.windows_cache_dir >>/<< pipeline.parameters.windows_env_script >>' }
-            .\scripts\windows\ensure-python-uv.ps1
-      - save_cache:
-          name: Saving Windows build tools cache
-          key: windows-build-tools-cache-v2-{{ arch }}-{{ checksum ".nvmrc" }}
-          paths:
-            - << pipeline.parameters.windows_cache_dir >>
-            - C:\ProgramData\nvm
-            - C:\tools\make
-            - C:\Program Files\Python312
-
   install-deps-windows-native-build:
     steps:
       - run:
@@ -330,7 +283,7 @@ commands:
       - restore_cache:
           name: Restoring Windows tools cache
           keys:
-            - windows-tools-cache-v7-{{ arch }}-{{ checksum ".nvmrc" }}
+            - windows-tools-cache-v5-{{ arch }}-{{ checksum ".nvmrc" }}
       - run:
           name: Install Node.js (native)
           shell: powershell
@@ -369,14 +322,10 @@ commands:
             .\scripts\windows\ensure-python-uv.ps1
       - save_cache:
           name: Saving Windows tools cache
-          key: windows-tools-cache-v7-{{ arch }}-{{ checksum ".nvmrc" }}
+          key: windows-tools-cache-v5-{{ arch }}-{{ checksum ".nvmrc" }}
           paths:
             - << pipeline.parameters.windows_cache_dir >>
             - C:\ProgramData\nvm
-            - C:\tools\maven
-            - C:\tools\make
-            - C:\Program Files\dotnet
-            - C:\Program Files\Python312
 
   install-deps-windows-native-full-signing:
     steps:
@@ -437,23 +386,10 @@ commands:
           name: No dependencies to install
           command: echo all done!
 
-  setup-go-build-cache:
-    description: >-
-      Pin GOMODCACHE and GOCACHE to workspace paths so CircleCI cache
-      restore/save works on Linux, macOS, and Windows executors.
-    steps:
-      - run:
-          name: Configure Go module and build cache paths
-          shell: bash
-          command: |
-            mkdir -p .go-cache/mod .go-cache/build
-            echo "export GOMODCACHE=\"$(pwd)/.go-cache/mod\"" >> "$BASH_ENV"
-            echo "export GOCACHE=\"$(pwd)/.go-cache/build\"" >> "$BASH_ENV"
-
   setup-go-private-modules:
     description: >-
       Configure git and Go to fetch private snyk modules using the
-      GITHUB_PRIVATE_TOKEN provided by the `go-private-modules` context.
+      GITHUB_PRIVATE_TOKEN provided by the `team-cli-go-private-modules` context.
       Safe to call on Linux, macOS and Windows (uses bash on all executors).
     steps:
       - run:
@@ -466,7 +402,7 @@ commands:
             fi
             if [ -z "${GITHUB_PRIVATE_TOKEN}" ]; then
               echo "GITHUB_PRIVATE_TOKEN is not set; skipping private Snyk modules setup."
-              echo "Add the 'go-private-modules' context to this job if private modules are required."
+              echo "Add the 'team-cli-go-private-modules' context to this job if private modules are required."
               exit 0
             fi
             git config --global url."https://${GITHUB_PRIVATE_TOKEN}:x-oauth-basic@github.com/snyk".insteadOf "https://github.com/snyk"
@@ -625,14 +561,16 @@ workflows:
     jobs:
       - prodsec/secrets-scan:
           name: secrets-scan
-          context: snyk-bot-slack
+          context:
+            - snyk-bot-slack
+            - prodsec-orb-runtime
           channel: cli-alerts
           trusted-branch: main
 
       - docs-only-check:
           context:
             - devex_cli_docker_hub
-            - go-private-modules
+            - team-cli-go-private-modules
           filters:
             branches:
               only:
@@ -641,7 +579,7 @@ workflows:
       - prepare-build:
           context:
             - devex_cli_docker_hub
-            - go-private-modules
+            - team-cli-go-private-modules
           requires:
             - secrets-scan
           filters:
@@ -657,7 +595,8 @@ workflows:
           context:
             - devex_cli
             - devex_cli_docker_hub
-            - go-private-modules
+            - team-cli-go-private-modules
+            - prodsec-orb-runtime
           requires:
             - prepare-build
           filters:
@@ -687,7 +626,7 @@ workflows:
             - nodejs-install
             - team_hammerhead-cli
             - devex_cli_docker_hub
-            - go-private-modules
+            - team-cli-go-private-modules
           requires:
             - prepare-build
           filters:
@@ -736,7 +675,7 @@ workflows:
           name: build linux amd64
           context:
             - iac-cli
-            - go-private-modules
+            - team-cli-go-private-modules
             - devex_cli_docker_hub
           go_target_os: linux
           go_os: linux
@@ -751,7 +690,7 @@ workflows:
           name: build linux static amd64
           context:
             - iac-cli
-            - go-private-modules
+            - team-cli-go-private-modules
             - devex_cli_docker_hub
           go_target_os: linux
           go_os: linux
@@ -767,7 +706,7 @@ workflows:
           name: build linux fips amd64
           context:
             - iac-cli
-            - go-private-modules
+            - team-cli-go-private-modules
             - devex_cli_docker_hub
           go_target_os: linux
           go_os: linux
@@ -783,7 +722,7 @@ workflows:
           name: build linux arm64
           context:
             - iac-cli
-            - go-private-modules
+            - team-cli-go-private-modules
             - devex_cli_docker_hub
           go_target_os: linux
           go_os: linux
@@ -798,7 +737,7 @@ workflows:
           name: build linux static arm64
           context:
             - iac-cli
-            - go-private-modules
+            - team-cli-go-private-modules
             - devex_cli_docker_hub
           go_target_os: linux
           go_os: linux
@@ -814,7 +753,7 @@ workflows:
           name: build linux fips arm64
           context:
             - iac-cli
-            - go-private-modules
+            - team-cli-go-private-modules
             - devex_cli_docker_hub
           go_target_os: linux
           go_os: linux
@@ -830,7 +769,7 @@ workflows:
           name: build alpine amd64
           context:
             - iac-cli
-            - go-private-modules
+            - team-cli-go-private-modules
             - devex_cli_docker_hub
           go_target_os: alpine
           go_os: linux
@@ -845,7 +784,7 @@ workflows:
           name: build alpine arm64
           context:
             - iac-cli
-            - go-private-modules
+            - team-cli-go-private-modules
             - devex_cli_docker_hub
           go_target_os: alpine
           go_os: linux
@@ -867,7 +806,7 @@ workflows:
           context:
             - snyk-macos-signing
             - iac-cli
-            - go-private-modules
+            - team-cli-go-private-modules
           requires:
             - prepare-build
 
@@ -882,7 +821,7 @@ workflows:
           context:
             - snyk-macos-signing
             - iac-cli
-            - go-private-modules
+            - team-cli-go-private-modules
           requires:
             - prepare-build
 
@@ -893,13 +832,14 @@ workflows:
           go_arch: amd64
           go_download_base_url: << pipeline.parameters.fips_go_download_base_url >>
           go_version: << pipeline.parameters.fips_go_version >>
-          make_target: build build-fips verify-fips-artifacts BUILD_MODE=private
-          install_deps_extension: windows-native-build-min
+          make_target: build clean-golang build-fips BUILD_MODE=private
+          install_deps_extension: windows-native-full-signing
           install_path: 'C:\'
           executor: win-server2022-amd64
           context:
+            - snyk-windows-signing
             - iac-cli
-            - go-private-modules
+            - team-cli-go-private-modules
           requires:
             - prepare-build
 
@@ -1583,6 +1523,8 @@ jobs:
           release-branch: main
           open-source-scan-reachability: true
           open-source-scan: high
+          open-source-block-ignore-sla: true
+          open-source-agentic-fix-enabled: true
 
   docs-only-check:
     executor: docker-amd64
@@ -1792,12 +1734,8 @@ jobs:
           go_version: << parameters.go_version >>
           extraction_path: << parameters.install_path >>
       - setup-go-private-modules
-      - setup-go-build-cache
       - restore_cache:
-          name: Restoring Go module and build cache
-          keys:
-            - go-build-v2-{{ arch }}-{{ checksum "cliv2/go.sum" }}
-            - go-build-v2-{{ arch }}-
+          key: go-build-{{ arch }}-{{ checksum "cliv2/go.sum" }}
       - make-binary:
           static: << parameters.static_binary >>
           go_arch: << parameters.go_arch >>
@@ -1805,11 +1743,8 @@ jobs:
           make_target: << parameters.make_target >>
           c_compiler: << parameters.c_compiler >>
       - save_cache:
-          name: Saving Go module and build cache
-          key: go-build-v2-{{ arch }}-{{ checksum "cliv2/go.sum" }}
-          paths:
-            - .go-cache/mod
-            - .go-cache/build
+          key: go-build-{{ arch }}-{{ checksum "cliv2/go.sum" }}
+          paths: [/home/circleci/go/pkg/mod]
       - store_artifacts:
           path: binary-releases
       - persist_to_workspace:
@@ -1869,6 +1804,21 @@ jobs:
     steps:
       - prepare-workspace
       - install-deps-<< parameters.install_deps_extension >>
+      - run:
+          name: Create Maven cache key
+          command: >-
+            git ls-files -s --
+            'test/**/pom.xml'
+            'test/**/settings.xml'
+            'test/**/.mvn/maven.config'
+            'test/**/.mvn/extensions.xml'
+            'test/**/.mvn/wrapper/maven-wrapper.properties'
+            > maven-cache-key.txt
+      - restore_cache:
+          name: Restore Maven cache
+          keys:
+            - acceptance-maven-v1-<< parameters.executor >>-{{ .Environment.CIRCLE_NODE_INDEX }}-{{ checksum "maven-cache-key.txt" }}
+            - acceptance-maven-v1-<< parameters.executor >>-{{ .Environment.CIRCLE_NODE_INDEX }}-
       - when:
           condition:
             matches:
@@ -1898,6 +1848,12 @@ jobs:
             TEST_SNYK_DONT_SKIP_ANYTHING: << parameters.dont_skip_tests >>
             JEST_JUNIT_OUTPUT_DIR: test/reports
             NODE_OPTIONS: --max-old-space-size=4096
+      - save_cache:
+          name: Save Maven cache
+          key: acceptance-maven-v1-<< parameters.executor >>-{{ .Environment.CIRCLE_NODE_INDEX }}-{{ checksum "maven-cache-key.txt" }}
+          paths:
+            - ~/.m2/repository
+            - ~/.m2/wrapper/dists
       - run:
           name: Normalize junit file paths for timing data
           when: always
@@ -1926,11 +1882,7 @@ jobs:
       - install-deps-<< parameters.install_deps_extension >>
       - run:
           name: Signing << parameters.go_os >> artifact
-          shell: bash
-          command: |
-            # Load Windows $Env:Path values of tools necessary for signing (like make).
-            if [ -f "/c/tools-cache/<< pipeline.parameters.windows_bash_env_script >>" ]; then source "/c/tools-cache/<< pipeline.parameters.windows_bash_env_script >>"; fi
-            make << parameters.make_target >> GOOS=<< parameters.go_os >> GOARCH=<< parameters.go_arch >>
+          command: make << parameters.make_target >> GOOS=<< parameters.go_os >> GOARCH=<< parameters.go_arch >>
       - store_artifacts:
           path: ./binary-releases
       - persist_to_workspace:
