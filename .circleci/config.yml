@@ -1333,6 +1333,33 @@ workflows:
                 - main
                 - '/release.*/'
 
+      # Best-effort terminal jobs: no release job depends on these dispatches.
+      - trigger-endpoint-explorer-refresh:
+          name: Trigger Endpoint Explorer refresh (preview)
+          channel: preview
+          context:
+            - team-hammerhead-common-deploy-tokens
+          requires:
+            - upload preview
+          filters:
+            branches:
+              only:
+                - main
+                - '/release.*/'
+
+      - trigger-endpoint-explorer-refresh:
+          name: Trigger Endpoint Explorer refresh (stable)
+          channel: stable
+          context:
+            - team-hammerhead-common-deploy-tokens
+          requires:
+            - upload latest/stable
+          filters:
+            branches:
+              only:
+                - main
+                - '/release.*/'
+
       - release-github:
           name: upload github
           context:
@@ -2095,6 +2122,19 @@ jobs:
           name: Create Jira Release
           command: ./release-scripts/create-jira-release.sh
       - failed-release-notification
+
+  trigger-endpoint-explorer-refresh:
+    parameters:
+      channel:
+        type: string
+    executor: docker-amd64
+    steps:
+      - checkout
+      - shall-deploy:
+          deployment: << parameters.channel >>
+      - run:
+          name: Request Endpoint Explorer refresh
+          command: ./release-scripts/trigger-endpoint-explorer-refresh.sh << parameters.channel >>
 
   release-npm:
     parameters:
