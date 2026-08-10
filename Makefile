@@ -9,7 +9,7 @@
 export SHELL=/bin/bash
 WORKING_DIR = $(CURDIR)
 PKG := npx pkg ./ --compress Brotli --options max_old_space_size=32768
-PKG_NODE_VERSION := $(shell head -1 .nvmrc | cut -f1 -d '.')
+PKG_NODE_VERSION := $(shell cat .nvmrc)
 BINARY_WRAPPER_DIR = ts-binary-wrapper
 EXTENSIBLE_CLI_DIR = cliv2
 BINARY_RELEASES_FOLDER_TS_CLI = binary-releases
