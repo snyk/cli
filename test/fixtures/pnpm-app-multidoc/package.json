@@ -1,0 +1,14 @@
+{
+  "name": "pnpm11-devengines",
+  "version": "1.0.0",
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "^11.0.0",
+      "onFail": "download"
+    }
+  },
+  "dependencies": {
+    "is-odd": "^3.0.1"
+  }
+}
