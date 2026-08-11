@@ -1,5 +1,7 @@
 # Getting started with the Snyk CLI
 
+[![MCP Toplist](https://mcptoplist.com/badge/pulsemcp%2Fsnyk-cli.svg)](https://mcptoplist.com/server/pulsemcp%2Fsnyk-cli)
+
 ## Introduction to the Snyk CLI
 
 Snyk is a developer-first, cloud-native security tool to scan and monitor your software development projects for security vulnerabilities. Snyk scans multiple content types for security issues:
