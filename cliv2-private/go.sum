@@ -580,8 +580,8 @@ github.com/snyk/cli-extension-iac-rules v0.0.0-20260515141409-fb475901bb8e h1:HE
 github.com/snyk/cli-extension-iac-rules v0.0.0-20260515141409-fb475901bb8e/go.mod h1:YN+M0+nNZ5VoQN2SxSvZSoTxs/PkdLgfNfUWvsKVL7o=
 github.com/snyk/cli-extension-os-flows v0.0.0-20260722114313-168a09671091 h1:MDR3Tj4tFVNPonOtL+AzX0osWdOkNq0lEpQQehvjGak=
 github.com/snyk/cli-extension-os-flows v0.0.0-20260722114313-168a09671091/go.mod h1:qNOr9aDWYUa3Tl74k+04hOCEgKcgpBLVcvs26L4ooN0=
-github.com/snyk/cli-extension-sbom v0.0.0-20260728161808-90fff659c450 h1:OZamCjj08Ss87/ELqWj2vI0uB14aotWtneLlPIHxq8o=
-github.com/snyk/cli-extension-sbom v0.0.0-20260728161808-90fff659c450/go.mod h1:YUDazoukFqA0OpYuACIoqVEsfPCAFXo9XotUk9RjmUY=
+github.com/snyk/cli-extension-sbom v0.0.0-20260811135250-99c30fb97642 h1:dWaIWLV0vucbUStVIJIlCmA2A4jlYkbUyAA6zoaEiMc=
+github.com/snyk/cli-extension-sbom v0.0.0-20260811135250-99c30fb97642/go.mod h1:YUDazoukFqA0OpYuACIoqVEsfPCAFXo9XotUk9RjmUY=
 github.com/snyk/cli-extension-secrets v0.0.0-20260811115637-ee872c26b0cd h1:sSVkD1CuL8v49boItrt2CnQ4DJIH+sjGwFGheGCVAxo=
 github.com/snyk/cli-extension-secrets v0.0.0-20260811115637-ee872c26b0cd/go.mod h1:PrKXTT4fwEJPIzphT4n1tH5mwt2D1/qadP5HNCvub9Y=
 github.com/snyk/code-client-go v1.31.3 h1:X1vzubbdGXWpxwnjBkC3HchH1rWjDdqdn0cCz2to0TA=
