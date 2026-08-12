@@ -805,6 +805,25 @@ describe.each(userJourneyWorkflows)(
           expect(code).toEqual(0);
         });
 
+        test('run `snyk test` on a pnpm project with a multi-document lockfile (pnpm 11)', async () => {
+          const project = await createProjectFromFixture('pnpm-app-multidoc');
+
+          const { code, stdout } = await runSnykCLI('test --print-deps -d', {
+            cwd: project.path(),
+            env,
+          });
+
+          expect(stdout).toMatch('Target file:       pnpm-lock.yaml');
+          expect(stdout).toMatch('Package manager:   pnpm');
+          // The project dependencies live only in the second YAML document of
+          // the multi-document pnpm-lock.yaml. Resolving them proves the
+          // multi-document lockfile is parsed (snyk-nodejs-plugin#56).
+          expect(stdout).toMatch('is-odd @ 3.0.1');
+          expect(stdout).toMatch('is-number @ 6.0.0');
+
+          expect(code).toEqual(0);
+        });
+
         test('run `snyk test` on an out of sync pnpm project with --strict-out-of-sync=false', async () => {
           const project = await createProjectFromWorkspace(
             'pnpm-app-out-of-sync',
