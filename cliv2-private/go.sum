@@ -568,8 +568,8 @@ github.com/snyk/cli-extension-agent-scan v0.0.0-20260803112735-0ad462cba2af h1:A
 github.com/snyk/cli-extension-agent-scan v0.0.0-20260803112735-0ad462cba2af/go.mod h1:u4d7qoWWVx3II+ZnpLQGjAegaJLmgPefXKXJD/jp/wM=
 github.com/snyk/cli-extension-ai-bom v0.0.0-20260804095026-fdfc28cd38b8 h1:OiY6RfgGICJ1QCRW1WxWk9cm9G9Hd8aStIz5EASltw0=
 github.com/snyk/cli-extension-ai-bom v0.0.0-20260804095026-fdfc28cd38b8/go.mod h1:axE+HO8U9CIcTjQ7k7BOLgdyZfNGqMn5QvZ0aIkUY4U=
-github.com/snyk/cli-extension-axi v0.0.0-20260807132828-734c2ae85a0a h1:Q6CKMenoGNZAvl5NVm4ZCToKqsz01kE/H5pCdaXYGw8=
-github.com/snyk/cli-extension-axi v0.0.0-20260807132828-734c2ae85a0a/go.mod h1:oFvcbCp2bb4gPBDbFPnqGxmFTkQEcPolXTbif5hJ1FE=
+github.com/snyk/cli-extension-axi v0.0.0-20260812113949-210b479505a9 h1:6/YF4VHeT8E3abcxcF/oIrdEyrPM3fV/OfJOsZuYz5g=
+github.com/snyk/cli-extension-axi v0.0.0-20260812113949-210b479505a9/go.mod h1:oFvcbCp2bb4gPBDbFPnqGxmFTkQEcPolXTbif5hJ1FE=
 github.com/snyk/cli-extension-cos v0.0.0-20260804092425-a7e642ae7b3b h1:NXYzKYaGgB7OcGq4rV1GrmyGI+F7V8lpXaW50NQw4f4=
 github.com/snyk/cli-extension-cos v0.0.0-20260804092425-a7e642ae7b3b/go.mod h1:YpcOdcMBJOzwtla/OOoBOArx27Bc2v42Vcwd/FeGl9M=
 github.com/snyk/cli-extension-dep-graph/v2 v2.8.1 h1:ZlLN8KbMZiRN7QsiLzovFLsoIEVytC77+OESr+6wDhI=
