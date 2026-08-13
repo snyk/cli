@@ -834,6 +834,25 @@ func Test_processError(t *testing.T) {
 		assert.NotNil(t, outputError)
 		assert.False(t, suppressDisplay, "genuine errors must still reach the user")
 	})
+
+	t.Run("promoted maintenance error is displayed even when the command exited non-zero", func(t *testing.T) {
+		cmd := exec.Command("sh", "-c", "exit 1")
+		exitErr := cmd.Run()
+		require.Error(t, exitErr)
+
+		maintenanceErr := snyk_errors.Error{
+			Title:     "Maintenance",
+			ErrorCode: "SNYK-0099",
+			Level:     "error",
+		}
+
+		_, outputError, suppressDisplay := processError(exitErr, []error{maintenanceErr})
+
+		// FindMostRelevantError promotes it, so the user must still see it even
+		// though the original error was a bare exit error.
+		assert.False(t, suppressDisplay, "promoted high priority errors must reach the user")
+		assert.Equal(t, constants.SNYK_EXIT_CODE_EX_TEMPFAIL, cliv2.DeriveExitCode(outputError))
+	})
 }
 
 func Test_shouldSuppressDisplay(t *testing.T) {

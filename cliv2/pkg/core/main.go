@@ -720,12 +720,11 @@ func mainWithErrorCode(additionalExts []workflow.ExtensionInit) int {
 }
 
 // shouldSuppressDisplay reports whether err has already been handled and must not
-// be printed again.
+// be printed again. It mirrors the checks in displayError.
 //
-// It MUST be evaluated before any errors are combined. Both FindMostRelevantError
-// and createErrorWithExitCode use errors.Join, and a joined error does not satisfy
-// the direct type assertions below, so a handled error would otherwise be printed
-// after valid command output - breaking JSON output and adding misleading errors.
+// It is only meaningful on an error that has not been combined: errors.Join
+// produces a value that satisfies none of these assertions, so a joined error
+// always reports false.
 func shouldSuppressDisplay(err error) bool {
 	if err == nil {
 		return false
@@ -735,6 +734,13 @@ func shouldSuppressDisplay(err error) bool {
 	_, isErrorWithCode := err.(*cli_errors.ErrorWithExitCode)
 
 	return isExitError || isErrorWithCode || errorHasBeenShown(err)
+}
+
+// isCombined reports whether err was produced by errors.Join, i.e. whether its
+// concrete type has been hidden behind a multi-error wrapper.
+func isCombined(err error) bool {
+	_, ok := err.(interface{ Unwrap() []error })
+	return ok
 }
 
 func processError(err error, errorList []error) ([]error, error, bool) {
@@ -758,6 +764,14 @@ func processError(err error, errorList []error) ([]error, error, bool) {
 
 	// determine the most relevant error to surface to the user and derive the exit code from
 	resultError = cli_errors.FindMostRelevantError(resultErrorList)
+
+	// FindMostRelevantError returns promoted high priority errors (e.g. maintenance
+	// windows) uncombined, so they can still be judged on their own merits and reach
+	// the user. Only when it combined the list is the concrete type lost, and the
+	// decision taken above on the uncombined error applies.
+	if !isCombined(resultError) {
+		suppressDisplay = shouldSuppressDisplay(resultError)
+	}
 
 	// ensure to apply exit code mapping based on errors
 	if exitCode := mapErrorToExitCode(resultError); exitCode != unsetExitCode {
