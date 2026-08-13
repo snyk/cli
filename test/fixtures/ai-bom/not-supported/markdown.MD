@@ -1,3 +1,3 @@
 # Example
 
-This file is not supported by ai-bom scanner. It is here for testing purposes only.
+This file is excluded from the AI-BOM scan by the fixture's .dcignore rule.

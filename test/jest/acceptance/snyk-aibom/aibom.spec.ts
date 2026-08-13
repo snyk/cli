@@ -71,7 +71,7 @@ describe('snyk aibom (mocked servers only)', () => {
     'test/fixtures/ai-bom/python-chatbot',
   );
 
-  const notSupportedProject = resolve(
+  const excludedProject = resolve(
     projectRoot,
     'test/fixtures/ai-bom/not-supported',
   );
@@ -258,9 +258,9 @@ describe('snyk aibom (mocked servers only)', () => {
       expect(stdout).toContain('Forbidden (SNYK-AIBOM-0002)');
     });
 
-    test('handles an unsupported project', async () => {
+    test('handles a project with all files excluded', async () => {
       const { code, stdout } = await runSnykCLI(
-        `aibom ${notSupportedProject} --experimental`,
+        `aibom ${excludedProject} --experimental`,
         {
           env,
         },
