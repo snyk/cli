@@ -677,7 +677,7 @@ func (e *wrErr) Unwrap() error { return e.wraps }
 
 func Test_processError(t *testing.T) {
 	t.Run("nil error returns nil", func(t *testing.T) {
-		errorList, err := processError(nil, nil)
+		errorList, err, _ := processError(nil, nil)
 		assert.Nil(t, err)
 		assert.Empty(t, errorList)
 	})
@@ -688,7 +688,7 @@ func Test_processError(t *testing.T) {
 		exitErr := cmd.Run()
 		require.Error(t, exitErr)
 
-		errorList, err := processError(exitErr, nil)
+		errorList, err, _ := processError(exitErr, nil)
 		assert.NotNil(t, err)
 		assert.Len(t, errorList, 1)
 
@@ -703,14 +703,14 @@ func Test_processError(t *testing.T) {
 		exitErr := cmd.Run()
 		require.Error(t, exitErr)
 
-		errorList, err := processError(exitErr, nil)
+		errorList, err, _ := processError(exitErr, nil)
 		assert.Nil(t, err)
 		assert.Empty(t, errorList)
 	})
 
 	t.Run("ErrorWithExitCode is preserved", func(t *testing.T) {
 		inputErr := &clierrors.ErrorWithExitCode{ExitCode: 1}
-		errorList, err := processError(inputErr, nil)
+		errorList, err, _ := processError(inputErr, nil)
 
 		assert.NotNil(t, err)
 		assert.Len(t, errorList, 1)
@@ -732,7 +732,7 @@ func Test_processError(t *testing.T) {
 		otherErr := fmt.Errorf("some other error")
 		errorList := []error{otherErr}
 
-		resultList, err := processError(exitErr, errorList)
+		resultList, err, _ := processError(exitErr, errorList)
 		assert.NotNil(t, err)
 		assert.Len(t, resultList, 2)
 
@@ -749,7 +749,7 @@ func Test_processError(t *testing.T) {
 			Level:     "error",
 		}
 
-		errorList, err := processError(snykErr, nil)
+		errorList, err, _ := processError(snykErr, nil)
 		assert.NotNil(t, err)
 		assert.Len(t, errorList, 1)
 
@@ -765,7 +765,7 @@ func Test_processError(t *testing.T) {
 			Level:     "error",
 		}
 
-		errorList, err := processError(maintenanceErr, nil)
+		errorList, err, _ := processError(maintenanceErr, nil)
 		assert.NotNil(t, err)
 		assert.Len(t, errorList, 1)
 
@@ -788,7 +788,7 @@ func Test_processError(t *testing.T) {
 
 		// Pass exitErr as the main error, maintenance error in the list
 		errorList := []error{maintenanceErr}
-		resultList, err := processError(exitErr, errorList)
+		resultList, err, _ := processError(exitErr, errorList)
 
 		assert.NotNil(t, err)
 		assert.Len(t, resultList, 2)
@@ -796,6 +796,74 @@ func Test_processError(t *testing.T) {
 		// Maintenance error should take priority, resulting in EX_TEMPFAIL
 		exitCode := cliv2.DeriveExitCode(err)
 		assert.Equal(t, constants.SNYK_EXIT_CODE_EX_TEMPFAIL, exitCode)
+	})
+
+	t.Run("handled exit error combined with a collected error is not displayed again", func(t *testing.T) {
+		// The command ran and produced valid output, exiting non-zero.
+		cmd := exec.Command("sh", "-c", "exit 1")
+		exitErr := cmd.Run()
+		require.Error(t, exitErr)
+
+		// An auxiliary network error was collected during the run and handled.
+		collectedErr := fmt.Errorf("handled network error")
+
+		resultList, outputError, suppressDisplay := processError(exitErr, []error{collectedErr})
+
+		// Analytics and exit code behaviour must be unchanged.
+		assert.Len(t, resultList, 2)
+		assert.Equal(t, 1, cliv2.DeriveExitCode(outputError))
+
+		// The combined error no longer satisfies the direct type assertions used
+		// by displayError - this is the defect described in CLI-1765.
+		_, isExitError := outputError.(*exec.ExitError)
+		assert.False(t, isExitError, "combining hides the concrete exit error type")
+
+		// ... which is why displayability is decided before combining.
+		assert.True(t, suppressDisplay, "handled exit error must not be printed after valid output")
+	})
+
+	t.Run("unhandled error is still displayed", func(t *testing.T) {
+		snykErr := snyk_errors.Error{
+			Title:     "Some Error",
+			ErrorCode: "SNYK-9999",
+			Level:     "error",
+		}
+
+		_, outputError, suppressDisplay := processError(snykErr, nil)
+
+		assert.NotNil(t, outputError)
+		assert.False(t, suppressDisplay, "genuine errors must still reach the user")
+	})
+}
+
+func Test_shouldSuppressDisplay(t *testing.T) {
+	t.Run("nil is not suppressed", func(t *testing.T) {
+		assert.False(t, shouldSuppressDisplay(nil))
+	})
+
+	t.Run("exit error is suppressed", func(t *testing.T) {
+		exitErr := exec.Command("sh", "-c", "exit 1").Run()
+		require.Error(t, exitErr)
+		assert.True(t, shouldSuppressDisplay(exitErr))
+	})
+
+	t.Run("error with exit code is suppressed", func(t *testing.T) {
+		assert.True(t, shouldSuppressDisplay(&clierrors.ErrorWithExitCode{ExitCode: 1}))
+	})
+
+	t.Run("plain error is not suppressed", func(t *testing.T) {
+		assert.False(t, shouldSuppressDisplay(fmt.Errorf("boom")))
+	})
+
+	t.Run("combining defeats the checks, which is why order matters", func(t *testing.T) {
+		exitErr := exec.Command("sh", "-c", "exit 1").Run()
+		require.Error(t, exitErr)
+
+		// Same error, but combined the way processError used to before deciding.
+		combined := errors.Join(exitErr, fmt.Errorf("handled network error"))
+
+		assert.True(t, shouldSuppressDisplay(exitErr), "intact type is recognised")
+		assert.False(t, shouldSuppressDisplay(combined), "combined type is not")
 	})
 }
 

@@ -509,9 +509,10 @@ func tearDown(err error, errorList []error, startTime time.Time, ua networking.U
 
 	outputError := err
 	allErrors := errorList
+	suppressDisplay := false
 
 	if err != nil {
-		allErrors, outputError = processError(err, errorList)
+		allErrors, outputError, suppressDisplay = processError(err, errorList)
 
 		for _, tempError := range allErrors {
 			if tempError != nil {
@@ -523,7 +524,11 @@ func tearDown(err error, errorList []error, startTime time.Time, ua networking.U
 	exitCode := cliv2.DeriveExitCode(outputError)
 	globalLogger.Printf("Deriving Exit Code %d (cause: %v)", exitCode, outputError)
 
-	displayError(outputError, globalEngine.GetUserInterface(), globalConfiguration, globalContext, cliAnalytics.IsCiEnvironment())
+	// suppressDisplay is derived before processError combines the errors; the
+	// combined error would no longer match the type checks inside displayError.
+	if !suppressDisplay {
+		displayError(outputError, globalEngine.GetUserInterface(), globalConfiguration, globalContext, cliAnalytics.IsCiEnvironment())
+	}
 
 	updateInstrumentationDataBeforeSending(cliAnalytics, startTime, ua, exitCode)
 
@@ -714,10 +719,32 @@ func mainWithErrorCode(additionalExts []workflow.ExtensionInit) int {
 	return finalExitCode
 }
 
-func processError(err error, errorList []error) ([]error, error) {
+// shouldSuppressDisplay reports whether err has already been handled and must not
+// be printed again.
+//
+// It MUST be evaluated before any errors are combined. Both FindMostRelevantError
+// and createErrorWithExitCode use errors.Join, and a joined error does not satisfy
+// the direct type assertions below, so a handled error would otherwise be printed
+// after valid command output - breaking JSON output and adding misleading errors.
+func shouldSuppressDisplay(err error) bool {
+	if err == nil {
+		return false
+	}
+
+	_, isExitError := err.(*exec.ExitError)
+	_, isErrorWithCode := err.(*cli_errors.ErrorWithExitCode)
+
+	return isExitError || isErrorWithCode || errorHasBeenShown(err)
+}
+
+func processError(err error, errorList []error) ([]error, error, bool) {
 	// ensure to use generic fallback error catalog error if no other is available
 	resultError := decorateError(err)
 	resultErrorList := errorList
+
+	// determine displayability while the concrete error type is still intact,
+	// i.e. before the errors below are combined via errors.Join
+	suppressDisplay := shouldSuppressDisplay(resultError)
 
 	// filter legacycli terminate errors since it is only used for internal purposes
 	if exitErr, isExitError := resultError.(*exec.ExitError); isExitError && exitErr.ExitCode() == constants.SNYK_EXIT_CODE_TS_CLI_TERMINATED {
@@ -736,7 +763,7 @@ func processError(err error, errorList []error) ([]error, error) {
 	if exitCode := mapErrorToExitCode(resultError); exitCode != unsetExitCode {
 		resultError = createErrorWithExitCode(exitCode, resultError)
 	}
-	return resultErrorList, resultError
+	return resultErrorList, resultError, suppressDisplay
 }
 
 func setTimeout(config configuration.Configuration, onTimeout func()) {
