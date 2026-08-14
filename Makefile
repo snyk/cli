@@ -333,6 +333,15 @@ lint:
 		cd $(WORKING_DIR)/cliv2-private && $(GOCMD) mod tidy -diff > /dev/null || \
 			(echo "ERROR: cliv2-private/go.mod is not tidy. Run 'make format' and commit the changes." && exit 1); \
 	fi
+	@$(MAKE) validate-gomod-sync
+
+.PHONY: validate-gomod-sync
+validate-gomod-sync:
+	@if [ -d "$(PRIVATE_DIR)" ]; then \
+		echo "-- Verifying go.mod files are in sync"; \
+		cd $(EXTENSIBLE_CLI_DIR) && $(GOCMD) run ./cmd/gomodsync \
+			--mode=validate --public=./go.mod --private=$(PRIVATE_DIR)/go.mod; \
+	fi
 
 .PHONY: format
 format:
@@ -343,7 +352,7 @@ format:
 
 .PHONY: tidy
 tidy:
-	@cd $(EXTENSIBLE_CLI_DIR); $(MAKE) tidy
+	@cd $(EXTENSIBLE_CLI_DIR) && $(MAKE) tidy
 
 .PHONY: ls-protocol-metadata
 ls-protocol-metadata: $(BINARY_RELEASES_FOLDER_TS_CLI)/version

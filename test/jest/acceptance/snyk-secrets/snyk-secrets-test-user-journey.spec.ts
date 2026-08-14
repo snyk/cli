@@ -7,6 +7,7 @@ import {
   copyFileSync,
   readdirSync,
   statSync,
+  writeFileSync,
 } from 'fs';
 import { matchers } from 'jest-json-schema';
 import { runSnykCLI } from '../../util/runSnykCLI';
@@ -23,6 +24,8 @@ const TEST_REPO_COMMIT = '366ae0080cc67973619584080fc85734ba2658b2';
 const TEST_REPO_URL = 'https://github.com/leaktk/fake-leaks';
 const TEST_DIR = 'examples';
 const TEST_FILE = 'some/long/path/server.key';
+const FILE_WITH_GENERIC_SECRET = 'allow-comment.py';
+const DIR_WITH_PRIVATE_KEY = 'some/long/path';
 
 // Global variable to store the path of the cloned repo for this run
 let TEMP_LOCAL_PATH: string;
@@ -89,6 +92,10 @@ function checkSarif(sarifOutput: any, expectedIgnoredFindings: number): any {
   expect(suppressions.length).toBe(expectedIgnoredFindings);
 
   return sarifOutput;
+}
+
+function writeDotSnyk(path: string, contents: string): void {
+  writeFileSync(join(path, '.snyk'), contents, 'utf8');
 }
 
 describe('snyk secrets test', () => {
@@ -291,6 +298,7 @@ describe('snyk secrets test', () => {
       expect(run.results[0]).toHaveProperty('ruleId');
     });
   });
+
   describe('SARIF output payload validation', () => {
     it('should generate a well-formed SARIF payload', async () => {
       // Scan the whole repo (not just examples/) so we get enough results
@@ -534,6 +542,45 @@ describe('snyk secrets test', () => {
       expect(stdout).not.toMatch(
         /Ignored on:\s+[A-Z][a-z]+\s+\d{1,2},\s+\d{4}/,
       );
+    });
+  });
+
+  describe('.snyk exclusions', () => {
+    afterEach(() => {
+      const dotSnykPath = join(TEMP_LOCAL_PATH, TEST_DIR, '.snyk');
+      if (existsSync(dotSnykPath)) {
+        unlinkSync(dotSnykPath);
+      }
+    });
+
+    it('applies the "secrets" exclude section', async () => {
+      writeDotSnyk(
+        join(TEMP_LOCAL_PATH, TEST_DIR),
+        `version: v1.25.1
+exclude:
+  global:
+    - ${DIR_WITH_PRIVATE_KEY}
+  secrets:
+    - ${FILE_WITH_GENERIC_SECRET}
+`,
+      );
+
+      const { stdout, code } = await runSnykCLI(
+        `secrets test  ${TEMP_LOCAL_PATH}/${TEST_DIR} --sarif`,
+        { env },
+      );
+
+      const sarifOutput = JSON.parse(stdout);
+      assertSarifShape(sarifOutput);
+
+      // examples/ has exactly two findings:
+      // one in FILE_WITH_GENERIC_SECRET and one
+      // under DIR_WITH_PRIVATE_KEY.
+      // The exclude sections above cover both, so
+      // nothing is reported and the scan exits 0.
+      const findings = sarifOutput.runs[0].results;
+      expect(findings).toHaveLength(0);
+      expect(code).toBe(0);
     });
   });
 });
