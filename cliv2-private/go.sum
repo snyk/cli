@@ -566,8 +566,8 @@ github.com/snyk/ambient-canary v0.0.0-20260722064253-fba619a134a9 h1:d69mS5cTIs1
 github.com/snyk/ambient-canary v0.0.0-20260722064253-fba619a134a9/go.mod h1:n6GYt41xPhThEEEl/0RZuWpTX68iv6k+6HZ94uGNDGE=
 github.com/snyk/cli-extension-agent-scan v0.0.0-20260803112735-0ad462cba2af h1:AgYHuCfs6oNkd/QFwsuEtvswclfBujhBfwbZUB4xEU4=
 github.com/snyk/cli-extension-agent-scan v0.0.0-20260803112735-0ad462cba2af/go.mod h1:u4d7qoWWVx3II+ZnpLQGjAegaJLmgPefXKXJD/jp/wM=
-github.com/snyk/cli-extension-ai-bom v0.0.0-20260804095026-fdfc28cd38b8 h1:OiY6RfgGICJ1QCRW1WxWk9cm9G9Hd8aStIz5EASltw0=
-github.com/snyk/cli-extension-ai-bom v0.0.0-20260804095026-fdfc28cd38b8/go.mod h1:axE+HO8U9CIcTjQ7k7BOLgdyZfNGqMn5QvZ0aIkUY4U=
+github.com/snyk/cli-extension-ai-bom v0.0.0-20260813135431-38a363dae403 h1:AC9TjNxCOkOLxx5r6zgjvvkwVqKBE5+6ZeupnDtdW6I=
+github.com/snyk/cli-extension-ai-bom v0.0.0-20260813135431-38a363dae403/go.mod h1:ieThzrb8z/Z88cDKdfqdfGh01xs6RkDKt5LbA+AE6U8=
 github.com/snyk/cli-extension-axi v0.0.0-20260812113949-210b479505a9 h1:6/YF4VHeT8E3abcxcF/oIrdEyrPM3fV/OfJOsZuYz5g=
 github.com/snyk/cli-extension-axi v0.0.0-20260812113949-210b479505a9/go.mod h1:oFvcbCp2bb4gPBDbFPnqGxmFTkQEcPolXTbif5hJ1FE=
 github.com/snyk/cli-extension-cos v0.0.0-20260804092425-a7e642ae7b3b h1:NXYzKYaGgB7OcGq4rV1GrmyGI+F7V8lpXaW50NQw4f4=
