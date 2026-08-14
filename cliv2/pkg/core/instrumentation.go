@@ -133,7 +133,7 @@ func sendInstrumentation(ctx context.Context, eng workflow.Engine, instrumentor 
 	}
 
 	logger.Print("Sending Instrumentation")
-	data, err := analytics.GetV2InstrumentationObject(instrumentor, analytics.WithLogger(logger))
+	data, err := analytics.GetV2InstrumentationObject(instrumentor, analytics.WithLogger(logger), analytics.WithConfiguration(eng.GetConfiguration()))
 	if err != nil {
 		logger.Err(err).Msg("Failed to derive data object")
 	}

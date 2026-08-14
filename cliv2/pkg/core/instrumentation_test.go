@@ -1,10 +1,15 @@
 package core
 
 import (
+	"context"
 	"testing"
 
+	"github.com/golang/mock/gomock"
+	"github.com/rs/zerolog"
 	"github.com/snyk/go-application-framework/pkg/analytics"
 	"github.com/snyk/go-application-framework/pkg/configuration"
+	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
+	"github.com/snyk/go-application-framework/pkg/mocks"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -25,6 +30,24 @@ func Test_shallSendInstrumentation(t *testing.T) {
 	instrumentor.SetCategory([]string{"analytics", "report", "inputData"})
 	actual = shallSendInstrumentation(config, instrumentor)
 	assert.False(t, actual)
+}
+
+func Test_sendInstrumentation_passesEngineConfigurationToInstrumentationObject(t *testing.T) {
+	globalConfiguration = configuration.NewWithOpts(configuration.WithAutomaticEnv())
+
+	mockController := gomock.NewController(t)
+	mockEngine := mocks.NewMockEngine(mockController)
+
+	// One call from shallSendInstrumentation, one to derive analytics.WithConfiguration.
+	// If the call site regresses to only passing WithLogger, this expectation goes unmet.
+	engineConfig := configuration.NewWithOpts(configuration.WithAutomaticEnv())
+	mockEngine.EXPECT().GetConfiguration().Return(engineConfig).Times(2)
+	mockEngine.EXPECT().Invoke(localworkflows.WORKFLOWID_REPORT_ANALYTICS, gomock.Any(), gomock.Any()).Return(nil, nil)
+
+	instrumentor := analytics.NewInstrumentationCollector()
+	logger := zerolog.Nop()
+
+	sendInstrumentation(context.Background(), mockEngine, instrumentor, &logger)
 }
 
 func Test_addClientMachineId(t *testing.T) {
