@@ -68,6 +68,23 @@ func Test_mainWithErrorCode(t *testing.T) {
 	})
 }
 
+func Test_populateRedactionTerms(t *testing.T) {
+	mockController := gomock.NewController(t)
+	mockEngine := mocks.NewMockEngine(mockController)
+	mockEngine.EXPECT().GetWorkflows().Return(nil)
+
+	config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
+	t.Setenv("SNYK_TEST_REDACTION_MARKER", "unmistakably-secret-value")
+
+	// No debugEnabled anywhere in this call: populateRedactionTerms runs
+	// unconditionally at its call site, so proving it sets config here proves
+	// the behavior holds regardless of debugEnabled.
+	terms := populateRedactionTerms(config, mockEngine)
+
+	assert.Contains(t, terms, "unmistakably-secret-value")
+	assert.Equal(t, terms, config.GetStringSlice(configuration.REDACTION_TERMS))
+}
+
 func Test_initApplicationConfiguration_DisablesAnalytics(t *testing.T) {
 	t.Run("via SNYK_DISABLE_ANALYTICS (true)", func(t *testing.T) {
 		c := configuration.NewWithOpts(configuration.WithAutomaticEnv())
