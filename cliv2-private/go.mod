@@ -5,7 +5,7 @@ go 1.26.6
 require (
 	github.com/snyk/ambient-canary v0.0.0-20260722064253-fba619a134a9
 	github.com/snyk/cli-extension-axi v0.0.0-20260812113949-210b479505a9
-	github.com/snyk/cli-extension-cos v0.0.0-20260804092425-a7e642ae7b3b
+	github.com/snyk/cli-extension-cos v0.0.0-20260813100139-4d5c43e0785f
 	github.com/snyk/cli/cliv2 v0.0.0
 	github.com/snyk/remy-cli-extension v1.36.1
 	github.com/snyk/rift-cli-extension v1.1.1

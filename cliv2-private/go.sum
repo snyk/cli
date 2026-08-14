@@ -570,8 +570,8 @@ github.com/snyk/cli-extension-ai-bom v0.0.0-20260813135431-38a363dae403 h1:AC9Tj
 github.com/snyk/cli-extension-ai-bom v0.0.0-20260813135431-38a363dae403/go.mod h1:ieThzrb8z/Z88cDKdfqdfGh01xs6RkDKt5LbA+AE6U8=
 github.com/snyk/cli-extension-axi v0.0.0-20260812113949-210b479505a9 h1:6/YF4VHeT8E3abcxcF/oIrdEyrPM3fV/OfJOsZuYz5g=
 github.com/snyk/cli-extension-axi v0.0.0-20260812113949-210b479505a9/go.mod h1:oFvcbCp2bb4gPBDbFPnqGxmFTkQEcPolXTbif5hJ1FE=
-github.com/snyk/cli-extension-cos v0.0.0-20260804092425-a7e642ae7b3b h1:NXYzKYaGgB7OcGq4rV1GrmyGI+F7V8lpXaW50NQw4f4=
-github.com/snyk/cli-extension-cos v0.0.0-20260804092425-a7e642ae7b3b/go.mod h1:YpcOdcMBJOzwtla/OOoBOArx27Bc2v42Vcwd/FeGl9M=
+github.com/snyk/cli-extension-cos v0.0.0-20260813100139-4d5c43e0785f h1:in98PD78zmxOtxoNr3kQNTDN5Sm4gbDImMLH+EZuZrk=
+github.com/snyk/cli-extension-cos v0.0.0-20260813100139-4d5c43e0785f/go.mod h1:YpcOdcMBJOzwtla/OOoBOArx27Bc2v42Vcwd/FeGl9M=
 github.com/snyk/cli-extension-dep-graph/v2 v2.8.1 h1:ZlLN8KbMZiRN7QsiLzovFLsoIEVytC77+OESr+6wDhI=
 github.com/snyk/cli-extension-dep-graph/v2 v2.8.1/go.mod h1:I0GXbV6Rk8T0AEC9EugE4AgYE5SbDn0m0bGgAjZqy5U=
 github.com/snyk/cli-extension-iac v0.0.0-20260515092252-505c498f1077 h1:lteivlSoQL0zYyFcGQjEPZcQgDkzM5PcgIHlIgzRuhg=
