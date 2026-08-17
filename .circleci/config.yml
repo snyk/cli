@@ -1334,7 +1334,7 @@ workflows:
                 - '/release.*/'
 
       - release-s3:
-          name: upload latest/stable
+          name: upload latest/stable to ADS
           deployment: ads
           context:
             - team-hammerhead-ads-deploy-tokens

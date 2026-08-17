@@ -282,6 +282,7 @@ upload_ads() {
   # Copy the ADS files into a staging directory under their published names and
   # generate the checksums.txt that accompanies them.
   staging_dir=$(mktemp -d)
+  trap 'rm -rf "${staging_dir}"' EXIT
   for mapping in "${AdsFiles[@]}"; do
     source_path=$(trim "${mapping%%=>*}")
     published_name=$(trim "${mapping##*=>}")
@@ -293,7 +294,7 @@ upload_ads() {
   (
     export AWS_ACCESS_KEY_ID="${ADS_AWS_ACCESS_KEY_ID}"
     export AWS_SECRET_ACCESS_KEY="${ADS_AWS_SECRET_ACCESS_KEY}"
-    export AWS_DEFAULT_REGION="${ADS_AWS_REGION:-us-east-1}"
+    export AWS_DEFAULT_REGION="${ADS_AWS_REGION}"
     unset AWS_SESSION_TOKEN AWS_PROFILE
 
     if [ "${DRY_RUN}" == true ]; then
@@ -306,6 +307,7 @@ upload_ads() {
   )
 
   rm -rf "${staging_dir}"
+  trap - EXIT
 }
 
 # Capture valid flags
