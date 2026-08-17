@@ -656,6 +656,50 @@ func Test_displayError(t *testing.T) {
 	})
 }
 
+func Test_shouldSuppressDisplay(t *testing.T) {
+	exitVulnerabilitiesFound := exec.Command("sh", "-c", "exit 1").Run()
+	require.Error(t, exitVulnerabilitiesFound)
+	exitFailure := exec.Command("sh", "-c", "exit 2").Run()
+	require.Error(t, exitFailure)
+
+	authError := func(alreadyShown bool) snyk_errors.Error {
+		return snyk_errors.Error{
+			Title:     "Authentication error",
+			ErrorCode: "SNYK-0005",
+			Level:     "error",
+			Meta:      map[string]any{cliv2.ERROR_HAS_BEEN_DISPLAYED: alreadyShown},
+		}
+	}
+
+	testCases := []struct {
+		name     string
+		err      error
+		suppress bool
+	}{
+		{"nil", nil, false},
+		{"bare exit error", exitVulnerabilitiesFound, true},
+		{"error carrying only an exit code", &clierrors.ErrorWithExitCode{ExitCode: 1}, true},
+		{"error wrapping an exit error still shows its own message", &wrErr{wraps: exitVulnerabilitiesFound}, false},
+		{"plain error", fmt.Errorf("connection refused"), false},
+		{"catalog error", authError(false), false},
+
+		// The command failed: the user needs to know why.
+		{"failure combined with an error to report", errors.Join(exitFailure, authError(false)), false},
+		{"failure combined with an error already reported", errors.Join(exitFailure, authError(true)), true},
+
+		// The command produced valid output; anything collected is auxiliary and
+		// printing it would append a second, misleading result.
+		{"success combined with a collected error", errors.Join(exitVulnerabilitiesFound, fmt.Errorf("connection refused")), true},
+		{"success combined with an exit code carrier", errors.Join(exitVulnerabilitiesFound, &clierrors.ErrorWithExitCode{ExitCode: 2}), true},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			assert.Equal(t, tc.suppress, shouldSuppressDisplay(tc.err))
+		})
+	}
+}
+
 func Test_doctorTip(t *testing.T) {
 	t.Run("CI advertises the --input flag", func(t *testing.T) {
 		tip := doctorTip(true)
