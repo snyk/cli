@@ -42,6 +42,23 @@ declare -a StaticFilesFIPS=(
   "binary-releases/fips/$PROTOCOL_VERSION_FILE"
 )
 
+# Artifacts mirrored to the ADS bucket, as "<source path> => <published name>".
+# FIPS builds are preferred where they exist; macOS has no FIPS build, so the
+# regular binaries are published instead.
+declare -a AdsFiles=(
+  "binary-releases/fips/snyk-linux => snyk-linux"
+  "binary-releases/fips/snyk-linux.sha256 => snyk-linux.sha256"
+  "binary-releases/fips/snyk-linux-arm64 => snyk-linux-arm64"
+  "binary-releases/fips/snyk-linux-arm64.sha256 => snyk-linux-arm64.sha256"
+  "binary-releases/snyk-macos => snyk-macos"
+  "binary-releases/snyk-macos.sha256 => snyk-macos.sha256"
+  "binary-releases/snyk-macos-arm64 => snyk-macos-arm64"
+  "binary-releases/snyk-macos-arm64.sha256 => snyk-macos-arm64.sha256"
+  "binary-releases/fips/snyk-win.exe => snyk-win.exe"
+  "binary-releases/fips/snyk-win.exe.sha256 => snyk-win.exe.sha256"
+  "binary-releases/fips/$PROTOCOL_VERSION_FILE => $PROTOCOL_VERSION_FILE"
+)
+
 VERSION_TAG="v$(cat binary-releases/version)"
 RELEASE_CHANNEL="$($(dirname "$0")/determine-release-channel.sh)"
 DRY_RUN=false
@@ -64,6 +81,7 @@ show_help() {
   echo "  github        upload artifacts to GitHub"
   echo "  npm           upload artifacts to npm"
   echo "  s3            upload artifacts to S3"
+  echo "  ads           mirror release binaries to the ADS S3 bucket"
   echo ""
   echo "Example:"
   echo "  upload-artifacts.sh v1.0.0 github npm s3"
@@ -239,6 +257,57 @@ upload_s3() {
   fi
 }
 
+# Strip leading and trailing whitespace from a value.
+# Arguments:
+#   value: the string to trim
+trim() {
+  value=$1
+  value="${value#"${value%%[![:space:]]*}"}"
+  value="${value%"${value##*[![:space:]]}"}"
+  printf '%s' "${value}"
+}
+
+# Mirror the release binaries to the ADS bucket. This bucket lives in a different
+# account to PUBLIC_S3_BUCKET, so it uses its own credentials.
+upload_ads() {
+  for required in ADS_AWS_ACCESS_KEY_ID ADS_AWS_SECRET_ACCESS_KEY ADS_AWS_REGION ADS_S3_BUCKET ADS_S3_PREFIX; do
+    if [ -z "${!required:-}" ]; then
+      echo "Missing required environment variable: ${required}"
+      exit 1
+    fi
+  done
+
+  destination="s3://${ADS_S3_BUCKET}/${ADS_S3_PREFIX}/${VERSION_TAG}/"
+
+  # Copy the ADS files into a staging directory under their published names and
+  # generate the checksums.txt that accompanies them.
+  staging_dir=$(mktemp -d)
+  for mapping in "${AdsFiles[@]}"; do
+    source_path=$(trim "${mapping%%=>*}")
+    published_name=$(trim "${mapping##*=>}")
+    cp "${source_path}" "${staging_dir}/${published_name}"
+  done
+
+  (cd "${staging_dir}" && sha256sum -- * > checksums.txt)
+
+  (
+    export AWS_ACCESS_KEY_ID="${ADS_AWS_ACCESS_KEY_ID}"
+    export AWS_SECRET_ACCESS_KEY="${ADS_AWS_SECRET_ACCESS_KEY}"
+    export AWS_DEFAULT_REGION="${ADS_AWS_REGION:-us-east-1}"
+    unset AWS_SESSION_TOKEN AWS_PROFILE
+
+    if [ "${DRY_RUN}" == true ]; then
+      echo "DRY RUN: uploading to ADS at ${destination}..."
+      aws s3 cp "${staging_dir}" "${destination}" --recursive --dryrun
+    else
+      echo "Uploading to ADS at ${destination}..."
+      aws s3 cp "${staging_dir}" "${destination}" --recursive
+    fi
+  )
+
+  rm -rf "${staging_dir}"
+}
+
 # Capture valid flags
 while getopts ":h:-:" opt; do
   case ${opt} in
@@ -320,6 +389,10 @@ for arg in "${@}"; do
         exit 1
     fi
 
+
+  # Mirror the release binaries to the ADS S3 bucket
+  elif [ "${arg}" == "ads" ]; then
+    upload_ads
 
   # Trigger building DXT in agentic-integration-wrappers repository
   elif [ "${arg}" == "trigger_build_agentic_integration" ]; then
