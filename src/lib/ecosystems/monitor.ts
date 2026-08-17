@@ -40,7 +40,7 @@ import {
   validateProjectAttributes,
   validateTags,
 } from '../../cli/commands/monitor';
-import { isUnmanagedEcosystem, filterDockerFacts } from './common';
+import { isUnmanagedEcosystem } from './common';
 import { extractAndApplyPluginAnalytics } from './plugin-analytics';
 import { findAndLoadPolicy } from '../policy';
 
@@ -63,17 +63,12 @@ export async function monitorEcosystem(
       await spinner(`Analyzing dependencies in ${path}`);
       options.path = path;
       const pluginResponse = await plugin.scan(options);
-      const filteredResponse = await filterDockerFacts(
-        pluginResponse,
-        ecosystem,
-        options,
-      );
 
       if (pluginResponse.analytics) {
         extractAndApplyPluginAnalytics(pluginResponse.analytics);
       }
 
-      scanResultsByPath[path] = filteredResponse.scanResults;
+      scanResultsByPath[path] = pluginResponse.scanResults;
 
       const policy = await findAndLoadPolicy(path, 'cpp', options);
       if (policy) {
