@@ -23,6 +23,7 @@ import (
 	"github.com/snyk/go-application-framework/pkg/local_workflows/content_type"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/json_schemas"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/local_models"
+	"github.com/snyk/go-application-framework/pkg/logging"
 	"github.com/snyk/go-application-framework/pkg/mocks"
 	"github.com/snyk/go-application-framework/pkg/utils/ufm"
 	"github.com/snyk/go-application-framework/pkg/workflow"
@@ -82,7 +83,7 @@ func Test_populateRedactionTerms(t *testing.T) {
 	terms := populateRedactionTerms(config, mockEngine)
 
 	assert.Contains(t, terms, "unmistakably-secret-value")
-	assert.Equal(t, terms, config.GetStringSlice(configuration.REDACTION_TERMS))
+	assert.Equal(t, terms, config.GetStringSlice(logging.REDACTION_TERMS))
 }
 
 func Test_initApplicationConfiguration_DisablesAnalytics(t *testing.T) {
