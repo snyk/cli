@@ -284,14 +284,21 @@ format:
 	gofmt -w -l -e .
 
 # Tidy both public and private modules. The private module depends on the public
-# module via a replace directive, so we tidy the public module first.
+# module via a replace directive, so we tidy the public module first. After both
+# are tidy, sync shared dependency versions from private back into public so
+# the two go.mod files stay consistent.
 .PHONY: tidy
 tidy:
 	@echo "$(LOG_PREFIX) Running go mod tidy in cliv2 (public)"
 	@cd $(WORKING_DIR) && $(GOCMD) mod tidy
 	@if [ -f "$(PRIVATE_DIR)/go.mod" ]; then \
-		echo "$(LOG_PREFIX) Running go mod tidy in cliv2-private"; \
-		cd "$(PRIVATE_DIR)" && $(GOCMD) mod tidy; \
+		echo "$(LOG_PREFIX) Running go mod tidy in cliv2-private" && \
+		cd "$(PRIVATE_DIR)" && $(GOCMD) mod tidy && \
+		echo "$(LOG_PREFIX) Syncing shared dependency versions from private to public" && \
+		cd $(WORKING_DIR) && $(GOCMD) run ./cmd/gomodsync \
+			--mode=sync --public=./go.mod --private=$(PRIVATE_DIR)/go.mod && \
+		echo "$(LOG_PREFIX) Re-running go mod tidy in cliv2 (public) after sync" && \
+		cd $(WORKING_DIR) && $(GOCMD) mod tidy; \
 	else \
 		echo "$(LOG_PREFIX) Skipping cliv2-private (not found or no access)"; \
 	fi
@@ -370,7 +377,7 @@ help:
 	@echo "\n Main targets (Golang only):"
 	@echo "$(LOG_PREFIX) lint"
 	@echo "$(LOG_PREFIX) format"
-	@echo "$(LOG_PREFIX) tidy                       Run go mod tidy in both cliv2 and cliv2-private"
+	@echo "$(LOG_PREFIX) tidy                       Run go mod tidy in both cliv2 and cliv2-private, sync shared deps"
 	@echo "$(LOG_PREFIX) fips"
 	@echo "$(LOG_PREFIX) build"
 	@echo "$(LOG_PREFIX) sign"
