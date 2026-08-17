@@ -10,6 +10,7 @@ import (
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
 	"github.com/snyk/go-application-framework/pkg/mocks"
+	"github.com/snyk/go-application-framework/pkg/workflow"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -38,16 +39,33 @@ func Test_sendInstrumentation_passesEngineConfigurationToInstrumentationObject(t
 	mockController := gomock.NewController(t)
 	mockEngine := mocks.NewMockEngine(mockController)
 
+	// Mirrors production: populateRedactionTerms runs at startup and sweeps up any
+	// os.Environ() value it doesn't recognize. The client machine id is real Studio
+	// data, not a secret, so its own env var value must not end up in the terms
+	// this test's later scrub pass redacts against.
+	machineId := "studio-device-id-abc12345"
+	t.Setenv("INTERNAL_SNYK_CLIENT_MACHINE_ID", machineId)
+	engineConfig := configuration.NewWithOpts(configuration.WithAutomaticEnv())
+	mockEngine.EXPECT().GetWorkflows().Return([]workflow.Identifier{})
+	populateRedactionTerms(engineConfig, mockEngine)
+
 	// One call from shallSendInstrumentation, one to derive analytics.WithConfiguration.
 	// If the call site regresses to only passing WithLogger, this expectation goes unmet.
-	engineConfig := configuration.NewWithOpts(configuration.WithAutomaticEnv())
 	mockEngine.EXPECT().GetConfiguration().Return(engineConfig).Times(2)
 	mockEngine.EXPECT().Invoke(localworkflows.WORKFLOWID_REPORT_ANALYTICS, gomock.Any(), gomock.Any()).Return(nil, nil)
 
 	instrumentor := analytics.NewInstrumentationCollector()
+	addClientMachineId(instrumentor, engineConfig)
 	logger := zerolog.Nop()
 
 	sendInstrumentation(context.Background(), mockEngine, instrumentor, &logger)
+
+	// sendInstrumentation just ran the extension through the same scrub chokepoint;
+	// re-deriving the object (a pure read, doesn't mutate the collector) proves the
+	// machine id survived it rather than coming back "***".
+	obj, err := analytics.GetV2InstrumentationObject(instrumentor, analytics.WithConfiguration(engineConfig))
+	assert.NoError(t, err)
+	assert.Equal(t, machineId, (*obj.Data.Attributes.Interaction.Extension)["studio::client_machine_id"])
 }
 
 func Test_addClientMachineId(t *testing.T) {

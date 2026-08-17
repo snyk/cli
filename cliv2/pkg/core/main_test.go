@@ -86,6 +86,35 @@ func Test_populateRedactionTerms(t *testing.T) {
 	assert.Equal(t, terms, config.GetStringSlice(logging.REDACTION_TERMS))
 }
 
+func Test_populateRedactionTerms_excludesClientMachineId(t *testing.T) {
+	mockController := gomock.NewController(t)
+	mockEngine := mocks.NewMockEngine(mockController)
+	mockEngine.EXPECT().GetWorkflows().Return(nil)
+
+	config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
+	machineId := "studio-device-id-abc12345"
+	t.Setenv("INTERNAL_SNYK_CLIENT_MACHINE_ID", machineId)
+
+	terms := populateRedactionTerms(config, mockEngine)
+
+	assert.NotContains(t, terms, machineId, "client machine id must never be swept into REDACTION_TERMS, or the analytics scrub chokepoint strips it right back out of its own extension")
+}
+
+func Test_populateRedactionTerms_excludesDetectedAgent(t *testing.T) {
+	mockController := gomock.NewController(t)
+	mockEngine := mocks.NewMockEngine(mockController)
+	mockEngine.EXPECT().GetWorkflows().Return(nil)
+
+	config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
+	// Not on agent.canonicalAgent's short-circuit list, so AI_AGENT is trusted
+	// verbatim into the persona.agent extension.
+	t.Setenv("AI_AGENT", "some-unlisted-harness")
+
+	terms := populateRedactionTerms(config, mockEngine)
+
+	assert.NotContains(t, terms, "some-unlisted-harness", "a caller-declared AI_AGENT value must never be swept into REDACTION_TERMS, or the analytics scrub chokepoint strips it right back out of the persona.agent extension")
+}
+
 func Test_initApplicationConfiguration_DisablesAnalytics(t *testing.T) {
 	t.Run("via SNYK_DISABLE_ANALYTICS (true)", func(t *testing.T) {
 		c := configuration.NewWithOpts(configuration.WithAutomaticEnv())

@@ -57,8 +57,14 @@ func addNetworkingDetails(instrumentor analytics.InstrumentationCollector, confi
 	instrumentor.AddExtension("network-request-attempts", config.GetInt(middleware.ConfigurationKeyRequestAttempts))
 }
 
+// clientMachineIdConfigKey is the config key Studio sets before exec'ing the snyk
+// binary (see Test_addClientMachineId). populateRedactionTerms in main.go must
+// exclude this value from its sweep, or the scrub chokepoint redacts it right back
+// out of the studio::client_machine_id extension it's meant to carry.
+const clientMachineIdConfigKey = "internal_snyk_client_machine_id"
+
 func addClientMachineId(instrumentor analytics.InstrumentationCollector, config configuration.Configuration) {
-	if id := config.GetString("internal_snyk_client_machine_id"); id != "" {
+	if id := config.GetString(clientMachineIdConfigKey); id != "" {
 		instrumentor.AddExtension("studio::client_machine_id", id)
 	}
 }

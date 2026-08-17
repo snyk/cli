@@ -38,6 +38,7 @@ import (
 	"github.com/snyk/cli/cliv2/internal/constants"
 
 	persona "github.com/snyk/cli/cliv2/internal/persona"
+	"github.com/snyk/cli/cliv2/internal/persona/agent"
 	cliv2utils "github.com/snyk/cli/cliv2/internal/utils"
 
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
@@ -721,7 +722,13 @@ func mainWithErrorCode(additionalExts []workflow.ExtensionInit) int {
 // them regardless of whether debug logging is enabled.
 func populateRedactionTerms(config configuration.Configuration, engine workflow.Engine) []string {
 	knownTerms, _ := instrumentation.GetKnownCommandsAndFlags(engine)
-	knownTerms = append(knownTerms, config.GetString(configuration.API_URL), config.GetString(configuration.ORGANIZATION), config.GetString(configuration.ORGANIZATION_SLUG))
+	knownTerms = append(knownTerms, config.GetString(configuration.API_URL), config.GetString(configuration.ORGANIZATION), config.GetString(configuration.ORGANIZATION_SLUG), config.GetString(clientMachineIdConfigKey))
+	// AI_AGENT is trusted verbatim into the persona.agent extension (see
+	// agent.canonicalAgent) for any harness not on its short canonical list, so its
+	// raw value needs the same exclusion as the client machine id above.
+	if detectedAgent, ok := agent.DetectAgent(); ok {
+		knownTerms = append(knownTerms, string(detectedAgent))
+	}
 	termsToRedact := cliv2utils.GetUnknownParameters(os.Args[1:], os.Environ(), knownTerms)
 	config.Set(logging.REDACTION_TERMS, termsToRedact)
 	return termsToRedact
