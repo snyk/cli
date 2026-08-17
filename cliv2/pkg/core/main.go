@@ -456,11 +456,41 @@ func doctorTip(isCI bool) string {
 	return "Try snyk doctor: `snyk <command> -d 2>&1 | snyk doctor --stdin`"
 }
 
+// shouldSuppressDisplay reports whether err is worth printing.
+//
+// Joined errors match no direct type assertion, so they are unwrapped and checked
+// one at a time.
+func shouldSuppressDisplay(err error) bool {
+	if wrappedErr, ok := err.(interface{ Unwrap() []error }); ok {
+		unwrappedErrs := wrappedErr.Unwrap()
+		if len(unwrappedErrs) == 0 {
+			return false
+		}
+
+		for _, err := range unwrappedErrs {
+			var exitErr *exec.ExitError
+			if errors.As(err, &exitErr) && exitErr.ExitCode() < constants.SNYK_EXIT_CODE_ERROR {
+				return true
+			}
+		}
+
+		for _, err := range unwrappedErrs {
+			if !shouldSuppressDisplay(err) {
+				return false
+			}
+		}
+		return true
+	}
+
+	_, isExitError := err.(*exec.ExitError)
+	_, isErrorWithCode := err.(*cli_errors.ErrorWithExitCode)
+
+	return isExitError || isErrorWithCode || errorHasBeenShown(err)
+}
+
 func displayError(err error, userInterface ui.UserInterface, config configuration.Configuration, ctx context.Context, isCI bool) {
 	if err != nil {
-		_, isExitError := err.(*exec.ExitError)
-		_, isErrorWithCode := err.(*cli_errors.ErrorWithExitCode)
-		if isExitError || isErrorWithCode || errorHasBeenShown(err) {
+		if shouldSuppressDisplay(err) {
 			return
 		}
 
