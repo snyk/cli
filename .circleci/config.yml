@@ -19,10 +19,10 @@ parameters:
   go_version:
     type: string
     # https://go.dev/doc/devel/release
-    default: '1.26.5'
+    default: '1.26.6'
   fips_go_version:
     type: string
-    default: '1.26.5'
+    default: '1.26.6'
   aws_version:
     type: string
     # https://github.com/aws/aws-cli/blob/v2/CHANGELOG.rst
@@ -2021,7 +2021,7 @@ jobs:
               value: << parameters.executor >>
           steps:
             - run: |
-                export DEBIAN_FRONTEND=noninteractive   
+                export DEBIAN_FRONTEND=noninteractive
                 ln -fs /usr/share/zoneinfo/UTC /etc/localtime
                 apt update && apt install -y sudo curl python3 python3-pip python3-requests
 
