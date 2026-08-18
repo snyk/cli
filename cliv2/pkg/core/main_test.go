@@ -23,6 +23,7 @@ import (
 	"github.com/snyk/go-application-framework/pkg/local_workflows/content_type"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/json_schemas"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/local_models"
+	"github.com/snyk/go-application-framework/pkg/logging"
 	"github.com/snyk/go-application-framework/pkg/mocks"
 	"github.com/snyk/go-application-framework/pkg/utils/ufm"
 	"github.com/snyk/go-application-framework/pkg/workflow"
@@ -66,6 +67,78 @@ func Test_mainWithErrorCode(t *testing.T) {
 		errCode := mainWithErrorCode(nil)
 		assert.Equal(t, 2, errCode)
 	})
+}
+
+func Test_populateRedactionTerms(t *testing.T) {
+	mockController := gomock.NewController(t)
+	mockEngine := mocks.NewMockEngine(mockController)
+	mockEngine.EXPECT().GetWorkflows().Return(nil)
+
+	config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
+	t.Setenv("SNYK_TEST_REDACTION_MARKER", "unmistakably-secret-value")
+
+	// No debugEnabled anywhere in this call: populateRedactionTerms runs
+	// unconditionally at its call site, so proving it sets config here proves
+	// the behavior holds regardless of debugEnabled.
+	terms := populateRedactionTerms(config, mockEngine)
+
+	assert.Contains(t, terms, "unmistakably-secret-value")
+	assert.Equal(t, terms, config.GetStringSlice(logging.REDACTION_TERMS))
+}
+
+func Test_populateRedactionTerms_excludesClientMachineId(t *testing.T) {
+	mockController := gomock.NewController(t)
+	mockEngine := mocks.NewMockEngine(mockController)
+	mockEngine.EXPECT().GetWorkflows().Return(nil)
+
+	config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
+	machineId := "studio-device-id-abc12345"
+	t.Setenv("INTERNAL_SNYK_CLIENT_MACHINE_ID", machineId)
+
+	terms := populateRedactionTerms(config, mockEngine)
+
+	assert.NotContains(t, terms, machineId, "client machine id must never be swept into REDACTION_TERMS, or the analytics scrub chokepoint strips it right back out of its own extension")
+}
+
+func Test_populateRedactionTerms_excludesDetectedAgent(t *testing.T) {
+	// Not on agent.canonicalAgent's short-circuit list, so AI_AGENT is trusted
+	// verbatim into the persona.agent extension. GetUnknownParameters
+	// tokenizes its input on whitespace, so a multi-word value only survives
+	// unredacted if each of its words is excluded too, not just the joined
+	// string as a whole.
+	cases := []struct {
+		name      string
+		agent     string
+		wantWords []string
+	}{
+		{
+			name:      "single word",
+			agent:     "some-unlisted-harness",
+			wantWords: []string{"some-unlisted-harness"},
+		},
+		{
+			name:      "words with spaces",
+			agent:     "My Custom Harness",
+			wantWords: []string{"My", "Custom", "Harness"},
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			mockController := gomock.NewController(t)
+			mockEngine := mocks.NewMockEngine(mockController)
+			mockEngine.EXPECT().GetWorkflows().Return(nil)
+
+			config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
+			t.Setenv("AI_AGENT", tc.agent)
+
+			terms := populateRedactionTerms(config, mockEngine)
+
+			for _, word := range tc.wantWords {
+				assert.NotContains(t, terms, word, "a caller-declared AI_AGENT value must never be swept into REDACTION_TERMS, or the analytics scrub chokepoint strips it right back out of the persona.agent extension")
+			}
+		})
+	}
 }
 
 func Test_initApplicationConfiguration_DisablesAnalytics(t *testing.T) {
