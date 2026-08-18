@@ -566,8 +566,8 @@ github.com/snyk/ambient-canary v0.0.0-20260722064253-fba619a134a9 h1:d69mS5cTIs1
 github.com/snyk/ambient-canary v0.0.0-20260722064253-fba619a134a9/go.mod h1:n6GYt41xPhThEEEl/0RZuWpTX68iv6k+6HZ94uGNDGE=
 github.com/snyk/cli-extension-agent-scan v0.0.0-20260803112735-0ad462cba2af h1:AgYHuCfs6oNkd/QFwsuEtvswclfBujhBfwbZUB4xEU4=
 github.com/snyk/cli-extension-agent-scan v0.0.0-20260803112735-0ad462cba2af/go.mod h1:u4d7qoWWVx3II+ZnpLQGjAegaJLmgPefXKXJD/jp/wM=
-github.com/snyk/cli-extension-ai-bom v0.0.0-20260813135431-38a363dae403 h1:AC9TjNxCOkOLxx5r6zgjvvkwVqKBE5+6ZeupnDtdW6I=
-github.com/snyk/cli-extension-ai-bom v0.0.0-20260813135431-38a363dae403/go.mod h1:ieThzrb8z/Z88cDKdfqdfGh01xs6RkDKt5LbA+AE6U8=
+github.com/snyk/cli-extension-ai-bom v0.0.0-20260817214817-d0a81ac40172 h1:dZQ2DnEnxV+v2yFRyuqUioSAGfXkiMcRQXndAeVsqi0=
+github.com/snyk/cli-extension-ai-bom v0.0.0-20260817214817-d0a81ac40172/go.mod h1:ieThzrb8z/Z88cDKdfqdfGh01xs6RkDKt5LbA+AE6U8=
 github.com/snyk/cli-extension-axi v0.0.0-20260812113949-210b479505a9 h1:6/YF4VHeT8E3abcxcF/oIrdEyrPM3fV/OfJOsZuYz5g=
 github.com/snyk/cli-extension-axi v0.0.0-20260812113949-210b479505a9/go.mod h1:oFvcbCp2bb4gPBDbFPnqGxmFTkQEcPolXTbif5hJ1FE=
 github.com/snyk/cli-extension-cos v0.0.0-20260813100139-4d5c43e0785f h1:in98PD78zmxOtxoNr3kQNTDN5Sm4gbDImMLH+EZuZrk=
@@ -592,8 +592,8 @@ github.com/snyk/dep-graph/go v0.0.0-20260127160647-c836da762c62 h1:kgZNQ5ztI4+n3
 github.com/snyk/dep-graph/go v0.0.0-20260127160647-c836da762c62/go.mod h1:hTr91da/4ze2nk9q6ZW1BmfM2Z8rLUZSEZ3kK+6WGpc=
 github.com/snyk/error-catalog-golang-public v0.0.0-20260806122555-28dc45bbbde6 h1:XUPFP85nBh+zDCTvxxBuouZP9yG7H1qXZiMGFVMWVKM=
 github.com/snyk/error-catalog-golang-public v0.0.0-20260806122555-28dc45bbbde6/go.mod h1:0dz+HUR/r7VLlQpLfF0a/F1tdHH84NLTZzCxjZ+Q1nk=
-github.com/snyk/go-application-framework v0.14.3 h1:uZA73qFLmBBL4Y3p4VG5pkr2ys8ojiBIPq0AXJhx7yk=
-github.com/snyk/go-application-framework v0.14.3/go.mod h1:qJBU+FIY8s/lIg0IaKBj7WGeGERiWqyJvhajzxiA3Ls=
+github.com/snyk/go-application-framework v0.15.1 h1:uZgUxlMfDFXk8bR3hRturpTTvk6ZAx8/PJpYjv6mE1w=
+github.com/snyk/go-application-framework v0.15.1/go.mod h1:qJBU+FIY8s/lIg0IaKBj7WGeGERiWqyJvhajzxiA3Ls=
 github.com/snyk/go-httpauth v0.0.0-20260810142636-0f6182aaccbc h1:tuZVhmJFxS4qJlwYIIIw8xgw3VaVqIR3IAV0WaaFVnI=
 github.com/snyk/go-httpauth v0.0.0-20260810142636-0f6182aaccbc/go.mod h1:f42qLL7WXOS0od7dXJV/hK3myjms/r6HsXgLrg1HRRY=
 github.com/snyk/policy-engine v1.1.4 h1:0XpaMpl7ixSk4+dlpHYg2iKEBuv+5Ci+QIcbsmhktao=
