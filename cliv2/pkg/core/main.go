@@ -455,44 +455,22 @@ func doctorTip(isCI bool) string {
 	return "Try snyk doctor: `snyk <command> -d 2>&1 | snyk doctor --stdin`"
 }
 
-// shouldSuppressDisplay reports whether err is worth printing.
-//
-// Joined errors match no direct type assertion, so they are unwrapped and checked
-// one at a time.
+// A successful command's exit-code error is not a reportable failure and does
+// not need to be printed.
 func shouldSuppressDisplay(err error) bool {
-	if wrappedErr, ok := err.(interface{ Unwrap() []error }); ok {
-		unwrappedErrs := wrappedErr.Unwrap()
-		if len(unwrappedErrs) == 0 {
-			return false
-		}
-
-		for _, err := range unwrappedErrs {
-			var exitErr *exec.ExitError
-			if errors.As(err, &exitErr) && exitErr.ExitCode() < constants.SNYK_EXIT_CODE_ERROR {
-				return true
-			}
-		}
-
-		for _, err := range unwrappedErrs {
-			if !shouldSuppressDisplay(err) {
-				return false
-			}
-		}
-		return true
+	if exitErr, ok := err.(*exec.ExitError); ok {
+		return exitErr.ExitCode() < constants.SNYK_EXIT_CODE_ERROR
 	}
 
-	_, isExitError := err.(*exec.ExitError)
-	_, isErrorWithCode := err.(*cli_errors.ErrorWithExitCode)
+	if codeErr, ok := err.(*cli_errors.ErrorWithExitCode); ok {
+		return codeErr.ExitCode < constants.SNYK_EXIT_CODE_ERROR
+	}
 
-	return isExitError || isErrorWithCode || errorHasBeenShown(err)
+	return errorHasBeenShown(err)
 }
 
 func displayError(err error, userInterface ui.UserInterface, config configuration.Configuration, ctx context.Context, isCI bool) {
 	if err != nil {
-		if shouldSuppressDisplay(err) {
-			return
-		}
-
 		if config.GetBool(output_workflow.OUTPUT_CONFIG_KEY_JSON) {
 			message := getErrorMessage(err)
 
@@ -539,9 +517,13 @@ func tearDown(err error, errorList []error, startTime time.Time, ua networking.U
 
 	outputError := err
 	allErrors := errorList
+	suppressDisplay := false
 
 	if err != nil {
 		allErrors, outputError = processError(err, errorList)
+
+		// Determine suppression from the original exit code
+		suppressDisplay = shouldSuppressDisplay(err) && errors.Is(outputError, err)
 
 		for _, tempError := range allErrors {
 			if tempError != nil {
@@ -553,7 +535,9 @@ func tearDown(err error, errorList []error, startTime time.Time, ua networking.U
 	exitCode := cliv2.DeriveExitCode(outputError)
 	globalLogger.Printf("Deriving Exit Code %d (cause: %v)", exitCode, outputError)
 
-	displayError(outputError, globalEngine.GetUserInterface(), globalConfiguration, globalContext, cliAnalytics.IsCiEnvironment())
+	if !suppressDisplay {
+		displayError(outputError, globalEngine.GetUserInterface(), globalConfiguration, globalContext, cliAnalytics.IsCiEnvironment())
+	}
 
 	updateInstrumentationDataBeforeSending(cliAnalytics, startTime, ua, exitCode)
 

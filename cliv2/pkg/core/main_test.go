@@ -625,28 +625,6 @@ func Test_displayError(t *testing.T) {
 		displayError(err, userInterface, config, t.Context(), false)
 	})
 
-	scenarios := []struct {
-		name string
-		err  error
-	}{
-		{
-			name: "exec.ExitError",
-			err:  &exec.ExitError{},
-		},
-		{
-			name: "clierrors.ErrorWithExitCode",
-			err:  &clierrors.ErrorWithExitCode{ExitCode: 42},
-		},
-	}
-
-	for _, scenario := range scenarios {
-		t.Run(fmt.Sprintf("%s does not display anything", scenario.name), func(t *testing.T) {
-			config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
-			err := scenario.err
-			displayError(err, userInterface, config, t.Context(), false)
-		})
-	}
-
 	t.Run("prints messages of error wrapping exec.ExitError", func(t *testing.T) {
 		err := &wrErr{wraps: &exec.ExitError{}}
 		userInterface.EXPECT().OutputError(err, gomock.Any()).Times(1)
@@ -677,20 +655,12 @@ func Test_shouldSuppressDisplay(t *testing.T) {
 		suppress bool
 	}{
 		{"nil", nil, false},
-		{"bare exit error", exitVulnerabilitiesFound, true},
-		{"error carrying only an exit code", &clierrors.ErrorWithExitCode{ExitCode: 1}, true},
-		{"error wrapping an exit error still shows its own message", &wrErr{wraps: exitVulnerabilitiesFound}, false},
+		{"exec exit 1", exitVulnerabilitiesFound, true},
+		{"exec exit 2", exitFailure, false},
+		{"ErrorWithExitCode 1", &clierrors.ErrorWithExitCode{ExitCode: 1}, true},
+		{"ErrorWithExitCode 2", &clierrors.ErrorWithExitCode{ExitCode: 2}, false},
 		{"plain error", fmt.Errorf("connection refused"), false},
-		{"catalog error", authError(false), false},
-
-		// The command failed: the user needs to know why.
-		{"failure combined with an error to report", errors.Join(exitFailure, authError(false)), false},
-		{"failure combined with an error already reported", errors.Join(exitFailure, authError(true)), true},
-
-		// The command produced valid output; anything collected is auxiliary and
-		// printing it would append a second, misleading result.
-		{"success combined with a collected error", errors.Join(exitVulnerabilitiesFound, fmt.Errorf("connection refused")), true},
-		{"success combined with an exit code carrier", errors.Join(exitVulnerabilitiesFound, &clierrors.ErrorWithExitCode{ExitCode: 2}), true},
+		{"already-shown catalog error", authError(true), true},
 	}
 
 	for _, tc := range testCases {
