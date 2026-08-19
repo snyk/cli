@@ -215,14 +215,14 @@ require (
 	github.com/snyk/cli-extension-dep-graph/v2 v2.10.0 // indirect
 	github.com/snyk/cli-extension-iac v0.0.0-20260515092252-505c498f1077 // indirect
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20260515141409-fb475901bb8e // indirect
-	github.com/snyk/cli-extension-os-flows v0.0.0-20260818092349-91c745a9ee7a // indirect
+	github.com/snyk/cli-extension-os-flows v0.0.0-20260819132524-22322184e7a2 // indirect
 	github.com/snyk/cli-extension-sbom v0.0.0-20260818092356-16ee760085f9 // indirect
 	github.com/snyk/cli-extension-secrets v0.0.0-20260811115637-ee872c26b0cd // indirect
 	github.com/snyk/code-client-go v1.31.3 // indirect
 	github.com/snyk/container-cli v0.0.0-20260213211631-cd2b2cf8f3ea // indirect
 	github.com/snyk/dep-graph/go v0.0.0-20260127160647-c836da762c62 // indirect
 	github.com/snyk/error-catalog-golang-public v0.0.0-20260806122555-28dc45bbbde6 // indirect
-	github.com/snyk/go-application-framework v0.16.0 // indirect
+	github.com/snyk/go-application-framework v0.16.1 // indirect
 	github.com/snyk/go-httpauth v0.0.0-20260810142636-0f6182aaccbc // indirect
 	github.com/snyk/policy-engine v1.1.4 // indirect
 	github.com/snyk/snyk-iac-capture v0.6.5 // indirect
