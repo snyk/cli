@@ -155,6 +155,26 @@ describe('Configuration', () => {
 });
 
 describe('Testing binary wrapper', () => {
+  const captureIntegrationEnvironment = () => {
+    const outputFile = path.join(
+      __dirname,
+      'integration-environment-' + Math.random() + '.json',
+    );
+    const script =
+      "require('fs').writeFileSync(process.argv[1], JSON.stringify({" +
+      'name: process.env.SNYK_INTEGRATION_NAME,' +
+      'version: process.env.SNYK_INTEGRATION_VERSION' +
+      '}))';
+
+    expect(
+      common.runWrapper(process.execPath, ['-e', script, outputFile]),
+    ).toEqual(0);
+
+    const environment = JSON.parse(fs.readFileSync(outputFile, 'utf8'));
+    fs.unlinkSync(outputFile);
+    return environment;
+  };
+
   it('getCliArguments() filter important stuff', async () => {
     const indexFile = path.join(__dirname, '..', '..', 'src', 'index.ts');
     const input = ['ignore', indexFile, 'important', 'stuff'];
@@ -177,6 +197,31 @@ describe('Testing binary wrapper', () => {
     const expected = 0;
     const actual = common.runWrapper(executable, cliArguments);
     expect(actual).toEqual(expected);
+  });
+
+  it('runWrapper() preserves an explicit integration name only', () => {
+    process.env.SNYK_INTEGRATION_NAME = 'CUSTOM_INTEGRATION';
+    process.env.SNYK_INTEGRATION_VERSION = '1.2.3';
+
+    try {
+      expect(captureIntegrationEnvironment()).toEqual({
+        name: 'CUSTOM_INTEGRATION',
+        version: common.getCurrentVersion(common.versionFile),
+      });
+    } finally {
+      delete process.env.SNYK_INTEGRATION_NAME;
+      delete process.env.SNYK_INTEGRATION_VERSION;
+    }
+  });
+
+  it('runWrapper() keeps the default integration identity', () => {
+    delete process.env.SNYK_INTEGRATION_NAME;
+    delete process.env.SNYK_INTEGRATION_VERSION;
+
+    expect(captureIntegrationEnvironment()).toEqual({
+      name: common.integrationName,
+      version: common.getCurrentVersion(common.versionFile),
+    });
   });
 
   it('runWrapper() fail', async () => {
