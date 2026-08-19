@@ -174,20 +174,8 @@ describe('snyk cos (mocked servers only)', () => {
   const cosRequests = () => requestsMatching('/hidden/tenants/');
   const tenantRequests = () => requestsMatching('/rest/tenants');
 
-  describe('experimental gate', () => {
-    test('`scan list` requires --experimental', async () => {
-      const { code, stdout } = await runSnykCLI(
-        `cos scan list --tenant-id=${tenantId}`,
-        { env },
-      );
-      expect(code).toEqual(2);
-      expect(stdout).toContain('experimental');
-      // No API call should be made before the gate.
-      expect(cosRequests()).toEqual([]);
-    });
-  });
-
-  // Every other test passes --tenant-id, which skips discovery.
+  // Every test that omits --tenant-id relies on discovery; the rest pass it,
+  // which skips discovery.
   describe('tenant discovery', () => {
     test('resolves the tenant when --tenant-id is omitted', async () => {
       server.setEndpointResponse(tenantsPath, {
@@ -198,10 +186,7 @@ describe('snyk cos (mocked servers only)', () => {
         links: { self: scansPath },
       });
 
-      const { code, stdout } = await runSnykCLI(
-        `cos scan list --experimental`,
-        { env },
-      );
+      const { code, stdout } = await runSnykCLI(`cos scan list`, { env });
       expect(code).toEqual(0);
       expect(stdout).toContain(scanId);
 
@@ -219,7 +204,7 @@ describe('snyk cos (mocked servers only)', () => {
       });
 
       const { code, stdout } = await runSnykCLI(
-        `cos scan list --experimental --tenant-id=${tenantId}`,
+        `cos scan list --tenant-id=${tenantId}`,
         { env },
       );
       expect(code).toEqual(0);
@@ -238,7 +223,7 @@ describe('snyk cos (mocked servers only)', () => {
       });
 
       const { code, stdout } = await runSnykCLI(
-        `cos scan list --experimental --tenant-id=${tenantId} -o json`,
+        `cos scan list --tenant-id=${tenantId} -o json`,
         { env },
       );
       expect(code).toEqual(0);
@@ -258,7 +243,7 @@ describe('snyk cos (mocked servers only)', () => {
       });
 
       const { code, stdout } = await runSnykCLI(
-        `cos scan list --experimental --tenant-id=${tenantId}`,
+        `cos scan list --tenant-id=${tenantId}`,
         { env },
       );
       expect(code).toEqual(0);
@@ -273,7 +258,7 @@ describe('snyk cos (mocked servers only)', () => {
 
       // --max-attempts=1 disables network retries so the 500 fails fast.
       const { code } = await runSnykCLI(
-        `cos scan list --experimental --tenant-id=${tenantId} --max-attempts=1`,
+        `cos scan list --tenant-id=${tenantId} --max-attempts=1`,
         { env },
       );
       expect(code).toEqual(2);
@@ -288,7 +273,7 @@ describe('snyk cos (mocked servers only)', () => {
       });
 
       const { code, stdout } = await runSnykCLI(
-        `cos scan start --target-id=${targetId} --experimental --tenant-id=${tenantId}`,
+        `cos scan start --target-id=${targetId} --tenant-id=${tenantId}`,
         { env },
       );
       expect(code).toEqual(0);
@@ -300,7 +285,7 @@ describe('snyk cos (mocked servers only)', () => {
 
     test('fails without --target-id', async () => {
       const { code, stdout } = await runSnykCLI(
-        `cos scan start --experimental --tenant-id=${tenantId}`,
+        `cos scan start --tenant-id=${tenantId}`,
         { env },
       );
       expect(code).toEqual(2);
@@ -318,7 +303,7 @@ describe('snyk cos (mocked servers only)', () => {
       });
 
       const { code, stdout } = await runSnykCLI(
-        `cos scan status --experimental --tenant-id=${tenantId} --scan-id=${scanId}`,
+        `cos scan status --tenant-id=${tenantId} --scan-id=${scanId}`,
         { env },
       );
       expect(code).toEqual(0);
@@ -336,7 +321,7 @@ describe('snyk cos (mocked servers only)', () => {
       });
 
       const { code, stdout } = await runSnykCLI(
-        `cos scan status --experimental --tenant-id=${tenantId} --scan-id=${scanId} --json`,
+        `cos scan status --tenant-id=${tenantId} --scan-id=${scanId} --json`,
         { env },
       );
       expect(code).toEqual(0);
@@ -350,7 +335,7 @@ describe('snyk cos (mocked servers only)', () => {
 
     test('fails without --scan-id', async () => {
       const { code, stdout } = await runSnykCLI(
-        `cos scan status --experimental --tenant-id=${tenantId}`,
+        `cos scan status --tenant-id=${tenantId}`,
         { env },
       );
       expect(code).toEqual(2);
@@ -368,7 +353,7 @@ describe('snyk cos (mocked servers only)', () => {
       });
 
       const { code, stdout } = await runSnykCLI(
-        `cos scan cancel --experimental --tenant-id=${tenantId} --scan-id=${scanId}`,
+        `cos scan cancel --tenant-id=${tenantId} --scan-id=${scanId}`,
         { env },
       );
       expect(code).toEqual(0);
@@ -380,7 +365,7 @@ describe('snyk cos (mocked servers only)', () => {
 
     test('fails without --scan-id', async () => {
       const { code, stdout } = await runSnykCLI(
-        `cos scan cancel --experimental --tenant-id=${tenantId}`,
+        `cos scan cancel --tenant-id=${tenantId}`,
         { env },
       );
       expect(code).toEqual(2);
@@ -401,7 +386,7 @@ describe('snyk cos (mocked servers only)', () => {
       });
 
       const { code, stdout } = await runSnykCLI(
-        `cos scan report --experimental --tenant-id=${tenantId} --scan-id=${scanId}`,
+        `cos scan report --tenant-id=${tenantId} --scan-id=${scanId}`,
         { env },
       );
       expect(code).toEqual(0);
@@ -428,7 +413,7 @@ describe('snyk cos (mocked servers only)', () => {
       const outFile = join(makeTmpDir(), 'report.json');
 
       const { code } = await runSnykCLI(
-        `cos scan report --experimental --tenant-id=${tenantId} --scan-id=${scanId} --output-file=${outFile}`,
+        `cos scan report --tenant-id=${tenantId} --scan-id=${scanId} --output-file=${outFile}`,
         { env },
       );
       expect(code).toEqual(0);
@@ -446,7 +431,7 @@ describe('snyk cos (mocked servers only)', () => {
       const outFile = join(makeTmpDir(), 'report.pdf');
 
       const { code, stdout } = await runSnykCLI(
-        `cos scan report --experimental --tenant-id=${tenantId} --scan-id=${scanId} -o pdf --output-file=${outFile}`,
+        `cos scan report --tenant-id=${tenantId} --scan-id=${scanId} -o pdf --output-file=${outFile}`,
         { env },
       );
       expect(code).toEqual(0);
@@ -465,7 +450,7 @@ describe('snyk cos (mocked servers only)', () => {
 
     test('fails without --scan-id', async () => {
       const { code, stdout } = await runSnykCLI(
-        `cos scan report --experimental --tenant-id=${tenantId}`,
+        `cos scan report --tenant-id=${tenantId}`,
         { env },
       );
       expect(code).toEqual(2);
@@ -482,7 +467,7 @@ describe('snyk cos (mocked servers only)', () => {
       });
 
       const { code, stdout } = await runSnykCLI(
-        `cos target create --experimental --tenant-id=${tenantId} --config=${configFile}`,
+        `cos target create --tenant-id=${tenantId} --config=${configFile}`,
         { env },
       );
       expect(code).toEqual(0);
@@ -494,7 +479,7 @@ describe('snyk cos (mocked servers only)', () => {
 
     test('fails when the config is missing target.url', async () => {
       const { code } = await runSnykCLI(
-        `cos target create --experimental --tenant-id=${tenantId} --config=${invalidConfigFile}`,
+        `cos target create --tenant-id=${tenantId} --config=${invalidConfigFile}`,
         { env },
       );
       expect(code).toEqual(2);
@@ -511,7 +496,7 @@ describe('snyk cos (mocked servers only)', () => {
       });
 
       const { code, stdout } = await runSnykCLI(
-        `cos target list --experimental --tenant-id=${tenantId}`,
+        `cos target list --tenant-id=${tenantId}`,
         { env },
       );
       expect(code).toEqual(0);
@@ -530,7 +515,7 @@ describe('snyk cos (mocked servers only)', () => {
       });
 
       const { code, stdout } = await runSnykCLI(
-        `cos target list --experimental --tenant-id=${tenantId}`,
+        `cos target list --tenant-id=${tenantId}`,
         { env },
       );
       expect(code).toEqual(0);
@@ -546,7 +531,7 @@ describe('snyk cos (mocked servers only)', () => {
       });
 
       const { code, stdout } = await runSnykCLI(
-        `cos target get --experimental --tenant-id=${tenantId} --target-id=${targetId}`,
+        `cos target get --tenant-id=${tenantId} --target-id=${targetId}`,
         { env },
       );
       expect(code).toEqual(0);
@@ -564,7 +549,7 @@ describe('snyk cos (mocked servers only)', () => {
       });
 
       const { code, stdout } = await runSnykCLI(
-        `cos target get --experimental --tenant-id=${tenantId} --target-id=${targetId} -o json`,
+        `cos target get --tenant-id=${tenantId} --target-id=${targetId} -o json`,
         { env },
       );
       expect(code).toEqual(0);
@@ -579,7 +564,7 @@ describe('snyk cos (mocked servers only)', () => {
 
     test('fails without --target-id', async () => {
       const { code, stdout } = await runSnykCLI(
-        `cos target get --experimental --tenant-id=${tenantId}`,
+        `cos target get --tenant-id=${tenantId}`,
         { env },
       );
       expect(code).toEqual(2);
@@ -598,7 +583,7 @@ describe('snyk cos (mocked servers only)', () => {
       });
 
       const { code, stdout } = await runSnykCLI(
-        `cos target update --experimental --tenant-id=${tenantId} --target-id=${targetId} --config=${configFile}`,
+        `cos target update --tenant-id=${tenantId} --target-id=${targetId} --config=${configFile}`,
         { env },
       );
       expect(code).toEqual(0);
@@ -613,7 +598,7 @@ describe('snyk cos (mocked servers only)', () => {
 
     test('fails without --config', async () => {
       const { code, stdout } = await runSnykCLI(
-        `cos target update --experimental --tenant-id=${tenantId} --target-id=${targetId}`,
+        `cos target update --tenant-id=${tenantId} --target-id=${targetId}`,
         { env },
       );
       expect(code).toEqual(2);
@@ -630,7 +615,7 @@ describe('snyk cos (mocked servers only)', () => {
       });
 
       const { code, stdout } = await runSnykCLI(
-        `cos target delete --experimental --tenant-id=${tenantId} --target-id=${targetId} --yes`,
+        `cos target delete --tenant-id=${tenantId} --target-id=${targetId} --yes`,
         { env },
       );
       expect(code).toEqual(0);
@@ -652,7 +637,7 @@ describe('snyk cos (mocked servers only)', () => {
       });
 
       const { code, stdout } = await runSnykCLI(
-        `cos target dump --experimental --tenant-id=${tenantId} --target-id=${targetId}`,
+        `cos target dump --tenant-id=${tenantId} --target-id=${targetId}`,
         { env },
       );
       expect(code).toEqual(0);
@@ -672,7 +657,7 @@ describe('snyk cos (mocked servers only)', () => {
       const outFile = join(makeTmpDir(), 'cos.yaml');
 
       const { code } = await runSnykCLI(
-        `cos target dump --experimental --tenant-id=${tenantId} --target-id=${targetId} --output-file=${outFile}`,
+        `cos target dump --tenant-id=${tenantId} --target-id=${targetId} --output-file=${outFile}`,
         { env },
       );
       expect(code).toEqual(0);
@@ -697,7 +682,7 @@ describe('snyk cos (mocked servers only)', () => {
       });
 
       const { code, stdout } = await runSnykCLI(
-        `cos finding list --experimental --tenant-id=${tenantId} --target-id=${targetId}`,
+        `cos finding list --tenant-id=${tenantId} --target-id=${targetId}`,
         { env },
       );
       expect(code).toEqual(0);
@@ -723,7 +708,7 @@ describe('snyk cos (mocked servers only)', () => {
       });
 
       const { code, stdout } = await runSnykCLI(
-        `cos finding list --experimental --tenant-id=${tenantId} --target-id=${targetId} -o json`,
+        `cos finding list --tenant-id=${tenantId} --target-id=${targetId} -o json`,
         { env },
       );
       expect(code).toEqual(0);
@@ -738,7 +723,7 @@ describe('snyk cos (mocked servers only)', () => {
 
     test('fails without --target-id', async () => {
       const { code, stdout } = await runSnykCLI(
-        `cos finding list --experimental --tenant-id=${tenantId}`,
+        `cos finding list --tenant-id=${tenantId}`,
         { env },
       );
       expect(code).toEqual(2);
@@ -757,7 +742,7 @@ describe('snyk cos (mocked servers only)', () => {
       });
 
       const { code, stdout } = await runSnykCLI(
-        `cos finding get --experimental --tenant-id=${tenantId} --finding-id=${findingId}`,
+        `cos finding get --tenant-id=${tenantId} --finding-id=${findingId}`,
         { env },
       );
       expect(code).toEqual(0);
@@ -779,7 +764,7 @@ describe('snyk cos (mocked servers only)', () => {
       });
 
       const { code, stdout } = await runSnykCLI(
-        `cos finding get --experimental --tenant-id=${tenantId} --finding-id=${findingId} --json`,
+        `cos finding get --tenant-id=${tenantId} --finding-id=${findingId} --json`,
         { env },
       );
       expect(code).toEqual(0);
@@ -794,7 +779,7 @@ describe('snyk cos (mocked servers only)', () => {
 
     test('fails without --finding-id', async () => {
       const { code, stdout } = await runSnykCLI(
-        `cos finding get --experimental --tenant-id=${tenantId}`,
+        `cos finding get --tenant-id=${tenantId}`,
         { env },
       );
       expect(code).toEqual(2);
@@ -806,7 +791,7 @@ describe('snyk cos (mocked servers only)', () => {
   describe('error handling', () => {
     test('handles unauthenticated requests', async () => {
       const { code, stdout } = await runSnykCLI(
-        `cos scan list --experimental --tenant-id=${tenantId}`,
+        `cos scan list --tenant-id=${tenantId}`,
         { env: envWithoutAuth },
       );
       expect(code).toEqual(2);
@@ -814,10 +799,9 @@ describe('snyk cos (mocked servers only)', () => {
     });
 
     test('rejects the --org flag', async () => {
-      const { code, stdout } = await runSnykCLI(
-        `cos scan list --experimental --org=my-org`,
-        { env },
-      );
+      const { code, stdout } = await runSnykCLI(`cos scan list --org=my-org`, {
+        env,
+      });
       expect(code).toEqual(2);
       expect(stdout).toContain('--org');
     });
