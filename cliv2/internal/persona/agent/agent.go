@@ -26,12 +26,13 @@ func DetectAgent() (string, bool) {
 
 // versionSuffix recognises a version-shaped run of digits at the end of a
 // Harness identifier, with an optional trailing role/surface segment that is
-// captured only so it isn't absorbed into the version, then discarded. Both
-// '_' and '/' are accepted as separators, so the legacy slash format
-// normalises identically to the current underscore format. Requiring at
+// captured only so it isn't absorbed into the version, then discarded. '_',
+// '/', and '@' are all accepted as separators: '_' and '/' cover Snyk's own
+// fused and legacy formats, '@' covers detect-agent's documented
+// name@version convention for custom AI_AGENT declarations. Requiring at
 // least two numeric components avoids matching a name that merely ends in a
 // single digit.
-var versionSuffix = regexp.MustCompile(`^(?P<name>.+?)[_/](?P<version>\d+(?:[.\-]\d+){1,3})(?:[_/](?P<role>[A-Za-z0-9-]+))?$`)
+var versionSuffix = regexp.MustCompile(`^(?P<name>.+?)[_/@](?P<version>\d+(?:[.\-]\d+){1,3})(?:[_/@](?P<role>[A-Za-z0-9-]+))?$`)
 
 // knownNames maps a normalised (lowercased, separators stripped) form of
 // every Harness name detect-agent knows about to that name's canonical

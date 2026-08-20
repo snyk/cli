@@ -1,0 +1,124 @@
+package agent
+
+import (
+	"testing"
+
+	detectagent "github.com/vercel/detect-agent"
+)
+
+// TestVercelDetectDoesNotNormalizeExplicitAIAgent proves the vercel package's
+// contract directly, independent of our own split/canonicalise code: an
+// explicit AI_AGENT declaration is returned byte-for-byte, version and role
+// still fused in, while the signature-fallback path (no AI_AGENT) returns
+// vercel's own clean vocabulary name. This is why SplitVersion exists.
+func TestVercelDetectDoesNotNormalizeExplicitAIAgent(t *testing.T) {
+	t.Run("explicit AI_AGENT is returned verbatim, not standardised", func(t *testing.T) {
+		t.Setenv("AI_AGENT", "claude-code_2-1-233_agent")
+		t.Setenv("CLAUDECODE", "")
+
+		details, err := detectagent.Detect()
+		if err != nil {
+			t.Fatalf("Detect() error = %v", err)
+		}
+		if details.Name != "claude-code_2-1-233_agent" {
+			t.Fatalf("Name = %q, want raw AI_AGENT value unchanged", details.Name)
+		}
+	})
+
+	t.Run("signature fallback returns vercel's own clean name", func(t *testing.T) {
+		t.Setenv("AI_AGENT", "")
+		t.Setenv("CLAUDECODE", "1")
+
+		details, err := detectagent.Detect()
+		if err != nil {
+			t.Fatalf("Detect() error = %v", err)
+		}
+		if details.Name != "claude_code" {
+			t.Fatalf("Name = %q, want vercel's canonical %q", details.Name, "claude_code")
+		}
+		if want := KnownAgentsName("CLAUDE"); details.Name != want {
+			t.Fatalf("Name = %q does not match KnownAgents[%q] = %q", details.Name, "CLAUDE", want)
+		}
+	})
+}
+
+// KnownAgentsName is a tiny test-only accessor so the assertion above reads
+// against the vocabulary directly rather than a hardcoded duplicate string.
+func KnownAgentsName(key string) string {
+	return detectagent.KnownAgents[key]
+}
+
+// TestSplitVersionReconcilesBothPaths feeds SplitVersion the raw, unprocessed
+// output vercel actually returns for each path proven above, and shows both
+// converge on the same canonical name despite vercel returning two different
+// strings for the same tool.
+func TestSplitVersionReconcilesBothPaths(t *testing.T) {
+	explicitName, explicitVersion := SplitVersion("claude-code_2-1-233_agent")
+	fallbackName, fallbackVersion := SplitVersion("claude_code")
+
+	if explicitName != "claude_code" {
+		t.Fatalf("explicit path: name = %q, want %q", explicitName, "claude_code")
+	}
+	if explicitVersion != "2.1.233" {
+		t.Fatalf("explicit path: version = %q, want %q", explicitVersion, "2.1.233")
+	}
+	if fallbackName != "claude_code" {
+		t.Fatalf("fallback path: name = %q, want %q", fallbackName, "claude_code")
+	}
+	if fallbackVersion != "" {
+		t.Fatalf("fallback path: version = %q, want empty (signature path never carries one)", fallbackVersion)
+	}
+	if explicitName != fallbackName {
+		t.Fatalf("paths diverged: %q != %q", explicitName, fallbackName)
+	}
+}
+
+// TestSplitVersion_AtSeparator covers detect-agent's own documented
+// name@version convention for custom AI_AGENT declarations (see the
+// "Recommended Naming Convention" section of the vercel/detect-agent
+// README), which '_' and '/' alone did not handle.
+func TestSplitVersion_AtSeparator(t *testing.T) {
+	cases := []struct {
+		name        string
+		raw         string
+		wantName    string
+		wantVersion string
+	}{
+		{
+			name:        "known harness, dotted version",
+			raw:         "devin@2.1",
+			wantName:    "devin",
+			wantVersion: "2.1",
+		},
+		{
+			name:        "known harness, three-component version",
+			raw:         "claude_code@2.1.233",
+			wantName:    "claude_code",
+			wantVersion: "2.1.233",
+		},
+		{
+			name:        "single-component version still does not split",
+			raw:         "devin@1",
+			wantName:    "devin@1",
+			wantVersion: "",
+		},
+		{
+			name:        "unrecognised harness is never guessed",
+			raw:         "custom-agent@2.0",
+			wantName:    "custom-agent@2.0",
+			wantVersion: "",
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			gotName, gotVersion := SplitVersion(tc.raw)
+			if gotName != tc.wantName {
+				t.Errorf("name = %q, want %q", gotName, tc.wantName)
+			}
+			if gotVersion != tc.wantVersion {
+				t.Errorf("version = %q, want %q", gotVersion, tc.wantVersion)
+			}
+		})
+	}
+}

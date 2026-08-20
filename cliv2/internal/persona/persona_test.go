@@ -1,6 +1,8 @@
 package persona
 
 import (
+	"os"
+	"strings"
 	"testing"
 
 	"github.com/snyk/go-application-framework/pkg/analytics"
@@ -29,6 +31,26 @@ func (f *fakeAnalytics) IsCiEnvironment() bool                          { return
 func (f *fakeAnalytics) AddExtensionBoolValue(key string, value bool)   { f.bools[key] = value }
 func (f *fakeAnalytics) AddExtensionIntegerValue(key string, value int) { f.integers[key] = value }
 func (f *fakeAnalytics) AddExtensionStringValue(key, value string)      { f.strings[key] = value }
+
+// isolateEnv wipes the entire process environment for the duration of t and
+// restores it on cleanup. detect-agent's signature list (which env vars each
+// Harness is recognised by) lives in a third-party vendored agents.json we
+// don't own; naming those vars here would drift the moment they add one. A
+// full wipe needs no such list: whatever ambient markers the shell actually
+// running `go test` happens to set (CLAUDECODE, CURSOR_TRACE_ID, ...) are
+// gone regardless of what detect-agent looks for, now or in the future.
+func isolateEnv(t *testing.T) {
+	t.Helper()
+	saved := os.Environ()
+	os.Clearenv()
+	t.Cleanup(func() {
+		os.Clearenv()
+		for _, kv := range saved {
+			k, v, _ := strings.Cut(kv, "=")
+			os.Setenv(k, v)
+		}
+	})
+}
 
 // TestReport verifies that the public entrypoint wires the interactive and
 // mode signals onto the analytics instance. The per-mode and per-agent
@@ -116,10 +138,20 @@ func TestReport_Agent(t *testing.T) {
 			wantAgent:   "claude_code",
 			wantVersion: "2.1.233",
 		},
+		{
+			// detect-agent's own README recommends '@' for custom AI_AGENT
+			// declarations (e.g. "custom-agent@2.0"); the split must honour
+			// that convention alongside Snyk's '_' and '/' formats.
+			name:        "at-separated version, detect-agent's documented convention",
+			env:         map[string]string{"AI_AGENT": "devin@2.1"},
+			wantAgent:   "devin",
+			wantVersion: "2.1",
+		},
 	}
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
+			isolateEnv(t)
 			for k, v := range tc.env {
 				t.Setenv(k, v)
 			}
