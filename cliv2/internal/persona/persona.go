@@ -12,9 +12,12 @@ const (
 	// keyInteractiveMode is the bitmask of which standard streams are attached to
 	// a terminal (StdinTTY | StdoutTTY | StderrTTY).
 	keyInteractiveMode = "persona.interactive_mode"
-	// keyAgent reports the canonical name of the AI coding agent driving the
+	// keyAgent reports the canonical name of the Harness driving the
 	// invocation, when one is detected.
 	keyAgent = "persona.agent"
+	// keyAgentVersion reports the Harness version, when one can be
+	// determined. Absent rather than empty when unknown.
+	keyAgentVersion = "persona.agent_version"
 )
 
 // Report adds the persona extension values to the given analytics instance.
@@ -23,7 +26,11 @@ func Report(a analytics.Analytics) {
 	// A terminal on stdin is our signal that a human is driving the session.
 	a.AddExtensionBoolValue(keyInteractive, mode.Has(interactive.StdinTTY))
 	a.AddExtensionIntegerValue(keyInteractiveMode, int(mode))
-	if agent, ok := agent.DetectAgent(); ok {
-		a.AddExtensionStringValue(keyAgent, string(agent))
+	if raw, ok := agent.DetectAgent(); ok {
+		name, version := agent.SplitVersion(raw)
+		a.AddExtensionStringValue(keyAgent, name)
+		if version != "" {
+			a.AddExtensionStringValue(keyAgentVersion, version)
+		}
 	}
 }
