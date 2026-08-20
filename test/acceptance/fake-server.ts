@@ -53,6 +53,10 @@ export function getFirstIPv4Address(): string {
   return ipaddress;
 }
 
+// An endpoint answers with either a JSON document or a raw body. The raw form
+// covers downloads that are not JSON, such as a binary report.
+type EndpointResponse = Record<string, unknown> | string;
+
 export type FakeServer = {
   getRequests: () => express.Request[];
   popRequest: () => express.Request;
@@ -67,15 +71,12 @@ export type FakeServer = {
     headers?: Record<string, any>,
   ) => void;
 
-  setEndpointResponse: (
-    endpoint: string,
-    response: Record<string, unknown>,
-  ) => void;
+  setEndpointResponse: (endpoint: string, response: EndpointResponse) => void;
   setEndpointStatusCode: (endpoint: string, code: number) => void;
   setEndpointStatusCodes: (endpoint: string, codes: number[]) => void;
   setEndpointResponses: (
     endpoint: string,
-    responses: Record<string, unknown>[],
+    responses: EndpointResponse[],
   ) => void;
   setEndpointHeaders: (
     endpoint: string,
@@ -100,7 +101,7 @@ export type FakeServer = {
 };
 
 interface EndpointConfig {
-  responses: Record<string, unknown>[];
+  responses: EndpointResponse[];
   statusCodes: number[];
   headers: Record<string, string>;
   responseIndex: number;
@@ -229,7 +230,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
 
   const setEndpointResponse = (
     endpoint: string,
-    response: Record<string, unknown>,
+    response: EndpointResponse,
   ) => {
     const config = getOrCreateEndpointConfig(endpoint);
     config.responses = [response];
@@ -253,7 +254,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
 
   const setEndpointResponses = (
     endpoint: string,
-    responses: Record<string, unknown>[],
+    responses: EndpointResponse[],
   ) => {
     const config = getOrCreateEndpointConfig(endpoint);
     config.responses = [...responses];
@@ -500,9 +501,13 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
 
   // Feature flag batch evaluation used by the Go binary's GAF layer
   // (config_utils.AddFeatureFlagToConfig → featureflaggateway.EvaluateFlags).
-  // Request: POST /hidden/orgs/:orgId/feature_flags/evaluation
   // Body: { data: { attributes: { flags: ["flag-name", ...] } } }
-  app.post('/hidden/orgs/:orgId/feature_flags/evaluation', (req, res) => {
+  // GAF derives the URL from the API URL, so the /api prefix may or may not be present.
+  const flagEvaluationPaths = [
+    '/hidden/orgs/:orgId/feature_flags/evaluation',
+    '/api/hidden/orgs/:orgId/feature_flags/evaluation',
+  ];
+  app.post(flagEvaluationPaths, (req, res) => {
     const flags: string[] = req.body?.data?.attributes?.flags ?? [];
     // Maps batch evaluation API flag names to their GAF config keys.
     // The batch endpoint receives short API names; tests call setFeatureFlag

@@ -156,6 +156,13 @@ Avoid using mocks as these can go out of sync and be challenging to maintain; pr
 If you are mostly testing functions calling other functions, consider writing an acceptance test instead. Otherwise,
 your tests will likely mirror the implementation and rely heavily on mocks; making future changes difficult.
 
+Despite the above, `npm run test:unit` currently needs `TEST_SNYK_TOKEN` set to a
+[valid API token](https://docs.snyk.io/snyk-api/authentication-for-api). A handful of suites drive command entry points
+that validate credentials before doing anything else, so without it they fail with `MissingApiTokenError`. Note that
+setting `SNYK_TOKEN` does not work: [`test/setup.js`](./test/setup.js) removes `SNYK_TOKEN` (and `SNYK_API_KEY`) from the
+environment when either is set, and separately writes `TEST_SNYK_TOKEN` into the CLI user config so tests run against a
+known configuration rather than whatever the developer happens to be authenticated as.
+
 ### Acceptance tests
 
 Acceptance tests enforce the correctness of our distribution and are written from the perspective of a user.

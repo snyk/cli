@@ -1,3 +1,7 @@
+---
+description: The snyk aibom test command that tests an AI bill of materials
+---
+
 # AI-BOM test
 
 ## Prerequisites

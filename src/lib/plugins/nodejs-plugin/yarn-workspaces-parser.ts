@@ -1,7 +1,7 @@
 import * as baseDebug from 'debug';
 import * as pathUtil from 'path';
-const sortBy = require('lodash.sortby');
-const groupBy = require('lodash.groupby');
+import * as sortBy from 'lodash.sortby';
+import * as groupBy from 'lodash.groupby';
 import * as micromatch from 'micromatch';
 
 const debug = baseDebug('snyk-yarn-workspaces');
@@ -21,6 +21,7 @@ export async function processYarnWorkspaces(
     dev?: boolean;
     yarnWorkspaces?: boolean;
     showNpmScope?: boolean;
+    includeComponentMetadata?: boolean;
   },
   targetFiles: string[],
 ): Promise<MultiProjectResultCustom> {
@@ -138,6 +139,8 @@ export async function processYarnWorkspaces(
                   : settings.strictOutOfSync,
 
               showNpmScope: settings.showNpmScope,
+              includeComponentMetadata:
+                settings.includeComponentMetadata || false,
             },
           );
           break;
@@ -154,6 +157,9 @@ export async function processYarnWorkspaces(
                   ? true
                   : settings.strictOutOfSync,
               showNpmScope: settings.showNpmScope,
+              // Threaded for a uniform API; berry component-metadata is deferred (no-op).
+              includeComponentMetadata:
+                settings.includeComponentMetadata || false,
             },
             {
               isWorkspacePkg: true,

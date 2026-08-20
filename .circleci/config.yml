@@ -19,10 +19,10 @@ parameters:
   go_version:
     type: string
     # https://go.dev/doc/devel/release
-    default: '1.26.5'
+    default: '1.26.6'
   fips_go_version:
     type: string
-    default: '1.26.5'
+    default: '1.26.6'
   aws_version:
     type: string
     # https://github.com/aws/aws-cli/blob/v2/CHANGELOG.rst
@@ -389,7 +389,7 @@ commands:
   setup-go-private-modules:
     description: >-
       Configure git and Go to fetch private snyk modules using the
-      GITHUB_PRIVATE_TOKEN provided by the `go-private-modules` context.
+      GITHUB_PRIVATE_TOKEN provided by the `team-cli-go-private-modules` context.
       Safe to call on Linux, macOS and Windows (uses bash on all executors).
     steps:
       - run:
@@ -402,7 +402,7 @@ commands:
             fi
             if [ -z "${GITHUB_PRIVATE_TOKEN}" ]; then
               echo "GITHUB_PRIVATE_TOKEN is not set; skipping private Snyk modules setup."
-              echo "Add the 'go-private-modules' context to this job if private modules are required."
+              echo "Add the 'team-cli-go-private-modules' context to this job if private modules are required."
               exit 0
             fi
             git config --global url."https://${GITHUB_PRIVATE_TOKEN}:x-oauth-basic@github.com/snyk".insteadOf "https://github.com/snyk"
@@ -561,12 +561,16 @@ workflows:
     jobs:
       - prodsec/secrets-scan:
           name: secrets-scan
-          context: snyk-bot-slack
+          context:
+            - snyk-bot-slack
+            - prodsec-orb-runtime
           channel: cli-alerts
           trusted-branch: main
 
       - docs-only-check:
-          context: devex_cli_docker_hub
+          context:
+            - devex_cli_docker_hub
+            - team-cli-go-private-modules
           filters:
             branches:
               only:
@@ -575,7 +579,7 @@ workflows:
       - prepare-build:
           context:
             - devex_cli_docker_hub
-            - go-private-modules
+            - team-cli-go-private-modules
           requires:
             - secrets-scan
           filters:
@@ -591,7 +595,8 @@ workflows:
           context:
             - devex_cli
             - devex_cli_docker_hub
-            - go-private-modules
+            - team-cli-go-private-modules
+            - prodsec-orb-runtime
           requires:
             - prepare-build
           filters:
@@ -621,7 +626,7 @@ workflows:
             - nodejs-install
             - team_hammerhead-cli
             - devex_cli_docker_hub
-            - go-private-modules
+            - team-cli-go-private-modules
           requires:
             - prepare-build
           filters:
@@ -645,6 +650,7 @@ workflows:
               ignore:
                 - main
                 - '/release.*/'
+                - '/^docs\/.*/'
 
       - test-legacy-tap:
           context:
@@ -669,7 +675,7 @@ workflows:
           name: build linux amd64
           context:
             - iac-cli
-            - go-private-modules
+            - team-cli-go-private-modules
             - devex_cli_docker_hub
           go_target_os: linux
           go_os: linux
@@ -684,7 +690,7 @@ workflows:
           name: build linux static amd64
           context:
             - iac-cli
-            - go-private-modules
+            - team-cli-go-private-modules
             - devex_cli_docker_hub
           go_target_os: linux
           go_os: linux
@@ -700,7 +706,7 @@ workflows:
           name: build linux fips amd64
           context:
             - iac-cli
-            - go-private-modules
+            - team-cli-go-private-modules
             - devex_cli_docker_hub
           go_target_os: linux
           go_os: linux
@@ -716,7 +722,7 @@ workflows:
           name: build linux arm64
           context:
             - iac-cli
-            - go-private-modules
+            - team-cli-go-private-modules
             - devex_cli_docker_hub
           go_target_os: linux
           go_os: linux
@@ -731,7 +737,7 @@ workflows:
           name: build linux static arm64
           context:
             - iac-cli
-            - go-private-modules
+            - team-cli-go-private-modules
             - devex_cli_docker_hub
           go_target_os: linux
           go_os: linux
@@ -747,7 +753,7 @@ workflows:
           name: build linux fips arm64
           context:
             - iac-cli
-            - go-private-modules
+            - team-cli-go-private-modules
             - devex_cli_docker_hub
           go_target_os: linux
           go_os: linux
@@ -763,7 +769,7 @@ workflows:
           name: build alpine amd64
           context:
             - iac-cli
-            - go-private-modules
+            - team-cli-go-private-modules
             - devex_cli_docker_hub
           go_target_os: alpine
           go_os: linux
@@ -778,7 +784,7 @@ workflows:
           name: build alpine arm64
           context:
             - iac-cli
-            - go-private-modules
+            - team-cli-go-private-modules
             - devex_cli_docker_hub
           go_target_os: alpine
           go_os: linux
@@ -800,7 +806,7 @@ workflows:
           context:
             - snyk-macos-signing
             - iac-cli
-            - go-private-modules
+            - team-cli-go-private-modules
           requires:
             - prepare-build
 
@@ -815,7 +821,7 @@ workflows:
           context:
             - snyk-macos-signing
             - iac-cli
-            - go-private-modules
+            - team-cli-go-private-modules
           requires:
             - prepare-build
 
@@ -833,7 +839,7 @@ workflows:
           context:
             - snyk-windows-signing
             - iac-cli
-            - go-private-modules
+            - team-cli-go-private-modules
           requires:
             - prepare-build
 
@@ -1517,6 +1523,8 @@ jobs:
           release-branch: main
           open-source-scan-reachability: true
           open-source-scan: high
+          open-source-block-ignore-sla: true
+          open-source-agentic-fix-enabled: true
 
   docs-only-check:
     executor: docker-amd64
@@ -1525,9 +1533,14 @@ jobs:
       - run:
           name: Check if all changed files are documentation (.md)
           command: |
-            CHANGED_FILES=$(git diff --name-only main)
+            PR_URL="https://api.github.com/repos/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/pulls?head=${CIRCLE_PROJECT_USERNAME}:${CIRCLE_BRANCH}&state=open"
+            BASE_REF=$(curl -fsSL -H 'Accept: application/vnd.github+json' "${PR_URL}" \
+              | jq -r '.[0].base.ref // ""' || true)
+            [ -n "${BASE_REF}" ] || BASE_REF=$(git symbolic-ref --short refs/remotes/origin/HEAD | sed 's@^origin/@@')
+            git fetch origin "${BASE_REF}"
+            CHANGED_FILES=$(git diff --name-only "$(git merge-base HEAD "origin/${BASE_REF}")" HEAD)
 
-            # If this step fails, check if you need to add another extension, 
+            # If this step fails, check if you need to add another extension,
             # or indeed if this PR adds more than docs-related changes.
             ALLOWED_DOCS_EXTENSIONS="(\.md|\.svg|\.jpg)$"
 
@@ -1541,6 +1554,24 @@ jobs:
               fi
             done
             exit 0
+      - restore_cache:
+          name: Restore npm cache
+          keys:
+            - prepare-v1-build-npm-deps-{{ checksum "package-lock.json" }}
+            - prepare-v1-build-npm-deps
+      - run:
+          name: Installing npm dependencies
+          command: npm ci --no-audit --no-progress --cache .npm --prefer-offline
+      - install-go:
+          go_os: linux
+          go_target_os: linux
+          go_arch: amd64
+          base_url: << pipeline.parameters.go_download_base_url >>
+          extraction_path: /tmp
+      - setup-go-private-modules
+      - run:
+          name: Linting project
+          command: make lint
 
   test-node:
     executor: docker-amd64
@@ -1773,6 +1804,21 @@ jobs:
     steps:
       - prepare-workspace
       - install-deps-<< parameters.install_deps_extension >>
+      - run:
+          name: Create Maven cache key
+          command: >-
+            git ls-files -s --
+            'test/**/pom.xml'
+            'test/**/settings.xml'
+            'test/**/.mvn/maven.config'
+            'test/**/.mvn/extensions.xml'
+            'test/**/.mvn/wrapper/maven-wrapper.properties'
+            > maven-cache-key.txt
+      - restore_cache:
+          name: Restore Maven cache
+          keys:
+            - acceptance-maven-v1-<< parameters.executor >>-{{ .Environment.CIRCLE_NODE_INDEX }}-{{ checksum "maven-cache-key.txt" }}
+            - acceptance-maven-v1-<< parameters.executor >>-{{ .Environment.CIRCLE_NODE_INDEX }}-
       - when:
           condition:
             matches:
@@ -1802,6 +1848,12 @@ jobs:
             TEST_SNYK_DONT_SKIP_ANYTHING: << parameters.dont_skip_tests >>
             JEST_JUNIT_OUTPUT_DIR: test/reports
             NODE_OPTIONS: --max-old-space-size=4096
+      - save_cache:
+          name: Save Maven cache
+          key: acceptance-maven-v1-<< parameters.executor >>-{{ .Environment.CIRCLE_NODE_INDEX }}-{{ checksum "maven-cache-key.txt" }}
+          paths:
+            - ~/.m2/repository
+            - ~/.m2/wrapper/dists
       - run:
           name: Normalize junit file paths for timing data
           when: always
@@ -1969,7 +2021,7 @@ jobs:
               value: << parameters.executor >>
           steps:
             - run: |
-                export DEBIAN_FRONTEND=noninteractive   
+                export DEBIAN_FRONTEND=noninteractive
                 ln -fs /usr/share/zoneinfo/UTC /etc/localtime
                 apt update && apt install -y sudo curl python3 python3-pip python3-requests
 

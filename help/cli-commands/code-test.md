@@ -1,3 +1,7 @@
+---
+description: The snyk code test command that runs a Snyk Code static analysis test
+---
+
 # Code test
 
 ## Usage

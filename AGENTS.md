@@ -1,26 +1,95 @@
 # Agent Instructions for snyk/cli
 
-## Before Committing (pre-commit)
+## Mental Model: The CLI as a Binary Container
+
+This repo builds a **host binary**, not a self-contained application. The Snyk CLI is a Go executable that **composes product features at compile time** by importing extensions from separate repositories. Almost all product/feature logic lives in those external `cli-extension-*` repos — not here.
+
+What **this repo** owns:
+
+- **The Go host process** (`cliv2/`) — startup, Cobra command routing, networking, proxy, analytics, error handling, teardown
+- **Extension registration** — `cliv2/pkg/core/workflows.go` is the manifest of all compiled-in extensions
+- **The legacy TypeScript CLI** (`src/`) — older commands that haven't migrated to Go workflows yet
+- **Build & release infrastructure** — Makefile, CI/CD, signing, packaging
+
+What **this repo does NOT contain**:
+
+- Product logic for `snyk test`, `snyk code test`, `snyk iac test`, `snyk container test`, etc. — these live in extension repos
+- The Go Application Framework (GAF) itself — that's `go-application-framework`
+
+**Implication for agents**: If you're investigating a product behavior or bug, the code is almost certainly in an extension repo, not here. See [Extension → Command Mapping](#extension--command-mapping) and [Where Does the Bug Live?](#where-does-the-bug-live) below.
+
+### Command routing
+
+At startup, every registered workflow is turned into a Cobra command dynamically (`createCommandsForWorkflows` in `cliv2/pkg/core/main.go`). When a user runs a command:
+
+1. **Cobra matches** → the command is dispatched to the corresponding Go workflow via `engine.Invoke()`
+2. **Cobra can't match** ("unknown command") → the command **falls back to the legacy TypeScript CLI** via `defaultCmd()` → `basic_workflows.WORKFLOWID_LEGACY_CLI`
+
+This fallback is why many commands still work without a Go workflow — they're silently dispatched to the embedded TS binary. A few commands have special wiring (e.g., `code test`, `auth`, `secrets test`) in `cliv2/pkg/core/main.go`.
+
+### Extension → command mapping
+
+The canonical source is `cliv2/pkg/core/workflows.go`. Current mapping:
+
+| User command                        | Extension repo             | Init                                |
+| ----------------------------------- | -------------------------- | ----------------------------------- |
+| `snyk test`, `snyk monitor`         | `cli-extension-os-flows`   | `osflows.Init`                      |
+| `snyk code test`                    | `code-client-go`           | `code.Init`                         |
+| `snyk iac test`                     | `cli-extension-iac`        | `iac.Init`                          |
+| `snyk iac capture`                  | `snyk-iac-capture`         | `capture.Init`                      |
+| `snyk iac rules`                    | `cli-extension-iac-rules`  | `iacrules.Init`                     |
+| `snyk container test`               | `container-cli`            | `container.Init`                    |
+| `snyk sbom`                         | `cli-extension-sbom`       | `sbom.Init`                         |
+| `snyk secrets test`                 | `cli-extension-secrets`    | `secrets.Init`                      |
+| `snyk agent-scan` / `snyk mcp-scan` | `cli-extension-agent-scan` | `agentscan.Init`                    |
+| `snyk aibom test`                   | `cli-extension-ai-bom`     | `aibom.Init`                        |
+| dep-graph                           | `cli-extension-dep-graph`  | `depgraph.Init`                     |
+| MCP server                          | `studio-mcp`               | `mcp.Init`                          |
+| Language server                     | `snyk-ls`                  | `ls_extension.Init`                 |
+| `snyk ignore`                       | GAF built-in               | `ignore_workflow.Init`              |
+| Connectivity check                  | GAF built-in               | `connectivity_check_extension.Init` |
+| _Unrecognized commands_             | Legacy TS CLI (`src/`)     | Fallback via `defaultCmd()`         |
+
+The private build (`cliv2-private/`) additionally registers `remy-cli-extension` via `WithAdditionalExtensions`.
+
+### Where does the bug live?
+
+- **Product bug** (wrong scan results, missing output fields, incorrect behavior for `snyk test|code|iac|container|sbom`) → **the extension repo** listed above. Clone it, use `go.mod replace` to test locally.
+- **CLI plumbing** (auth, proxy, analytics, networking, configuration) → **`cliv2/`** or **`go-application-framework`**.
+- **Output formatting** (JSON shape, SARIF, human-readable output) → likely the **output workflow pipeline** in GAF (`local_workflows/output_workflow`), or the extension's content type.
+- **Legacy TS command** (commands that fall back to the TypeScript CLI) → **`src/`**.
+- **Build/CI issue** → **`.circleci/config.yml`**, **`Makefile`**, or **`cliv2/Makefile`**.
+
+## Development
+
+### Setting up the Developer Environment
+
+- Applies to macOS and linux
+- Install homebrew (https://brew.sh/) (used for installing all other dependencies)
+- Do not install anything directly, use the install script
+
+```sh
+./scripts/install-dev-dependencies.sh
+```
+
+### Changing the Code
+
+- The Snyk binary connects multiple repositories to build a single binary.
+- Code changes might be required in different repositories.
+- For local development, use `go mod replace` to point to local code.
+- For CI/CD verification, use temporary commit shas to point to the desired code versions.
+- Use `make clean` to build a binary from scratch, this will remove all build artifacts and dependencies and increases the build time, so only do this if really required for example to build for another platform.
+- Only build the binary with `make build` (add `BUILD_MODE=public` without private-repo access), everything else is error prone.
+- Add tests - see [Testing Strategy](#testing-strategy)
+- Test the binary — see [Running Tests](#running-tests).
+
+### Before Committing (pre-commit)
 
 Run these before every commit — they mirror CI, which also fails if any tracked file is left uncommitted.
 
 1. **Format**: `make format` (TypeScript + Go, runs `make tidy`)
 2. **Lint**: `make lint` (TypeScript + Go)
 3. **Verify no drift**: `git diff --name-only` must be empty. Stage anything the steps above changed.
-
-## Before Pushing (pre-push)
-
-1. **Build**: `make build` (add `BUILD_MODE=public` without private-repo access)
-2. **Run the tests** — see [Running Tests](#running-tests).
-
-## Setup
-
-macOS with Homebrew:
-
-```sh
-./scripts/install-dev-dependencies.sh
-npm install
-```
 
 ## Project Structure
 
@@ -45,33 +114,75 @@ The authoritative dependency lists live in `go.mod`/`go.sum` (Go) and `package-l
 
 ### Investigating an issue (impact assessment)
 
+First, determine **where the bug lives** — see [Where Does the Bug Live?](#where-does-the-bug-live) and the [Extension → Command Mapping](#extension--command-mapping) table. Most product bugs are in extension repos, not here.
+
 Method, not memorized data — resolve specifics from source each time:
 
 - **Real versions**: read `go.mod` / `package-lock.json`.
 - **Blast radius** (who depends on a package): `go mod why <module>` and `go mod graph` in `cliv2/`; for npm, `npm ls <pkg>`.
-- **Pull down a landmark repo**: these are separate GitHub repos — `gh repo clone snyk/<name>` (private ones need `GOPRIVATE` / auth).
-- **Where to start, by symptom**: IaC → `cli-extension-iac`; Code/SAST → `code-client-go`; open-source/SCA → `cli-extension-os`; container → `container-cli`; auth/networking → GAF (`pkg/auth`, `pkg/networking`).
+- **Pull down an extension repo**: these are separate GitHub repos — `gh repo clone snyk/<name>` (private ones need `GOPRIVATE` / auth). Use `go.mod replace` to test local changes against the CLI build.
 
-## Code Style
+## Testing Strategy
 
-### TypeScript
+The CLI follows a layered testing pyramid. Each layer has a different goal, system under test (SUT), and execution context.
 
-- **Prettier** (format) + **ESLint** (lint); tests use **Jest** (`*.spec.ts`)
-- Unit tests in `test/jest/unit/`, acceptance tests in `test/jest/acceptance/`
+### Unit & Component Tests (Open Box)
 
-### Go (`cliv2/`)
+- **Goal**: Verify correct implementation of individual functions and components.
+- **SUT**: CLI/Plugin/Extension logic (not the built binary).
+- **Properties**: Uses mocks to simulate external components. No network calls.
+- **Locations**: `test/jest/unit/**/*.spec.ts` (TypeScript), `cliv2/**/*_test.go` (Go).
+- **Runs on**: every CLI branch push, and in plugin/extension CI/CD pipelines.
+- **Note**: Tests and logic should be in the same repo as the code they test.
 
-- **gofmt** (format) + **golangci-lint** (lint; version pinned in `cliv2/.golangci.yml`)
-- Standard Go testing; mocks generated via `go generate`
+### Integration Tests (Grey Box)
+
+- **Goal**: Verify correct handling of edge cases in component interaction and integration.
+- **SUT**: The built CLI binary.
+- **Properties**: Uses a fake server (`test/acceptance/fake-server.ts`) to simulate the Snyk API. No real external calls.
+- **Locations**: `test/jest/acceptance/**/*.spec.ts` (most files — they use fake-server), `test/tap/*.test.ts` (legacy Tap tests).
+- **Runs on**: CLI branch pushes (the `acceptance-tests` CI job, across multiple OS/arch combinations).
+- **Note**: Legacy Tap tests (`test/tap/`) exist at this layer. New tests should be Jest (`*.spec.ts`) in `test/jest/acceptance/`.
+
+### User Journey Tests (Grey Box)
+
+- **Goal**: Verify that end-to-end user journeys work and API contracts are met.
+- **SUT**: The built CLI binary.
+- **Properties**: End-to-end tests against a configurable (real) Snyk instance. Includes contract tests (CLI arguments, JSON output shape) and enforcement testing.
+- **Runs on**: plugin/extension CI/CD pipelines and environment testing (on-demand/scheduled). A small number of acceptance tests that use `TEST_SNYK_TOKEN` instead of fake-server belong to this layer.
+- **Note**: These tests should cover also features from extensions to ensure that the user experience through the surface remains intact.
+
+### System Tests (Closed Box)
+
+- **Goal**: Verify deployment artifacts work correctly across target environments.
+- **SUT**: Deployment artifacts (downloaded binaries, not locally built).
+- **Properties**: Installs the CLI from the release download URL and runs basic smoke commands (`snyk whoami`, `snyk woof`) on the target platform.
+- **Locations**: The `test-release` and `test-release-static` CI jobs in `.circleci/config.yml`.
+- **Runs on**: release/deployment branches and `*e2e*` branches. Covers Docker, Alpine, macOS, Windows, Linux (multiple distros), FIPS, and scratch containers.
+
+### Unfocused / Post-Fix Tests (Closed Box)
+
+- **Goal**: Detect regressions for unspecified behavior and implicit contracts with users.
+- **SUT**: The CLI binary (preview or release candidate).
+- **Properties**: Exploratory and regression testing that is not covered by other layers.
+- **Methods**: Snyk-internal preview-release testing ("Snyk for Snyk"), explorative testing, regression testing against multiple open-source projects, canary deployments.
+- **Runs on**: on-demand/scheduled, typically before a GA release.
+
+### Which test type should I write?
+
+- **Changing internal logic** (a function, a parser, a formatter) → **unit test** in `test/jest/unit/` or `cliv2/**/*_test.go`.
+- **Changing CLI behavior** (command output, flag handling, API interaction) → **integration test** in `test/jest/acceptance/` using fake-server.
+- **E2E and system tests** are managed by the CI pipeline and are not typically written by feature contributors.
 
 ## Running Tests
 
 ```sh
-# TypeScript unit tests
-npm run test:unit
+# TypeScript unit tests (some suites validate credentials, so a token is required)
+TEST_SNYK_TOKEN=<token> npm run test:unit
 
-# TypeScript acceptance tests (requires a built binary)
+# TypeScript acceptance/user journey tests (requires a built binary)
 TEST_SNYK_COMMAND=./binary-releases/snyk-macos-arm64 npm run test:acceptance
+TEST_SNYK_COMMAND=./binary-releases/snyk-macos-arm64 npm jest --runInBand test/jest/acceptance/snyk-code/snyk-code-user-journey.spec.ts
 
 # Go tests
 cd cliv2 && make test
@@ -79,6 +190,8 @@ cd cliv2 && make test
 # A single TS test file
 npx jest --runInBand test/jest/unit/path/to/test.spec.ts
 ```
+
+`SNYK_TOKEN` is **not** an alternative to `TEST_SNYK_TOKEN` — `test/setup.js` removes `SNYK_TOKEN` (and `SNYK_API_KEY`) from the environment when either is set, and writes `TEST_SNYK_TOKEN` into the CLI user config so tests run against a known configuration.
 
 ## Running the CLI Locally
 
@@ -147,9 +260,20 @@ replace github.com/snyk/cli-extension-foo => ../../cli-extension-foo
 
 ## Architecture
 
+See [Mental Model: The CLI as a Binary Container](#mental-model-the-cli-as-a-binary-container) for the high-level picture of how this repo fits together.
+
 ### Binary structure
 
-The shipped CLI is a **Go executable** (`cliv2/`) that embeds the TypeScript CLI binary via `go:embed`. At runtime the Go CLI decides whether a command is a **native Go workflow** or **legacy TypeScript**; for legacy commands it extracts and spawns the embedded TS binary (the `legacycli` workflow), proxying stdin/stdout/stderr and the exit code.
+The shipped CLI is a **Go executable** (`cliv2/`) that embeds the TypeScript CLI binary via `go:embed`. At runtime, registered Go workflows become Cobra commands; unrecognized commands fall back to the embedded TS binary (the `legacycli` workflow), proxying stdin/stdout/stderr and the exit code. See [Command Routing](#command-routing) for details.
+
+### What typically changes in this repo
+
+- **`cliv2/pkg/core/workflows.go`** — add/remove extension registrations
+- **`cliv2/go.mod`** — bump extension or GAF versions
+- **`cliv2/pkg/core/main.go`** — startup, Cobra wiring, special-case command handlers, error handling
+- **`cliv2/internal/`** — proxy, debug logging, constants, help routing
+- **`src/`** — legacy TypeScript commands (shrinking as commands migrate to Go workflows)
+- **`.circleci/config.yml`**, **`Makefile`** — CI/CD and build pipeline
 
 ### Go Application Framework (GAF)
 
@@ -172,7 +296,7 @@ Registering a workflow is a three-step pattern — define a `WorkflowIdentifier`
 
 ### Extensions
 
-Feature logic lives in separate **`cli-extension-*`** repos, registered with GAF at startup via `ExtensionInit`. Suggested layout:
+Feature logic lives in separate **`cli-extension-*`** repos, registered with GAF at startup via `ExtensionInit`. The full list is in the [Extension → Command Mapping](#extension--command-mapping) table. Suggested layout:
 
 ```
 extension/

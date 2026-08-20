@@ -308,6 +308,12 @@ for arg in "${@}"; do
         DISTRIBUTION_FAILURE=1
     fi
 
+    # 4. Trigger axi
+    trigger_repository_event "axi" "cli_release"
+    if [ $? -ne 0 ]; then
+        DISTRIBUTION_FAILURE=1
+    fi
+
     # Exit 1 only after attempting all triggers
     if [ $DISTRIBUTION_FAILURE -eq 1 ]; then
         echo "One or more distribution channel triggers failed. Exiting with error."

@@ -248,6 +248,105 @@ describe('getSinglePluginResult', () => {
     });
   });
 
+  // `packageManager: 'gradle'` below is illustrative of the real caller, not a
+  // condition being asserted: getSinglePluginResult forwards the flag for any
+  // package manager and only snyk-gradle-plugin acts on it.
+  describe('gradle-refresh-dependencies', () => {
+    const optionsPassedToPlugin = () => {
+      const [, , pluginOptions] = mockModuleInfo.inspect.mock.calls[0];
+      return pluginOptions;
+    };
+
+    it('should forward gradleRefreshDependencies to the plugin when set', async () => {
+      const options: Options & TestOptions = {
+        path: '/test',
+        packageManager: 'gradle',
+        showVulnPaths: 'some',
+        'gradle-refresh-dependencies': true,
+      };
+
+      await getSinglePluginResult('/test', options);
+
+      expect(mockModuleInfo.inspect).toHaveBeenCalledWith(
+        '/test',
+        undefined,
+        expect.objectContaining({
+          gradleRefreshDependencies: true,
+        }),
+        snykHttpClient,
+      );
+    });
+
+    it('should forward gradleRefreshDependencies=false when explicitly disabled', async () => {
+      const options: Options & TestOptions = {
+        path: '/test',
+        packageManager: 'gradle',
+        showVulnPaths: 'some',
+        'gradle-refresh-dependencies': false,
+      };
+
+      await getSinglePluginResult('/test', options);
+
+      expect(mockModuleInfo.inspect).toHaveBeenCalledWith(
+        '/test',
+        undefined,
+        expect.objectContaining({
+          gradleRefreshDependencies: false,
+        }),
+        snykHttpClient,
+      );
+    });
+
+    // The flag is gateway-driven and absent for almost every scan, so an unset
+    // flag must leave the plugin-options shape untouched rather than passing
+    // gradleRefreshDependencies: undefined.
+    //
+    // Asserted with not.toHaveProperty rather than
+    // not.objectContaining({ key: expect.anything() }): expect.anything() never
+    // matches undefined, so that form passes for both "key absent" and "key
+    // present and undefined" — it could not catch the conditional spread being
+    // regressed to an unconditional assignment, which is the whole point here.
+    it('should omit gradleRefreshDependencies entirely when unset', async () => {
+      const options: Options & TestOptions = {
+        path: '/test',
+        packageManager: 'gradle',
+        showVulnPaths: 'some',
+      };
+
+      await getSinglePluginResult('/test', options);
+
+      expect(optionsPassedToPlugin()).not.toHaveProperty(
+        'gradleRefreshDependencies',
+      );
+    });
+
+    // The combination cli-extension-dep-graph actually sends, and the only one
+    // that does anything: snyk-gradle-plugin appends --refresh-dependencies
+    // inside its includeComponentMetadata branch, so gradleRefreshDependencies
+    // alone is a no-op. Both must survive the same hop as camelCase keys.
+    it('should forward gradleRefreshDependencies alongside includeComponentMetadata', async () => {
+      const options: Options & TestOptions = {
+        path: '/test',
+        packageManager: 'gradle',
+        showVulnPaths: 'some',
+        'include-component-metadata': true,
+        'gradle-refresh-dependencies': true,
+      };
+
+      await getSinglePluginResult('/test', options);
+
+      expect(mockModuleInfo.inspect).toHaveBeenCalledWith(
+        '/test',
+        undefined,
+        expect.objectContaining({
+          includeComponentMetadata: true,
+          gradleRefreshDependencies: true,
+        }),
+        snykHttpClient,
+      );
+    });
+  });
+
   describe('MonitorOptions', () => {
     it('should work with MonitorOptions for gomodules', async () => {
       const options: Options & MonitorOptions = {

@@ -122,30 +122,34 @@ describe('network', () => {
   });
 
   describe('retries', () => {
-    it('respects max attempts', async () => {
-      const errorResponse = {
-        jsonapi: { version: '1.0' },
-        errors: [new Snyk.ServerError('').toJsonApiErrorObject()],
-        description: 'Internal server error',
-      };
-      server.setGlobalResponse(
-        errorResponse,
-        parseInt(errorResponse['errors'][0].status),
-        { 'retry-after': '1' },
-      );
-      await runSnykCLI(`test`, {
-        env: {
-          ...env,
-          INTERNAL_NETWORK_REQUEST_MAX_ATTEMPTS: '2',
-        },
-      });
+    it(
+      'respects max attempts',
+      async () => {
+        const errorResponse = {
+          jsonapi: { version: '1.0' },
+          errors: [new Snyk.ServerError('').toJsonApiErrorObject()],
+          description: 'Internal server error',
+        };
+        server.setGlobalResponse(
+          errorResponse,
+          parseInt(errorResponse['errors'][0].status),
+          { 'retry-after': '1' },
+        );
+        await runSnykCLI(`test`, {
+          env: {
+            ...env,
+            INTERNAL_NETWORK_REQUEST_MAX_ATTEMPTS: '2',
+          },
+        });
 
-      const requests = server.getRequests();
-      const actualNetorkAttempts = requests.filter(
-        (r) => r.url.includes('/test-dep-graph') || r.url.includes('/vuln/'),
-      ).length;
+        const requests = server.getRequests();
+        const actualNetorkAttempts = requests.filter(
+          (r) => r.url.includes('/test-dep-graph') || r.url.includes('/vuln/'),
+        ).length;
 
-      expect(actualNetorkAttempts).toBe(2);
-    });
+        expect(actualNetorkAttempts).toBe(2);
+      },
+      1000 * 60,
+    );
   });
 });

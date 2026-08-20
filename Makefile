@@ -209,6 +209,8 @@ $(BINARY_WRAPPER_DIR)/src/generated/sha256sums.txt:
 
 .PHONY: build-binary-wrapper
 build-binary-wrapper: pre-build-binary-wrapper $(BINARY_WRAPPER_DIR)/src/generated/version $(BINARY_WRAPPER_DIR)/src/generated/sha256sums.txt
+	@echo "-- Installing Typescript Binary Wrapper dependencies"
+	@cd $(BINARY_WRAPPER_DIR); npm ci --ignore-scripts
 	@echo "-- Building Typescript Binary Wrapper ($(BINARY_WRAPPER_DIR)/dist/)"
 	@cd $(BINARY_WRAPPER_DIR); npm run build
 
@@ -323,7 +325,7 @@ release-mgt-create:
 lint:
 	@echo "-- Linting code"
 	@npm run lint
-	@pushd $(EXTENSIBLE_CLI_DIR); export CGO_ENABLED=1; $(MAKE) lint; popd
+	@cd $(EXTENSIBLE_CLI_DIR) && $(MAKE) lint
 	@echo "-- Verifying go.mod files are tidy"
 	@cd $(EXTENSIBLE_CLI_DIR) && $(GOCMD) mod tidy -diff > /dev/null || \
 		(echo "ERROR: cliv2/go.mod is not tidy. Run 'make format' and commit the changes." && exit 1)
@@ -331,17 +333,26 @@ lint:
 		cd $(WORKING_DIR)/cliv2-private && $(GOCMD) mod tidy -diff > /dev/null || \
 			(echo "ERROR: cliv2-private/go.mod is not tidy. Run 'make format' and commit the changes." && exit 1); \
 	fi
+	@$(MAKE) validate-gomod-sync
+
+.PHONY: validate-gomod-sync
+validate-gomod-sync:
+	@if [ -d "$(PRIVATE_DIR)" ]; then \
+		echo "-- Verifying go.mod files are in sync"; \
+		cd $(EXTENSIBLE_CLI_DIR) && $(GOCMD) run ./cmd/gomodsync \
+			--mode=validate --public=./go.mod --private=$(PRIVATE_DIR)/go.mod; \
+	fi
 
 .PHONY: format
 format:
 	@$(MAKE) tidy
 	@echo "-- Formatting code"
 	@npm run format
-	@pushd $(EXTENSIBLE_CLI_DIR); $(MAKE) format; popd
+	@cd $(EXTENSIBLE_CLI_DIR) && $(MAKE) format
 
 .PHONY: tidy
 tidy:
-	@cd $(EXTENSIBLE_CLI_DIR); $(MAKE) tidy
+	@cd $(EXTENSIBLE_CLI_DIR) && $(MAKE) tidy
 
 .PHONY: ls-protocol-metadata
 ls-protocol-metadata: $(BINARY_RELEASES_FOLDER_TS_CLI)/version
