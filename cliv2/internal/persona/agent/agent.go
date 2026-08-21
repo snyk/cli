@@ -1,133 +1,91 @@
-// This file is adapted from @vercel/detect-agent (v1.2.3) by Vercel, Inc.
-// Source: https://github.com/vercel/vercel/blob/0d0b990edda112c5cc91e95e0d054878542fe3be/packages/detect-agent/src/index.ts
-//
-// Original work Copyright 2017 Vercel, Inc.
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// This Go port has been modified from the original TypeScript source.
-
+// Package agent identifies the coding-tool Harness driving the current CLI
+// invocation (e.g. Claude Code, Cursor, Codex), split into a canonical name
+// and, when one can be determined, a version.
 package agent
 
 import (
-	"os"
+	"regexp"
 	"strings"
+
+	detectagent "github.com/vercel/detect-agent"
 )
 
-// Agent is the canonical name of a known AI coding agent / harness.
-type Agent string
-
-const (
-	AgentCursor        Agent = "cursor"
-	AgentCursorCLI     Agent = "cursor-cli"
-	AgentClaude        Agent = "claude"
-	AgentCowork        Agent = "cowork"
-	AgentDevin         Agent = "devin"
-	AgentReplit        Agent = "replit"
-	AgentGemini        Agent = "gemini"
-	AgentCodex         Agent = "codex"
-	AgentAntigravity   Agent = "antigravity"
-	AgentAugmentCLI    Agent = "augment-cli"
-	AgentOpenCode      Agent = "opencode"
-	AgentGitHubCopilot Agent = "github-copilot"
-	AgentV0            Agent = "v0"
-)
-
-// devinMarkerPath is a filesystem marker present inside the Devin sandbox.
-const devinMarkerPath = "/opt/.devin"
-
-// lookup abstracts the environment so detection can be tested without mutating
-// the real process environment.
-type lookup struct {
-	getenv     func(string) string
-	fileExists func(string) bool
-}
-
-func osLookup() lookup {
-	return lookup{
-		getenv: os.Getenv,
-		fileExists: func(path string) bool {
-			_, err := os.Stat(path)
-			return err == nil
-		},
+// DetectAgent resolves the Harness identifier the current process declared
+// via AI_AGENT, or that detect-agent recognised from an environment
+// signature. The value is returned exactly as detect-agent produced it: an
+// explicit AI_AGENT declaration passes through verbatim (trimmed), a
+// signature match is already canonical. No version split or canonicalisation
+// is applied here — see SplitVersion.
+func DetectAgent() (string, bool) {
+	details, err := detectagent.Detect()
+	if err != nil {
+		return "", false
 	}
+	return details.Name, true
 }
 
-// signature describes how a single agent is recognised from the environment.
-type signature struct {
-	agent Agent
-	match func(l lookup) bool
-}
-
-// anySet reports true if any of the given environment variables is set to a
-// non-empty value.
-func anySet(l lookup, keys ...string) bool {
-	for _, k := range keys {
-		if l.getenv(k) != "" {
-			return true
-		}
-	}
-	return false
-}
-
-// signatures is the ordered list of agent detectors. Order matters: the first
-// match wins, so more specific signatures must precede more generic ones.
-var signatures = []signature{
-	{AgentCursor, func(l lookup) bool { return anySet(l, "CURSOR_TRACE_ID") }},
-	{AgentCursorCLI, func(l lookup) bool {
-		return anySet(l, "CURSOR_AGENT") || l.getenv("CURSOR_EXTENSION_HOST_ROLE") == "agent-exec"
-	}},
-	{AgentGemini, func(l lookup) bool { return anySet(l, "GEMINI_CLI") }},
-	{AgentCodex, func(l lookup) bool { return anySet(l, "CODEX_SANDBOX", "CODEX_CI", "CODEX_THREAD_ID") }},
-	{AgentAntigravity, func(l lookup) bool { return anySet(l, "ANTIGRAVITY_AGENT") }},
-	{AgentAugmentCLI, func(l lookup) bool { return anySet(l, "AUGMENT_AGENT") }},
-	{AgentOpenCode, func(l lookup) bool { return anySet(l, "OPENCODE_CLIENT") }},
-	// Claude Code: the "cowork" surface is a more specific variant and must be
-	// checked first.
-	{AgentCowork, func(l lookup) bool {
-		return anySet(l, "CLAUDECODE", "CLAUDE_CODE") && anySet(l, "CLAUDE_CODE_IS_COWORK")
-	}},
-	{AgentClaude, func(l lookup) bool { return anySet(l, "CLAUDECODE", "CLAUDE_CODE") }},
-	{AgentReplit, func(l lookup) bool { return anySet(l, "REPL_ID") }},
-	{AgentGitHubCopilot, func(l lookup) bool {
-		return anySet(l, "COPILOT_MODEL", "COPILOT_ALLOW_ALL", "COPILOT_GITHUB_TOKEN")
-	}},
-	{AgentDevin, func(l lookup) bool { return l.fileExists(devinMarkerPath) }},
-}
-
-// DetectAgent resolves the active AI agent, if any, from the current process
-// environment.
-func DetectAgent() (Agent, bool) {
-	return detectAgent(osLookup())
-}
-
-// detectAgent resolves the active AI agent, if any.
+// versionSuffix recognises a version-shaped suffix on a Harness identifier,
+// one of two ways:
 //
-// The AI_AGENT environment variable is the explicit, highest-priority signal:
-// when set it is trusted verbatim (with a couple of canonicalisations). When it
-// is absent, detection falls back to per-agent environment / filesystem
-// signatures.
-func detectAgent(l lookup) (Agent, bool) {
-	if name := strings.TrimSpace(l.getenv("AI_AGENT")); name != "" {
-		return canonicalAgent(name), true
-	}
+//   - fused onto the name with '_' or '/', with an optional trailing
+//     role/surface segment (captured only so it isn't absorbed into the
+//     version, then discarded). These are ordinary characters that can end a
+//     real name on their own, so at least two numeric components are
+//     required to avoid matching a name that merely ends in a single digit.
+//   - detect-agent's documented name@version convention for custom AI_AGENT
+//     declarations (README example: "devin@1"). '@' is never part of a
+//     Harness name, so the separator alone is the version signal and a
+//     single numeric component is enough.
+//
+// Exactly one of the two version groups is populated per match.
+var versionSuffix = regexp.MustCompile(`^(?P<name>.+?)(?:[_/](?P<version1>\d+(?:[.\-]\d+){1,3})(?:[_/](?P<role>[A-Za-z0-9-]+))?|@(?P<version2>\d+(?:[.\-]\d+){0,3}))$`)
 
-	for _, s := range signatures {
-		if s.match(l) {
-			return s.agent, true
-		}
-	}
+// knownNames maps a normalised (lowercased, separators stripped) form of
+// every Harness name detect-agent knows about to that name's canonical
+// spelling, so a version-stripped fragment resolves to the same vocabulary
+// detect-agent itself uses rather than a hand-written alias list.
+var knownNames = buildKnownNames()
 
-	return "", false
+func buildKnownNames() map[string]string {
+	m := make(map[string]string, len(detectagent.KnownAgents))
+	for _, name := range detectagent.KnownAgents {
+		m[normalize(name)] = name
+	}
+	return m
 }
 
-// canonicalAgent normalises an explicitly declared AI_AGENT value onto the set
-// of canonical agent names.
-func canonicalAgent(name string) Agent {
-	if name == "github-copilot-cli" {
-		return AgentGitHubCopilot
+func normalize(s string) string {
+	return strings.NewReplacer("_", "", "-", "", "/", "").Replace(strings.ToLower(s))
+}
+
+// SplitVersion splits a version-shaped suffix off a raw Harness identifier,
+// canonicalising the remaining name fragment against detect-agent's known
+// vocabulary when it resolves to one. It returns the identifier unchanged
+// with an empty version when no version-shaped suffix is present.
+//
+// '_'/'/' are ordinary characters that can end a real name on their own, so
+// that split is only trusted when the fragment resolves to a known
+// Harness — never a guess. '@' is never part of a Harness name (detect-agent's
+// own documented convention), so it is unambiguous even for a Harness we
+// don't recognise: the fragment is still split off, just left uncanonicalised.
+func SplitVersion(raw string) (name string, version string) {
+	m := versionSuffix.FindStringSubmatch(raw)
+	if m == nil {
+		return raw, ""
 	}
-	return Agent(name)
+
+	fragment := m[versionSuffix.SubexpIndex("name")]
+	canonical, known := knownNames[normalize(fragment)]
+
+	if v := m[versionSuffix.SubexpIndex("version2")]; v != "" {
+		if known {
+			fragment = canonical
+		}
+		return fragment, strings.ReplaceAll(v, "-", ".")
+	}
+
+	if !known {
+		return raw, ""
+	}
+	return canonical, strings.ReplaceAll(m[versionSuffix.SubexpIndex("version1")], "-", ".")
 }

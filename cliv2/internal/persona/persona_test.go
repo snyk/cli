@@ -1,6 +1,8 @@
 package persona
 
 import (
+	"os"
+	"strings"
 	"testing"
 
 	"github.com/snyk/go-application-framework/pkg/analytics"
@@ -30,6 +32,49 @@ func (f *fakeAnalytics) AddExtensionBoolValue(key string, value bool)   { f.bool
 func (f *fakeAnalytics) AddExtensionIntegerValue(key string, value int) { f.integers[key] = value }
 func (f *fakeAnalytics) AddExtensionStringValue(key, value string)      { f.strings[key] = value }
 
+// isolateEnv wipes the entire process environment for the duration of t and
+// restores it on cleanup. detect-agent's signature list (which env vars each
+// Harness is recognised by) lives in a third-party vendored agents.json we
+// don't own; naming those vars here would drift the moment they add one. A
+// full wipe needs no such list: whatever ambient markers the shell actually
+// running `go test` happens to set (CLAUDECODE, CURSOR_TRACE_ID, ...) are
+// gone regardless of what detect-agent looks for, now or in the future.
+func isolateEnv(t *testing.T) {
+	t.Helper()
+	saved := os.Environ()
+	os.Clearenv()
+	t.Cleanup(func() {
+		os.Clearenv()
+		for _, kv := range saved {
+			k, v, _ := strings.Cut(kv, "=")
+			// t.Setenv would register its own cleanup here, which runs
+			// immediately after this loop and unsets the var we just
+			// restored. os.Setenv writes it back for good.
+			//nolint:usetesting // restoring the caller's real env from within a Cleanup, not setting up a test's env
+			if err := os.Setenv(k, v); err != nil {
+				t.Errorf("failed to restore env var %q: %v", k, err)
+			}
+		}
+	})
+}
+
+// TestIsolateEnvRestoresCallerEnvironment guards against isolateEnv's cleanup
+// wiping out variables it was supposed to restore: t.Setenv registers its own
+// unset-cleanup, so calling it from inside isolateEnv's t.Cleanup would undo
+// the restore it just performed.
+func TestIsolateEnvRestoresCallerEnvironment(t *testing.T) {
+	t.Setenv("ISOLATE_ENV_SENTINEL", "outer")
+
+	t.Run("inner", func(t *testing.T) {
+		isolateEnv(t)
+		t.Setenv("SOME_TEST_VAR", "whatever")
+	})
+
+	if got := os.Getenv("ISOLATE_ENV_SENTINEL"); got != "outer" {
+		t.Fatalf("sentinel env var not restored after isolateEnv cleanup: got %q, want %q", got, "outer")
+	}
+}
+
 // TestReport verifies that the public entrypoint wires the interactive and
 // mode signals onto the analytics instance. The per-mode and per-agent
 // behaviour is exercised in the interactive and agent subpackages.
@@ -42,5 +87,113 @@ func TestReport(t *testing.T) {
 	}
 	if _, ok := a.integers[keyInteractiveMode]; !ok {
 		t.Fatalf("expected %q to be reported", keyInteractiveMode)
+	}
+}
+
+// TestReport_Agent covers every real-world AI_AGENT shape observed in
+// production analytics, plus the signature-detection and edge-case paths:
+// the environment goes in, the recorded persona.agent / persona.agent_version
+// values come out, and everything in between (detection, version split,
+// canonicalisation) is free to change.
+func TestReport_Agent(t *testing.T) {
+	cases := []struct {
+		name        string
+		env         map[string]string
+		wantAgent   string
+		wantVersion string
+	}{
+		{
+			name:        "fused underscore, agent role",
+			env:         map[string]string{"AI_AGENT": "claude-code_2-1-233_agent"},
+			wantAgent:   "claude_code",
+			wantVersion: "2.1.233",
+		},
+		{
+			name:        "fused underscore, harness role",
+			env:         map[string]string{"AI_AGENT": "claude-code_2-1-229_harness"},
+			wantAgent:   "claude_code",
+			wantVersion: "2.1.229",
+		},
+		{
+			// Different literal shape, same version, to prove both normalise
+			// to the identical bucket rather than merely similar ones.
+			name:        "legacy slash format normalises to the same bucket",
+			env:         map[string]string{"AI_AGENT": "claude-code/2.1.233/agent"},
+			wantAgent:   "claude_code",
+			wantVersion: "2.1.233",
+		},
+		{
+			// Same canonical name as the fused AI_AGENT cases above, proving
+			// Claude Code converges to one bucket regardless of which
+			// detection path (declaration vs. signature) produced it.
+			name:        "bare signature detection, no explicit declaration",
+			env:         map[string]string{"AI_AGENT": "", "CLAUDECODE": "1"},
+			wantAgent:   "claude_code",
+			wantVersion: "",
+		},
+		{
+			name:        "harness that already groups correctly",
+			env:         map[string]string{"AI_AGENT": "cursor-cli"},
+			wantAgent:   "cursor-cli",
+			wantVersion: "",
+		},
+		{
+			name:        "fused identifier with no version-shaped segment",
+			env:         map[string]string{"AI_AGENT": "github_copilot_vscode_agent"},
+			wantAgent:   "github_copilot_vscode_agent",
+			wantVersion: "",
+		},
+		{
+			name:        "version-shaped but unrecognised harness",
+			env:         map[string]string{"AI_AGENT": "mystery-tool_9-1_agent"},
+			wantAgent:   "mystery-tool_9-1_agent",
+			wantVersion: "",
+		},
+		{
+			name:        "redacted identifier",
+			env:         map[string]string{"AI_AGENT": "***"},
+			wantAgent:   "***",
+			wantVersion: "",
+		},
+		{
+			name:        "version-shaped run with no trailing role segment",
+			env:         map[string]string{"AI_AGENT": "claude-code_2-1-233"},
+			wantAgent:   "claude_code",
+			wantVersion: "2.1.233",
+		},
+		{
+			// detect-agent's own README recommends '@' for custom AI_AGENT
+			// declarations (e.g. "custom-agent@2.0"); the split must honour
+			// that convention alongside Snyk's '_' and '/' formats.
+			name:        "at-separated version, detect-agent's documented convention",
+			env:         map[string]string{"AI_AGENT": "devin@2.1"},
+			wantAgent:   "devin",
+			wantVersion: "2.1",
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			isolateEnv(t)
+			for k, v := range tc.env {
+				t.Setenv(k, v)
+			}
+
+			a := newFakeAnalytics()
+			Report(a)
+
+			if got := a.strings[keyAgent]; got != tc.wantAgent {
+				t.Fatalf("%s = %q, want %q", keyAgent, got, tc.wantAgent)
+			}
+			if tc.wantVersion == "" {
+				if v, ok := a.strings[keyAgentVersion]; ok {
+					t.Fatalf("expected %q to be absent, got %q", keyAgentVersion, v)
+				}
+				return
+			}
+			if got := a.strings[keyAgentVersion]; got != tc.wantVersion {
+				t.Fatalf("%s = %q, want %q", keyAgentVersion, got, tc.wantVersion)
+			}
+		})
 	}
 }
