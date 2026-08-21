@@ -20,9 +20,32 @@ func isolateEnv(t *testing.T) {
 		os.Clearenv()
 		for _, kv := range saved {
 			k, v, _ := strings.Cut(kv, "=")
-			t.Setenv(k, v)
+			// t.Setenv would register its own cleanup here, which runs
+			// immediately after this loop and unsets the var we just
+			// restored. os.Setenv writes it back for good.
+			//nolint:usetesting // restoring the caller's real env from within a Cleanup, not setting up a test's env
+			if err := os.Setenv(k, v); err != nil {
+				t.Errorf("failed to restore env var %q: %v", k, err)
+			}
 		}
 	})
+}
+
+// TestIsolateEnvRestoresCallerEnvironment guards against isolateEnv's cleanup
+// wiping out variables it was supposed to restore: t.Setenv registers its own
+// unset-cleanup, so calling it from inside isolateEnv's t.Cleanup would undo
+// the restore it just performed.
+func TestIsolateEnvRestoresCallerEnvironment(t *testing.T) {
+	t.Setenv("ISOLATE_ENV_SENTINEL", "outer")
+
+	t.Run("inner", func(t *testing.T) {
+		isolateEnv(t)
+		t.Setenv("AI_AGENT", "whatever")
+	})
+
+	if got := os.Getenv("ISOLATE_ENV_SENTINEL"); got != "outer" {
+		t.Fatalf("sentinel env var not restored after isolateEnv cleanup: got %q, want %q", got, "outer")
+	}
 }
 
 // TestVercelDetectDoesNotNormalizeExplicitAIAgent proves the vercel package's
