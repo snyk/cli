@@ -740,14 +740,15 @@ func mainWithErrorCode(additionalExts []workflow.ExtensionInit) int {
 func populateRedactionTerms(config configuration.Configuration, engine workflow.Engine) []string {
 	knownTerms, _ := instrumentation.GetKnownCommandsAndFlags(engine)
 	knownTerms = append(knownTerms, config.GetString(configuration.API_URL), config.GetString(configuration.ORGANIZATION), config.GetString(configuration.ORGANIZATION_SLUG), config.GetString(clientMachineIdConfigKey))
-	// AI_AGENT is trusted verbatim into the persona.agent extension (see
-	// agent.canonicalAgent) for any harness not on its short canonical list, so its
-	// raw value needs the same exclusion as the client machine id above.
-	// GetUnknownParameters tokenizes its input on whitespace, so a multi-word
-	// value only excludes as a whole if each of its words is excluded too.
+	// AI_AGENT is trusted verbatim by agent.DetectAgent, and persona.Report
+	// falls back to that same raw value whenever the Harness name/version split
+	// or canonicalisation does not apply, so its raw value needs the same
+	// exclusion as the client machine id above. GetUnknownParameters tokenizes
+	// its input on whitespace, so a multi-word value only excludes as a whole if
+	// each of its words is excluded too.
 	if detectedAgent, ok := agent.DetectAgent(); ok {
-		knownTerms = append(knownTerms, string(detectedAgent))
-		knownTerms = append(knownTerms, strings.Fields(string(detectedAgent))...)
+		knownTerms = append(knownTerms, detectedAgent)
+		knownTerms = append(knownTerms, strings.Fields(detectedAgent)...)
 	}
 	termsToRedact := cliv2utils.GetUnknownParameters(os.Args[1:], os.Environ(), knownTerms)
 	config.Set(logging.REDACTION_TERMS, termsToRedact)

@@ -4,8 +4,8 @@ go 1.26.6
 
 require (
 	github.com/snyk/ambient-canary v0.0.0-20260722064253-fba619a134a9
-	github.com/snyk/cli-extension-axi v0.0.0-20260812113949-210b479505a9
-	github.com/snyk/cli-extension-cos v0.0.0-20260813100139-4d5c43e0785f
+	github.com/snyk/cli-extension-axi v0.0.0-20260818155424-6ae9a45c0c55
+	github.com/snyk/cli-extension-cos v0.0.0-20260818151318-d63bb9db9484
 	github.com/snyk/cli/cliv2 v0.0.0
 	github.com/snyk/remy-cli-extension v1.36.1
 	github.com/snyk/rift-cli-extension v1.1.1
@@ -210,24 +210,24 @@ require (
 	github.com/shirou/gopsutil v3.21.11+incompatible // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/skeema/knownhosts v1.3.2 // indirect
-	github.com/snyk/cli-extension-agent-scan v0.0.0-20260803112735-0ad462cba2af // indirect
+	github.com/snyk/cli-extension-agent-scan v0.0.0-20260821092236-dc228259a004 // indirect
 	github.com/snyk/cli-extension-ai-bom v0.0.0-20260817214817-d0a81ac40172 // indirect
-	github.com/snyk/cli-extension-dep-graph/v2 v2.8.1 // indirect
+	github.com/snyk/cli-extension-dep-graph/v2 v2.10.1 // indirect
 	github.com/snyk/cli-extension-iac v0.0.0-20260515092252-505c498f1077 // indirect
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20260515141409-fb475901bb8e // indirect
-	github.com/snyk/cli-extension-os-flows v0.0.0-20260818092349-91c745a9ee7a // indirect
+	github.com/snyk/cli-extension-os-flows v0.0.0-20260821101812-a52aa2dd8c3b // indirect
 	github.com/snyk/cli-extension-sbom v0.0.0-20260818092356-16ee760085f9 // indirect
 	github.com/snyk/cli-extension-secrets v0.0.0-20260811115637-ee872c26b0cd // indirect
-	github.com/snyk/code-client-go v1.31.3 // indirect
+	github.com/snyk/code-client-go v1.31.8 // indirect
 	github.com/snyk/container-cli v0.0.0-20260213211631-cd2b2cf8f3ea // indirect
 	github.com/snyk/dep-graph/go v0.0.0-20260127160647-c836da762c62 // indirect
 	github.com/snyk/error-catalog-golang-public v0.0.0-20260806122555-28dc45bbbde6 // indirect
-	github.com/snyk/go-application-framework v0.15.1 // indirect
+	github.com/snyk/go-application-framework v0.16.1 // indirect
 	github.com/snyk/go-httpauth v0.0.0-20260810142636-0f6182aaccbc // indirect
 	github.com/snyk/policy-engine v1.1.4 // indirect
 	github.com/snyk/snyk-iac-capture v0.6.5 // indirect
-	github.com/snyk/snyk-ls v0.0.0-20260814112015-c5325e836868 // indirect
-	github.com/snyk/studio-mcp v1.15.3 // indirect
+	github.com/snyk/snyk-ls v0.0.0-20260814164657-a99d4cf1c3e7 // indirect
+	github.com/snyk/studio-mcp v1.15.4 // indirect
 	github.com/sourcegraph/go-lsp v0.0.0-20240223163137-f80c5dd31dfd // indirect
 	github.com/spf13/afero v1.15.0 // indirect
 	github.com/spf13/cast v1.10.0 // indirect
@@ -249,6 +249,7 @@ require (
 	github.com/tmc/langchaingo v0.1.14 // indirect
 	github.com/toon-format/toon-go v0.0.0-20251202084852-7ca0e27c4e8c // indirect
 	github.com/ulikunitz/xz v0.5.15 // indirect
+	github.com/vercel/detect-agent v1.2.0 // indirect
 	github.com/vincent-petithory/dataurl v1.0.0 // indirect
 	github.com/writeas/go-strip-markdown v2.0.1+incompatible // indirect
 	github.com/xanzy/ssh-agent v0.3.3 // indirect
