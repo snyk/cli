@@ -47,7 +47,7 @@ func isolateEnv(t *testing.T) {
 		os.Clearenv()
 		for _, kv := range saved {
 			k, v, _ := strings.Cut(kv, "=")
-			os.Setenv(k, v)
+			t.Setenv(k, v)
 		}
 	})
 }

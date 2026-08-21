@@ -1,10 +1,29 @@
 package agent
 
 import (
+	"os"
+	"strings"
 	"testing"
 
 	detectagent "github.com/vercel/detect-agent"
 )
+
+// isolateEnv wipes the entire process environment for the duration of t and
+// restores it on cleanup, so ambient markers from the shell actually running
+// `go test` (CLAUDECODE, CURSOR_TRACE_ID, ...) can't leak into detectagent's
+// signature detection. See persona_test.go's copy for the full rationale.
+func isolateEnv(t *testing.T) {
+	t.Helper()
+	saved := os.Environ()
+	os.Clearenv()
+	t.Cleanup(func() {
+		os.Clearenv()
+		for _, kv := range saved {
+			k, v, _ := strings.Cut(kv, "=")
+			t.Setenv(k, v)
+		}
+	})
+}
 
 // TestVercelDetectDoesNotNormalizeExplicitAIAgent proves the vercel package's
 // contract directly, independent of our own split/canonicalise code: an
@@ -13,8 +32,8 @@ import (
 // vercel's own clean vocabulary name. This is why SplitVersion exists.
 func TestVercelDetectDoesNotNormalizeExplicitAIAgent(t *testing.T) {
 	t.Run("explicit AI_AGENT is returned verbatim, not standardised", func(t *testing.T) {
+		isolateEnv(t)
 		t.Setenv("AI_AGENT", "claude-code_2-1-233_agent")
-		t.Setenv("CLAUDECODE", "")
 
 		details, err := detectagent.Detect()
 		if err != nil {
@@ -26,7 +45,7 @@ func TestVercelDetectDoesNotNormalizeExplicitAIAgent(t *testing.T) {
 	})
 
 	t.Run("signature fallback returns vercel's own clean name", func(t *testing.T) {
-		t.Setenv("AI_AGENT", "")
+		isolateEnv(t)
 		t.Setenv("CLAUDECODE", "1")
 
 		details, err := detectagent.Detect()
