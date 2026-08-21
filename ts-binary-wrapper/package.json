@@ -57,5 +57,10 @@
     "global-agent",
     "roarr",
     "boolean"
-  ]
+  ],
+  "overrides": {
+    "global-agent": {
+      "semver": "^7.5.2"
+    }
+  }
 }
