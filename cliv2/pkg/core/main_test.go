@@ -729,9 +729,9 @@ func Test_shouldSuppressDisplay(t *testing.T) {
 	}{
 		{"nil", nil, false},
 		{"exec exit 1", exitVulnerabilitiesFound, true},
-		{"exec exit 2", exitFailure, false},
+		{"exec exit 2", exitFailure, true},
 		{"ErrorWithExitCode 1", &clierrors.ErrorWithExitCode{ExitCode: 1}, true},
-		{"ErrorWithExitCode 2", &clierrors.ErrorWithExitCode{ExitCode: 2}, false},
+		{"ErrorWithExitCode 2", &clierrors.ErrorWithExitCode{ExitCode: 2}, true},
 		{"plain error", fmt.Errorf("connection refused"), false},
 		{"already-shown catalog error", authError(true), true},
 	}
@@ -884,6 +884,24 @@ func Test_processError(t *testing.T) {
 		exitCode := cliv2.DeriveExitCode(err)
 		assert.Equal(t, constants.SNYK_EXIT_CODE_EX_TEMPFAIL, exitCode)
 	})
+}
+
+func Test_processError_PreservesCodeTestResultWhenAuxiliaryRequestFails(t *testing.T) {
+	commandResult := &clierrors.ErrorWithExitCode{
+		ExitCode: constants.SNYK_EXIT_CODE_VULNERABILITIES_FOUND,
+	}
+	handledNetworkError := errors.New("handled auxiliary network error")
+	allErrors, outputError := processError(commandResult, []error{handledNetworkError})
+	assert.Len(t, allErrors, 2)
+	assert.Same(t, commandResult, outputError)
+}
+
+func Test_processError_PreservesLegacyCLIResultWhenAuxiliaryRequestFails(t *testing.T) {
+	commandResult := &exec.ExitError{ProcessState: &os.ProcessState{}}
+	handledNetworkError := errors.New("handled auxiliary network error")
+	allErrors, outputError := processError(commandResult, []error{handledNetworkError})
+	assert.Len(t, allErrors, 2)
+	assert.Same(t, commandResult, outputError)
 }
 
 func loadJsonFile(t *testing.T, filename string) []byte {
