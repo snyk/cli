@@ -1333,6 +1333,20 @@ workflows:
                 - main
                 - '/release.*/'
 
+      - release-s3:
+          name: upload latest/stable to ADS
+          deployment: ads
+          context:
+            - team-hammerhead-ads-deploy-tokens
+            - devex_cli_docker_hub
+          requires:
+            - Start Deployments
+          filters:
+            branches:
+              only:
+                - main
+                - '/release.*/'
+
       - release-github:
           name: upload github
           context:
