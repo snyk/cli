@@ -157,10 +157,19 @@ func TestSplitVersion_AtSeparator(t *testing.T) {
 			wantVersion: "",
 		},
 		{
-			name:        "unrecognised harness is never guessed",
+			// Unlike the '_'/'/' cases, '@' is unambiguous on its own, so the
+			// split happens even for a harness detect-agent doesn't know —
+			// the name fragment is just left uncanonicalised.
+			name:        "unrecognised harness still splits on '@'",
 			raw:         "custom-agent@2.0",
-			wantName:    "custom-agent@2.0",
-			wantVersion: "",
+			wantName:    "custom-agent",
+			wantVersion: "2.0",
+		},
+		{
+			name:        "unrecognised harness, single-component version",
+			raw:         "custom-agent@2",
+			wantName:    "custom-agent",
+			wantVersion: "2",
 		},
 	}
 

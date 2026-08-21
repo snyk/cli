@@ -58,11 +58,16 @@ func normalize(s string) string {
 	return strings.NewReplacer("_", "", "-", "", "/", "").Replace(strings.ToLower(s))
 }
 
-// SplitVersion splits a version-shaped suffix off a raw Harness identifier
-// and canonicalises the remaining name fragment against detect-agent's known
-// vocabulary. It returns the identifier unchanged with an empty version when
-// no version-shaped suffix is present, or when the extracted fragment does
-// not resolve to a known Harness — never a guess.
+// SplitVersion splits a version-shaped suffix off a raw Harness identifier,
+// canonicalising the remaining name fragment against detect-agent's known
+// vocabulary when it resolves to one. It returns the identifier unchanged
+// with an empty version when no version-shaped suffix is present.
+//
+// '_'/'/' are ordinary characters that can end a real name on their own, so
+// that split is only trusted when the fragment resolves to a known
+// Harness — never a guess. '@' is never part of a Harness name (detect-agent's
+// own documented convention), so it is unambiguous even for a Harness we
+// don't recognise: the fragment is still split off, just left uncanonicalised.
 func SplitVersion(raw string) (name string, version string) {
 	m := versionSuffix.FindStringSubmatch(raw)
 	if m == nil {
@@ -70,14 +75,17 @@ func SplitVersion(raw string) (name string, version string) {
 	}
 
 	fragment := m[versionSuffix.SubexpIndex("name")]
-	canonical, ok := knownNames[normalize(fragment)]
-	if !ok {
-		return raw, ""
+	canonical, known := knownNames[normalize(fragment)]
+
+	if v := m[versionSuffix.SubexpIndex("version2")]; v != "" {
+		if known {
+			fragment = canonical
+		}
+		return fragment, strings.ReplaceAll(v, "-", ".")
 	}
 
-	version = m[versionSuffix.SubexpIndex("version1")]
-	if version == "" {
-		version = m[versionSuffix.SubexpIndex("version2")]
+	if !known {
+		return raw, ""
 	}
-	return canonical, strings.ReplaceAll(version, "-", ".")
+	return canonical, strings.ReplaceAll(m[versionSuffix.SubexpIndex("version1")], "-", ".")
 }
