@@ -698,28 +698,6 @@ func Test_displayError(t *testing.T) {
 		displayError(err, userInterface, config, t.Context(), false)
 	})
 
-	scenarios := []struct {
-		name string
-		err  error
-	}{
-		{
-			name: "exec.ExitError",
-			err:  &exec.ExitError{},
-		},
-		{
-			name: "clierrors.ErrorWithExitCode",
-			err:  &clierrors.ErrorWithExitCode{ExitCode: 42},
-		},
-	}
-
-	for _, scenario := range scenarios {
-		t.Run(fmt.Sprintf("%s does not display anything", scenario.name), func(t *testing.T) {
-			config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
-			err := scenario.err
-			displayError(err, userInterface, config, t.Context(), false)
-		})
-	}
-
 	t.Run("prints messages of error wrapping exec.ExitError", func(t *testing.T) {
 		err := &wrErr{wraps: &exec.ExitError{}}
 		userInterface.EXPECT().OutputError(err, gomock.Any()).Times(1)
@@ -727,6 +705,42 @@ func Test_displayError(t *testing.T) {
 		config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
 		displayError(err, userInterface, config, t.Context(), false)
 	})
+}
+
+func Test_shouldSuppressDisplay(t *testing.T) {
+	exitVulnerabilitiesFound := exec.Command("sh", "-c", "exit 1").Run()
+	require.Error(t, exitVulnerabilitiesFound)
+	exitFailure := exec.Command("sh", "-c", "exit 2").Run()
+	require.Error(t, exitFailure)
+
+	authError := func(alreadyShown bool) snyk_errors.Error {
+		return snyk_errors.Error{
+			Title:     "Authentication error",
+			ErrorCode: "SNYK-0005",
+			Level:     "error",
+			Meta:      map[string]any{cliv2.ERROR_HAS_BEEN_DISPLAYED: alreadyShown},
+		}
+	}
+
+	testCases := []struct {
+		name     string
+		err      error
+		suppress bool
+	}{
+		{"nil", nil, false},
+		{"exec exit 1", exitVulnerabilitiesFound, true},
+		{"exec exit 2", exitFailure, true},
+		{"ErrorWithExitCode 1", &clierrors.ErrorWithExitCode{ExitCode: 1}, true},
+		{"ErrorWithExitCode 2", &clierrors.ErrorWithExitCode{ExitCode: 2}, true},
+		{"plain error", fmt.Errorf("connection refused"), false},
+		{"already-shown catalog error", authError(true), true},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			assert.Equal(t, tc.suppress, shouldSuppressDisplay(tc.err))
+		})
+	}
 }
 
 func Test_doctorTip(t *testing.T) {
@@ -870,6 +884,24 @@ func Test_processError(t *testing.T) {
 		exitCode := cliv2.DeriveExitCode(err)
 		assert.Equal(t, constants.SNYK_EXIT_CODE_EX_TEMPFAIL, exitCode)
 	})
+}
+
+func Test_processError_PreservesCodeTestResultWhenAuxiliaryRequestFails(t *testing.T) {
+	commandResult := &clierrors.ErrorWithExitCode{
+		ExitCode: constants.SNYK_EXIT_CODE_VULNERABILITIES_FOUND,
+	}
+	handledNetworkError := errors.New("handled auxiliary network error")
+	allErrors, outputError := processError(commandResult, []error{handledNetworkError})
+	assert.Len(t, allErrors, 2)
+	assert.Same(t, commandResult, outputError)
+}
+
+func Test_processError_PreservesLegacyCLIResultWhenAuxiliaryRequestFails(t *testing.T) {
+	commandResult := &exec.ExitError{ProcessState: &os.ProcessState{}}
+	handledNetworkError := errors.New("handled auxiliary network error")
+	allErrors, outputError := processError(commandResult, []error{handledNetworkError})
+	assert.Len(t, allErrors, 2)
+	assert.Same(t, commandResult, outputError)
 }
 
 func loadJsonFile(t *testing.T, filename string) []byte {

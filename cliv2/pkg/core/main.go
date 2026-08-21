@@ -456,14 +456,13 @@ func doctorTip(isCI bool) string {
 	return "Try snyk doctor: `snyk <command> -d 2>&1 | snyk doctor --stdin`"
 }
 
+// Skip errors the command already reported
+func shouldSuppressDisplay(err error) bool {
+	return commandOwnsOutput(err) || errorHasBeenShown(err)
+}
+
 func displayError(err error, userInterface ui.UserInterface, config configuration.Configuration, ctx context.Context, isCI bool) {
 	if err != nil {
-		_, isExitError := err.(*exec.ExitError)
-		_, isErrorWithCode := err.(*cli_errors.ErrorWithExitCode)
-		if isExitError || isErrorWithCode || errorHasBeenShown(err) {
-			return
-		}
-
 		if config.GetBool(output_workflow.OUTPUT_CONFIG_KEY_JSON) {
 			message := getErrorMessage(err)
 
@@ -530,7 +529,9 @@ func tearDown(err error, errorList []error, startTime time.Time, ua networking.U
 	exitCode := cliv2.DeriveExitCode(outputError)
 	globalLogger.Printf("Deriving Exit Code %d (cause: %v)", exitCode, outputError)
 
-	displayError(outputError, globalEngine.GetUserInterface(), globalConfiguration, globalContext, cliAnalytics.IsCiEnvironment())
+	if !shouldSuppressDisplay(outputError) {
+		displayError(outputError, globalEngine.GetUserInterface(), globalConfiguration, globalContext, cliAnalytics.IsCiEnvironment())
+	}
 
 	updateInstrumentationDataBeforeSending(cliAnalytics, startTime, ua, exitCode)
 
@@ -757,13 +758,30 @@ func processError(err error, errorList []error) ([]error, error) {
 	}
 
 	// determine the most relevant error to surface to the user and derive the exit code from
-	resultError = cli_errors.FindMostRelevantError(resultErrorList)
+	mostRelevant := cli_errors.FindMostRelevantError(resultErrorList)
+
+	if commandOwnsOutput(resultError) && errors.Is(mostRelevant, resultError) {
+		return resultErrorList, resultError
+	}
 
 	// ensure to apply exit code mapping based on errors
-	if exitCode := mapErrorToExitCode(resultError); exitCode != unsetExitCode {
-		resultError = createErrorWithExitCode(exitCode, resultError)
+	if exitCode := mapErrorToExitCode(mostRelevant); exitCode != unsetExitCode {
+		mostRelevant = createErrorWithExitCode(exitCode, mostRelevant)
 	}
-	return resultErrorList, resultError
+	return resultErrorList, mostRelevant
+}
+
+//  Reports whether err is the command's own exit-code result
+func commandOwnsOutput(err error) bool {
+	if _, ok := err.(*exec.ExitError); ok {
+		return true
+	}
+
+	if _, ok := err.(*cli_errors.ErrorWithExitCode); ok {
+		return true
+	}
+
+	return false
 }
 
 func setTimeout(config configuration.Configuration, onTimeout func()) {
