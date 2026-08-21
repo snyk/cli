@@ -550,8 +550,8 @@ github.com/snyk/policy-engine v1.1.4 h1:0XpaMpl7ixSk4+dlpHYg2iKEBuv+5Ci+QIcbsmhk
 github.com/snyk/policy-engine v1.1.4/go.mod h1:yAlMDZhzORiZcbJCW0GEk/nHkc4DBDKp8BRoiGTWkBE=
 github.com/snyk/snyk-iac-capture v0.6.5 h1:992DXCAJSN97KtUh8T5ndaWwd/6ZCal2bDkRXqM1u/E=
 github.com/snyk/snyk-iac-capture v0.6.5/go.mod h1:e47i55EmM0F69ZxyFHC4sCi7vyaJW6DLoaamJJCzWGk=
-github.com/snyk/snyk-ls v0.0.0-20260814164657-a99d4cf1c3e7 h1:wrnB8/yVj/BxcxqX3ppKNF+cZVlyCjmGgxhCtoRWlK8=
-github.com/snyk/snyk-ls v0.0.0-20260814164657-a99d4cf1c3e7/go.mod h1:ZfhCKJ6IGbmr0LfcAAm/WY0ECv2IO1+dXYFMepWHjpQ=
+github.com/snyk/snyk-ls v0.0.0-20260821163924-a8fa156bbca5 h1:KJFf/Ldm6mvHgCMvCVWq2blE4Hq+5FjBSPwjqN7S/L0=
+github.com/snyk/snyk-ls v0.0.0-20260821163924-a8fa156bbca5/go.mod h1:ZfhCKJ6IGbmr0LfcAAm/WY0ECv2IO1+dXYFMepWHjpQ=
 github.com/snyk/studio-mcp v1.15.4 h1:MHrAtTZ7E1IY0p6pdKAZqM4bmS5dZNSK/eEjVX26FA8=
 github.com/snyk/studio-mcp v1.15.4/go.mod h1:o+eDJRfHPVzPvZGqamASOZf5drlBEiJVbbOJS7sJsbQ=
 github.com/sourcegraph/go-lsp v0.0.0-20240223163137-f80c5dd31dfd h1:Dq5WSzWsP1TbVi10zPWBI5LKEBDg4Y1OhWEph1wr5WQ=
