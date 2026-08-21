@@ -116,9 +116,21 @@ func TestSplitVersion_AtSeparator(t *testing.T) {
 			wantVersion: "2.1.233",
 		},
 		{
-			name:        "single-component version still does not split",
+			// detect-agent's README uses this exact string ("devin@1") as its
+			// example of the convention; '@' is never part of a Harness name,
+			// so the separator alone is enough signal — no minimum digit-group
+			// count is needed the way there is for '_'/'/'.
+			name:        "single-component version, detect-agent's own README example",
 			raw:         "devin@1",
-			wantName:    "devin@1",
+			wantName:    "devin",
+			wantVersion: "1",
+		},
+		{
+			// '_' and '/' remain ordinary characters that can end a real name
+			// on their own, so the ambiguity guard still applies to them.
+			name:        "single-component underscore version still does not split",
+			raw:         "devin_1",
+			wantName:    "devin_1",
 			wantVersion: "",
 		},
 		{

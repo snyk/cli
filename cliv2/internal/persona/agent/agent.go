@@ -24,15 +24,19 @@ func DetectAgent() (string, bool) {
 	return details.Name, true
 }
 
-// versionSuffix recognises a version-shaped run of digits at the end of a
-// Harness identifier, with an optional trailing role/surface segment that is
-// captured only so it isn't absorbed into the version, then discarded. '_',
-// '/', and '@' are all accepted as separators: '_' and '/' cover Snyk's own
-// fused and legacy formats, '@' covers detect-agent's documented
-// name@version convention for custom AI_AGENT declarations. Requiring at
-// least two numeric components avoids matching a name that merely ends in a
-// single digit.
-var versionSuffix = regexp.MustCompile(`^(?P<name>.+?)[_/@](?P<version>\d+(?:[.\-]\d+){1,3})(?:[_/@](?P<role>[A-Za-z0-9-]+))?$`)
+// versionSuffix recognises a version-shaped run of digits fused onto a
+// Harness identifier with '_' or '/', with an optional trailing role/surface
+// segment that is captured only so it isn't absorbed into the version, then
+// discarded. '_' and '/' are ordinary characters that can end a real name on
+// their own, so requiring at least two numeric components avoids matching a
+// name that merely ends in a single digit.
+var versionSuffix = regexp.MustCompile(`^(?P<name>.+?)[_/](?P<version>\d+(?:[.\-]\d+){1,3})(?:[_/](?P<role>[A-Za-z0-9-]+))?$`)
+
+// atVersionSuffix recognises detect-agent's documented name@version
+// convention for custom AI_AGENT declarations (README example: "devin@1").
+// Unlike '_'/'/', '@' is never part of a Harness name — the separator alone
+// is the version signal, so a single numeric component is enough.
+var atVersionSuffix = regexp.MustCompile(`^(?P<name>.+?)@(?P<version>\d+(?:[.\-]\d+){0,3})$`)
 
 // knownNames maps a normalised (lowercased, separators stripped) form of
 // every Harness name detect-agent knows about to that name's canonical
@@ -58,16 +62,21 @@ func normalize(s string) string {
 // no version-shaped suffix is present, or when the extracted fragment does
 // not resolve to a known Harness — never a guess.
 func SplitVersion(raw string) (name string, version string) {
-	m := versionSuffix.FindStringSubmatch(raw)
+	re := versionSuffix
+	m := re.FindStringSubmatch(raw)
+	if m == nil {
+		re = atVersionSuffix
+		m = re.FindStringSubmatch(raw)
+	}
 	if m == nil {
 		return raw, ""
 	}
 
-	fragment := m[versionSuffix.SubexpIndex("name")]
+	fragment := m[re.SubexpIndex("name")]
 	canonical, ok := knownNames[normalize(fragment)]
 	if !ok {
 		return raw, ""
 	}
 
-	return canonical, strings.ReplaceAll(m[versionSuffix.SubexpIndex("version")], "-", ".")
+	return canonical, strings.ReplaceAll(m[re.SubexpIndex("version")], "-", ".")
 }
