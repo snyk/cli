@@ -249,6 +249,7 @@ require (
 	github.com/tmc/langchaingo v0.1.14 // indirect
 	github.com/toon-format/toon-go v0.0.0-20251202084852-7ca0e27c4e8c // indirect
 	github.com/ulikunitz/xz v0.5.15 // indirect
+	github.com/vercel/detect-agent v1.2.0 // indirect
 	github.com/vincent-petithory/dataurl v1.0.0 // indirect
 	github.com/writeas/go-strip-markdown v2.0.1+incompatible // indirect
 	github.com/xanzy/ssh-agent v0.3.3 // indirect
