@@ -312,3 +312,65 @@ extension/
 - ❌ Domain logic inside the callback — extract into domain packages
 - ❌ Passing `InvocationContext` into domain code — pass concrete values
 - ❌ Deep workflow call chains — keep composition flat
+
+## Cursor Cloud specific instructions
+
+Durable, non-obvious notes for agents running in the Cursor Cloud Linux VM. The
+update script already runs `npm ci` (root) and `go mod download` (`cliv2/`), so
+the items below are setup context and gotchas rather than install steps to
+repeat.
+
+- **Node and npm come from nvm, not `/exec-daemon/node`.** `/exec-daemon/node` is
+  first on `PATH` but ships **no npm**. Use `v22.22.3` (the `.nvmrc` version) with
+  `npm@11.12.1`: the root `.npmrc` sets `engine-strict=true` against
+  `"npm": "^11.12.1"`, so an older npm fails `npm ci` outright. **Always prepend**
+  `PATH="$HOME/.nvm/versions/node/v22.22.3/bin:$PATH"` before any `npm` or
+  `make build` — nvm is not auto-sourced in non-interactive shells, and `nvm use`
+  alone does not win against `/exec-daemon/node`.
+- **Pin the exact Go patch version.** `cliv2/go.mod` needs Go 1.26.x, and with
+  `GOTOOLCHAIN=auto` Go resolves the toolchain from `go.dev`, which is normally
+  outside the egress allowlist. Keep `GOTOOLCHAIN=go1.26.5` set
+  (`go env -w GOTOOLCHAIN=go1.26.5`) so it comes from `proxy.golang.org` instead.
+- **Build in public mode.** `cliv2-private/` is inaccessible here, so use
+  `make build BUILD_MODE=public`. `convco` is a Brewfile dependency with no Linux
+  install path and the build fails at the version step without it — install the
+  `v0.7.0` musl release from GitHub into `/usr/local/bin`. The `library.go:101`
+  asm warnings during the build are harmless. On Linux the output binary is
+  `./binary-releases/snyk-linux`.
+- **The license step re-downloads from `go.dev`, and pre-placing the file does not
+  survive.** `make build` runs `cliv2/scripts/prepare_licenses.go`, which first has
+  `go-licenses save --force` regenerate `cliv2/internal/embedded/_data/licenses/`
+  (wiping the tree) and only then fetches a handful of manual licenses, including
+  Go's own from `go.dev`. So place the file *after* a build has generated the tree,
+  then stamp the make target so the step is skipped next time:
+  `curl -fsSL -o cliv2/internal/embedded/_data/licenses/go.dev/LICENSE https://raw.githubusercontent.com/golang/go/master/LICENSE`
+  followed by `echo done > cliv2/_cache/prepare-3rd-party-licenses`. That target
+  (`cliv2/Makefile`) has no prerequisites, so the file's mere presence makes `make`
+  skip license prep. Both paths are gitignored.
+- **`make lint` re-triggers the golangci-lint installer.** `cliv2/Makefile` never
+  assigns `TOOLS_BIN`, so the `$(TOOLS_BIN)/golangci-lint` prerequisite resolves to
+  a missing `/golangci-lint` and runs the curl-based installer every time. Note
+  `cliv2` pins **v2.9.0** (`OVERRIDE_GOCI_LINT_V`) while the other Snyk Go repos
+  use v2.10.1. Install it once into the directory the Makefile uses as `GO_BIN`:
+  `cd cliv2 && GOBIN=$(pwd)/.bin go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.9.0`,
+  then run the linters directly — `npm run lint` and
+  `cd cliv2 && ./.bin/golangci-lint run ./...` (both reported `0 issues` here).
+- **Verified green in this environment:** `cd cliv2 && go test ./pkg/... ./internal/...`;
+  `npx jest --runInBand test/jest/unit/lib/formatters` (120 pass); and
+  `TEST_SNYK_COMMAND=./binary-releases/snyk-linux npx jest --runInBand test/jest/acceptance/snyk-test/all-projects.spec.ts`
+  (20 pass). See [Running Tests](#running-tests) and [Running the CLI
+  Locally](#running-the-cli-locally) for the full command set.
+- **Some acceptance specs reach real package registries** (e.g.
+  `basic-test-all-languages`) and fail under restricted egress — an environment
+  limit, not a regression. `all-projects.spec.ts` runs entirely against the fake
+  server and is the clean smoke test.
+- **Probe egress instead of trusting a host list.** The allowlist changes between
+  runs, so treat any reachable/blocked list — including in older revisions of this
+  section — as stale. Matching is per hostname, and a bare entry is apex-exact
+  while `*.example.com` covers subdomains only, so an apex host has to be
+  allowlisted in its own right. A block surfaces as a TLS reset mid-handshake
+  rather than a DNS failure, so check a host directly before concluding anything:
+  `timeout 12 openssl s_client -connect go.dev:443 -servername go.dev </dev/null`.
+  The hosts this repo actually needs are `proxy.golang.org`,
+  `registry.npmjs.org`, `github.com` and `raw.githubusercontent.com`; `go.dev` is
+  worked around above and is not required.
