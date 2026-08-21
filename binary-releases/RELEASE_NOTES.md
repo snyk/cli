@@ -1,12 +1,12 @@
-## [1.1307.0](https://github.com/snyk/snyk/compare/v1.1306.4...v1.1307.0) (2026-08-20)
+## [1.1307.0](https://github.com/snyk/snyk/compare/v1.1306.4...v1.1307.0) (2026-08-26)
 
 The Snyk CLI is being deployed to different deployment channels, users can select the stability level according to their needs. For details please see [this documentation](https://docs.snyk.io/snyk-cli/releases-and-channels-for-the-snyk-cli)
 
 ### Features
 
+* **agent**: New experimental `snyk agent` command — a scanning surface built for AI coding agents, with token-optimized output and ergonomics. `snyk agent test` runs Snyk Open Source, Code, and Secrets together. ([b98420c](https://github.com/snyk/snyk/commit/b98420c848338e9d94be17294d8d606f05ff8b84))
 * **secrets**: `snyk secrets test` now supports exclusions — add files or paths to the `exclude` section of your `.snyk` file to skip them during secrets scanning. ([917bbc5](https://github.com/snyk/snyk/commit/917bbc54f729e7d3e1fa34657bbeb8f791b484fd))
 * **container**: Container scans now surface image provenance attestations by default, so signed-image provenance metadata appears in results without any extra flag. ([0c444b0](https://github.com/snyk/snyk/commit/0c444b0112583ea3180027352f66a7922751cf06))
-* **container**: Container scans now attribute bundled application dependencies to their owning apk packages for Chainguard/Wolfi images, reducing false positives. ([e30382c](https://github.com/snyk/snyk/commit/e30382c8729d39c3e05f563273f3917ec9b764d2))
 * **test**: Improves .NET/NuGet scanning — `snyk test` can now analyze already-restored projects fully offline and no longer requires .NET 6 to be installed. ([46cf92c](https://github.com/snyk/snyk/commit/46cf92c2c7f47af0348f912336113e0d8185fba7))
 * **mcp**: The full MCP profile now includes Snyk Secrets. ([1d2848e](https://github.com/snyk/snyk/commit/1d2848e939100c24c338ede771ffcd1bde22d95c))
 * **code, secrets**: SARIF suppressions now include `reviewedOn` and `reviewedBy` metadata. ([5585ea6](https://github.com/snyk/snyk/commit/5585ea65854b924cae7cc9cf8e0c57b880b840d4))
@@ -16,11 +16,11 @@ The Snyk CLI is being deployed to different deployment channels, users can selec
 
 * **test**: Adds support for scanning pnpm v11 `pnpm-lock.yaml` lockfiles. ([a75c5e0](https://github.com/snyk/snyk/commit/a75c5e0b21209e994f508c7ca9755592c7a24d69))
 * **test**: Fixes a crash (`ConcurrentModificationException`) when scanning dependencies of Gradle 7.4–8.2 projects. ([a0e33f8](https://github.com/snyk/snyk/commit/a0e33f82bf660c358136d8a09c6804fb9529a8b0))
-* **test**: Fixes a bug where arguments after `--` (for example `snyk test . -- -s settings.xml`) were treated as scan targets, which could silently drop the Risk Score. ([087092b](https://github.com/snyk/snyk/commit/087092b0f2f4e09a89b5d075e3732f59295a9505))
 * **test**: Fixes scanning of projects using Hex versions newer than 1.19. ([479431a](https://github.com/snyk/snyk/commit/479431a1e9011261df2a812071e9c5289761d06f))
 * **test**: Excludes the `.git` folder from file discovery, preventing intermittent scan failures caused by changes to `.git` contents during a scan. ([127db7d](https://github.com/snyk/snyk/commit/127db7df12f30fab4e57b534f592f9f54b8db896))
+* **code** and **secrets**: git-tracked files are now scanned even if they match a `.gitignore` rule. ([c82ae60](https://github.com/snyk/snyk/commit/c82ae605e121e3024e12dcb84aca43fb9ea14430))
 * **code**: Snyk Code now respects `.snyk`, `.gitignore`, and `.dcignore` exclusions when the path or rule contains special characters such as parentheses (for example `Program Files (x86)`). ([15fb3a4](https://github.com/snyk/snyk/commit/15fb3a41a5c79edf5a5c4c430593e5237915f40e))
 * **general**: Prevents a possible connection leak when the Snyk API returns an error response. ([8fd7d65](https://github.com/snyk/snyk/commit/8fd7d6544beab0fe609e823539e6373e058e7239))
 * **deps**: Updates dependencies to fix vulnerabilities:
     - CVE-2026-71557 ([fc6181f](https://github.com/snyk/snyk/commit/fc6181ff1807a95e4ab99b4ecf6e3b61e51d5a8b))
-    - Updates the Go runtime to address CVE-2026-46600, CVE-2026-56862, CVE-2026-56853, CVE-2026-56860, CVE-2026-56859, CVE-2026-56858, and SNYK-GOLANG-STDENCODINGASN1-18858463 ([1a1ed04](https://github.com/snyk/snyk/commit/1a1ed043d28875c71d2eabbd7c2ea87667e317dd))
+    - Updates the Go runtime to address CVE-2026-46600, CVE-2026-56862, CVE-2026-56853, CVE-2026-56860, CVE-2026-56859, and CVE-2026-56858 ([1a1ed04](https://github.com/snyk/snyk/commit/1a1ed043d28875c71d2eabbd7c2ea87667e317dd))
