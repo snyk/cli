@@ -772,7 +772,7 @@ func processError(err error, errorList []error) ([]error, error) {
 	return resultErrorList, mostRelevant
 }
 
-//  Reports whether err is the command's own exit-code result
+// Reports whether err is the command's own exit-code result
 func commandOwnsOutput(err error) bool {
 	if _, ok := err.(*exec.ExitError); ok {
 		return true
