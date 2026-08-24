@@ -1,0 +1,24 @@
+{
+  "name": "@demo/my-app",
+  "version": "0.0.0-development",
+  "author": "Demo Team",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "main": "./src/index.js",
+  "scripts": {
+    "build": "webpack --config webpack.config.js",
+    "test": "jest",
+    "package:clean": "CLEAN_PACKAGE=$(jq --unbuffered 'setpath([\"devDependencies\"]; .devDependencies * (.dependencies // {})) | del(.dependencies)' < ./package.json); printf '%s' \"$CLEAN_PACKAGE\" > ./package.json"
+  },
+  "devDependencies": {
+    "@demo/private-lib": "workspace:^",
+    "eslint": "^8",
+    "webpack": "^5.90.0",
+    "webpack-cli": "^5.1.4"
+  },
+  "dependencies": {
+    "@demo/shared-lib": "*"
+  }
+}

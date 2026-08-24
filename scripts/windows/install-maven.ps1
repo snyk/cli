@@ -102,7 +102,7 @@ try {
     $bashUpdateLine = 'export PATH="' + $bashPath + ':$PATH"'
     $bashExisting = Get-Content -Path $bashEnvScript -ErrorAction SilentlyContinue
     if (-not $bashExisting -or -not ($bashExisting -contains $bashUpdateLine)) {
-      $bashUpdateLine | Out-File -FilePath $bashEnvScript -Append -Encoding UTF8
+      [System.IO.File]::AppendAllText($bashEnvScript, $bashUpdateLine + "`n", (New-Object System.Text.UTF8Encoding $false))
     }
   }
   catch {

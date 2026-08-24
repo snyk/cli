@@ -57,6 +57,18 @@ func addNetworkingDetails(instrumentor analytics.InstrumentationCollector, confi
 	instrumentor.AddExtension("network-request-attempts", config.GetInt(middleware.ConfigurationKeyRequestAttempts))
 }
 
+// clientMachineIdConfigKey is the config key Studio sets before exec'ing the snyk
+// binary (see Test_addClientMachineId). populateRedactionTerms in main.go must
+// exclude this value from its sweep, or the scrub chokepoint redacts it right back
+// out of the studio::client_machine_id extension it's meant to carry.
+const clientMachineIdConfigKey = "internal_snyk_client_machine_id"
+
+func addClientMachineId(instrumentor analytics.InstrumentationCollector, config configuration.Configuration) {
+	if id := config.GetString(clientMachineIdConfigKey); id != "" {
+		instrumentor.AddExtension("studio::client_machine_id", id)
+	}
+}
+
 func updateInstrumentationDataBeforeSending(cliAnalytics analytics.Analytics, startTime time.Time, ua networking.UserAgentInfo, exitCode int) {
 	targetId, targetIdError := instrumentation.GetTargetId(globalConfiguration.GetString(configuration.INPUT_DIRECTORY), instrumentation.AutoDetectedTargetId, instrumentation.WithConfiguredRepository(globalConfiguration))
 	if targetIdError != nil {
@@ -70,6 +82,7 @@ func updateInstrumentationDataBeforeSending(cliAnalytics analytics.Analytics, st
 
 	addRuntimeDetails(cliAnalytics.GetInstrumentation(), ua)
 	addNetworkingDetails(cliAnalytics.GetInstrumentation(), globalConfiguration)
+	addClientMachineId(cliAnalytics.GetInstrumentation(), globalConfiguration)
 
 	cliAnalytics.GetInstrumentation().AddExtension("exitcode", exitCode)
 	if exitCode == 2 {
@@ -126,7 +139,7 @@ func sendInstrumentation(ctx context.Context, eng workflow.Engine, instrumentor 
 	}
 
 	logger.Print("Sending Instrumentation")
-	data, err := analytics.GetV2InstrumentationObject(instrumentor, analytics.WithLogger(logger))
+	data, err := analytics.GetV2InstrumentationObject(instrumentor, analytics.WithLogger(logger), analytics.WithConfiguration(eng.GetConfiguration()))
 	if err != nil {
 		logger.Err(err).Msg("Failed to derive data object")
 	}

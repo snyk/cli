@@ -112,6 +112,36 @@ describe('snyk test --yarn-workspaces (mocked server only)', () => {
     expect(stderr).toEqual('');
   });
 
+  test("`test --yarn-workspaces` does not leak a workspace member's devDependencies into a consumer's prod graph", async () => {
+    const project = await createProjectFromFixture('yarn-workspace-dev-deps');
+
+    const { code, stdout, stderr } = await runSnykCLI(
+      'test --yarn-workspaces --print-deps',
+      {
+        cwd: project.path(),
+        env,
+      },
+    );
+
+    expect(code).toEqual(0);
+    expect(stderr).toEqual('');
+
+    // @demo/shared-lib is a genuine prod dependency of my-app and must be reported.
+    expect(stdout).toContain('@demo/shared-lib');
+
+    // shared-lib's dev-only build tooling must NOT show up in any project's prod graph.
+    // (With --dev omitted, devDependencies are excluded across the board.)
+    for (const devPkg of [
+      '@babel/core',
+      '@babel/preset-env',
+      'babel-loader',
+      'webpack',
+      'webpack-cli',
+    ]) {
+      expect(stdout).not.toContain(devPkg);
+    }
+  });
+
   test('`test yarn-v2-aliases-and-patches` handles npm aliases', async () => {
     const project = await createProjectFromWorkspace(
       'yarn-v2-aliases-and-patches',

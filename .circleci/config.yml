@@ -19,7 +19,10 @@ parameters:
   go_version:
     type: string
     # https://go.dev/doc/devel/release
-    default: '1.26.3'
+    default: '1.26.6'
+  fips_go_version:
+    type: string
+    default: '1.26.6'
   aws_version:
     type: string
     # https://github.com/aws/aws-cli/blob/v2/CHANGELOG.rst
@@ -47,11 +50,11 @@ orbs:
 executors:
   alpine:
     docker:
-      - image: alpine:3.20
+      - image: alpine:3.23
     resource_class: xlarge
   alpine-arm64:
     docker:
-      - image: alpine:3.20
+      - image: alpine:3.23
     resource_class: arm.xlarge
   generic-ubuntu:
     docker:
@@ -63,7 +66,7 @@ executors:
     resource_class: medium
   docker-amd64:
     docker:
-      - image: snyklabs/cli-build-private:20260506-072205
+      - image: snyklabs/cli-build-private:20260610-125138
         auth:
           username: $DOCKER_CLI_BUILD_USERNAME
           password: $DOCKER_CLI_BUILD_PASSWORD
@@ -71,7 +74,7 @@ executors:
     resource_class: large
   docker-amd64-xl:
     docker:
-      - image: snyklabs/cli-build-private:20260506-072205
+      - image: snyklabs/cli-build-private:20260610-125138
         auth:
           username: $DOCKER_CLI_BUILD_USERNAME
           password: $DOCKER_CLI_BUILD_PASSWORD
@@ -79,7 +82,7 @@ executors:
     resource_class: xlarge
   docker-arm64:
     docker:
-      - image: snyklabs/cli-build-private-arm64:20260506-072205
+      - image: snyklabs/cli-build-private-arm64:20260610-125138
         auth:
           username: $DOCKER_CLI_BUILD_USERNAME
           password: $DOCKER_CLI_BUILD_PASSWORD
@@ -87,7 +90,7 @@ executors:
     resource_class: arm.large
   docker-arm64-xl:
     docker:
-      - image: snyklabs/cli-build-private-arm64:20260506-072205
+      - image: snyklabs/cli-build-private-arm64:20260610-125138
         auth:
           username: $DOCKER_CLI_BUILD_USERNAME
           password: $DOCKER_CLI_BUILD_PASSWORD
@@ -212,6 +215,9 @@ commands:
         type: string
       extraction_path:
         type: string
+      go_version:
+        type: string
+        default: << pipeline.parameters.go_version >>
       cache_key_file:
         type: string
         default: go_cache_key.txt
@@ -219,7 +225,7 @@ commands:
       - run:
           name: Create Cache Key
           command: |
-            echo << parameters.extraction_path >>-<< parameters.base_url >>-<< parameters.go_target_os >>-<< parameters.go_arch >>-<< pipeline.parameters.go_version >> > << parameters.cache_key_file >>
+            echo << parameters.extraction_path >>-<< parameters.base_url >>-<< parameters.go_target_os >>-<< parameters.go_arch >>-<< parameters.go_version >> > << parameters.cache_key_file >>
             cat << parameters.cache_key_file >>
       - restore_cache:
           name: Restoring go binary cache
@@ -227,7 +233,7 @@ commands:
             - go-binary-cache-{{ checksum "<< parameters.cache_key_file >>" }}
       - run:
           name: Download go binary
-          command: python ./scripts/download_go.py << pipeline.parameters.go_version >> --go_os=<< parameters.go_os >> --go_arch=<< parameters.go_arch >> --base_url=<< parameters.base_url >> --extraction_path=<< parameters.extraction_path >>
+          command: python ./scripts/download_go.py << parameters.go_version >> --go_os=<< parameters.go_os >> --go_arch=<< parameters.go_arch >> --base_url=<< parameters.base_url >> --extraction_path=<< parameters.extraction_path >>
       - save_cache:
           name: Caching go binary
           key: go-binary-cache-{{ checksum "<< parameters.cache_key_file >>" }}
@@ -261,7 +267,8 @@ commands:
                     New-Item -Path $bashEnvScript -ItemType File -Force | Out-Null
                   }
                   $bashPath = $goBin.Replace('\', '/').Replace('C:', '/c')
-                  'export PATH="' + $bashPath + ':$PATH"' | Out-File -FilePath $bashEnvScript -Append -Encoding UTF8
+                  $bashLine = 'export PATH="' + $bashPath + ':$PATH"'
+                  [System.IO.File]::AppendAllText($bashEnvScript, $bashLine + "`n", (New-Object System.Text.UTF8Encoding $false))
 
   install-deps-windows-native-build:
     steps:
@@ -276,7 +283,7 @@ commands:
       - restore_cache:
           name: Restoring Windows tools cache
           keys:
-            - windows-tools-cache-v4-{{ arch }}-{{ checksum ".nvmrc" }}
+            - windows-tools-cache-v5-{{ arch }}-{{ checksum ".nvmrc" }}
       - run:
           name: Install Node.js (native)
           shell: powershell
@@ -315,7 +322,7 @@ commands:
             .\scripts\windows\ensure-python-uv.ps1
       - save_cache:
           name: Saving Windows tools cache
-          key: windows-tools-cache-v4-{{ arch }}-{{ checksum ".nvmrc" }}
+          key: windows-tools-cache-v5-{{ arch }}-{{ checksum ".nvmrc" }}
           paths:
             - << pipeline.parameters.windows_cache_dir >>
             - C:\ProgramData\nvm
@@ -382,7 +389,7 @@ commands:
   setup-go-private-modules:
     description: >-
       Configure git and Go to fetch private snyk modules using the
-      GITHUB_PRIVATE_TOKEN provided by the `go-private-modules` context.
+      GITHUB_PRIVATE_TOKEN provided by the `team-cli-go-private-modules` context.
       Safe to call on Linux, macOS and Windows (uses bash on all executors).
     steps:
       - run:
@@ -395,7 +402,7 @@ commands:
             fi
             if [ -z "${GITHUB_PRIVATE_TOKEN}" ]; then
               echo "GITHUB_PRIVATE_TOKEN is not set; skipping private Snyk modules setup."
-              echo "Add the 'go-private-modules' context to this job if private modules are required."
+              echo "Add the 'team-cli-go-private-modules' context to this job if private modules are required."
               exit 0
             fi
             git config --global url."https://${GITHUB_PRIVATE_TOKEN}:x-oauth-basic@github.com/snyk".insteadOf "https://github.com/snyk"
@@ -435,17 +442,20 @@ commands:
     parameters:
       items:
         type: string
-        default: go gradle python pipenv elixir composer gradle@9 maven sbt dotnet uv
+        default: go gradle python pipenv elixir composer gradle@9 maven dotnet uv
     steps:
       - run:
           name: Installing Rosetta
           command: softwareupdate --install-rosetta --agree-to-license
+      - run:
+          name: Update Homebrew
+          command: brew update
       - restore_cache:
           key: acceptance-tests-macos-<< parameters.items >>
       - run:
           name: Installing sdks and tools via homebrew
           command: |
-            brew install << parameters.items >>
+            HOMEBREW_NO_ASK=1 brew install << parameters.items >>
             echo 'export PATH="/opt/homebrew/opt/gradle@9/bin:$PATH"' >> "$BASH_ENV"
       - save_cache:
           key: acceptance-tests-macos-<< parameters.items >>
@@ -453,6 +463,19 @@ commands:
             - ~/Library/Caches/Homebrew
       - install-deps-python:
           os: macos
+      - run:
+          name: Upgrade npm to satisfy package.json engine requirements (>=11.10)
+          command: npm install -g npm@^11.10
+      - restore_cache:
+          keys:
+            - acceptance-{{ checksum "scripts/install-sbt.sh" }}
+      - run:
+          name: Installing sbt 1.x
+          command: ./scripts/install-sbt.sh
+      - save_cache:
+          key: acceptance-{{ checksum "scripts/install-sbt.sh" }}
+          paths:
+            - ~/sbt
 
   install-deps-macos-build:
     parameters:
@@ -465,6 +488,9 @@ commands:
           command: softwareupdate --install-rosetta --agree-to-license
       - install-deps-python:
           os: macos
+      - run:
+          name: Upgrade npm to satisfy package.json engine requirements (>=11.10)
+          command: npm install -g npm@^11.10
 
   install-deps-alpine-full:
     steps:
@@ -478,6 +504,8 @@ commands:
             esac
             echo "using architecture: $arch"
             apk add --update nodejs npm bash maven git python3 py3-pip elixir composer unzip xdg-utils docker
+            # apk's npm is < package.json engines floor (>=11.10); upgrade in place.
+            npm install -g npm@^11.10
             pip3 install pipenv requests PyYAML setuptools==70.3.0
             wget https://dot.net/v1/dotnet-install.sh -O dotnet-install.sh && chmod +x dotnet-install.sh && ./dotnet-install.sh && \
               ln -s $HOME/.dotnet/dotnet /usr/local/bin/dotnet
@@ -533,19 +561,25 @@ workflows:
     jobs:
       - prodsec/secrets-scan:
           name: secrets-scan
-          context: snyk-bot-slack
+          context:
+            - snyk-bot-slack
+            - prodsec-orb-runtime
           channel: cli-alerts
           trusted-branch: main
 
       - docs-only-check:
-          context: devex_cli_docker_hub
+          context:
+            - devex_cli_docker_hub
+            - team-cli-go-private-modules
           filters:
             branches:
               only:
                 - '/^docs\/.*/'
 
       - prepare-build:
-          context: devex_cli_docker_hub
+          context:
+            - devex_cli_docker_hub
+            - team-cli-go-private-modules
           requires:
             - secrets-scan
           filters:
@@ -561,7 +595,8 @@ workflows:
           context:
             - devex_cli
             - devex_cli_docker_hub
-            - go-private-modules
+            - team-cli-go-private-modules
+            - prodsec-orb-runtime
           requires:
             - prepare-build
           filters:
@@ -591,7 +626,7 @@ workflows:
             - nodejs-install
             - team_hammerhead-cli
             - devex_cli_docker_hub
-            - go-private-modules
+            - team-cli-go-private-modules
           requires:
             - prepare-build
           filters:
@@ -609,12 +644,13 @@ workflows:
           context:
             - devex_cli_docker_hub
           requires:
-            - prepare-build
+            - secrets-scan
           filters:
             branches:
               ignore:
                 - main
                 - '/release.*/'
+                - '/^docs\/.*/'
 
       - test-legacy-tap:
           context:
@@ -639,7 +675,7 @@ workflows:
           name: build linux amd64
           context:
             - iac-cli
-            - go-private-modules
+            - team-cli-go-private-modules
             - devex_cli_docker_hub
           go_target_os: linux
           go_os: linux
@@ -654,7 +690,7 @@ workflows:
           name: build linux static amd64
           context:
             - iac-cli
-            - go-private-modules
+            - team-cli-go-private-modules
             - devex_cli_docker_hub
           go_target_os: linux
           go_os: linux
@@ -670,12 +706,13 @@ workflows:
           name: build linux fips amd64
           context:
             - iac-cli
-            - go-private-modules
+            - team-cli-go-private-modules
             - devex_cli_docker_hub
           go_target_os: linux
           go_os: linux
           go_arch: amd64
           go_download_base_url: << pipeline.parameters.fips_go_download_base_url >>
+          go_version: << pipeline.parameters.fips_go_version >>
           make_target: build-fips BUILD_MODE=private
           executor: docker-amd64-xl
           requires:
@@ -685,7 +722,7 @@ workflows:
           name: build linux arm64
           context:
             - iac-cli
-            - go-private-modules
+            - team-cli-go-private-modules
             - devex_cli_docker_hub
           go_target_os: linux
           go_os: linux
@@ -700,7 +737,7 @@ workflows:
           name: build linux static arm64
           context:
             - iac-cli
-            - go-private-modules
+            - team-cli-go-private-modules
             - devex_cli_docker_hub
           go_target_os: linux
           go_os: linux
@@ -716,12 +753,13 @@ workflows:
           name: build linux fips arm64
           context:
             - iac-cli
-            - go-private-modules
+            - team-cli-go-private-modules
             - devex_cli_docker_hub
           go_target_os: linux
           go_os: linux
           go_arch: arm64
           go_download_base_url: << pipeline.parameters.fips_go_download_base_url >>
+          go_version: << pipeline.parameters.fips_go_version >>
           make_target: build-fips BUILD_MODE=private
           executor: docker-arm64-xl
           requires:
@@ -731,7 +769,7 @@ workflows:
           name: build alpine amd64
           context:
             - iac-cli
-            - go-private-modules
+            - team-cli-go-private-modules
             - devex_cli_docker_hub
           go_target_os: alpine
           go_os: linux
@@ -746,7 +784,7 @@ workflows:
           name: build alpine arm64
           context:
             - iac-cli
-            - go-private-modules
+            - team-cli-go-private-modules
             - devex_cli_docker_hub
           go_target_os: alpine
           go_os: linux
@@ -768,7 +806,7 @@ workflows:
           context:
             - snyk-macos-signing
             - iac-cli
-            - go-private-modules
+            - team-cli-go-private-modules
           requires:
             - prepare-build
 
@@ -783,7 +821,7 @@ workflows:
           context:
             - snyk-macos-signing
             - iac-cli
-            - go-private-modules
+            - team-cli-go-private-modules
           requires:
             - prepare-build
 
@@ -793,6 +831,7 @@ workflows:
           go_os: windows
           go_arch: amd64
           go_download_base_url: << pipeline.parameters.fips_go_download_base_url >>
+          go_version: << pipeline.parameters.fips_go_version >>
           make_target: build clean-golang build-fips BUILD_MODE=private
           install_deps_extension: windows-native-full-signing
           install_path: 'C:\'
@@ -800,7 +839,7 @@ workflows:
           context:
             - snyk-windows-signing
             - iac-cli
-            - go-private-modules
+            - team-cli-go-private-modules
           requires:
             - prepare-build
 
@@ -879,6 +918,7 @@ workflows:
           go_os: linux
           go_arch: arm64
           go_download_base_url: << pipeline.parameters.fips_go_download_base_url >>
+          go_version: << pipeline.parameters.fips_go_version >>
           shards: 6
           executor: docker-arm64
           test_snyk_command: ./binary-releases/fips/snyk-linux-arm64
@@ -951,6 +991,7 @@ workflows:
           go_os: darwin
           go_arch: arm64
           go_download_base_url: << pipeline.parameters.go_download_base_url >>
+          shards: 6
           context:
             - nodejs-install
             - team_hammerhead-cli
@@ -988,9 +1029,12 @@ workflows:
           install_deps_extension: windows-native-build
           dont_skip_tests: 0
           shards: 8
-          shard_calc_cmd: '$([int]$env:CIRCLE_NODE_INDEX + 1)'
           pre_test_cmds: |
             if (Test-Path '<< pipeline.parameters.windows_cache_dir >>/<< pipeline.parameters.windows_env_script >>') { . '<< pipeline.parameters.windows_cache_dir >>/<< pipeline.parameters.windows_env_script >>' }
+          test_cmd: |
+            Get-ChildItem -Recurse -Path test/jest/acceptance,ts-binary-wrapper/test/acceptance -Filter *.spec.ts |
+              ForEach-Object { (Resolve-Path -Relative $_.FullName) -replace '\\', '/' -replace '^\./', '' } |
+              circleci tests run --command "xargs npx jest --maxWorkers=1 --selectProjects coreCli --reporters=jest-junit --reporters=default --forceExit --" --split-by=timings --timings-type=file
 
       - sign:
           name: sign windows amd64
@@ -1303,9 +1347,35 @@ workflows:
                 - '/release.*/'
 
       - release-npm:
-          name: upload npm
+          name: upload npm (preview)
+          deployment: preview
           context:
-            - team-hammerhead-common-deploy-tokens
+            - devex_cli_docker_hub
+          requires:
+            - upload preview
+          filters:
+            branches:
+              only:
+                - main
+                - '/release.*/'
+
+      - release-npm:
+          name: upload npm (rc)
+          deployment: rc
+          context:
+            - devex_cli_docker_hub
+          requires:
+            - upload release candidate
+          filters:
+            branches:
+              only:
+                - main
+                - '/release.*/'
+
+      - release-npm:
+          name: upload npm
+          deployment: stable
+          context:
             - devex_cli_docker_hub
           requires:
             - upload github
@@ -1322,7 +1392,7 @@ workflows:
             - devex_cli_docker_hub
           deployment: preview
           requires:
-            - upload preview
+            - upload npm (preview)
           filters:
             branches:
               only:
@@ -1335,7 +1405,7 @@ workflows:
             - devex_cli_docker_hub
           deployment: rc
           requires:
-            - upload release candidate
+            - upload npm (rc)
           filters:
             branches:
               only:
@@ -1376,6 +1446,7 @@ jobs:
     executor: docker-amd64
     steps:
       - checkout
+      - setup-go-private-modules
       - restore_cache:
           name: Restore npm cache
           keys:
@@ -1392,9 +1463,9 @@ jobs:
       - run:
           name: Set version
           command: |
-            make binary-releases/version binary-releases/fips/version
+            make binary-releases/version binary-releases/fips/version BUILD_MODE=private
             make release-validate-version
-            make ts-cli-binaries/version BINARY_RELEASES_FOLDER_TS_CLI=ts-cli-binaries
+            make ts-cli-binaries/version BINARY_RELEASES_FOLDER_TS_CLI=ts-cli-binaries BUILD_MODE=private
       - run:
           # required for one unit test (ts-binary-wrapper/test/unit/common.spec.ts:15:30)
           # consider removing this run
@@ -1425,6 +1496,9 @@ jobs:
         type: string
       go_download_base_url:
         type: string
+      go_version:
+        type: string
+        default: << pipeline.parameters.go_version >>
       install_path:
         type: string
         default: '/tmp'
@@ -1436,16 +1510,12 @@ jobs:
           go_target_os: << parameters.go_target_os >>
           go_arch: << parameters.go_arch >>
           base_url: << parameters.go_download_base_url >>
+          go_version: << parameters.go_version >>
           extraction_path: << parameters.install_path >>
       - setup-go-private-modules
       - run:
           name: Linting project
-          command: |
-            npm run lint
-            pushd cliv2
-              export CGO_ENABLED=1
-              make lint
-            popd
+          command: make lint
       - prodsec/security_scans:
           mode: auto
           open-source-additional-arguments: --exclude=test,dist
@@ -1453,6 +1523,8 @@ jobs:
           release-branch: main
           open-source-scan-reachability: true
           open-source-scan: high
+          open-source-block-ignore-sla: true
+          open-source-agentic-fix-enabled: true
 
   docs-only-check:
     executor: docker-amd64
@@ -1461,9 +1533,14 @@ jobs:
       - run:
           name: Check if all changed files are documentation (.md)
           command: |
-            CHANGED_FILES=$(git diff --name-only main)
+            PR_URL="https://api.github.com/repos/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/pulls?head=${CIRCLE_PROJECT_USERNAME}:${CIRCLE_BRANCH}&state=open"
+            BASE_REF=$(curl -fsSL -H 'Accept: application/vnd.github+json' "${PR_URL}" \
+              | jq -r '.[0].base.ref // ""' || true)
+            [ -n "${BASE_REF}" ] || BASE_REF=$(git symbolic-ref --short refs/remotes/origin/HEAD | sed 's@^origin/@@')
+            git fetch origin "${BASE_REF}"
+            CHANGED_FILES=$(git diff --name-only "$(git merge-base HEAD "origin/${BASE_REF}")" HEAD)
 
-            # If this step fails, check if you need to add another extension, 
+            # If this step fails, check if you need to add another extension,
             # or indeed if this PR adds more than docs-related changes.
             ALLOWED_DOCS_EXTENSIONS="(\.md|\.svg|\.jpg)$"
 
@@ -1477,6 +1554,24 @@ jobs:
               fi
             done
             exit 0
+      - restore_cache:
+          name: Restore npm cache
+          keys:
+            - prepare-v1-build-npm-deps-{{ checksum "package-lock.json" }}
+            - prepare-v1-build-npm-deps
+      - run:
+          name: Installing npm dependencies
+          command: npm ci --no-audit --no-progress --cache .npm --prefer-offline
+      - install-go:
+          go_os: linux
+          go_target_os: linux
+          go_arch: amd64
+          base_url: << pipeline.parameters.go_download_base_url >>
+          extraction_path: /tmp
+      - setup-go-private-modules
+      - run:
+          name: Linting project
+          command: make lint
 
   test-node:
     executor: docker-amd64
@@ -1501,6 +1596,9 @@ jobs:
         type: string
       go_download_base_url:
         type: string
+      go_version:
+        type: string
+        default: << pipeline.parameters.go_version >>
       install_path:
         type: string
         default: '.'
@@ -1511,6 +1609,7 @@ jobs:
           go_target_os: << parameters.go_target_os >>
           go_arch: << parameters.go_arch >>
           base_url: << parameters.go_download_base_url >>
+          go_version: << parameters.go_version >>
           extraction_path: << parameters.install_path >>
       - setup-go-private-modules
       - run:
@@ -1519,7 +1618,7 @@ jobs:
           command: make openboxtest
 
   build-public:
-    description: Verify the open source (public) CLI build compiles
+    description: Verify the open source (public) CLI build compiles from scratch
     executor: docker-amd64
     parameters:
       go_os:
@@ -1534,21 +1633,29 @@ jobs:
         type: string
         default: '.'
     steps:
-      - prepare-workspace
-      - install-go:
-          go_os: << parameters.go_os >>
-          go_target_os: << parameters.go_target_os >>
-          go_arch: << parameters.go_arch >>
-          base_url: << parameters.go_download_base_url >>
-          extraction_path: << parameters.install_path >>
+      - checkout
+      - restore_cache:
+          name: Restore npm cache (public build)
+          keys:
+            - public-build-npm-deps-{{ checksum "package-lock.json" }}
+            - public-build-npm-deps
+      - run:
+          name: Installing dependencies
+          command: npm ci --no-audit --no-progress --cache .npm --prefer-offline
+      - save_cache:
+          name: Save npm cache (public build)
+          key: public-build-npm-deps-{{ checksum "package-lock.json" }}
+          paths:
+            - .npm
       - make-binary:
           go_arch: << parameters.go_arch >>
           go_target_os: << parameters.go_target_os >>
           make_target: build BUILD_MODE=public
       - run:
-          name: Verify public CLI runs
+          name: Verify public CLI runs and has -oss suffix
           command: |
             ./binary-releases/snyk-linux --version
+            ./binary-releases/snyk-linux --version 2>&1 | grep -q "\oss" || (echo "ERROR: Version should contain oss suffix for public build" && exit 1)
             ./binary-releases/snyk-linux --help
 
   test-legacy-tap:
@@ -1603,9 +1710,12 @@ jobs:
         type: string
       go_download_base_url:
         type: string
+      go_version:
+        type: string
+        default: << pipeline.parameters.go_version >>
       make_target:
         type: string
-        default: 'build'
+        default: 'build BUILD_MODE=private'
       install_deps_extension:
         type: string
         default: 'noop'
@@ -1621,6 +1731,7 @@ jobs:
           go_target_os: << parameters.go_target_os >>
           go_arch: << parameters.go_arch >>
           base_url: << parameters.go_download_base_url >>
+          go_version: << parameters.go_version >>
           extraction_path: << parameters.install_path >>
       - setup-go-private-modules
       - restore_cache:
@@ -1653,6 +1764,9 @@ jobs:
         type: string
       go_download_base_url:
         type: string
+      go_version:
+        type: string
+        default: << pipeline.parameters.go_version >>
       install_path:
         type: string
         default: '.'
@@ -1674,10 +1788,15 @@ jobs:
         default: 'echo Running tests'
       shards:
         type: integer
-        default: 4
-      shard_calc_cmd:
+        default: 6
+      test_cmd:
         type: string
-        default: '$(expr $CIRCLE_NODE_INDEX + 1)'
+        default: |
+          find test/jest/acceptance ts-binary-wrapper/test/acceptance -name '*.spec.ts' \
+            | circleci tests run \
+                --command="xargs npx jest --maxWorkers=1 --selectProjects coreCli --reporters=jest-junit --reporters=default --forceExit --" \
+                --split-by=timings \
+                --timings-type=file
     executor: << parameters.executor >>
     parallelism: << parameters.shards >>
     environment:
@@ -1685,6 +1804,21 @@ jobs:
     steps:
       - prepare-workspace
       - install-deps-<< parameters.install_deps_extension >>
+      - run:
+          name: Create Maven cache key
+          command: >-
+            git ls-files -s --
+            'test/**/pom.xml'
+            'test/**/settings.xml'
+            'test/**/.mvn/maven.config'
+            'test/**/.mvn/extensions.xml'
+            'test/**/.mvn/wrapper/maven-wrapper.properties'
+            > maven-cache-key.txt
+      - restore_cache:
+          name: Restore Maven cache
+          keys:
+            - acceptance-maven-v1-<< parameters.executor >>-{{ .Environment.CIRCLE_NODE_INDEX }}-{{ checksum "maven-cache-key.txt" }}
+            - acceptance-maven-v1-<< parameters.executor >>-{{ .Environment.CIRCLE_NODE_INDEX }}-
       - when:
           condition:
             matches:
@@ -1700,19 +1834,30 @@ jobs:
           go_target_os: << parameters.go_target_os >>
           go_arch: << parameters.go_arch >>
           base_url: << parameters.go_download_base_url >>
+          go_version: << parameters.go_version >>
           extraction_path: << parameters.install_path >>
       - run:
           name: Running acceptance tests
           no_output_timeout: 30m
           command: |
             << parameters.pre_test_cmds >>
-            npm run test:acceptance -- --selectProjects coreCli --shard=<< parameters.shard_calc_cmd >>/<< parameters.shards >>
+            << parameters.test_cmd >>
           environment:
             TEST_SNYK_FIPS: << parameters.fips >>
             TEST_SNYK_COMMAND: << parameters.test_snyk_command >>
             TEST_SNYK_DONT_SKIP_ANYTHING: << parameters.dont_skip_tests >>
             JEST_JUNIT_OUTPUT_DIR: test/reports
             NODE_OPTIONS: --max-old-space-size=4096
+      - save_cache:
+          name: Save Maven cache
+          key: acceptance-maven-v1-<< parameters.executor >>-{{ .Environment.CIRCLE_NODE_INDEX }}-{{ checksum "maven-cache-key.txt" }}
+          paths:
+            - ~/.m2/repository
+            - ~/.m2/wrapper/dists
+      - run:
+          name: Normalize junit file paths for timing data
+          when: always
+          command: node scripts/normalize-junit-file-paths.js test/reports
       - store_test_results:
           path: test/reports
       - store_artifacts:
@@ -1824,7 +1969,9 @@ jobs:
           version: << pipeline.parameters.aws_version >>
       - run:
           name: Pre-Publishing
-          command: make release-pre
+          command: |
+            export NPM_ID_TOKEN=$(circleci run oidc get --claims '{"aud": "npm:registry.npmjs.org"}')
+            make release-pre
       - failed-release-notification
 
   npm-validation:
@@ -1859,7 +2006,7 @@ jobs:
               pattern: '^macos.*'
               value: << parameters.executor >>
           steps:
-            - run: brew install coreutils curl python3
+            - run: brew update && HOMEBREW_NO_ASK=1 brew install coreutils curl python3
       - when:
           condition:
             matches:
@@ -1874,7 +2021,7 @@ jobs:
               value: << parameters.executor >>
           steps:
             - run: |
-                export DEBIAN_FRONTEND=noninteractive   
+                export DEBIAN_FRONTEND=noninteractive
                 ln -fs /usr/share/zoneinfo/UTC /etc/localtime
                 apt update && apt install -y sudo curl python3 python3-pip python3-requests
 
@@ -1950,14 +2097,20 @@ jobs:
       - failed-release-notification
 
   release-npm:
+    parameters:
+      deployment:
+        type: string
+        default: stable
     executor: docker-amd64
     steps:
       - prepare-workspace
       - shall-deploy:
-          deployment: stable
+          deployment: << parameters.deployment >>
       - run:
-          name: Publish to npm
-          command: ./release-scripts/upload-artifacts.sh npm
+          name: Publish to npm ( << parameters.deployment >> )
+          command: |
+            export NPM_ID_TOKEN=$(circleci run oidc get --claims '{"aud": "npm:registry.npmjs.org"}')
+            ./release-scripts/upload-artifacts.sh npm
       - failed-release-notification
 
   trigger-building-distribution-channels:

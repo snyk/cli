@@ -13,6 +13,8 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/rs/zerolog"
+	"github.com/snyk/cli/cliv2/internal/helpdocs"
+	"github.com/snyk/cli/cliv2/internal/helprouting"
 	"github.com/snyk/error-catalog-golang-public/code"
 	"github.com/snyk/error-catalog-golang-public/snyk_errors"
 	"github.com/snyk/go-application-framework/pkg/apiclients/testapi"
@@ -21,6 +23,7 @@ import (
 	"github.com/snyk/go-application-framework/pkg/local_workflows/content_type"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/json_schemas"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/local_models"
+	"github.com/snyk/go-application-framework/pkg/logging"
 	"github.com/snyk/go-application-framework/pkg/mocks"
 	"github.com/snyk/go-application-framework/pkg/utils/ufm"
 	"github.com/snyk/go-application-framework/pkg/workflow"
@@ -64,6 +67,78 @@ func Test_mainWithErrorCode(t *testing.T) {
 		errCode := mainWithErrorCode(nil)
 		assert.Equal(t, 2, errCode)
 	})
+}
+
+func Test_populateRedactionTerms(t *testing.T) {
+	mockController := gomock.NewController(t)
+	mockEngine := mocks.NewMockEngine(mockController)
+	mockEngine.EXPECT().GetWorkflows().Return(nil)
+
+	config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
+	t.Setenv("SNYK_TEST_REDACTION_MARKER", "unmistakably-secret-value")
+
+	// No debugEnabled anywhere in this call: populateRedactionTerms runs
+	// unconditionally at its call site, so proving it sets config here proves
+	// the behavior holds regardless of debugEnabled.
+	terms := populateRedactionTerms(config, mockEngine)
+
+	assert.Contains(t, terms, "unmistakably-secret-value")
+	assert.Equal(t, terms, config.GetStringSlice(logging.REDACTION_TERMS))
+}
+
+func Test_populateRedactionTerms_excludesClientMachineId(t *testing.T) {
+	mockController := gomock.NewController(t)
+	mockEngine := mocks.NewMockEngine(mockController)
+	mockEngine.EXPECT().GetWorkflows().Return(nil)
+
+	config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
+	machineId := "studio-device-id-abc12345"
+	t.Setenv("INTERNAL_SNYK_CLIENT_MACHINE_ID", machineId)
+
+	terms := populateRedactionTerms(config, mockEngine)
+
+	assert.NotContains(t, terms, machineId, "client machine id must never be swept into REDACTION_TERMS, or the analytics scrub chokepoint strips it right back out of its own extension")
+}
+
+func Test_populateRedactionTerms_excludesDetectedAgent(t *testing.T) {
+	// Not on agent.canonicalAgent's short-circuit list, so AI_AGENT is trusted
+	// verbatim into the persona.agent extension. GetUnknownParameters
+	// tokenizes its input on whitespace, so a multi-word value only survives
+	// unredacted if each of its words is excluded too, not just the joined
+	// string as a whole.
+	cases := []struct {
+		name      string
+		agent     string
+		wantWords []string
+	}{
+		{
+			name:      "single word",
+			agent:     "some-unlisted-harness",
+			wantWords: []string{"some-unlisted-harness"},
+		},
+		{
+			name:      "words with spaces",
+			agent:     "My Custom Harness",
+			wantWords: []string{"My", "Custom", "Harness"},
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			mockController := gomock.NewController(t)
+			mockEngine := mocks.NewMockEngine(mockController)
+			mockEngine.EXPECT().GetWorkflows().Return(nil)
+
+			config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
+			t.Setenv("AI_AGENT", tc.agent)
+
+			terms := populateRedactionTerms(config, mockEngine)
+
+			for _, word := range tc.wantWords {
+				assert.NotContains(t, terms, word, "a caller-declared AI_AGENT value must never be swept into REDACTION_TERMS, or the analytics scrub chokepoint strips it right back out of the persona.agent extension")
+			}
+		})
+	}
 }
 
 func Test_initApplicationConfiguration_DisablesAnalytics(t *testing.T) {
@@ -144,7 +219,7 @@ func Test_CreateCommandsForWorkflowWithSubcommands(t *testing.T) {
 	}
 
 	_ = globalEngine.Init()
-	rootCommand := prepareRootCommand()
+	rootCommand := prepareRootCommand(testHelpRouter())
 
 	// invoke method under test
 	createCommandsForWorkflows(rootCommand, globalEngine)
@@ -183,71 +258,104 @@ func Test_CreateCommandsForWorkflowWithSubcommands(t *testing.T) {
 	assert.True(t, cmd2.Hidden)
 }
 
-func Test_runMainWorkflow_unknownargs(t *testing.T) {
+// setupMainWorkflowTestEnv wires up the global engine/config that runMainWorkflow needs and
+// returns a fresh per-invocation config plus a command. Callers should `defer cleanup()`.
+func setupMainWorkflowTestEnv(t *testing.T) (configuration.Configuration, *cobra.Command) {
+	t.Helper()
+
+	globalConfiguration = configuration.New()
+	globalConfiguration.Set(configuration.DEBUG, true)
+	globalEngine = workflow.NewWorkFlowEngine(globalConfiguration)
+
+	noopWorkflow := func(workflow.InvocationContext, []workflow.Data) ([]workflow.Data, error) {
+		return []workflow.Data{}, nil
+	}
+	for _, name := range []string{"command", localworkflows.WORKFLOWID_OUTPUT_WORKFLOW.Host} {
+		opts := workflow.ConfigurationOptionsFromFlagset(pflag.NewFlagSet("pla", pflag.ContinueOnError))
+		_, err := globalEngine.Register(workflow.NewWorkflowIdentifier(name), opts, noopWorkflow)
+		require.NoError(t, err)
+	}
+	require.NoError(t, localworkflows.InitDataTransformationWorkflow(globalEngine))
+	_ = globalEngine.Init()
+	require.NoError(t, localworkflows.InitFilterFindingsWorkflow(globalEngine))
+
+	return configuration.NewWithOpts(configuration.WithAutomaticEnv()), &cobra.Command{Use: "command"}
+}
+
+// Test_runMainWorkflow_inputDirectoryParsing is the CLI-1631 regression coverage. It asserts how
+// positional paths and "--" passthrough args map onto INPUT_DIRECTORY and UNKNOWN_ARGS. The key
+// invariant: passthrough tokens after "--" must never leak into INPUT_DIRECTORY (which would make
+// the downstream flow router misread them as package names and force the legacy, no-Risk-Score flow),
+// regardless of the path shape. wantInputDirs == nil means INPUT_DIRECTORY must be left unset so it
+// later defaults to the working directory.
+func Test_runMainWorkflow_inputDirectoryParsing(t *testing.T) {
 	tests := map[string]struct {
-		inputDir    string
-		unknownArgs []string
+		positionalArgs  []string
+		rawArgs         []string
+		wantInputDirs   []string
+		wantUnknownArgs []string
 	}{
-		"input dir with unknown arguments":    {inputDir: "a/b/c", unknownArgs: []string{"a", "b", "c"}},
-		"no input dir with unknown arguments": {inputDir: "", unknownArgs: []string{"a", "b", "c"}},
-		"input dir without unknown arguments": {inputDir: "a", unknownArgs: []string{}},
+		"path with -- passthrough, current dir": {
+			positionalArgs:  []string{".", "-s", "settings.xml"},
+			rawArgs:         []string{"snyk", "test", ".", "--", "-s", "settings.xml"},
+			wantInputDirs:   []string{"."},
+			wantUnknownArgs: []string{"-s", "settings.xml"},
+		},
+		"path with -- passthrough, relative": {
+			positionalArgs:  []string{"sub/project", "-s", "settings.xml"},
+			rawArgs:         []string{"snyk", "test", "sub/project", "--", "-s", "settings.xml"},
+			wantInputDirs:   []string{"sub/project"},
+			wantUnknownArgs: []string{"-s", "settings.xml"},
+		},
+		"path with -- passthrough, absolute": {
+			positionalArgs:  []string{"/home/user/project", "-s", "settings.xml"},
+			rawArgs:         []string{"snyk", "test", "/home/user/project", "--", "-s", "settings.xml"},
+			wantInputDirs:   []string{"/home/user/project"},
+			wantUnknownArgs: []string{"-s", "settings.xml"},
+		},
+		"only -- passthrough, no path": {
+			positionalArgs:  []string{"-s", "settings.xml"},
+			rawArgs:         []string{"snyk", "test", "--", "-s", "settings.xml"},
+			wantInputDirs:   nil,
+			wantUnknownArgs: []string{"-s", "settings.xml"},
+		},
+		"no --, single path": {
+			positionalArgs: []string{"."},
+			rawArgs:        []string{"snyk", "test", "."},
+			wantInputDirs:  []string{"."},
+		},
+		"no --, multiple paths": {
+			positionalArgs: []string{"dir1", "dir2"},
+			rawArgs:        []string{"snyk", "test", "dir1", "dir2"},
+			wantInputDirs:  []string{"dir1", "dir2"},
+		},
+		"bare command, no path no --": {
+			positionalArgs: []string{},
+			rawArgs:        []string{"snyk", "test"},
+			wantInputDirs:  nil,
+		},
 	}
 
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
-			expectedInputDir := tc.inputDir
-			expectedUnknownArgs := tc.unknownArgs
-
 			defer cleanup()
-			globalConfiguration = configuration.New()
-			globalConfiguration.Set(configuration.DEBUG, true)
-			globalEngine = workflow.NewWorkFlowEngine(globalConfiguration)
+			config, cmd := setupMainWorkflowTestEnv(t)
 
-			fn := func(invocation workflow.InvocationContext, input []workflow.Data) ([]workflow.Data, error) {
-				return []workflow.Data{}, nil
+			require.NoError(t, runMainWorkflow(config, cmd, tc.positionalArgs, tc.rawArgs))
+
+			if tc.wantInputDirs == nil {
+				assert.Nil(t, config.Get(configuration.INPUT_DIRECTORY),
+					"INPUT_DIRECTORY must be left unset so it defaults to the working directory")
+			} else {
+				assert.Equal(t, tc.wantInputDirs, config.GetStringSlice(configuration.INPUT_DIRECTORY),
+					"passthrough args after -- must not leak into INPUT_DIRECTORY")
 			}
 
-			// setup workflow engine to contain a workflow with subcommands
-			commandList := []string{"command", localworkflows.WORKFLOWID_OUTPUT_WORKFLOW.Host}
-			for _, v := range commandList {
-				workflowConfig := workflow.ConfigurationOptionsFromFlagset(pflag.NewFlagSet("pla", pflag.ContinueOnError))
-				workflowId1 := workflow.NewWorkflowIdentifier(v)
-				_, err := globalEngine.Register(workflowId1, workflowConfig, fn)
-				assert.NoError(t, err)
+			if len(tc.wantUnknownArgs) == 0 {
+				assert.Empty(t, config.GetStringSlice(configuration.UNKNOWN_ARGS))
+			} else {
+				assert.Equal(t, tc.wantUnknownArgs, config.GetStringSlice(configuration.UNKNOWN_ARGS))
 			}
-
-			// Register our data transformation workflow
-			err := localworkflows.InitDataTransformationWorkflow(globalEngine)
-			assert.NoError(t, err)
-
-			_ = globalEngine.Init()
-			// Register our data filter workflow
-			err = localworkflows.InitFilterFindingsWorkflow(globalEngine)
-			assert.NoError(t, err)
-
-			config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
-			cmd := &cobra.Command{
-				Use: "command",
-			}
-
-			positionalArgs := []string{expectedInputDir}
-			positionalArgs = append(positionalArgs, expectedUnknownArgs...)
-
-			rawArgs := []string{"app", "command", "--sad", expectedInputDir}
-			if len(expectedUnknownArgs) > 0 {
-				rawArgs = append(rawArgs, "--")
-				rawArgs = append(rawArgs, expectedUnknownArgs...)
-			}
-
-			// call method under test
-			err = runMainWorkflow(config, cmd, positionalArgs, rawArgs)
-			assert.Nil(t, err)
-
-			actualInputDir := config.GetString(configuration.INPUT_DIRECTORY)
-			assert.Equal(t, expectedInputDir, actualInputDir)
-
-			actualUnknownArgs := config.GetStringSlice(configuration.UNKNOWN_ARGS)
-			assert.Equal(t, expectedUnknownArgs, actualUnknownArgs)
 		})
 	}
 }
@@ -587,7 +695,7 @@ func Test_displayError(t *testing.T) {
 		userInterface.EXPECT().OutputError(err, gomock.Any()).Times(1)
 
 		config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
-		displayError(err, userInterface, config, t.Context())
+		displayError(err, userInterface, config, t.Context(), false)
 	})
 
 	scenarios := []struct {
@@ -608,7 +716,7 @@ func Test_displayError(t *testing.T) {
 		t.Run(fmt.Sprintf("%s does not display anything", scenario.name), func(t *testing.T) {
 			config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
 			err := scenario.err
-			displayError(err, userInterface, config, t.Context())
+			displayError(err, userInterface, config, t.Context(), false)
 		})
 	}
 
@@ -617,7 +725,21 @@ func Test_displayError(t *testing.T) {
 		userInterface.EXPECT().OutputError(err, gomock.Any()).Times(1)
 
 		config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
-		displayError(err, userInterface, config, t.Context())
+		displayError(err, userInterface, config, t.Context(), false)
+	})
+}
+
+func Test_doctorTip(t *testing.T) {
+	t.Run("CI advertises the --input flag", func(t *testing.T) {
+		tip := doctorTip(true)
+		assert.Contains(t, tip, "--input")
+		assert.NotContains(t, tip, "2>&1")
+	})
+
+	t.Run("interactive advertises piping debug logs", func(t *testing.T) {
+		tip := doctorTip(false)
+		assert.Contains(t, tip, "2>&1 | snyk doctor --stdin")
+		assert.NotContains(t, tip, "--input")
 	})
 }
 
@@ -762,4 +884,12 @@ func loadJsonFile(t *testing.T, filename string) []byte {
 	byteValue, err := io.ReadAll(jsonFile)
 	assert.NoError(t, err)
 	return byteValue
+}
+
+func testHelpRouter() *helprouting.Router {
+	helpDocs := helpdocs.FixtureCommandHelp()
+	return &helprouting.Router{
+		LegacyHelp: func() error { return nil },
+		HasUserDoc: helpDocs.HasUserDoc,
+	}
 }

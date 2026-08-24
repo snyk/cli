@@ -19,15 +19,14 @@ export LS_PROTOCOL_VERSION=
 STATIC_NODE_BINARY = false
 CGO_ENABLED = 1
 
-# Auto-detect build mode by checking whether the private module's dependencies
-# can actually be resolved (i.e. the developer has access to the private repos).
-# Defaults to private when possible, falls back to public.
+# BUILD_MODE is typically set by the root Makefile. When running cliv2/Makefile
+# directly, it defaults to auto-detection based on access to cliv2-private.
 # Can be overridden: make build BUILD_MODE=public
-# NOTE: When BUILD_MODE=private is explicitly set (e.g., in CI), the build will
-# fail if private dependencies cannot be resolved, rather than silently falling back.
 PRIVATE_DIR = $(WORKING_DIR)/../cliv2-private
-_CAN_BUILD_PRIVATE = $(shell if [ -f "$(PRIVATE_DIR)/go.mod" ] && cd "$(PRIVATE_DIR)" && $(GOCMD) mod download > /dev/null 2>&1; then echo yes; fi)
-BUILD_MODE ?= $(if $(_CAN_BUILD_PRIVATE),private,public)
+ifndef BUILD_MODE
+  _CAN_BUILD_PRIVATE = $(shell if [ -f "$(PRIVATE_DIR)/go.mod" ] && cd "$(PRIVATE_DIR)" && $(GOCMD) mod download > /dev/null 2>&1; then echo yes; fi)
+  BUILD_MODE = $(if $(_CAN_BUILD_PRIVATE),private,public)
+endif
 BUILD_ROOT_DIR = $(if $(filter private,$(BUILD_MODE)),$(PRIVATE_DIR),$(WORKING_DIR))
 
 # Validation target for BUILD_MODE=private (called by build targets, not at parse time)
@@ -62,7 +61,7 @@ CACHE_DIR = $(WORKING_DIR)/_cache
 LS_PROTOCOL_VERSION_FILE = $(CACHE_DIR)/ls-protocol-version
 LS_COMMIT_HASH_FILE = $(CACHE_DIR)/ls-commit-hash
 LS_COMMIT_HASH = $(if $(wildcard $(LS_COMMIT_HASH_FILE)),$(shell cat $(LS_COMMIT_HASH_FILE)),determined during LS metadata generation)
-SRCS = $(shell find $(WORKING_DIR) -type f -name '*.go')
+SRCS = $(shell $(GOCMD) list -f '{{range .GoFiles}}{{$$.Dir}}/{{.}} {{end}}' ./...)
 
 # load cached variables if available
 -include $(CACHE_DIR)/variables.mk
@@ -127,6 +126,9 @@ HASH_STRING = $(HASH)$(HASH_ALGORITHM)
 SIGN_SCRIPT = $(WORKING_DIR)/scripts/sign_$(_GO_OS).sh
 ISSIGNED_SCRIPT = $(WORKING_DIR)/scripts/issigned_$(_GO_OS).sh
 EMBEDDED_DATA_DIR = $(WORKING_DIR)/internal/embedded/_data
+HELPDOCS_DIR = $(WORKING_DIR)/internal/helpdocs
+HELPDOCS_EMBED_DIR = $(HELPDOCS_DIR)/cli-commands
+HELPDOCS_SOURCE = $(WORKING_DIR)/../help/cli-commands
 
 ifeq ($(GOHOSTOS), windows)
 	SPECIAL_SHELL = powershell
@@ -187,9 +189,20 @@ summary:
 
 # prepare the workspace and cache global parameters
 .PHONY: configure
-configure: _validate-build-mode summary $(CACHE_DIR) $(CACHE_DIR)/variables.mk $(V1_DIRECTORY)/$(V1_EMBEDDED_FILE_OUTPUT) dependencies $(CACHE_DIR)/prepare-3rd-party-licenses
+configure: _validate-build-mode _verify-private-build summary $(CACHE_DIR) $(CACHE_DIR)/variables.mk $(V1_DIRECTORY)/$(V1_EMBEDDED_FILE_OUTPUT) dependencies $(CACHE_DIR)/prepare-3rd-party-licenses
 
-$(BUILD_DIR)/$(V2_EXECUTABLE_NAME): $(BUILD_DIR) $(SRCS) generate-ls-protocol-metadata
+.PHONY: _helpdocs-prepare
+_helpdocs-prepare:
+	@set -e; \
+	md_count=$$(ls $(HELPDOCS_SOURCE)/*.md 2>/dev/null | wc -l | tr -d ' '); \
+	if [ "$$md_count" -eq 0 ]; then \
+		echo "$(LOG_PREFIX) ERROR: no .md files found in $(HELPDOCS_SOURCE)"; \
+		exit 1; \
+	fi; \
+	rm -rf $(HELPDOCS_EMBED_DIR)/*.md; \
+	cp $(HELPDOCS_SOURCE)/*.md $(HELPDOCS_EMBED_DIR)/
+
+$(BUILD_DIR)/$(V2_EXECUTABLE_NAME): $(BUILD_DIR) $(SRCS) generate-ls-protocol-metadata _helpdocs-prepare
 	$(eval LS_PROTOCOL_VERSION := $(shell cat $(LS_PROTOCOL_VERSION_FILE)))
 	$(eval LS_COMMIT_HASH := $(shell cat $(LS_COMMIT_HASH_FILE)))
 	$(eval EXTRA_FLAGS := -X github.com/snyk/snyk-ls/application/config.Version=$(LS_COMMIT_HASH) -X github.com/snyk/snyk-ls/application/config.LsProtocolVersion=$(LS_PROTOCOL_VERSION)  -X github.com/snyk/cli/cliv2/pkg/core.internalOS=$(GOOS) -X github.com/snyk/cli/cliv2/internal/embedded/cliv1.snykCLIVersion=$(CLI_V1_VERSION_TAG) -X github.com/snyk/cli-extension-iac/internal/commands/iactest.internalRulesClientURL=$(IAC_RULES_URL) -X github.com/snyk/cli/cliv2/internal/constants.StaticNodeJsBinary=$(STATIC_NODE_BINARY))
@@ -226,6 +239,15 @@ debug:
 .PHONY: build
 build: configure $(BUILD_DIR)/$(V2_EXECUTABLE_NAME)
 
+# Pre-build check: the version file must be consistent with BUILD_MODE.
+# Delegates to next-version.sh --verify so suffix logic lives in one place.
+.PHONY: _verify-private-build
+_verify-private-build:
+	@VERSION_FILE="$(DESTDIR)$(bindir)/version"; \
+	if [ -f "$$VERSION_FILE" ]; then \
+		BUILD_MODE=$(BUILD_MODE) $(V1_WORKING_DIR)/release-scripts/next-version.sh --verify "$$(cat "$$VERSION_FILE")"; \
+	fi
+
 $(WORKING_DIR)/internal/httpauth/generated/httpauth_generated_mock.go:
 	@$(GOCMD) generate ./internal/httpauth/
 
@@ -260,6 +282,26 @@ $(TOOLS_BIN)/golangci-lint:
 .PHONY: format
 format:
 	gofmt -w -l -e .
+
+# Tidy both public and private modules. The private module depends on the public
+# module via a replace directive, so we tidy the public module first. After both
+# are tidy, sync shared dependency versions from private back into public so
+# the two go.mod files stay consistent.
+.PHONY: tidy
+tidy:
+	@echo "$(LOG_PREFIX) Running go mod tidy in cliv2 (public)"
+	@cd $(WORKING_DIR) && $(GOCMD) mod tidy
+	@if [ -f "$(PRIVATE_DIR)/go.mod" ]; then \
+		echo "$(LOG_PREFIX) Running go mod tidy in cliv2-private" && \
+		cd "$(PRIVATE_DIR)" && $(GOCMD) mod tidy && \
+		echo "$(LOG_PREFIX) Syncing shared dependency versions from private to public" && \
+		cd $(WORKING_DIR) && $(GOCMD) run ./cmd/gomodsync \
+			--mode=sync --public=./go.mod --private=$(PRIVATE_DIR)/go.mod && \
+		echo "$(LOG_PREFIX) Re-running go mod tidy in cliv2 (public) after sync" && \
+		cd $(WORKING_DIR) && $(GOCMD) mod tidy; \
+	else \
+		echo "$(LOG_PREFIX) Skipping cliv2-private (not found or no access)"; \
+	fi
 
 .PHONY: SIGN_SCRIPT
 SIGN_SCRIPT:
@@ -335,6 +377,7 @@ help:
 	@echo "\n Main targets (Golang only):"
 	@echo "$(LOG_PREFIX) lint"
 	@echo "$(LOG_PREFIX) format"
+	@echo "$(LOG_PREFIX) tidy                       Run go mod tidy in both cliv2 and cliv2-private, sync shared deps"
 	@echo "$(LOG_PREFIX) fips"
 	@echo "$(LOG_PREFIX) build"
 	@echo "$(LOG_PREFIX) sign"
@@ -350,5 +393,6 @@ help:
 	@echo "$(LOG_PREFIX) GOARCH                     Specify Architecture to compile for (see golang GOARCH, default=$(GOARCH))"
 	@echo "$(LOG_PREFIX) CLI_V1_VERSION_TAG         Version of the CLIv1 to bundle"
 	@echo "$(LOG_PREFIX) CLI_V1_LOCATION            Filesystem location of CLIv1 binaries to bundle, if specified, CLI_V1_VERSION_TAG is also required"
+	@echo "$(LOG_PREFIX) BUILD_MODE                 Build mode: 'public' (default) or 'private' (auto-detected based on access)"
 	@echo "$(LOG_PREFIX) prefix                     Installation prefix (default=$(prefix))"
 	@echo "$(LOG_PREFIX) DESTDIR                    For staged installations"

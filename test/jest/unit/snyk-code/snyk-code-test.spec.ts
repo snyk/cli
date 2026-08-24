@@ -941,7 +941,7 @@ describe('Test snyk code', () => {
     const sastSettings = {
       sastEnabled: true,
       localCodeEngine: {
-        url: 'http://foo.bar',
+        url: 'http://foo.invalid',
         allowCloudUpload: true,
         enabled: true,
       },
@@ -960,7 +960,7 @@ describe('Test snyk code', () => {
     const firstArgumentOfMakeRequest = makeRequestMock.mock.calls[0][0];
     expect(firstArgumentOfMakeRequest).toEqual({
       method: 'get',
-      url: 'http://foo.bar/status',
+      url: 'http://foo.invalid/status',
     });
   });
 

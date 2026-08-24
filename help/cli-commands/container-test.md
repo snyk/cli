@@ -1,3 +1,7 @@
+---
+description: The snyk container test command that tests a container image for vulnerabilities
+---
+
 # Container test
 
 ## Usage

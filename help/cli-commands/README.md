@@ -1,3 +1,7 @@
+---
+description: Help reference for the Snyk CLI commands
+---
+
 # CLI help
 
 Snyk CLI scans and monitors your projects for security vulnerabilities and license issues.
@@ -44,21 +48,21 @@ These commands find and report security issues in Infrastructure as Code files; 
 
 The `snyk code test` command finds security issues using Static Code Analysis.
 
+### [`snyk secrets`](secrets-test.md)
+
+The `snyk secrets test` command scans text files in a repository for hardcoded secrets.
+
 ### [`snyk sbom`](sbom.md)
 
 Generate or test an SBOM document in ecosystems supported by Snyk.
 
 ### [`snyk aibom`](aibom.md)
 
-Generates an AIBOM for a local software project that is written in Python, to understand what AI models, datasets, tools, and so on are used in that project.
+Generates an AIBOM for a local software project written in Python, Java, JavaScript, or Go, to understand what AI models, datasets, tools, and so on are used in that project.
 
 ### [`snyk aibom test`](aibom-test.md)
 
 Generates an AI-BOM and tests it against your tenant's policies, returning all resulting issues.
-
-### [`snyk redteam`](redteam.md)
-
-Runs a red teaming scan against AI targets and reports vulnerabilities.
 
 ### [`snyk log4shell`](log4shell.md)
 

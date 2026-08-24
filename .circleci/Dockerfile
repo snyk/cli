@@ -70,6 +70,11 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     && apt-get auto-remove -y && apt-get clean -y && rm -rf /var/lib/apt/lists/*
 RUN node -v
 
+# Upgrade npm to match the version required in package.json "engines"
+# (Node's bundled npm lags behind).
+RUN npm install -g npm@^11.10
+RUN npm -v
+
 # install aws cli
 COPY .circleci/awscli-publickey.pub awscli-publickey.pub
 RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-$ARCH.zip" -o "awscliv2.zip"

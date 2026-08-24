@@ -9,18 +9,21 @@
 export SHELL=/bin/bash
 WORKING_DIR = $(CURDIR)
 PKG := npx pkg ./ --compress Brotli --options max_old_space_size=32768
-PKG_NODE_VERSION := $(shell head -1 .nvmrc | cut -f1 -d '.')
+PKG_NODE_VERSION := $(shell cat .nvmrc)
 BINARY_WRAPPER_DIR = ts-binary-wrapper
 EXTENSIBLE_CLI_DIR = cliv2
 BINARY_RELEASES_FOLDER_TS_CLI = binary-releases
 export BINARY_OUTPUT_FOLDER = binary-releases
 SHASUM_CMD = shasum
 GOHOSTOS = $(shell go env GOHOSTOS)
+GOCMD = go
 export PYTHON = python
 
-PYTHON_VERSION = $(shell python3 --version)
-ifneq (, $(PYTHON_VERSION))
-	PYTHON = python3
+ifneq ($(GOHOSTOS), windows)
+	PYTHON_VERSION = $(shell python3 --version 2>/dev/null)
+	ifneq (, $(PYTHON_VERSION))
+		PYTHON = python3
+	endif
 endif
 
 ifeq ($(GOHOSTOS), windows)
@@ -44,8 +47,14 @@ $(BINARY_OUTPUT_FOLDER)/experimental: $(BINARY_OUTPUT_FOLDER)
 $(BINARY_RELEASES_FOLDER_TS_CLI):
 	@mkdir -p $(BINARY_RELEASES_FOLDER_TS_CLI)
 
+# BUILD_MODE is auto-detected in cliv2/Makefile based on access to cliv2-private.
+# We use the same detection logic here for consistency.
+PRIVATE_DIR = $(WORKING_DIR)/cliv2-private
+_CAN_BUILD_PRIVATE = $(shell if [ -f "$(PRIVATE_DIR)/go.mod" ] && cd "$(PRIVATE_DIR)" && go mod download > /dev/null 2>&1; then echo yes; fi)
+BUILD_MODE ?= $(if $(_CAN_BUILD_PRIVATE),private,public)
+
 $(BINARY_RELEASES_FOLDER_TS_CLI)/version: | $(BINARY_RELEASES_FOLDER_TS_CLI)
-	./release-scripts/next-version.sh > $(BINARY_RELEASES_FOLDER_TS_CLI)/version
+	BUILD_MODE=$(BUILD_MODE) ./release-scripts/next-version.sh > $(BINARY_RELEASES_FOLDER_TS_CLI)/version
 
 $(BINARY_OUTPUT_FOLDER)/experimental/version: $(BINARY_RELEASES_FOLDER_TS_CLI)/version $(BINARY_OUTPUT_FOLDER)/experimental
 	@cp $(BINARY_RELEASES_FOLDER_TS_CLI)/version $(BINARY_OUTPUT_FOLDER)/experimental/version
@@ -200,6 +209,8 @@ $(BINARY_WRAPPER_DIR)/src/generated/sha256sums.txt:
 
 .PHONY: build-binary-wrapper
 build-binary-wrapper: pre-build-binary-wrapper $(BINARY_WRAPPER_DIR)/src/generated/version $(BINARY_WRAPPER_DIR)/src/generated/sha256sums.txt
+	@echo "-- Installing Typescript Binary Wrapper dependencies"
+	@cd $(BINARY_WRAPPER_DIR); npm ci --ignore-scripts
 	@echo "-- Building Typescript Binary Wrapper ($(BINARY_WRAPPER_DIR)/dist/)"
 	@cd $(BINARY_WRAPPER_DIR); npm run build
 
@@ -242,22 +253,22 @@ pre-build: pre-build-binary-wrapper $(BINARY_RELEASES_FOLDER_TS_CLI) $(BINARY_RE
 
 .PHONY: build-fips
 build-fips: pre-build $(BINARY_OUTPUT_FOLDER)/fips/version
-	@cd $(EXTENSIBLE_CLI_DIR); $(MAKE) fips build-full install bindir=$(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER)/fips USE_LEGACY_EXECUTABLE_NAME=1
+	@cd $(EXTENSIBLE_CLI_DIR); $(MAKE) fips build-full install bindir=$(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER)/fips USE_LEGACY_EXECUTABLE_NAME=1 BUILD_MODE=$(BUILD_MODE)
 	@$(MAKE) clean-package-files
 
 .PHONY: build-experimental
 build-experimental: pre-build $(BINARY_OUTPUT_FOLDER)/experimental/version
-	@cd $(EXTENSIBLE_CLI_DIR); $(MAKE) experimental build-full install bindir=$(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER)/experimental USE_LEGACY_EXECUTABLE_NAME=1
+	@cd $(EXTENSIBLE_CLI_DIR); $(MAKE) experimental build-full install bindir=$(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER)/experimental USE_LEGACY_EXECUTABLE_NAME=1 BUILD_MODE=$(BUILD_MODE)
 	@$(MAKE) clean-package-files
 
 .PHONY: build
 build: pre-build
-	@cd $(EXTENSIBLE_CLI_DIR); $(MAKE) build-full install bindir=$(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER) USE_LEGACY_EXECUTABLE_NAME=1
+	@cd $(EXTENSIBLE_CLI_DIR); $(MAKE) build-full install bindir=$(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER) USE_LEGACY_EXECUTABLE_NAME=1 BUILD_MODE=$(BUILD_MODE)
 	@$(MAKE) clean-package-files
 
 .PHONY: build-debug
 build-debug: pre-build
-	@cd $(EXTENSIBLE_CLI_DIR); $(MAKE) debug build-full install bindir=$(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER) USE_LEGACY_EXECUTABLE_NAME=1
+	@cd $(EXTENSIBLE_CLI_DIR); $(MAKE) debug build-full install bindir=$(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER) USE_LEGACY_EXECUTABLE_NAME=1 BUILD_MODE=$(BUILD_MODE)
 	@$(MAKE) clean-package-files
 
 .PHONY: sign
@@ -310,11 +321,38 @@ release-mgt-create:
 	@echo "-- Creating stable release"
 	@./release-scripts/create-release.sh
 
+.PHONY: lint
+lint:
+	@echo "-- Linting code"
+	@npm run lint
+	@cd $(EXTENSIBLE_CLI_DIR) && $(MAKE) lint
+	@echo "-- Verifying go.mod files are tidy"
+	@cd $(EXTENSIBLE_CLI_DIR) && $(GOCMD) mod tidy -diff > /dev/null || \
+		(echo "ERROR: cliv2/go.mod is not tidy. Run 'make format' and commit the changes." && exit 1)
+	@if [ -d "$(WORKING_DIR)/cliv2-private" ]; then \
+		cd $(WORKING_DIR)/cliv2-private && $(GOCMD) mod tidy -diff > /dev/null || \
+			(echo "ERROR: cliv2-private/go.mod is not tidy. Run 'make format' and commit the changes." && exit 1); \
+	fi
+	@$(MAKE) validate-gomod-sync
+
+.PHONY: validate-gomod-sync
+validate-gomod-sync:
+	@if [ -d "$(PRIVATE_DIR)" ]; then \
+		echo "-- Verifying go.mod files are in sync"; \
+		cd $(EXTENSIBLE_CLI_DIR) && $(GOCMD) run ./cmd/gomodsync \
+			--mode=validate --public=./go.mod --private=$(PRIVATE_DIR)/go.mod; \
+	fi
+
 .PHONY: format
 format:
+	@$(MAKE) tidy
 	@echo "-- Formatting code"
 	@npm run format
-	@pushd $(EXTENSIBLE_CLI_DIR); $(MAKE) format; popd
+	@cd $(EXTENSIBLE_CLI_DIR) && $(MAKE) format
+
+.PHONY: tidy
+tidy:
+	@cd $(EXTENSIBLE_CLI_DIR) && $(MAKE) tidy
 
 .PHONY: ls-protocol-metadata
 ls-protocol-metadata: $(BINARY_RELEASES_FOLDER_TS_CLI)/version

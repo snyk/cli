@@ -42,6 +42,10 @@ export default {
           to: '../gosrc/',
         },
         {
+          from: 'node_modules/snyk-nuget-plugin/dist/nuget-parser/csharp/nupkgs/',
+          to: './nupkgs/',
+        },
+        {
           from: 'node_modules/sql.js/dist/sql-wasm.wasm',
           to: './',
         },

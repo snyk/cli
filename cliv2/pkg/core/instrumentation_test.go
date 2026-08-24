@@ -1,10 +1,16 @@
 package core
 
 import (
+	"context"
 	"testing"
 
+	"github.com/golang/mock/gomock"
+	"github.com/rs/zerolog"
 	"github.com/snyk/go-application-framework/pkg/analytics"
 	"github.com/snyk/go-application-framework/pkg/configuration"
+	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
+	"github.com/snyk/go-application-framework/pkg/mocks"
+	"github.com/snyk/go-application-framework/pkg/workflow"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -25,4 +31,86 @@ func Test_shallSendInstrumentation(t *testing.T) {
 	instrumentor.SetCategory([]string{"analytics", "report", "inputData"})
 	actual = shallSendInstrumentation(config, instrumentor)
 	assert.False(t, actual)
+}
+
+func Test_sendInstrumentation_passesEngineConfigurationToInstrumentationObject(t *testing.T) {
+	globalConfiguration = configuration.NewWithOpts(configuration.WithAutomaticEnv())
+
+	mockController := gomock.NewController(t)
+	mockEngine := mocks.NewMockEngine(mockController)
+
+	// Mirrors production: populateRedactionTerms runs at startup and sweeps up any
+	// os.Environ() value it doesn't recognize. The client machine id is real Studio
+	// data, not a secret, so its own env var value must not end up in the terms
+	// this test's later scrub pass redacts against.
+	machineId := "studio-device-id-abc12345"
+	t.Setenv("INTERNAL_SNYK_CLIENT_MACHINE_ID", machineId)
+	engineConfig := configuration.NewWithOpts(configuration.WithAutomaticEnv())
+	mockEngine.EXPECT().GetWorkflows().Return([]workflow.Identifier{})
+	populateRedactionTerms(engineConfig, mockEngine)
+
+	// One call from shallSendInstrumentation, one to derive analytics.WithConfiguration.
+	// If the call site regresses to only passing WithLogger, this expectation goes unmet.
+	mockEngine.EXPECT().GetConfiguration().Return(engineConfig).Times(2)
+	mockEngine.EXPECT().Invoke(localworkflows.WORKFLOWID_REPORT_ANALYTICS, gomock.Any(), gomock.Any()).Return(nil, nil)
+
+	instrumentor := analytics.NewInstrumentationCollector()
+	addClientMachineId(instrumentor, engineConfig)
+	logger := zerolog.Nop()
+
+	sendInstrumentation(context.Background(), mockEngine, instrumentor, &logger)
+
+	// sendInstrumentation just ran the extension through the same scrub chokepoint;
+	// re-deriving the object (a pure read, doesn't mutate the collector) proves the
+	// machine id survived it rather than coming back "***".
+	obj, err := analytics.GetV2InstrumentationObject(instrumentor, analytics.WithConfiguration(engineConfig))
+	assert.NoError(t, err)
+	assert.Equal(t, machineId, (*obj.Data.Attributes.Interaction.Extension)["studio::client_machine_id"])
+}
+
+func Test_addClientMachineId(t *testing.T) {
+	t.Run("emits studio::client_machine_id when INTERNAL_SNYK_CLIENT_MACHINE_ID env var is set", func(t *testing.T) {
+		// Mirrors how Studio sets the env var before exec'ing the snyk binary
+		// (studio-internal/.../scan_worker.py: env["INTERNAL_SNYK_CLIENT_MACHINE_ID"] = _machine_id)
+		// and the prod config in cliv2/pkg/core/main.go uses WithSupportedEnvVarPrefixes("snyk_", "internal_", ...)
+		t.Setenv("INTERNAL_SNYK_CLIENT_MACHINE_ID", "studio-device-id-abc")
+		config := configuration.NewWithOpts(
+			configuration.WithSupportedEnvVarPrefixes("snyk_", "internal_", "test_"),
+		)
+		instrumentor := analytics.NewInstrumentationCollector()
+
+		addClientMachineId(instrumentor, config)
+
+		obj, err := analytics.GetV2InstrumentationObject(instrumentor)
+		assert.NoError(t, err)
+		assert.NotNil(t, obj.Data.Attributes.Interaction.Extension)
+		assert.Equal(t, "studio-device-id-abc", (*obj.Data.Attributes.Interaction.Extension)["studio::client_machine_id"])
+	})
+
+	t.Run("emits studio::client_machine_id when config key is set directly", func(t *testing.T) {
+		config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
+		config.Set("internal_snyk_client_machine_id", "test-machine-123")
+		instrumentor := analytics.NewInstrumentationCollector()
+
+		addClientMachineId(instrumentor, config)
+
+		obj, err := analytics.GetV2InstrumentationObject(instrumentor)
+		assert.NoError(t, err)
+		assert.NotNil(t, obj.Data.Attributes.Interaction.Extension)
+		assert.Equal(t, "test-machine-123", (*obj.Data.Attributes.Interaction.Extension)["studio::client_machine_id"])
+	})
+
+	t.Run("omits studio::client_machine_id when env var and config are empty", func(t *testing.T) {
+		config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
+		instrumentor := analytics.NewInstrumentationCollector()
+
+		addClientMachineId(instrumentor, config)
+
+		obj, err := analytics.GetV2InstrumentationObject(instrumentor)
+		assert.NoError(t, err)
+		if obj.Data.Attributes.Interaction.Extension != nil {
+			_, present := (*obj.Data.Attributes.Interaction.Extension)["studio::client_machine_id"]
+			assert.False(t, present)
+		}
+	})
 }

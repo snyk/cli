@@ -21,7 +21,8 @@
     "snyk": "bin/snyk"
   },
   "engines": {
-    "node": "^22"
+    "node": "^22 || ^24",
+    "npm": "^11.12.1"
   },
   "workspaces": [
     "packages/*"
@@ -64,14 +65,14 @@
     "@sentry/node": "^7.120.4",
     "@snyk/cli-interface": "2.15.0",
     "@snyk/cloud-config-parser": "^1.14.5",
-    "@snyk/code-client": "^4.23.5",
+    "@snyk/code-client": "^4.26.2",
     "@snyk/dep-graph": "^2.16.3",
     "@snyk/docker-registry-v2-client": "^4.0.2",
     "@snyk/error-catalog-nodejs-public": "^5.79.0",
     "@snyk/fix": "file:packages/snyk-fix",
     "@snyk/gemfile": "1.2.0",
-    "@snyk/snyk-cocoapods-plugin": "3.1.0",
-    "@snyk/snyk-hex-plugin": "2.1.0",
+    "@snyk/snyk-cocoapods-plugin": "3.1.1",
+    "@snyk/snyk-hex-plugin": "2.2.1",
     "@types/marked": "^4.0.0",
     "abbrev": "^1.1.1",
     "adm-zip": "^0.5.9",
@@ -115,19 +116,19 @@
     "semver": "^6.0.0",
     "snyk-config": "^5.0.0",
     "snyk-cpp-plugin": "^2.24.3",
-    "snyk-docker-plugin": "9.7.0",
-    "snyk-go-plugin": "2.1.1",
-    "snyk-gradle-plugin": "6.0.0",
+    "snyk-docker-plugin": "9.19.0",
+    "snyk-go-plugin": "2.2.1",
+    "snyk-gradle-plugin": "7.1.2",
     "snyk-module": "3.1.0",
-    "snyk-mvn-plugin": "^4.7.0",
-    "snyk-nodejs-lockfile-parser": "2.7.1",
-    "snyk-nodejs-plugin": "^2.0.0",
-    "snyk-nuget-plugin": "4.2.0",
+    "snyk-mvn-plugin": "4.9.2",
+    "snyk-nodejs-lockfile-parser": "2.10.0",
+    "snyk-nodejs-plugin": "^2.2.1",
+    "snyk-nuget-plugin": "^4.5.1",
     "snyk-php-plugin": "1.12.1",
     "snyk-policy": "^4.1.6",
-    "snyk-python-plugin": "^3.2.1",
+    "snyk-python-plugin": "^3.3.1",
     "snyk-resolve-deps": "4.10.0",
-    "snyk-sbt-plugin": "3.1.0",
+    "snyk-sbt-plugin": "3.1.1",
     "snyk-swiftpm-plugin": "1.5.1",
     "strip-ansi": "^6.0.1",
     "tar": "^7.5.8",
@@ -148,7 +149,7 @@
     "@types/sinon": "^7.5.0",
     "@typescript-eslint/eslint-plugin": "^4.30.0",
     "@typescript-eslint/parser": "^4.30.0",
-    "@yao-pkg/pkg": "6.19.0",
+    "@yao-pkg/pkg": "6.22.0",
     "ajv": "^8.18.0",
     "ajv-draft-04": "^1.0.0",
     "body-parser": "^1.19.0",
@@ -190,13 +191,23 @@
   "overrides": {
     "cross-spawn@7.0.3": "7.0.6",
     "minimatch@^3.1.2": "3.1.3",
+    "snyk-python-plugin": {
+      "tmp@<0.2.6": "^0.2.6"
+    },
     "@yarnpkg/core@4.5.0": {
-      "tar": "7.5.11"
+      "tar": "$tar"
     },
     "@types/jest-json-schema@^6.1.5": {
       "ajv@6.10.2": "8.18.0"
     },
-    "axios": "^1.15.0"
+    "axios": "^1.15.0",
+    "@snyk/error-catalog-nodejs-public@4.0.4": {
+      "uuid": "$uuid"
+    },
+    "snyk-nodejs-lockfile-parser@2.10.0": {
+      "uuid": "$uuid"
+    },
+    "shescape@<2.1.14": "2.1.14"
   },
   "repository": {
     "type": "git",
@@ -218,6 +229,7 @@
     "access": "public"
   },
   "jest-junit": {
-    "reportTestSuiteErrors": "true"
+    "reportTestSuiteErrors": "true",
+    "addFileAttribute": "true"
   }
 }

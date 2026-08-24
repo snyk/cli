@@ -2,10 +2,15 @@ package core
 
 // !!! This import needs to be the first import, please do not change this !!!
 import _ "github.com/snyk/go-application-framework/pkg/networking/fips_enable"
+import (
+	"github.com/snyk/cli/cliv2/internal/helpdocs"
+	"github.com/snyk/cli/cliv2/internal/helprouting"
+)
 
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -16,17 +21,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/rs/zerolog"
-	"github.com/snyk/cli-extension-agent-scan/pkg/agentscan"
-	"github.com/snyk/cli-extension-ai-bom/pkg/aibom"
-	"github.com/snyk/cli-extension-ai-redteam/pkg/redteam"
-	"github.com/snyk/cli-extension-dep-graph/pkg/depgraph"
-	"github.com/snyk/cli-extension-iac-rules/iacrules"
-	"github.com/snyk/cli-extension-iac/pkg/iac"
-	"github.com/snyk/cli-extension-os-flows/pkg/osflows"
-	"github.com/snyk/cli-extension-sbom/pkg/sbom"
-	"github.com/snyk/cli-extension-secrets/pkg/secrets"
-	"github.com/snyk/code-client-go/pkg/code"
-	"github.com/snyk/container-cli/pkg/container"
 	"github.com/snyk/error-catalog-golang-public/cli"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -43,28 +37,23 @@ import (
 	"github.com/snyk/cli/cliv2/internal/cliv2"
 	"github.com/snyk/cli/cliv2/internal/constants"
 
+	persona "github.com/snyk/cli/cliv2/internal/persona"
+	"github.com/snyk/cli/cliv2/internal/persona/agent"
 	cliv2utils "github.com/snyk/cli/cliv2/internal/utils"
 
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/config_utils"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/network_utils"
 
-	"github.com/snyk/go-httpauth/pkg/httpauth"
-	"github.com/snyk/snyk-iac-capture/pkg/capture"
-
-	workflows "github.com/snyk/go-application-framework/pkg/local_workflows/connectivity_check_extension"
-
-	ignoreworkflow "github.com/snyk/go-application-framework/pkg/local_workflows/ignore_workflow"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/output_workflow"
 	"github.com/snyk/go-application-framework/pkg/networking"
 	"github.com/snyk/go-application-framework/pkg/networking/middleware"
 	"github.com/snyk/go-application-framework/pkg/runtimeinfo"
 	"github.com/snyk/go-application-framework/pkg/ui"
+	"github.com/snyk/go-application-framework/pkg/ui/uitypes"
 	"github.com/snyk/go-application-framework/pkg/utils"
 	"github.com/snyk/go-application-framework/pkg/workflow"
-
-	snykls "github.com/snyk/snyk-ls/ls_extension"
-	"github.com/snyk/studio-mcp/pkg/mcp"
+	"github.com/snyk/go-httpauth/pkg/httpauth"
 
 	cli_errors "github.com/snyk/cli/cliv2/internal/errors"
 	"github.com/snyk/cli/cliv2/pkg/basic_workflows"
@@ -175,10 +164,18 @@ func updateConfigFromParameter(config configuration.Configuration, args []string
 	}
 	config.Set(configuration.UNKNOWN_ARGS, doubleDashArgs)
 
-	// only consider the first positional argument as input directory if it is not behind a double dash.
-	if len(args) > 0 && !utils.Contains(doubleDashArgs, args[0]) {
-		config.Set(configuration.INPUT_DIRECTORY, args)
-		config.Set(localworkflows.ConfigurationNewAuthenticationToken, args[0])
+	// Only positional args before "--" are input directories. Everything after "--" is
+	// passthrough (e.g. build-tool flags like `-s settings.xml`) and must not leak into
+	// INPUT_DIRECTORY, otherwise it gets misread as a path/package and force-routes to legacy.
+	// cobra appends the post-"--" tokens as the suffix of args, so trim them off.
+	positionalArgs := args
+	if len(doubleDashArgs) > 0 && len(args) >= len(doubleDashArgs) {
+		positionalArgs = args[:len(args)-len(doubleDashArgs)]
+	}
+
+	if len(positionalArgs) > 0 {
+		config.Set(configuration.INPUT_DIRECTORY, positionalArgs)
+		config.Set(localworkflows.ConfigurationNewAuthenticationToken, positionalArgs[0])
 	}
 }
 
@@ -243,13 +240,6 @@ func runWorkflowAndProcessData(ctx context.Context, engine workflow.Engine, logg
 	return err
 }
 
-func help(_ *cobra.Command, _ []string) error {
-	helpProvided = true
-	args := utils.RemoveSimilar(os.Args[1:], "--") // remove all double dash arguments to avoid issues with the help command
-	args = append(args, "--help")
-	return defaultCmd(args)
-}
-
 func defaultCmd(args []string) error {
 	inputDirectory := cliv2.DetermineInputDirectory(args)
 	if len(inputDirectory) > 0 {
@@ -263,6 +253,11 @@ func defaultCmd(args []string) error {
 	globalConfiguration.Set(configuration.RAW_CMD_ARGS, args)
 	_, err := globalEngine.Invoke(basic_workflows.WORKFLOWID_LEGACY_CLI)
 	return err
+}
+
+func runLegacyHelp() error {
+	filteredArgs := utils.RemoveSimilar(os.Args[1:], "--")
+	return defaultCmd(append(filteredArgs, "--help"))
 }
 
 func runTestCommandWithSarifEqualJson(cmd *cobra.Command, args []string, templateFiles []string) error {
@@ -396,7 +391,7 @@ func createCommandsForWorkflows(rootCommand *cobra.Command, engine workflow.Engi
 	}
 }
 
-func prepareRootCommand() *cobra.Command {
+func prepareRootCommand(router *helprouting.Router) *cobra.Command {
 	rootCommand := cobra.Command{
 		Use: "snyk",
 		RunE: func(cmd *cobra.Command, _ []string) error {
@@ -404,11 +399,13 @@ func prepareRootCommand() *cobra.Command {
 		},
 	}
 
-	// help for all commands is handled by the legacy cli
-	// TODO: discuss how to move help to extensions
+	// Help precedence: synced user-doc Markdown (legacy CLI) when available; otherwise Cobra help.
+	root := &rootCommand
 	helpCommand := cobra.Command{
-		Use:  "help",
-		RunE: help,
+		Use: "help",
+		RunE: func(c *cobra.Command, _ []string) error {
+			return router.Help(c, root, os.Args[1:])
+		},
 	}
 
 	// some static/global cobra configuration
@@ -417,8 +414,7 @@ func prepareRootCommand() *cobra.Command {
 	rootCommand.SilenceUsage = true
 	rootCommand.FParseErrWhitelist.UnknownFlags = true
 
-	// ensure that help and usage information comes from the legacy cli instead of cobra's default help
-	rootCommand.SetHelpFunc(func(c *cobra.Command, args []string) { _ = help(c, args) })
+	rootCommand.SetHelpFunc(func(c *cobra.Command, _ []string) { _ = router.Help(c, root, os.Args[1:]) })
 	rootCommand.SetHelpCommand(&helpCommand)
 	rootCommand.PersistentFlags().AddFlagSet(getGlobalFLags())
 
@@ -445,7 +441,7 @@ func handleError(err error) HandleError {
 		if commandError {
 			resultError = handleErrorFallbackToLegacyCLI
 		} else if flagError {
-			// handle flag errors explicitly since we need to delegate the help to the legacy CLI. This includes disabling the cobra default help/usage
+			// handle flag errors explicitly via help(): user-doc markdown when available, otherwise Cobra help
 			resultError = handleErrorShowHelp
 		}
 	}
@@ -453,7 +449,14 @@ func handleError(err error) HandleError {
 	return resultError
 }
 
-func displayError(err error, userInterface ui.UserInterface, config configuration.Configuration, ctx context.Context) {
+func doctorTip(isCI bool) string {
+	if isCI {
+		return "Give the snyk doctor your logs to debug: `snyk doctor --input <log-file>`"
+	}
+	return "Try snyk doctor: `snyk <command> -d 2>&1 | snyk doctor --stdin`"
+}
+
+func displayError(err error, userInterface ui.UserInterface, config configuration.Configuration, ctx context.Context, isCI bool) {
 	if err != nil {
 		_, isExitError := err.(*exec.ExitError)
 		_, isErrorWithCode := err.(*cli_errors.ErrorWithExitCode)
@@ -473,6 +476,7 @@ func displayError(err error, userInterface ui.UserInterface, config configuratio
 			jsonErrorBuffer, _ := json.MarshalIndent(jsonError, "", "  ")
 			_ = userInterface.OutputError(fmt.Errorf("%s", jsonErrorBuffer))
 		} else {
+			ctx = context.WithValue(ctx, uitypes.ErrorTipKey, doctorTip(isCI))
 			uiError := userInterface.OutputError(err, ui.WithContext(ctx))
 			if uiError != nil {
 				globalLogger.Err(uiError).Msg("ui failed to show error")
@@ -481,32 +485,19 @@ func displayError(err error, userInterface ui.UserInterface, config configuratio
 	}
 }
 
-func initExtensions(engine workflow.Engine, config configuration.Configuration, additionalExts []workflow.ExtensionInit) {
-	engine.AddExtensionInitializer(basic_workflows.Init)
-	engine.AddExtensionInitializer(osflows.Init)
-	engine.AddExtensionInitializer(iac.Init)
-	engine.AddExtensionInitializer(sbom.Init)
-	engine.AddExtensionInitializer(aibom.Init)
-	engine.AddExtensionInitializer(redteam.Init)
-	engine.AddExtensionInitializer(depgraph.Init)
-	engine.AddExtensionInitializer(capture.Init)
-	engine.AddExtensionInitializer(iacrules.Init)
-	engine.AddExtensionInitializer(snykls.Init)
-	engine.AddExtensionInitializer(mcp.Init)
-	engine.AddExtensionInitializer(container.Init)
-	engine.AddExtensionInitializer(code.Init)
-	engine.AddExtensionInitializer(workflows.InitConnectivityCheckWorkflow)
-	engine.AddExtensionInitializer(ignoreworkflow.InitIgnoreWorkflows)
-	engine.AddExtensionInitializer(agentscan.Init)
-	engine.AddExtensionInitializer(secrets.Init)
-
-	// Register additional extensions injected via Run(WithAdditionalExtensions(...))
-	for _, ext := range additionalExts {
-		engine.AddExtensionInitializer(ext)
+func handleRetryNotification(engine workflow.Engine, logger *zerolog.Logger, err error) {
+	if userInterface := engine.GetUserInterface(); userInterface != nil {
+		if outputErr := userInterface.OutputError(err); outputErr != nil {
+			logger.Warn().Err(outputErr).Msg("failed to show rate-limit retry warning")
+		}
+	} else {
+		logger.Warn().Msg("rate-limit retry warning not shown: user interface not attached")
 	}
 
-	if config.GetBool(configuration.PREVIEW_FEATURES_ENABLED) {
-		config.Set("INTERNAL_USE_UFM_PRESENTER", true)
+	if engineAnalytics := engine.GetAnalytics(); engineAnalytics != nil {
+		engineAnalytics.AddError(err)
+	} else {
+		logger.Warn().Msg("rate-limit retry not recorded in analytics: collector not initialized")
 	}
 }
 
@@ -516,6 +507,12 @@ func tearDown(err error, errorList []error, startTime time.Time, ua networking.U
 	// Create a context with timeout for teardown operations to ensure we don't hang indefinitely
 	teardownCtx, cancel := context.WithTimeout(context.Background(), teardownTimeout)
 	defer cancel()
+
+	// Populated here (post-command) rather than at startup so the analytics scrub chokepoint
+	// (which reads logging.REDACTION_TERMS off of config) sees these terms on every run, not
+	// just under --debug, without forcing an ORGANIZATION/ORGANIZATION_SLUG network lookup
+	// before the command's own requests run.
+	populateRedactionTerms(globalConfiguration, globalEngine)
 
 	outputError := err
 	allErrors := errorList
@@ -533,7 +530,7 @@ func tearDown(err error, errorList []error, startTime time.Time, ua networking.U
 	exitCode := cliv2.DeriveExitCode(outputError)
 	globalLogger.Printf("Deriving Exit Code %d (cause: %v)", exitCode, outputError)
 
-	displayError(outputError, globalEngine.GetUserInterface(), globalConfiguration, globalContext)
+	displayError(outputError, globalEngine.GetUserInterface(), globalConfiguration, globalContext, cliAnalytics.IsCiEnvironment())
 
 	updateInstrumentationDataBeforeSending(cliAnalytics, startTime, ua, exitCode)
 
@@ -574,7 +571,13 @@ func mainWithErrorCode(additionalExts []workflow.ExtensionInit) int {
 	var err error
 	rInfo := runtimeinfo.New(runtimeinfo.WithName("snyk-cli"), runtimeinfo.WithVersion(cliv2.GetFullVersion()))
 
-	rootCommand := prepareRootCommand()
+	helpDocs := helpdocs.DefaultCommandHelp()
+	helpRouter := &helprouting.Router{
+		LegacyHelp:   runLegacyHelp,
+		OnHelpCalled: func() { helpProvided = true },
+		HasUserDoc:   helpDocs.HasUserDoc,
+	}
+	rootCommand := prepareRootCommand(helpRouter)
 	// omit the first arg which is always `snyk`
 	_ = rootCommand.ParseFlags(os.Args[1:])
 
@@ -587,7 +590,7 @@ func mainWithErrorCode(additionalExts []workflow.ExtensionInit) int {
 	)
 	err = globalConfiguration.AddFlagSet(rootCommand.LocalFlags())
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "Failed to add flags to root command", err)
+		_, _ = fmt.Fprintln(os.Stderr, "Failed to add flags to root command", err)
 	}
 
 	// ensure to init configuration before using it
@@ -612,6 +615,15 @@ func mainWithErrorCode(additionalExts []workflow.ExtensionInit) int {
 		if err == nil {
 			return nil
 		}
+
+		// Retry notifications arrive as catalog errors with RetryAttemptError as cause.
+		// Show UI warning, record in analytics, but don't collect as a command error.
+		var retryErr *middleware.RetryAttemptError
+		if errors.As(err, &retryErr) {
+			handleRetryNotification(globalEngine, globalLogger, err)
+			return nil
+		}
+
 		errorListMutex.Lock()
 		defer errorListMutex.Unlock()
 
@@ -626,10 +638,6 @@ func mainWithErrorCode(additionalExts []workflow.ExtensionInit) int {
 	)
 	network_utils.AddSnykRequestId(networkAccess)
 
-	if debugEnabled {
-		writeLogHeader(globalConfiguration, networkAccess)
-	}
-
 	// initialize the extensions -> they register themselves at the engine
 	initExtensions(globalEngine, globalConfiguration, additionalExts)
 
@@ -638,9 +646,8 @@ func mainWithErrorCode(additionalExts []workflow.ExtensionInit) int {
 
 	// We want to scrub the debug log of sensitive information. Since we have a list of commands we know can occur, we can intersect that with arguments we don't recognize, and automatically scrub all those from the logs.
 	if debugEnabled {
-		knownTerms, _ := instrumentation.GetKnownCommandsAndFlags(globalEngine)
-		knownTerms = append(knownTerms, globalConfiguration.GetString(configuration.API_URL), globalConfiguration.GetString(configuration.ORGANIZATION), globalConfiguration.GetString(configuration.ORGANIZATION_SLUG))
-		termsToRedact := cliv2utils.GetUnknownParameters(os.Args[1:], os.Environ(), knownTerms)
+		termsToRedact := populateRedactionTerms(globalConfiguration, globalEngine)
+		writeLogHeader(globalConfiguration, networkAccess)
 		scrubbedLogger.AddTermsToReplace(termsToRedact)
 	}
 
@@ -667,6 +674,7 @@ func mainWithErrorCode(additionalExts []workflow.ExtensionInit) int {
 	cliAnalytics.GetInstrumentation().SetCategory(instrumentation.DetermineCategory(os.Args, globalEngine))
 	cliAnalytics.GetInstrumentation().SetStage(instrumentation.DetermineStage(cliAnalytics.IsCiEnvironment()))
 	cliAnalytics.GetInstrumentation().SetStatus(analytics.Success)
+	persona.Report(cliAnalytics)
 
 	setTimeout(globalConfiguration, func() {
 		tearDownOnce.Do(func() {
@@ -695,7 +703,7 @@ func mainWithErrorCode(additionalExts []workflow.ExtensionInit) int {
 		globalLogger.Printf("Using Legacy CLI to serve the command. (reason: %v)", err)
 		err = defaultCmd(os.Args[1:])
 	case handleErrorShowHelp:
-		err = help(nil, []string{})
+		err = helpRouter.Help(nil, rootCommand, os.Args[1:])
 	case handleErrorUnhandled:
 		// ignore
 	}
@@ -709,6 +717,28 @@ func mainWithErrorCode(additionalExts []workflow.ExtensionInit) int {
 	})
 
 	return finalExitCode
+}
+
+// populateRedactionTerms computes likely-secret literal values (unrecognized CLI
+// arguments and environment variables) and records them on config under
+// logging.REDACTION_TERMS, so the analytics scrub chokepoint can redact
+// them regardless of whether debug logging is enabled.
+func populateRedactionTerms(config configuration.Configuration, engine workflow.Engine) []string {
+	knownTerms, _ := instrumentation.GetKnownCommandsAndFlags(engine)
+	knownTerms = append(knownTerms, config.GetString(configuration.API_URL), config.GetString(configuration.ORGANIZATION), config.GetString(configuration.ORGANIZATION_SLUG), config.GetString(clientMachineIdConfigKey))
+	// AI_AGENT is trusted verbatim by agent.DetectAgent, and persona.Report
+	// falls back to that same raw value whenever the Harness name/version split
+	// or canonicalisation does not apply, so its raw value needs the same
+	// exclusion as the client machine id above. GetUnknownParameters tokenizes
+	// its input on whitespace, so a multi-word value only excludes as a whole if
+	// each of its words is excluded too.
+	if detectedAgent, ok := agent.DetectAgent(); ok {
+		knownTerms = append(knownTerms, detectedAgent)
+		knownTerms = append(knownTerms, strings.Fields(detectedAgent)...)
+	}
+	termsToRedact := cliv2utils.GetUnknownParameters(os.Args[1:], os.Environ(), knownTerms)
+	config.Set(logging.REDACTION_TERMS, termsToRedact)
+	return termsToRedact
 }
 
 func processError(err error, errorList []error) ([]error, error) {

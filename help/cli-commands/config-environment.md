@@ -1,3 +1,7 @@
+---
+description: The snyk config environment command for setting the Snyk API environment
+---
+
 # Config environment
 
 **Note:** This command will be available as of CLI version 1.1293.0.
