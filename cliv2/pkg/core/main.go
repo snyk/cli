@@ -604,6 +604,7 @@ func mainWithErrorCode(additionalExts []workflow.ExtensionInit) int {
 
 	globalConfiguration.AddDefaultValue(configuration.FF_OAUTH_AUTH_FLOW_ENABLED, defaultOAuthFF(globalConfiguration))
 	globalConfiguration.AddDefaultValue(configuration.FF_TRANSFORMATION_WORKFLOW, configuration.StandardDefaultValueFunction(true))
+	globalConfiguration.AddDefaultValue(configuration.NETWORK_REQUEST_RETRY_ALLOWED_PATHS, defaultNetworkRequestRetryAllowedPaths())
 
 	if noProxyAuth := globalConfiguration.GetBool(basic_workflows.PROXY_NOAUTH); noProxyAuth {
 		globalConfiguration.Set(configuration.PROXY_AUTHENTICATION_MECHANISM, httpauth.StringFromAuthenticationMechanism(httpauth.NoAuth))

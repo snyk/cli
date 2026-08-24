@@ -925,3 +925,46 @@ func testHelpRouter() *helprouting.Router {
 		HasUserDoc: helpDocs.HasUserDoc,
 	}
 }
+
+func Test_defaultNetworkRequestRetryAllowedPaths(t *testing.T) {
+	tests := []struct {
+		name          string
+		existingValue interface{}
+		expected      interface{}
+	}{
+		{"nil yields CLI defaults", nil, []string{"oauth2/token", "test-dep-graph", "verify/token", "feature_flags/evaluation"}},
+		{"csv string splits and merges with defaults", "a,b", []string{"oauth2/token", "test-dep-graph", "verify/token", "feature_flags/evaluation", "a", "b"}},
+		{"csv string trims whitespace and merges", "a, b", []string{"oauth2/token", "test-dep-graph", "verify/token", "feature_flags/evaluation", "a", "b"}},
+		{"empty string yields just CLI defaults", "", []string{"oauth2/token", "test-dep-graph", "verify/token", "feature_flags/evaluation"}},
+		{"non-empty slice merges with defaults", []string{"x"}, []string{"oauth2/token", "test-dep-graph", "verify/token", "feature_flags/evaluation", "x"}},
+		{"empty slice yields CLI defaults", []string{}, []string{"oauth2/token", "test-dep-graph", "verify/token", "feature_flags/evaluation"}},
+		{"interface slice from JSON merges with defaults", []interface{}{"y", "z"}, []string{"oauth2/token", "test-dep-graph", "verify/token", "feature_flags/evaluation", "y", "z"}},
+	}
+
+	config := configuration.NewWithOpts()
+	defaultFunction := defaultNetworkRequestRetryAllowedPaths()
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result, err := defaultFunction(config, tt.existingValue)
+
+			assert.NoError(t, err)
+			assert.Equal(t, tt.expected, result)
+		})
+	}
+}
+
+func Test_NetworkRequestRetryAllowedPaths_Integration(t *testing.T) {
+	defer cleanup()
+	oldArgs := append([]string{}, os.Args...)
+	os.Args = []string{"snyk", "--version"}
+	defer func() { os.Args = oldArgs }()
+
+	_ = mainWithErrorCode(nil)
+
+	paths := globalConfiguration.GetStringSlice(configuration.NETWORK_REQUEST_RETRY_ALLOWED_PATHS)
+	assert.Contains(t, paths, "oauth2/token")
+	assert.Contains(t, paths, "test-dep-graph")
+	assert.Contains(t, paths, "verify/token")
+	assert.Contains(t, paths, "feature_flags/evaluation")
+}
