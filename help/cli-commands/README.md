@@ -72,6 +72,10 @@ Find Log4Shell vulnerability.
 
 Manage Snyk CLI configuration.
 
+### [`snyk fix`](fix.md)
+
+LLM-driven vulnerability remediation for Snyk Open Source and Snyk Code. Use with `--agentic --experimental --sca` or `--sast`.
+
 ### [`snyk policy`](policy.md)
 
 Display the `.snyk` policy for a package.
