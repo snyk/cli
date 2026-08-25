@@ -1,6 +1,7 @@
 import { resolve } from 'path';
 import { createProjectFromFixture } from '../../util/createProject';
 import { runSnykCLI } from '../../util/runSnykCLI';
+import { EXIT_CODES } from '../../../../src/cli/exit-codes';
 
 jest.setTimeout(1000 * 60 * 5);
 
@@ -26,7 +27,7 @@ describe('snyk agent scanner selection (real server)', () => {
   });
 
   const runAgentTest = (scanners = '') =>
-    runSnykCLI(`agent test${scanners ? ` ${scanners}` : ''}`, {
+    runSnykCLI(`agent test${scanners ? ` ${scanners}` : ''} --experimental`, {
       cwd: project.path(),
       env,
     });
@@ -47,6 +48,17 @@ describe('snyk agent scanner selection (real server)', () => {
   const expectCompletedScan = (code: number): void => {
     expect([EXIT_CODE_SUCCESS, EXIT_CODE_ACTION_NEEDED]).toContain(code);
   };
+
+  it('requires --experimental', async () => {
+    const { code, stdout, stderr } = await runSnykCLI('agent test', {
+      cwd: project.path(),
+      env,
+    });
+
+    expect(code).toBe(EXIT_CODES.ERROR);
+    expect(stdout).toContain('SNYK-CLI-0015');
+    expect(stderr).toEqual('');
+  });
 
   it('selects SCA, SAST, and Secrets by default, but not Container', async () => {
     const { code, stdout } = await runAgentTest();
