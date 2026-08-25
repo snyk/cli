@@ -600,8 +600,8 @@ github.com/snyk/policy-engine v1.1.4 h1:0XpaMpl7ixSk4+dlpHYg2iKEBuv+5Ci+QIcbsmhk
 github.com/snyk/policy-engine v1.1.4/go.mod h1:yAlMDZhzORiZcbJCW0GEk/nHkc4DBDKp8BRoiGTWkBE=
 github.com/snyk/remy-cli-extension v1.36.1 h1:TFiJL7XlqXklGsplIhlnhyRp+nyi4rV7L2Nze4ggR9Q=
 github.com/snyk/remy-cli-extension v1.36.1/go.mod h1:ez/NUC+xzLRJB7+H0GTUjv4O1x2U+UWArSLdLVCcY3w=
-github.com/snyk/rift-cli-extension v1.1.1 h1:WeBeO8tUP/SWX/lqe9tTltOdeJDKNOQdOrF3fZItaUI=
-github.com/snyk/rift-cli-extension v1.1.1/go.mod h1:uZuSGZS6n/pBGTEoxtvVsfiNAPCXcTitpnQV9a3RgDI=
+github.com/snyk/rift-cli-extension v1.2.0 h1:Vo1rAFJ6pWZF3F84HDTPNr7XSBfp2f1kWf25SjjrLTQ=
+github.com/snyk/rift-cli-extension v1.2.0/go.mod h1:jc+VhpfPQpNoWKpjfKbeRkuevdJpzb81RjxHjl4p9hY=
 github.com/snyk/snyk-iac-capture v0.6.5 h1:992DXCAJSN97KtUh8T5ndaWwd/6ZCal2bDkRXqM1u/E=
 github.com/snyk/snyk-iac-capture v0.6.5/go.mod h1:e47i55EmM0F69ZxyFHC4sCi7vyaJW6DLoaamJJCzWGk=
 github.com/snyk/snyk-ls v0.0.0-20260824150100-a207e801a57e h1:Sf7aMRGEcWA1OppdIbyLFYBFeCdNNTIuZX+zBDJMrYc=
