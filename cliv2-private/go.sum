@@ -604,8 +604,8 @@ github.com/snyk/rift-cli-extension v1.2.0 h1:Vo1rAFJ6pWZF3F84HDTPNr7XSBfp2f1kWf2
 github.com/snyk/rift-cli-extension v1.2.0/go.mod h1:jc+VhpfPQpNoWKpjfKbeRkuevdJpzb81RjxHjl4p9hY=
 github.com/snyk/snyk-iac-capture v0.6.5 h1:992DXCAJSN97KtUh8T5ndaWwd/6ZCal2bDkRXqM1u/E=
 github.com/snyk/snyk-iac-capture v0.6.5/go.mod h1:e47i55EmM0F69ZxyFHC4sCi7vyaJW6DLoaamJJCzWGk=
-github.com/snyk/snyk-ls v0.0.0-20260814164657-a99d4cf1c3e7 h1:wrnB8/yVj/BxcxqX3ppKNF+cZVlyCjmGgxhCtoRWlK8=
-github.com/snyk/snyk-ls v0.0.0-20260814164657-a99d4cf1c3e7/go.mod h1:ZfhCKJ6IGbmr0LfcAAm/WY0ECv2IO1+dXYFMepWHjpQ=
+github.com/snyk/snyk-ls v0.0.0-20260824150100-a207e801a57e h1:Sf7aMRGEcWA1OppdIbyLFYBFeCdNNTIuZX+zBDJMrYc=
+github.com/snyk/snyk-ls v0.0.0-20260824150100-a207e801a57e/go.mod h1:FGFf9FVpq7kNDZ+Tg77lsA2dtXMsta44lFRiUeXqJQw=
 github.com/snyk/studio-mcp v1.15.4 h1:MHrAtTZ7E1IY0p6pdKAZqM4bmS5dZNSK/eEjVX26FA8=
 github.com/snyk/studio-mcp v1.15.4/go.mod h1:o+eDJRfHPVzPvZGqamASOZf5drlBEiJVbbOJS7sJsbQ=
 github.com/sourcegraph/go-lsp v0.0.0-20240223163137-f80c5dd31dfd h1:Dq5WSzWsP1TbVi10zPWBI5LKEBDg4Y1OhWEph1wr5WQ=
