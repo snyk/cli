@@ -82,6 +82,15 @@ Default: `<ORG_ID>` that is the current preferred Organization in your [Account 
 
 #### Available in 1.1303.0
 
+### `--enriched`
+
+**Optional**. Runs extra enrichment on the AI-BOM to produce a more complete inventory. This mode is slower than the default.
+
+```bash
+snyk aibom --enriched
+snyk aibom --enriched --upload --repo https://github.com/[owner]/[repo]
+```
+
 ### `--upload`
 
 **Optional**. Persist the AIBOM into your Snyk Organization. This flag requires the [`--repo`](aibom.md#repo) flag. It enables you to view your AI-BOM for the repository in the Evo web interface.
