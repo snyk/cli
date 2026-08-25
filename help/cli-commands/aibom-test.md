@@ -22,7 +22,7 @@ The command:
 
 1. **Generates an AI-BOM** for the current project (same behavior as [`snyk aibom`](aibom.md)), detecting AI models, agents, tools, and MCP dependencies.
 2. **Runs a policy test** against the policies configured for your Organization.
-3. **Returns all resulting issues**, grouped into **Open issues** (active policy violations) and **Ignored issues** (violations that are configured to be ignored).
+3. **Returns all resulting issues** from the policy test.
 
 For each issue, the output includes:
 
@@ -31,14 +31,14 @@ For each issue, the output includes:
 - **Policy link** to view or edit the policy in the Evo web interface
 - **Remediation advice** when the policy provides it
 
-A **Test summary** at the end shows the total count of open and ignored issues by severity.
+A **Test summary** at the end shows the total count of issues by severity.
 
 ## Exit codes
 
 Possible exit codes and their meaning:
 
-**0**: success (scan completed), no open policy issues.\
-**1**: action_needed (scan completed), one or more open policy issues found.\
+**0**: success (scan completed), no policy issues.\
+**1**: action_needed (scan completed), one or more policy issues found at or above the severity threshold (default: `low`).\
 **2**: failure, try to re-run the command. Use `-d` to output the debug logs.\
 **3**: failure, unable to find any supported files for the scan.
 
@@ -66,14 +66,20 @@ Default: `<ORG_ID>` that is the current preferred Organization in your [Account 
 snyk aibom test
 ```
 
-This generates an AI-BOM for the current directory, runs the policy test for the current preferred Organization, and prints open issues, ignored issues, and the test summary.
+This generates an AI-BOM for the current directory, runs the policy test for the current preferred Organization, and prints the issues and test summary.
 
 ### `--json-file-output=<OUTPUT_FILE_PATH>`
 
-**Optional**. Write the policy test results to a JSON file at the given path instead of printing the report. The JSON includes full issue details and closed issues, which are not shown in the on-screen report.
+**Optional**. Write the policy test results to a JSON file at the given path instead of printing the report. The JSON includes full issue details. When used with [`--severity-threshold`](aibom-test.md#severity-threshold-less-than-low-or-medium-or-high-or-critical-greater-than), the JSON file includes only issues at or above the specified severity.
 
 Example: `$ snyk aibom test --json-file-output=results.json`
 
+### `--enriched`
+
+**Optional**. Runs extra enrichment on the AI-BOM to produce a more complete inventory before the policy test. This mode is slower than the default.
+
+Example: `$ snyk aibom test --enriched`
+
 ### `--severity-threshold=<low|medium|high|critical>`
 
-**Optional**. Minimum severity that triggers `action_needed` (exit code 1). Only issues at or above this level cause the command to exit with 1. Default: `low`.
+**Optional**. Report only issues at the specified level or higher. This applies to the on-screen report, the test summary, and JSON file output. Any issues reported will cause the command to exit with `1` (`action_needed`). Default: `low`.
