@@ -123,6 +123,23 @@ upload_npm() {
   fi
 }
 
+wait_for_npm_package() {
+  local version="${VERSION_TAG#v}"
+
+  echo "Waiting for snyk@$version to become available on npm..."
+  for attempt in {1..80}; do
+    if npm view --prefer-online "snyk@$version" version >/dev/null 2>&1; then
+      echo "snyk@$version is available on npm."
+      return 0
+    fi
+    echo "npm availability check $attempt failed, retrying in 30s"
+    sleep 30
+  done
+
+  echo "snyk@$version did not become available on npm."
+  return 1
+}
+
 # Trigger event for a given repository
 # Failure mode is to log and continue as these steps
 # are non blocking to a release.
@@ -308,9 +325,8 @@ for arg in "${@}"; do
         DISTRIBUTION_FAILURE=1
     fi
 
-    # 4. Trigger axi
-    trigger_repository_event "axi" "cli_release"
-    if [ $? -ne 0 ]; then
+    # 4. Trigger axi once the published CLI version is available on npm
+    if ! wait_for_npm_package || ! trigger_repository_event "axi" "cli_release"; then
         DISTRIBUTION_FAILURE=1
     fi
 
