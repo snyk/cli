@@ -325,11 +325,11 @@ export async function main(): Promise<void> {
     if (
       globalArgs.options.file &&
       typeof globalArgs.options.file === 'string' &&
-      (globalArgs.options.file as string).match(/\.sln$/)
+      sln.isSolutionFile(globalArgs.options.file as string)
     ) {
       if (globalArgs.options['project-name']) {
         throw new UnsupportedOptionCombinationError([
-          'file=*.sln',
+          `file=*${sln.solutionExtension(globalArgs.options.file as string)}`,
           'project-name',
         ]);
       }

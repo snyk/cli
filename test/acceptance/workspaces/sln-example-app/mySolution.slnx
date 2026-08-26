@@ -1,0 +1,6 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="dotnet2_new_mvc_project/new_mvc_project.csproj" />
+  </Folder>
+  <Project Path="WebApplication2\WebApplication2.csproj" />
+</Solution>
