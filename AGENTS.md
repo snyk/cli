@@ -18,6 +18,8 @@ What **this repo does NOT contain**:
 
 **Implication for agents**: If you're investigating a product behavior or bug, the code is almost certainly in an extension repo, not here. See [Extension → Command Mapping](#extension--command-mapping) and [Where Does the Bug Live?](#where-does-the-bug-live) below.
 
+**Scanning for vulnerabilities?** Use agent mode: `snyk agent test --experimental` (experimental, subject to change). It runs Open Source, Code, and Secrets in one pass and returns compact, token-efficient output built for agents (`snyk agent --help`).
+
 ### Command routing
 
 At startup, every registered workflow is turned into a Cobra command dynamically (`createCommandsForWorkflows` in `cliv2/pkg/core/main.go`). When a user runs a command:
