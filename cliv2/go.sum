@@ -518,12 +518,12 @@ github.com/sirupsen/logrus v1.9.3 h1:dueUQJ1C2q9oE3F7wvmSGAaVtTmUizReu6fjN8uqzbQ
 github.com/sirupsen/logrus v1.9.3/go.mod h1:naHLuLoDiP4jHNo9R0sCBMtWGeIprob74mVsIT4qYEQ=
 github.com/skeema/knownhosts v1.3.2 h1:EDL9mgf4NzwMXCTfaxSD/o/a5fxDw/xL9nkU28JjdBg=
 github.com/skeema/knownhosts v1.3.2/go.mod h1:bEg3iQAuw+jyiw+484wwFJoKSLwcfd7fqRy+N0QTiow=
-github.com/snyk/cli-extension-agent-scan v0.0.0-20260803112735-0ad462cba2af h1:AgYHuCfs6oNkd/QFwsuEtvswclfBujhBfwbZUB4xEU4=
-github.com/snyk/cli-extension-agent-scan v0.0.0-20260803112735-0ad462cba2af/go.mod h1:u4d7qoWWVx3II+ZnpLQGjAegaJLmgPefXKXJD/jp/wM=
+github.com/snyk/cli-extension-agent-scan v0.0.0-20260821092236-dc228259a004 h1:7A+MUWAat7cn80gNB26J2gb2PnD/tpwVVcck8NJrSRk=
+github.com/snyk/cli-extension-agent-scan v0.0.0-20260821092236-dc228259a004/go.mod h1:u4d7qoWWVx3II+ZnpLQGjAegaJLmgPefXKXJD/jp/wM=
 github.com/snyk/cli-extension-ai-bom v0.0.0-20260817214817-d0a81ac40172 h1:dZQ2DnEnxV+v2yFRyuqUioSAGfXkiMcRQXndAeVsqi0=
 github.com/snyk/cli-extension-ai-bom v0.0.0-20260817214817-d0a81ac40172/go.mod h1:ieThzrb8z/Z88cDKdfqdfGh01xs6RkDKt5LbA+AE6U8=
-github.com/snyk/cli-extension-dep-graph/v2 v2.10.1 h1:jZUPQX0CktKDDeLV9cVKuVIDdKRiJ/Btt0VgDYPWoNg=
-github.com/snyk/cli-extension-dep-graph/v2 v2.10.1/go.mod h1:I0GXbV6Rk8T0AEC9EugE4AgYE5SbDn0m0bGgAjZqy5U=
+github.com/snyk/cli-extension-dep-graph/v2 v2.11.0 h1:hNIlg5G30VQGk+sfeEzWdAQiYI8Kq1CASSOubOZruQM=
+github.com/snyk/cli-extension-dep-graph/v2 v2.11.0/go.mod h1:I0GXbV6Rk8T0AEC9EugE4AgYE5SbDn0m0bGgAjZqy5U=
 github.com/snyk/cli-extension-iac v0.0.0-20260515092252-505c498f1077 h1:lteivlSoQL0zYyFcGQjEPZcQgDkzM5PcgIHlIgzRuhg=
 github.com/snyk/cli-extension-iac v0.0.0-20260515092252-505c498f1077/go.mod h1:wRpQrWCjzWTPA5WK1xaHjWWI5zfY0qKe12PfKb+lcMk=
 github.com/snyk/cli-extension-iac-rules v0.0.0-20260818142329-df932cc1794f h1:EPaHfaWDJq/lrsrATMqAyKJRfstb9LZnPXYNwXdL32c=
@@ -542,8 +542,8 @@ github.com/snyk/dep-graph/go v0.0.0-20260127160647-c836da762c62 h1:kgZNQ5ztI4+n3
 github.com/snyk/dep-graph/go v0.0.0-20260127160647-c836da762c62/go.mod h1:hTr91da/4ze2nk9q6ZW1BmfM2Z8rLUZSEZ3kK+6WGpc=
 github.com/snyk/error-catalog-golang-public v0.0.0-20260806122555-28dc45bbbde6 h1:XUPFP85nBh+zDCTvxxBuouZP9yG7H1qXZiMGFVMWVKM=
 github.com/snyk/error-catalog-golang-public v0.0.0-20260806122555-28dc45bbbde6/go.mod h1:0dz+HUR/r7VLlQpLfF0a/F1tdHH84NLTZzCxjZ+Q1nk=
-github.com/snyk/go-application-framework v0.16.1 h1:k4eyP4EX/kqnNyu5uuFLEw4wflTom22ea23ZuG74JU8=
-github.com/snyk/go-application-framework v0.16.1/go.mod h1:qJBU+FIY8s/lIg0IaKBj7WGeGERiWqyJvhajzxiA3Ls=
+github.com/snyk/go-application-framework v0.18.2 h1:dlhHzdSLr5/e8eaD+eX9k16A9WhpwZ6KBVkSf9YTFLc=
+github.com/snyk/go-application-framework v0.18.2/go.mod h1:UJMR1Tk4OPGFa03O9cko4ic0GeaqmSO03fx55HpOFp0=
 github.com/snyk/go-httpauth v0.0.0-20260810142636-0f6182aaccbc h1:tuZVhmJFxS4qJlwYIIIw8xgw3VaVqIR3IAV0WaaFVnI=
 github.com/snyk/go-httpauth v0.0.0-20260810142636-0f6182aaccbc/go.mod h1:f42qLL7WXOS0od7dXJV/hK3myjms/r6HsXgLrg1HRRY=
 github.com/snyk/policy-engine v1.1.4 h1:0XpaMpl7ixSk4+dlpHYg2iKEBuv+5Ci+QIcbsmhktao=
