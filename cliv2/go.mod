@@ -16,7 +16,7 @@ require (
 	github.com/snyk/cli-extension-dep-graph/v2 v2.11.0
 	github.com/snyk/cli-extension-iac v0.0.0-20260515092252-505c498f1077
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20260818142329-df932cc1794f
-	github.com/snyk/cli-extension-os-flows v0.0.0-20260821101812-a52aa2dd8c3b
+	github.com/snyk/cli-extension-os-flows v0.0.0-20260827130811-28d01cea6a08
 	github.com/snyk/cli-extension-sbom v0.0.0-20260818092356-16ee760085f9
 	github.com/snyk/cli-extension-secrets v0.0.0-20260811115637-ee872c26b0cd
 	github.com/snyk/code-client-go v1.31.8
