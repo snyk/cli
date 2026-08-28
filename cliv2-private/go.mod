@@ -226,7 +226,7 @@ require (
 	github.com/snyk/go-httpauth v0.0.0-20260810142636-0f6182aaccbc // indirect
 	github.com/snyk/policy-engine v1.1.4 // indirect
 	github.com/snyk/snyk-iac-capture v0.6.5 // indirect
-	github.com/snyk/snyk-ls v0.0.0-20260824150100-a207e801a57e // indirect
+	github.com/snyk/snyk-ls v0.0.0-20260828190357-83d0e592d905 // indirect
 	github.com/snyk/studio-mcp v1.15.4 // indirect
 	github.com/sourcegraph/go-lsp v0.0.0-20240223163137-f80c5dd31dfd // indirect
 	github.com/spf13/afero v1.15.0 // indirect
