@@ -173,14 +173,7 @@ export function assertEquivalent(
   const bothEmpty =
     legacy.submissionCount === 0 && unified.submissionCount === 0;
 
-  if (options.expectNoSubmissions && bothEmpty) {
-    // Both paths produced nothing to scan — that's the expected outcome.
-    // Exit codes legitimately differ (TS CLI exits 3, os-flows exits 2) so
-    // we don't compare them here.
-    return { ok: true };
-  }
-
-  if (!options.expectNoSubmissions && bothEmpty) {
+  if (bothEmpty && !options.expectNoSubmissions) {
     return {
       ok: false,
       reason: 'inconclusive: both runs produced zero submissions',
@@ -201,10 +194,27 @@ export function assertEquivalent(
     };
   }
 
+  if (bothEmpty) {
+    // Nothing was scanned, so there are no dep graphs to compare — stdout here
+    // is an error payload rather than project results.
+    return { ok: true };
+  }
+
   if (legacy.submissionCount !== unified.submissionCount) {
     return {
       ok: false,
       reason: `project count mismatch: legacy=${legacy.submissionCount} unified=${unified.submissionCount}`,
+      detail: {
+        legacyTargets: legacy.projects.map((p) => p.displayTargetFile),
+        unifiedTargets: unified.projects.map((p) => p.displayTargetFile),
+      },
+    };
+  }
+
+  if (legacy.projects.length !== unified.projects.length) {
+    return {
+      ok: false,
+      reason: `parsed project count mismatch: legacy=${legacy.projects.length} unified=${unified.projects.length}`,
       detail: {
         legacyTargets: legacy.projects.map((p) => p.displayTargetFile),
         unifiedTargets: unified.projects.map((p) => p.displayTargetFile),
