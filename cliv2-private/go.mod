@@ -8,7 +8,7 @@ require (
 	github.com/snyk/cli-extension-cos v0.0.0-20260818151318-d63bb9db9484
 	github.com/snyk/cli/cliv2 v0.0.0
 	github.com/snyk/remy-cli-extension v1.36.1
-	github.com/snyk/rift-cli-extension v1.2.0
+	github.com/snyk/rift-cli-extension v1.2.1
 )
 
 require (
