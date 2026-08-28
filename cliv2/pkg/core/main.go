@@ -474,7 +474,9 @@ func displayError(err error, userInterface ui.UserInterface, config configuratio
 			}
 
 			jsonErrorBuffer, _ := json.MarshalIndent(jsonError, "", "  ")
-			_ = userInterface.OutputError(fmt.Errorf("%s", jsonErrorBuffer))
+			// This document is the command's structured output, so it goes to
+			// stdout; OutputError would route it to stderr in structured mode.
+			_ = userInterface.Output(string(jsonErrorBuffer))
 		} else {
 			ctx = context.WithValue(ctx, uitypes.ErrorTipKey, doctorTip(isCI))
 			uiError := userInterface.OutputError(err, ui.WithContext(ctx))
