@@ -118,17 +118,39 @@ var allowedWords = map[string]bool{
 	"proxy":    true,
 }
 
-// GetUnknownParameters returns the tokens of osArgs and envVars that could plausibly
-// be secrets. A bare token qualifies only when the token immediately before it is a
-// flag that no registered workflow declared: the value of a declared flag, and any
-// positional operand, is something the CLI knowingly accepts and so is not guessed at.
-// The length floor, the known command check and the allow list then narrow that
-// candidate set further.
+// envFlagPrefix renders an environment entry into the token stream as a flag token that
+// no declared flag can ever match: a pflag name never starts with a dash, so "---NAME"
+// leaves a name of "-NAME". That keeps every environment value a redaction candidate
+// under the general rule instead of a special case inside it, including when the
+// variable is named after a real flag in lower case (CLI-1819).
+const envFlagPrefix = FLAG_PREFIX + FLAG_PREFIX + FLAG_PREFIX
+
+// GetUnknownParameters returns the tokens of osArgs and envVars that could plausibly be
+// secrets. A bare token qualifies once a flag no registered workflow declared has been
+// seen, and keeps qualifying until the next flag token: the value of a declared flag,
+// and any positional operand, is something the CLI knowingly accepts and so is not
+// guessed at, while an undeclared flag's value can be several whitespace-separated words
+// and every one of them is suspect. The length floor, the known command check and the
+// allow list then narrow that candidate set further.
 //
-// Environment variables need no special case. They arrive joined as "--NAME VALUE" and
-// an environment variable name is never a declared flag, so their values stay candidates.
+// Environment variables need no special case. They arrive rendered as a flag token
+// nothing can declare (see envFlagPrefix), so their values stay candidates.
 func GetUnknownParameters(osArgs []string, envVars []string, knownCommands []string, knownFlags []string) []string {
-	return unknownParameters(osArgs, envVars, knownCommands, knownFlags, true)
+	argValues := []string{}
+	afterUndeclaredFlag := false
+
+	for _, arg := range tokenize(osArgs, envVars) {
+		if name, isFlag := flagName(arg); isFlag {
+			afterUndeclaredFlag = !isTrustedFlag(name, knownFlags)
+			continue
+		}
+
+		if afterUndeclaredFlag && isPossibleSecret(arg, knownCommands) {
+			argValues = append(argValues, arg)
+		}
+	}
+
+	return sortedUnique(argValues)
 }
 
 // GetAllUnknownParameters is the wider sweep: every bare token that clears the length
@@ -137,46 +159,54 @@ func GetUnknownParameters(osArgs []string, envVars []string, knownCommands []str
 // the output before sharing it. Analytics has no human in the loop, so it uses
 // GetUnknownParameters instead.
 func GetAllUnknownParameters(osArgs []string, envVars []string, knownCommands []string) []string {
-	return unknownParameters(osArgs, envVars, knownCommands, nil, false)
-}
-
-func unknownParameters(osArgs []string, envVars []string, knownCommands []string, knownFlags []string, onlyUndeclaredFlagValues bool) []string {
-	argsOneString := strings.Join(osArgs, " ")
-	if len(envVars) > 0 {
-		argsOneString = argsOneString + " --" + strings.Join(envVars, " --")
-	}
-
-	argsOneString = strings.ReplaceAll(argsOneString, "=", " ")
-	argsSplitAgain := strings.Split(argsOneString, " ")
-
 	argValues := []string{}
-	prevWasUnknownFlag := false
-	for _, arg := range argsSplitAgain {
-		if strings.HasPrefix(arg, FLAG_PREFIX) {
-			prevWasUnknownFlag = !isTrustedFlag(strings.TrimLeft(arg, FLAG_PREFIX), knownFlags)
-			continue
-		}
 
-		isCandidatePosition := prevWasUnknownFlag || !onlyUndeclaredFlagValues
-		isKnownCommand := slices.Contains(knownCommands, arg)
-		isAllowedWord := allowedWords[strings.ToLower(arg)]
-		isPotentiallySensitive := len(arg) >= MIN_ARG_LENGTH
-		if isCandidatePosition && !isKnownCommand && !isAllowedWord && isPotentiallySensitive {
+	for _, arg := range tokenize(osArgs, envVars) {
+		if !strings.HasPrefix(arg, FLAG_PREFIX) && isPossibleSecret(arg, knownCommands) {
 			argValues = append(argValues, arg)
 		}
-		prevWasUnknownFlag = false
 	}
 
-	slices.Sort(argValues)
-	argValues = slices.Compact(argValues)
+	return sortedUnique(argValues)
+}
 
-	return argValues
+// tokenize flattens the command line and the environment into one whitespace-separated
+// token stream. An "=" is treated as a separator, so both "--flag=value" and an
+// environment entry split into a flag token and its value.
+func tokenize(osArgs []string, envVars []string) []string {
+	argsOneString := strings.Join(osArgs, " ")
+	if len(envVars) > 0 {
+		argsOneString = argsOneString + " " + envFlagPrefix + strings.Join(envVars, " "+envFlagPrefix)
+	}
+
+	return strings.Split(strings.ReplaceAll(argsOneString, "=", " "), " ")
+}
+
+// flagName returns the name of a flag token, which is the token with its leading dashes
+// removed. At most two are removed, so an environment entry keeps the marker dash
+// envFlagPrefix gave it. The second result is false when the token is not a flag at all:
+// the POSIX end-of-options marker "--" and a negative number such as "-5" both look like
+// one to a prefix test, and what follows either of them is an operand, not a flag value.
+func flagName(arg string) (string, bool) {
+	if !strings.HasPrefix(arg, FLAG_PREFIX) {
+		return "", false
+	}
+
+	name := strings.TrimPrefix(strings.TrimPrefix(arg, FLAG_PREFIX), FLAG_PREFIX)
+	if name == "" || (name[0] >= '0' && name[0] <= '9') {
+		return "", false
+	}
+
+	return name, true
 }
 
 // isTrustedFlag reports whether the value following the flag named name can be left
 // alone. A flag some workflow declared is trusted, unless its name matches one of the
 // sensitive field names the scrubber already knows about (--tfc-token, --username and
 // friends) — a declared flag can still be the one carrying the secret.
+//
+// knownFlags holds long names only, so a shorthand such as -d never matches and its
+// value keeps being swept. That over-redacts and does not leak.
 func isTrustedFlag(name string, knownFlags []string) bool {
 	if !slices.Contains(knownFlags, name) {
 		return false
@@ -190,4 +220,15 @@ func isTrustedFlag(name string, knownFlags []string) bool {
 	}
 
 	return true
+}
+
+// isPossibleSecret applies the checks both sweeps share to a token already known to sit
+// in a candidate position.
+func isPossibleSecret(arg string, knownCommands []string) bool {
+	return len(arg) >= MIN_ARG_LENGTH && !slices.Contains(knownCommands, arg) && !allowedWords[strings.ToLower(arg)]
+}
+
+func sortedUnique(values []string) []string {
+	slices.Sort(values)
+	return slices.Compact(values)
 }
