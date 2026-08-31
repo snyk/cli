@@ -519,13 +519,13 @@ func tearDown(err error, errorList []error, startTime time.Time, ua networking.U
 	outputError := err
 	allErrors := errorList
 
-	if err != nil {
+	if cli_errors.IsFailure(err) {
 		allErrors, outputError = processError(err, errorList)
+	}
 
-		for _, tempError := range allErrors {
-			if tempError != nil {
-				cliAnalytics.AddError(tempError)
-			}
+	for _, tempError := range allErrors {
+		if tempError != nil {
+			cliAnalytics.AddError(tempError)
 		}
 	}
 

@@ -3,9 +3,12 @@ package cli_errors
 import (
 	"errors"
 	"fmt"
+	"os/exec"
 
 	"github.com/snyk/error-catalog-golang-public/snyk"
 	"github.com/snyk/error-catalog-golang-public/snyk_errors"
+
+	"github.com/snyk/cli/cliv2/internal/constants"
 )
 
 type ErrorWithExitCode struct {
@@ -14,6 +17,32 @@ type ErrorWithExitCode struct {
 
 func (e ErrorWithExitCode) Error() string {
 	return fmt.Sprintf("exit code: %d", e.ExitCode)
+}
+
+// IsFailure reports whether err represents an actual failure that needs error
+// processing, as opposed to a command result that merely carries a known
+// non-failure exit code (vulnerabilities found or unsupported projects).
+func IsFailure(err error) bool {
+	if err == nil {
+		return false
+	}
+	if exitErr, ok := err.(*exec.ExitError); ok {
+		return !isNonFailureExitCode(exitErr.ExitCode())
+	}
+	if exitCodeErr, ok := err.(*ErrorWithExitCode); ok {
+		return !isNonFailureExitCode(exitCodeErr.ExitCode)
+	}
+	return true
+}
+
+func isNonFailureExitCode(code int) bool {
+	switch code {
+	case constants.SNYK_EXIT_CODE_VULNERABILITIES_FOUND,
+		constants.SNYK_EXIT_CODE_UNSUPPORTED_PROJECTS:
+		return true
+	default:
+		return false
+	}
 }
 
 // FindMostRelevantError determines the most relevant error from a list of errors, inspecting the full error chain. The returned error can be used for display and exit code mapping.
