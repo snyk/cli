@@ -215,7 +215,7 @@ require (
 	github.com/snyk/cli-extension-dep-graph/v2 v2.11.0 // indirect
 	github.com/snyk/cli-extension-iac v0.0.0-20260515092252-505c498f1077 // indirect
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20260818142329-df932cc1794f // indirect
-	github.com/snyk/cli-extension-os-flows v0.0.0-20260821101812-a52aa2dd8c3b // indirect
+	github.com/snyk/cli-extension-os-flows v0.0.0-20260831095357-9cc236689fc1 // indirect
 	github.com/snyk/cli-extension-sbom v0.0.0-20260818092356-16ee760085f9 // indirect
 	github.com/snyk/cli-extension-secrets v0.0.0-20260811115637-ee872c26b0cd // indirect
 	github.com/snyk/code-client-go v1.31.8 // indirect
@@ -226,7 +226,7 @@ require (
 	github.com/snyk/go-httpauth v0.0.0-20260810142636-0f6182aaccbc // indirect
 	github.com/snyk/policy-engine v1.1.4 // indirect
 	github.com/snyk/snyk-iac-capture v0.6.5 // indirect
-	github.com/snyk/snyk-ls v0.0.0-20260824150100-a207e801a57e // indirect
+	github.com/snyk/snyk-ls v0.0.0-20260828190357-83d0e592d905 // indirect
 	github.com/snyk/studio-mcp v1.15.4 // indirect
 	github.com/sourcegraph/go-lsp v0.0.0-20240223163137-f80c5dd31dfd // indirect
 	github.com/spf13/afero v1.15.0 // indirect

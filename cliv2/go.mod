@@ -16,7 +16,7 @@ require (
 	github.com/snyk/cli-extension-dep-graph/v2 v2.11.0
 	github.com/snyk/cli-extension-iac v0.0.0-20260515092252-505c498f1077
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20260818142329-df932cc1794f
-	github.com/snyk/cli-extension-os-flows v0.0.0-20260821101812-a52aa2dd8c3b
+	github.com/snyk/cli-extension-os-flows v0.0.0-20260831095357-9cc236689fc1
 	github.com/snyk/cli-extension-sbom v0.0.0-20260818092356-16ee760085f9
 	github.com/snyk/cli-extension-secrets v0.0.0-20260811115637-ee872c26b0cd
 	github.com/snyk/code-client-go v1.31.8
@@ -25,7 +25,7 @@ require (
 	github.com/snyk/go-application-framework v0.18.2
 	github.com/snyk/go-httpauth v0.0.0-20260810142636-0f6182aaccbc
 	github.com/snyk/snyk-iac-capture v0.6.5
-	github.com/snyk/snyk-ls v0.0.0-20260824150100-a207e801a57e
+	github.com/snyk/snyk-ls v0.0.0-20260828190357-83d0e592d905
 	github.com/snyk/studio-mcp v1.15.4
 	github.com/spf13/cobra v1.9.1
 	github.com/spf13/pflag v1.0.10
