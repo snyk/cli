@@ -649,9 +649,9 @@ func mainWithErrorCode(additionalExts []workflow.ExtensionInit) int {
 
 	// We want to scrub the debug log of sensitive information. Since we have a list of commands we know can occur, we can intersect that with arguments we don't recognize, and automatically scrub all those from the logs.
 	if debugEnabled {
-		termsToRedact := populateRedactionTerms(globalConfiguration, globalEngine)
+		populateRedactionTerms(globalConfiguration, globalEngine)
 		writeLogHeader(globalConfiguration, networkAccess)
-		scrubbedLogger.AddTermsToReplace(termsToRedact)
+		scrubbedLogger.AddTermsToReplace(debugRedactionTerms(globalConfiguration, globalEngine))
 	}
 
 	if err != nil {
@@ -727,21 +727,38 @@ func mainWithErrorCode(additionalExts []workflow.ExtensionInit) int {
 // logging.REDACTION_TERMS, so the analytics scrub chokepoint can redact
 // them regardless of whether debug logging is enabled.
 func populateRedactionTerms(config configuration.Configuration, engine workflow.Engine) []string {
-	knownTerms, knownFlags := instrumentation.GetKnownCommandsAndFlags(engine)
+	knownTerms, knownFlags := knownRedactionTerms(config, engine)
+	termsToRedact := cliv2utils.GetUnknownParameters(os.Args[1:], os.Environ(), knownTerms, knownFlags)
+	config.Set(logging.REDACTION_TERMS, termsToRedact)
+	return termsToRedact
+}
+
+// debugRedactionTerms computes the wider sweep the debug log keeps (CLI-1819): every
+// bare token, not only the values of flags no workflow declared. Over-redacting a log
+// the user reads before pasting it into a support ticket costs nothing, while
+// under-redacting it leaks. Analytics has no human in that loop, which is why
+// populateRedactionTerms narrows the same sweep.
+func debugRedactionTerms(config configuration.Configuration, engine workflow.Engine) []string {
+	knownTerms, _ := knownRedactionTerms(config, engine)
+	return cliv2utils.GetAllUnknownParameters(os.Args[1:], os.Environ(), knownTerms)
+}
+
+// knownRedactionTerms lists the commands and values that neither sweep may treat as a
+// secret, alongside the flags every registered workflow declares.
+func knownRedactionTerms(config configuration.Configuration, engine workflow.Engine) (knownTerms []string, knownFlags []string) {
+	knownTerms, knownFlags = instrumentation.GetKnownCommandsAndFlags(engine)
 	knownTerms = append(knownTerms, config.GetString(configuration.API_URL), config.GetString(configuration.ORGANIZATION), config.GetString(configuration.ORGANIZATION_SLUG), config.GetString(clientMachineIdConfigKey))
 	// AI_AGENT is trusted verbatim by agent.DetectAgent, and persona.Report
 	// falls back to that same raw value whenever the Harness name/version split
 	// or canonicalisation does not apply, so its raw value needs the same
-	// exclusion as the client machine id above. GetUnknownParameters tokenizes
-	// its input on whitespace, so a multi-word value only excludes as a whole if
-	// each of its words is excluded too.
+	// exclusion as the client machine id above. The sweep tokenizes its input on
+	// whitespace, so a multi-word value only excludes as a whole if each of its
+	// words is excluded too.
 	if detectedAgent, ok := agent.DetectAgent(); ok {
 		knownTerms = append(knownTerms, detectedAgent)
 		knownTerms = append(knownTerms, strings.Fields(detectedAgent)...)
 	}
-	termsToRedact := cliv2utils.GetUnknownParameters(os.Args[1:], os.Environ(), knownTerms, knownFlags)
-	config.Set(logging.REDACTION_TERMS, termsToRedact)
-	return termsToRedact
+	return knownTerms, knownFlags
 }
 
 func processError(err error, errorList []error) ([]error, error) {

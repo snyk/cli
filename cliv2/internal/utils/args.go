@@ -128,6 +128,19 @@ var allowedWords = map[string]bool{
 // Environment variables need no special case. They arrive joined as "--NAME VALUE" and
 // an environment variable name is never a declared flag, so their values stay candidates.
 func GetUnknownParameters(osArgs []string, envVars []string, knownCommands []string, knownFlags []string) []string {
+	return unknownParameters(osArgs, envVars, knownCommands, knownFlags, true)
+}
+
+// GetAllUnknownParameters is the wider sweep: every bare token that clears the length
+// floor, the known command check and the allow list is a candidate, whatever precedes it.
+// It over-redacts, which is only the right trade for the debug log, where the user reads
+// the output before sharing it. Analytics has no human in the loop, so it uses
+// GetUnknownParameters instead.
+func GetAllUnknownParameters(osArgs []string, envVars []string, knownCommands []string) []string {
+	return unknownParameters(osArgs, envVars, knownCommands, nil, false)
+}
+
+func unknownParameters(osArgs []string, envVars []string, knownCommands []string, knownFlags []string, onlyUndeclaredFlagValues bool) []string {
 	argsOneString := strings.Join(osArgs, " ")
 	if len(envVars) > 0 {
 		argsOneString = argsOneString + " --" + strings.Join(envVars, " --")
@@ -144,10 +157,11 @@ func GetUnknownParameters(osArgs []string, envVars []string, knownCommands []str
 			continue
 		}
 
+		isCandidatePosition := prevWasUnknownFlag || !onlyUndeclaredFlagValues
 		isKnownCommand := slices.Contains(knownCommands, arg)
 		isAllowedWord := allowedWords[strings.ToLower(arg)]
 		isPotentiallySensitive := len(arg) >= MIN_ARG_LENGTH
-		if prevWasUnknownFlag && !isKnownCommand && !isAllowedWord && isPotentiallySensitive {
+		if isCandidatePosition && !isKnownCommand && !isAllowedWord && isPotentiallySensitive {
 			argValues = append(argValues, arg)
 		}
 		prevWasUnknownFlag = false

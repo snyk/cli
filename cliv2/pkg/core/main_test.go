@@ -148,6 +148,22 @@ func Test_populateRedactionTerms_excludesDetectedAgent(t *testing.T) {
 func redactionTermsFor(t *testing.T, args []string, declaredFlags []string) []string {
 	t.Helper()
 
+	config, engine := redactionSweepInput(t, args, declaredFlags)
+	return populateRedactionTerms(config, engine)
+}
+
+// debugRedactionTermsFor is redactionTermsFor against the other sweep, the one whose
+// terms reach the debug log scrubber.
+func debugRedactionTermsFor(t *testing.T, args []string, declaredFlags []string) []string {
+	t.Helper()
+
+	config, engine := redactionSweepInput(t, args, declaredFlags)
+	return debugRedactionTerms(config, engine)
+}
+
+func redactionSweepInput(t *testing.T, args []string, declaredFlags []string) (configuration.Configuration, workflow.Engine) {
+	t.Helper()
+
 	flagset := pflag.NewFlagSet("test", pflag.ContinueOnError)
 	for _, flagName := range declaredFlags {
 		flagset.String(flagName, "", "")
@@ -165,7 +181,7 @@ func redactionTermsFor(t *testing.T, args []string, declaredFlags []string) []st
 	os.Args = append([]string{"snyk"}, args...)
 	t.Cleanup(func() { os.Args = oldArgs })
 
-	return populateRedactionTerms(configuration.NewWithOpts(configuration.WithAutomaticEnv()), mockEngine)
+	return configuration.NewWithOpts(configuration.WithAutomaticEnv()), mockEngine
 }
 
 // CLI-1819: the sweep used to treat every argv token it could not name as a secret, so
@@ -212,6 +228,25 @@ func Test_populateRedactionTerms_sweepsOnlyValuesOfUndeclaredFlags(t *testing.T)
 		terms := redactionTermsFor(t, []string{"agent", "--auth-token", "unmistakably-secret-value"}, []string{"auth-token"})
 
 		assert.Contains(t, terms, "unmistakably-secret-value", "a declared flag whose name looks sensitive must keep being swept")
+	})
+}
+
+// CLI-1819: only analytics narrowed. A debug log is read by the person who pastes it
+// into a support ticket, so it keeps redacting everything it cannot name, including the
+// values analytics deliberately stopped treating as secrets.
+func Test_debugRedactionTerms_keepsTheAggressiveSweep(t *testing.T) {
+	t.Run("a positional operand", func(t *testing.T) {
+		args := []string{"agent", "feedback", "could-be-a-secret-pasted-as-an-operand"}
+
+		assert.NotContains(t, redactionTermsFor(t, args, nil), "could-be-a-secret-pasted-as-an-operand")
+		assert.Contains(t, debugRedactionTermsFor(t, args, nil), "could-be-a-secret-pasted-as-an-operand", "the debug log must keep scrubbing what the analytics sweep now lets through")
+	})
+
+	t.Run("a declared flag's value", func(t *testing.T) {
+		args := []string{"agent", "feedback", "--use-case", "could-be-a-secret-behind-a-known-flag"}
+
+		assert.NotContains(t, redactionTermsFor(t, args, []string{"use-case"}), "could-be-a-secret-behind-a-known-flag")
+		assert.Contains(t, debugRedactionTermsFor(t, args, []string{"use-case"}), "could-be-a-secret-behind-a-known-flag", "the debug log must keep scrubbing what the analytics sweep now lets through")
 	})
 }
 
