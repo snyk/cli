@@ -85,6 +85,31 @@ The private build (`cliv2-private/`) additionally registers `remy-cli-extension`
 - Add tests - see [Testing Strategy](#testing-strategy)
 - Test the binary — see [Running Tests](#running-tests).
 
+### Environment variables
+
+The config reads only the variables allowlisted in `cliv2/pkg/core/main.go`:
+
+```go
+configuration.WithSupportedEnvVars("NODE_EXTRA_CA_CERTS"),
+configuration.WithSupportedEnvVarPrefixes("snyk_", "internal_", "test_"),
+```
+
+Anything else is invisible. `config.GetString("MY_VAR")` returns `""` however the shell is set. Names an external convention forces on us are added one at a time by full name.
+
+Pick the prefix by who reads the value, not who sets it.
+
+| Prefix           | Read by                                          | Contract                                          |
+| ---------------- | ------------------------------------------------ | ------------------------------------------------- |
+| `SNYK_`          | Users, CI, IDEs                                  | Public and documented. Renaming one breaks users. |
+| `INTERNAL_`      | The Go CLI, through the config                   | None. Change it whenever.                         |
+| `SNYK_INTERNAL_` | The legacy TypeScript CLI, through `process.env` | None.                                             |
+| `TEST_`          | Tests                                            | None. Never read one from production code.        |
+
+- Read with `config.GetString`, never `os.Getenv`, so flags, config files, alternative keys and caching still apply.
+- A wrapper or an IDE setting the variable does not make it public. `INTERNAL_SNYK_CLIENT_MACHINE_ID` (`cliv2/pkg/core/instrumentation.go`) is set by another Snyk process and read by the CLI.
+- To put a public name on an internal key, add an alternative key: `config.AddAlternativeKeys(cliv2.ConfigKeyRequestConcurrency, []string{"snyk_request_concurrency"})`. Code keeps reading `internal_request_concurrency`, users set `SNYK_REQUEST_CONCURRENCY`.
+- The legacy CLI is a child process with no config engine, so values reach it only if you pass them: a constant in `cliv2/internal/constants/constants.go`, assigned in `fillEnvironmentFromConfig` (`cliv2/internal/cliv2/cliv2.go`). See `SNYK_INTERNAL_ORGID`.
+
 ### Before Committing (pre-commit)
 
 Run these before every commit — they mirror CI, which also fails if any tracked file is left uncommitted.
