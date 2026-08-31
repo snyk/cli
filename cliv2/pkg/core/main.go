@@ -722,12 +722,12 @@ func mainWithErrorCode(additionalExts []workflow.ExtensionInit) int {
 	return finalExitCode
 }
 
-// populateRedactionTerms computes likely-secret literal values (unrecognized CLI
-// arguments and environment variables) and records them on config under
+// populateRedactionTerms computes likely-secret literal values (the values of CLI
+// flags no workflow declared, and environment variables) and records them on config under
 // logging.REDACTION_TERMS, so the analytics scrub chokepoint can redact
 // them regardless of whether debug logging is enabled.
 func populateRedactionTerms(config configuration.Configuration, engine workflow.Engine) []string {
-	knownTerms, _ := instrumentation.GetKnownCommandsAndFlags(engine)
+	knownTerms, knownFlags := instrumentation.GetKnownCommandsAndFlags(engine)
 	knownTerms = append(knownTerms, config.GetString(configuration.API_URL), config.GetString(configuration.ORGANIZATION), config.GetString(configuration.ORGANIZATION_SLUG), config.GetString(clientMachineIdConfigKey))
 	// AI_AGENT is trusted verbatim by agent.DetectAgent, and persona.Report
 	// falls back to that same raw value whenever the Harness name/version split
@@ -739,7 +739,7 @@ func populateRedactionTerms(config configuration.Configuration, engine workflow.
 		knownTerms = append(knownTerms, detectedAgent)
 		knownTerms = append(knownTerms, strings.Fields(detectedAgent)...)
 	}
-	termsToRedact := cliv2utils.GetUnknownParameters(os.Args[1:], os.Environ(), knownTerms)
+	termsToRedact := cliv2utils.GetUnknownParameters(os.Args[1:], os.Environ(), knownTerms, knownFlags)
 	config.Set(logging.REDACTION_TERMS, termsToRedact)
 	return termsToRedact
 }

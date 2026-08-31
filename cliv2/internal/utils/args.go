@@ -3,6 +3,8 @@ package utils
 import (
 	"slices"
 	"strings"
+
+	"github.com/snyk/go-application-framework/pkg/logging"
 )
 
 const (
@@ -116,7 +118,16 @@ var allowedWords = map[string]bool{
 	"proxy":    true,
 }
 
-func GetUnknownParameters(osArgs []string, envVars []string, knownCommands []string) []string {
+// GetUnknownParameters returns the tokens of osArgs and envVars that could plausibly
+// be secrets. A bare token qualifies only when the token immediately before it is a
+// flag that no registered workflow declared: the value of a declared flag, and any
+// positional operand, is something the CLI knowingly accepts and so is not guessed at.
+// The length floor, the known command check and the allow list then narrow that
+// candidate set further.
+//
+// Environment variables need no special case. They arrive joined as "--NAME VALUE" and
+// an environment variable name is never a declared flag, so their values stay candidates.
+func GetUnknownParameters(osArgs []string, envVars []string, knownCommands []string, knownFlags []string) []string {
 	argsOneString := strings.Join(osArgs, " ")
 	if len(envVars) > 0 {
 		argsOneString = argsOneString + " --" + strings.Join(envVars, " --")
@@ -126,18 +137,43 @@ func GetUnknownParameters(osArgs []string, envVars []string, knownCommands []str
 	argsSplitAgain := strings.Split(argsOneString, " ")
 
 	argValues := []string{}
+	prevWasUnknownFlag := false
 	for _, arg := range argsSplitAgain {
-		isFlag := strings.HasPrefix(arg, FLAG_PREFIX)
+		if strings.HasPrefix(arg, FLAG_PREFIX) {
+			prevWasUnknownFlag = !isTrustedFlag(strings.TrimLeft(arg, FLAG_PREFIX), knownFlags)
+			continue
+		}
+
 		isKnownCommand := slices.Contains(knownCommands, arg)
 		isAllowedWord := allowedWords[strings.ToLower(arg)]
 		isPotentiallySensitive := len(arg) >= MIN_ARG_LENGTH
-		if !isFlag && !isKnownCommand && !isAllowedWord && isPotentiallySensitive {
+		if prevWasUnknownFlag && !isKnownCommand && !isAllowedWord && isPotentiallySensitive {
 			argValues = append(argValues, arg)
 		}
+		prevWasUnknownFlag = false
 	}
 
 	slices.Sort(argValues)
 	argValues = slices.Compact(argValues)
 
 	return argValues
+}
+
+// isTrustedFlag reports whether the value following the flag named name can be left
+// alone. A flag some workflow declared is trusted, unless its name matches one of the
+// sensitive field names the scrubber already knows about (--tfc-token, --username and
+// friends) — a declared flag can still be the one carrying the secret.
+func isTrustedFlag(name string, knownFlags []string) bool {
+	if !slices.Contains(knownFlags, name) {
+		return false
+	}
+
+	lowercaseName := strings.ToLower(name)
+	for _, sensitive := range logging.SENSITIVE_FIELD_NAMES {
+		if strings.Contains(lowercaseName, sensitive) {
+			return false
+		}
+	}
+
+	return true
 }

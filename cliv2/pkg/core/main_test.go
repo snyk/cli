@@ -141,6 +141,80 @@ func Test_populateRedactionTerms_excludesDetectedAgent(t *testing.T) {
 	}
 }
 
+// redactionTermsFor runs populateRedactionTerms with args standing in for the command
+// line, against an engine holding one registered workflow that declares declaredFlags.
+// That is the only route by which a flag counts as declared, so it is what separates
+// "the CLI accepts this flag" from "nobody has ever heard of this flag" in the sweep.
+func redactionTermsFor(t *testing.T, args []string, declaredFlags []string) []string {
+	t.Helper()
+
+	flagset := pflag.NewFlagSet("test", pflag.ContinueOnError)
+	for _, flagName := range declaredFlags {
+		flagset.String(flagName, "", "")
+	}
+
+	mockController := gomock.NewController(t)
+	workflowEntry := mocks.NewMockEntry(mockController)
+	workflowEntry.EXPECT().GetConfigurationOptions().Return(workflow.ConfigurationOptionsFromFlagset(flagset))
+	workflowId := workflow.NewWorkflowIdentifier("agent")
+	mockEngine := mocks.NewMockEngine(mockController)
+	mockEngine.EXPECT().GetWorkflows().Return([]workflow.Identifier{workflowId})
+	mockEngine.EXPECT().GetWorkflow(workflowId).Return(workflowEntry, true)
+
+	oldArgs := os.Args
+	os.Args = append([]string{"snyk"}, args...)
+	t.Cleanup(func() { os.Args = oldArgs })
+
+	return populateRedactionTerms(configuration.NewWithOpts(configuration.WithAutomaticEnv()), mockEngine)
+}
+
+// CLI-1819: the sweep used to treat every argv token it could not name as a secret, so
+// it redacted the CLI's own analytics values out of its own events. A token is now a
+// candidate only when the token before it is a flag no workflow declared.
+func Test_populateRedactionTerms_sweepsOnlyValuesOfUndeclaredFlags(t *testing.T) {
+	t.Run("a positional operand contributes no terms", func(t *testing.T) {
+		assessment := "the scan missed a hardcoded credential in the deploy script"
+
+		terms := redactionTermsFor(t, []string{"agent", "feedback", assessment}, nil)
+
+		for _, word := range strings.Fields(assessment) {
+			assert.NotContains(t, terms, word, "a positional operand is a value the CLI accepts, not a secret to guess at")
+		}
+	})
+
+	t.Run("a declared flag's value contributes no term", func(t *testing.T) {
+		terms := redactionTermsFor(t, []string{"agent", "feedback", "--use-case", "code-review-automation"}, []string{"use-case"})
+
+		assert.NotContains(t, terms, "code-review-automation", "a workflow declared --use-case, so its value is not a guessed-at secret")
+	})
+
+	t.Run("an undeclared flag's value still contributes a term", func(t *testing.T) {
+		terms := redactionTermsFor(t, []string{"agent", "--not-a-declared-flag", "unmistakably-secret-value"}, []string{"use-case"})
+
+		assert.Contains(t, terms, "unmistakably-secret-value", "nothing declared this flag, so its value is still assumed to be a secret")
+	})
+
+	t.Run("an environment variable value still contributes a term", func(t *testing.T) {
+		// Environment variables reach the sweep joined as "--NAME VALUE" and an
+		// environment variable name is never a declared flag, so they stay candidates
+		// without the sweep carrying a special case for them.
+		t.Setenv("SNYK_TEST_REDACTION_MARKER", "unmistakably-secret-value")
+
+		terms := redactionTermsFor(t, []string{"agent"}, []string{"use-case"})
+
+		assert.Contains(t, terms, "unmistakably-secret-value", "environment variable values must keep being redacted")
+	})
+
+	t.Run("a declared flag with a sensitive name still contributes a term", func(t *testing.T) {
+		// Trusting declared flags is only safe while no declared flag carries a secret,
+		// and some do (--tfc-token ships today). A declared flag whose name matches the
+		// scrubber's own sensitive field names keeps being swept.
+		terms := redactionTermsFor(t, []string{"agent", "--auth-token", "unmistakably-secret-value"}, []string{"auth-token"})
+
+		assert.Contains(t, terms, "unmistakably-secret-value", "a declared flag whose name looks sensitive must keep being swept")
+	})
+}
+
 func Test_initApplicationConfiguration_DisablesAnalytics(t *testing.T) {
 	t.Run("via SNYK_DISABLE_ANALYTICS (true)", func(t *testing.T) {
 		c := configuration.NewWithOpts(configuration.WithAutomaticEnv())
