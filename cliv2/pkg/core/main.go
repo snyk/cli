@@ -649,9 +649,12 @@ func mainWithErrorCode(additionalExts []workflow.ExtensionInit) int {
 
 	// We want to scrub the debug log of sensitive information. Since we have a list of commands we know can occur, we can intersect that with arguments we don't recognize, and automatically scrub all those from the logs.
 	if debugEnabled {
-		populateRedactionTerms(globalConfiguration, globalEngine)
+		// One walk of the engine feeds both sweeps: the narrow list recorded on config
+		// for analytics, and the wider list the debug log scrubber gets.
+		knownTerms, knownFlags := knownRedactionTerms(globalConfiguration, globalEngine)
+		recordRedactionTerms(globalConfiguration, knownTerms, knownFlags)
 		writeLogHeader(globalConfiguration, networkAccess)
-		scrubbedLogger.AddTermsToReplace(debugRedactionTerms(globalConfiguration, globalEngine))
+		scrubbedLogger.AddTermsToReplace(debugRedactionTerms(knownTerms))
 	}
 
 	if err != nil {
@@ -728,6 +731,12 @@ func mainWithErrorCode(additionalExts []workflow.ExtensionInit) int {
 // them regardless of whether debug logging is enabled.
 func populateRedactionTerms(config configuration.Configuration, engine workflow.Engine) []string {
 	knownTerms, knownFlags := knownRedactionTerms(config, engine)
+	return recordRedactionTerms(config, knownTerms, knownFlags)
+}
+
+// recordRedactionTerms is populateRedactionTerms once the engine has already been walked,
+// so a debug run does not walk it twice.
+func recordRedactionTerms(config configuration.Configuration, knownTerms []string, knownFlags []string) []string {
 	termsToRedact := cliv2utils.GetUnknownParameters(os.Args[1:], os.Environ(), knownTerms, knownFlags)
 	config.Set(logging.REDACTION_TERMS, termsToRedact)
 	return termsToRedact
@@ -738,8 +747,7 @@ func populateRedactionTerms(config configuration.Configuration, engine workflow.
 // the user reads before pasting it into a support ticket costs nothing, while
 // under-redacting it leaks. Analytics has no human in that loop, which is why
 // populateRedactionTerms narrows the same sweep.
-func debugRedactionTerms(config configuration.Configuration, engine workflow.Engine) []string {
-	knownTerms, _ := knownRedactionTerms(config, engine)
+func debugRedactionTerms(knownTerms []string) []string {
 	return cliv2utils.GetAllUnknownParameters(os.Args[1:], os.Environ(), knownTerms)
 }
 

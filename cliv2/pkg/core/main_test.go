@@ -158,7 +158,8 @@ func debugRedactionTermsFor(t *testing.T, args []string, declaredFlags []string)
 	t.Helper()
 
 	config, engine := redactionSweepInput(t, args, declaredFlags)
-	return debugRedactionTerms(config, engine)
+	knownTerms, _ := knownRedactionTerms(config, engine)
+	return debugRedactionTerms(knownTerms)
 }
 
 func redactionSweepInput(t *testing.T, args []string, declaredFlags []string) (configuration.Configuration, workflow.Engine) {
@@ -211,14 +212,38 @@ func Test_populateRedactionTerms_sweepsOnlyValuesOfUndeclaredFlags(t *testing.T)
 	})
 
 	t.Run("an environment variable value still contributes a term", func(t *testing.T) {
-		// Environment variables reach the sweep joined as "--NAME VALUE" and an
-		// environment variable name is never a declared flag, so they stay candidates
-		// without the sweep carrying a special case for them.
+		// Environment entries are rendered into the token stream as a flag token nothing
+		// can declare, so they stay candidates without the sweep carrying a special case
+		// for them.
 		t.Setenv("SNYK_TEST_REDACTION_MARKER", "unmistakably-secret-value")
 
 		terms := redactionTermsFor(t, []string{"agent"}, []string{"use-case"})
 
 		assert.Contains(t, terms, "unmistakably-secret-value", "environment variable values must keep being redacted")
+	})
+
+	t.Run("an environment variable named after a declared flag still contributes a term", func(t *testing.T) {
+		// The declared-flag check is case sensitive and "org" is a real declared flag,
+		// so a variable of that name must not be able to borrow the flag's trust.
+		t.Setenv("org", "unmistakably-secret-value")
+
+		terms := redactionTermsFor(t, []string{"agent"}, []string{"use-case"})
+
+		assert.Contains(t, terms, "unmistakably-secret-value", "an environment variable name is not a declared flag, whatever it is called")
+	})
+
+	t.Run("every word of a multi-word undeclared flag value contributes a term", func(t *testing.T) {
+		terms := redactionTermsFor(t, []string{"agent", "--custom-header", "Bearer unmistakably-secret-value"}, []string{"use-case"})
+
+		assert.Contains(t, terms, "unmistakably-secret-value", "sweeping only the first word of a secret leaves the rest of it in the clear")
+	})
+
+	t.Run("every word of a multi-word environment value contributes a term", func(t *testing.T) {
+		t.Setenv("SNYK_TEST_REDACTION_MARKER", "Bearer unmistakably-secret-value")
+
+		terms := redactionTermsFor(t, []string{"agent"}, []string{"use-case"})
+
+		assert.Contains(t, terms, "unmistakably-secret-value", "sweeping only the first word of a secret leaves the rest of it in the clear")
 	})
 
 	t.Run("a declared flag with a sensitive name still contributes a term", func(t *testing.T) {
