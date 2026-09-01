@@ -52,10 +52,18 @@ executors:
     docker:
       - image: alpine:3.23
     resource_class: xlarge
+  alpine-large:
+    docker:
+      - image: alpine:3.23
+    resource_class: large
   alpine-arm64:
     docker:
       - image: alpine:3.23
     resource_class: arm.xlarge
+  alpine-arm64-large:
+    docker:
+      - image: alpine:3.23
+    resource_class: arm.large
   generic-ubuntu:
     docker:
       - image: ubuntu:latest
@@ -863,7 +871,7 @@ workflows:
           pre_test_cmds: export BROWSER="curl -L"
           requires:
             - build linux static arm64
-          executor: docker-arm64-xl
+          executor: docker-arm64
           test_snyk_command: ./binary-releases/experimental/snyk-linux-arm64
 
       - acceptance-tests:
@@ -886,7 +894,7 @@ workflows:
           pre_test_cmds: export BROWSER="curl -L"
           requires:
             - build linux amd64
-          executor: docker-amd64-xl
+          executor: docker-amd64
           test_snyk_command: ./binary-releases/snyk-linux
 
       - acceptance-tests:
@@ -955,7 +963,7 @@ workflows:
                 - '/release.*/'
           requires:
             - build alpine amd64
-          executor: alpine
+          executor: alpine-large
           test_snyk_command: ./binary-releases/snyk-alpine
           install_deps_extension: alpine-full
           dont_skip_tests: 0
@@ -979,7 +987,7 @@ workflows:
                 - '/release.*/'
           requires:
             - build alpine arm64
-          executor: alpine-arm64
+          executor: alpine-arm64-large
           test_snyk_command: ./binary-releases/snyk-alpine-arm64
           install_deps_extension: alpine-full
           dont_skip_tests: 0
