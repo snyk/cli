@@ -3,11 +3,13 @@ package cli_errors
 import (
 	"errors"
 	"fmt"
+	"os/exec"
 	"testing"
 
 	"github.com/snyk/error-catalog-golang-public/snyk"
 	"github.com/snyk/error-catalog-golang-public/snyk_errors"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestFindMostRelevantError_Empty(t *testing.T) {
@@ -135,6 +137,37 @@ func TestFindMostRelevantError_PreservesErrorWithExitCodeAmongOthers(t *testing.
 	var resultExitCode *ErrorWithExitCode
 	assert.True(t, errors.As(result, &resultExitCode))
 	assert.Equal(t, 1, resultExitCode.ExitCode)
+}
+
+func TestIsFailure(t *testing.T) {
+	exitWithCode := func(code int) error {
+		err := exec.Command("sh", "-c", fmt.Sprintf("exit %d", code)).Run()
+		require.Error(t, err)
+		return err
+	}
+
+	tests := []struct {
+		name    string
+		err     error
+		failure bool
+	}{
+		{"nil", nil, false},
+		{"exec exit 1 (vulnerabilities found)", exitWithCode(1), false},
+		{"exec exit 2 (error)", exitWithCode(2), true},
+		{"exec exit 3 (unsupported projects)", exitWithCode(3), false},
+		{"exec exit 44 (TS CLI terminated)", exitWithCode(44), true},
+		{"ErrorWithExitCode 1", &ErrorWithExitCode{ExitCode: 1}, false},
+		{"ErrorWithExitCode 2", &ErrorWithExitCode{ExitCode: 2}, true},
+		{"ErrorWithExitCode 3", &ErrorWithExitCode{ExitCode: 3}, false},
+		{"plain error", fmt.Errorf("connection refused"), true},
+		{"joined error with ErrorWithExitCode", errors.Join(fmt.Errorf("data error"), &ErrorWithExitCode{ExitCode: 3}), true},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			assert.Equal(t, tc.failure, IsFailure(tc.err))
+		})
+	}
 }
 
 func TestMaxRecursionDepth(t *testing.T) {
