@@ -13,10 +13,9 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/rs/zerolog"
-	"github.com/snyk/cli/cliv2/internal/helpdocs"
-	"github.com/snyk/cli/cliv2/internal/helprouting"
 	"github.com/snyk/error-catalog-golang-public/code"
 	"github.com/snyk/error-catalog-golang-public/snyk_errors"
+	"github.com/snyk/go-application-framework/pkg/analytics"
 	"github.com/snyk/go-application-framework/pkg/apiclients/testapi"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
@@ -25,6 +24,7 @@ import (
 	"github.com/snyk/go-application-framework/pkg/local_workflows/local_models"
 	"github.com/snyk/go-application-framework/pkg/logging"
 	"github.com/snyk/go-application-framework/pkg/mocks"
+	"github.com/snyk/go-application-framework/pkg/networking"
 	"github.com/snyk/go-application-framework/pkg/utils/ufm"
 	"github.com/snyk/go-application-framework/pkg/workflow"
 	"github.com/spf13/cobra"
@@ -32,9 +32,13 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/snyk/cli/cliv2/internal/helpdocs"
+	"github.com/snyk/cli/cliv2/internal/helprouting"
+
 	"github.com/snyk/cli/cliv2/internal/cliv2"
 	"github.com/snyk/cli/cliv2/internal/constants"
 	clierrors "github.com/snyk/cli/cliv2/internal/errors"
+	"github.com/snyk/cli/cliv2/pkg/basic_workflows"
 )
 
 func cleanup() {
@@ -869,6 +873,116 @@ func Test_processError(t *testing.T) {
 		// Maintenance error should take priority, resulting in EX_TEMPFAIL
 		exitCode := cliv2.DeriveExitCode(err)
 		assert.Equal(t, constants.SNYK_EXIT_CODE_EX_TEMPFAIL, exitCode)
+	})
+}
+
+// Test_tearDown_exitCode1WithNetworkErrors exercises the real tearDown function
+// end-to-end, verifying that auxiliary network errors collected during a
+// successful legacycli execution (exit code 1 = vulns found) do not leak to the
+// user's terminal.
+//
+// The bug: processError joins the exit error with collected network errors via
+// FindMostRelevantError/errors.Join. The joined error no longer satisfies the
+// direct type assertion (*exec.ExitError) in displayError, so displayError
+// prints the auxiliary network error after valid command output — breaking JSON
+// output and showing misleading errors.
+func Test_tearDown_exitCode1WithNetworkErrors(t *testing.T) {
+	setupTearDownGlobals := func(t *testing.T, ctrl *gomock.Controller) (*mocks.MockUserInterface, analytics.Analytics) {
+		t.Helper()
+
+		globalConfiguration = configuration.NewWithOpts()
+		globalConfiguration.Set(configuration.ANALYTICS_DISABLED, true)
+		globalEngine = workflow.NewWorkFlowEngine(globalConfiguration)
+
+		err := basic_workflows.Init(globalEngine)
+		assert.NoError(t, err)
+		err = globalEngine.Init()
+		assert.NoError(t, err)
+
+		mockUI := mocks.NewMockUserInterface(ctrl)
+		globalEngine.SetUserInterface(mockUI)
+
+		globalContext = t.Context()
+		noopLog := zerolog.New(io.Discard)
+		globalLogger = &noopLog
+
+		cliAnalytics := globalEngine.GetAnalytics()
+		return mockUI, cliAnalytics
+	}
+
+	t.Run("legacycli exit code 1 with collected network error", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		mockUI, cliAnalytics := setupTearDownGlobals(t, ctrl)
+		defer cleanup()
+
+		commandErr := exec.Command("sh", "-c", "exit 1").Run()
+		require.Error(t, commandErr)
+
+		auxiliaryNetworkError := fmt.Errorf("transient network error during provenance fetch")
+		errorList := []error{auxiliaryNetworkError}
+
+		// OutputError must NOT be called — the command succeeded (vulns found).
+		mockUI.EXPECT().OutputError(gomock.Any(), gomock.Any()).MaxTimes(0)
+		mockUI.EXPECT().Output(gomock.Any()).MaxTimes(0)
+
+		na := globalEngine.GetNetworkAccess()
+		exitCode := tearDown(commandErr, errorList, time.Now(), networking.UserAgentInfo{}, cliAnalytics, na)
+		assert.Equal(t, constants.SNYK_EXIT_CODE_VULNERABILITIES_FOUND, exitCode)
+	})
+
+	t.Run("ErrorWithExitCode 1 with collected network error", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		mockUI, cliAnalytics := setupTearDownGlobals(t, ctrl)
+		defer cleanup()
+
+		commandErr := &clierrors.ErrorWithExitCode{
+			ExitCode: constants.SNYK_EXIT_CODE_VULNERABILITIES_FOUND,
+		}
+		auxiliaryNetworkError := fmt.Errorf("transient network error during provenance fetch")
+		errorList := []error{auxiliaryNetworkError}
+
+		mockUI.EXPECT().OutputError(gomock.Any(), gomock.Any()).MaxTimes(0)
+		mockUI.EXPECT().Output(gomock.Any()).MaxTimes(0)
+
+		na := globalEngine.GetNetworkAccess()
+		exitCode := tearDown(commandErr, errorList, time.Now(), networking.UserAgentInfo{}, cliAnalytics, na)
+		assert.Equal(t, constants.SNYK_EXIT_CODE_VULNERABILITIES_FOUND, exitCode)
+	})
+
+	t.Run("exit code 2 with network errors still displays the error", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		mockUI, cliAnalytics := setupTearDownGlobals(t, ctrl)
+		defer cleanup()
+
+		commandErr := exec.Command("sh", "-c", "exit 2").Run()
+		require.Error(t, commandErr)
+
+		auxiliaryNetworkError := fmt.Errorf("network error")
+		errorList := []error{auxiliaryNetworkError}
+
+		// displayError SHOULD show this error — the command genuinely failed.
+		mockUI.EXPECT().OutputError(gomock.Any(), gomock.Any()).MinTimes(1)
+
+		na := globalEngine.GetNetworkAccess()
+		exitCode := tearDown(commandErr, errorList, time.Now(), networking.UserAgentInfo{}, cliAnalytics, na)
+		assert.Equal(t, constants.SNYK_EXIT_CODE_ERROR, exitCode)
+	})
+
+	t.Run("arbitrary error with network errors still displays the error", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		mockUI, cliAnalytics := setupTearDownGlobals(t, ctrl)
+		defer cleanup()
+
+		commandErr := fmt.Errorf("this is a failure")
+		auxiliaryNetworkError := fmt.Errorf("network error")
+		errorList := []error{auxiliaryNetworkError}
+
+		// displayError SHOULD show this error — the command genuinely failed.
+		mockUI.EXPECT().OutputError(gomock.Any(), gomock.Any()).MinTimes(1)
+
+		na := globalEngine.GetNetworkAccess()
+		exitCode := tearDown(commandErr, errorList, time.Now(), networking.UserAgentInfo{}, cliAnalytics, na)
+		assert.Equal(t, constants.SNYK_EXIT_CODE_ERROR, exitCode)
 	})
 }
 
