@@ -27,15 +27,15 @@ func IsFailure(err error) bool {
 		return false
 	}
 	if exitErr, ok := err.(*exec.ExitError); ok {
-		return !isNonFailureExitCode(exitErr.ExitCode())
+		return !isSuccessfulCode(exitErr.ExitCode())
 	}
 	if exitCodeErr, ok := err.(*ErrorWithExitCode); ok {
-		return !isNonFailureExitCode(exitCodeErr.ExitCode)
+		return !isSuccessfulCode(exitCodeErr.ExitCode)
 	}
 	return true
 }
 
-func isNonFailureExitCode(code int) bool {
+func isSuccessfulCode(code int) bool {
 	switch code {
 	case constants.SNYK_EXIT_CODE_VULNERABILITIES_FOUND,
 		constants.SNYK_EXIT_CODE_UNSUPPORTED_PROJECTS:
