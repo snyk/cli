@@ -256,6 +256,38 @@ func Test_populateRedactionTerms_sweepsOnlyValuesOfUndeclaredFlags(t *testing.T)
 	})
 }
 
+// CLI-1819, the accepted cost of trusting declared flags, recorded here deliberately.
+// Exempting a declared flag's value is what buys back the analytics data the old sweep
+// destroyed, and it is not free. --client-id and --tenant-id are declared flags (the
+// first by GAF's auth workflow, the second by the agent-scan workflow's flagset) and
+// neither name contains any of logging.SENSITIVE_FIELD_NAMES, so their values now reach
+// analytics in the clear where the old sweep would have redacted them. That is the price
+// of the trade rather than an oversight: a registered workflow put its name to those
+// flags, so the CLI knows what they carry and chooses to keep it.
+//
+// The safety net is the only thing standing between that trade and a declared flag being
+// a way to smuggle a credential into analytics, which is why it gets its own case below.
+// --client-secret is declared exactly as --client-id is, and the single reason its value
+// stays out of analytics is the word "secret" in its name. A flag carrying something that
+// must not be logged has to be named so the net catches it.
+func Test_populateRedactionTerms_theCostOfTrustingDeclaredFlags(t *testing.T) {
+	declaredFlags := []string{"client-id", "tenant-id", "client-secret"}
+
+	for _, flag := range []string{"client-id", "tenant-id"} {
+		t.Run("--"+flag+", a declared flag with a non-sensitive name, contributes no term", func(t *testing.T) {
+			terms := redactionTermsFor(t, []string{"auth", "--" + flag, "unmistakably-secret-value"}, declaredFlags)
+
+			assert.NotContains(t, terms, "unmistakably-secret-value", "the value of a declared flag whose name looks harmless now reaches analytics unredacted, and that is the accepted cost of trusting declared flags")
+		})
+	}
+
+	t.Run("--client-secret, a declared flag whose name contains a sensitive substring, still contributes a term", func(t *testing.T) {
+		terms := redactionTermsFor(t, []string{"auth", "--client-secret", "unmistakably-secret-value"}, declaredFlags)
+
+		assert.Contains(t, terms, "unmistakably-secret-value", "the safety net is the only reason a declared flag cannot be used to smuggle a credential into analytics")
+	})
+}
+
 // CLI-1819: only analytics narrowed. A debug log is read by the person who pastes it
 // into a support ticket, so it keeps redacting everything it cannot name, including the
 // values analytics deliberately stopped treating as secrets.

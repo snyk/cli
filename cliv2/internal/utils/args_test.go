@@ -12,6 +12,9 @@ func Test_CaptureAllArgs(t *testing.T) {
 		command        []string
 		env            []string
 		expectedResult []string
+		// expectedAllResult, when set, additionally pins GetAllUnknownParameters for the
+		// same input. Only the case where the two sweeps disagree needs it.
+		expectedAllResult []string
 	}{
 		{
 			// --filepath is declared, so primary/path/to/file is a value the CLI knowingly
@@ -63,6 +66,26 @@ func Test_CaptureAllArgs(t *testing.T) {
 			},
 			env:            []string{},
 			expectedResult: []string{},
+		},
+		{
+			// CLI-1819, and the limit of "a positional operand is a value the CLI
+			// knowingly accepts": that only holds while no undeclared flag comes first.
+			// The candidate state is sticky. It turns on at an undeclared flag and stays
+			// on until the next flag token, so ./my-project is swept along with hunter2
+			// even though ./my-project is a plain operand and the CLI does accept it.
+			// Deliberate: an undeclared flag's value can be several whitespace-separated
+			// words, and nothing in the token stream says where the value stops and the
+			// next operand starts. Ending the candidate run after one word would leave
+			// the tail of a multi-word secret in the clear, so the operand pays instead.
+			name: "a positional operand after an undeclared flag is still swept",
+			command: []string{
+				"test",
+				"--weird-flag",
+				"hunter2",
+				"./my-project",
+			},
+			env:            []string{},
+			expectedResult: []string{"./my-project", "hunter2"},
 		},
 		{
 			// dasas sits behind an undeclared flag rather than standing alone as an
@@ -169,6 +192,25 @@ func Test_CaptureAllArgs(t *testing.T) {
 			env:            []string{},
 			expectedResult: []string{},
 		},
+		{
+			// CLI-1819: the two sweeps disagree about a dash-then-digit token, so the
+			// narrow list is NOT a subset of the wide one. flagName rejects -12345678
+			// because a negative number is not a flag, which leaves the narrow sweep
+			// looking at a bare word sitting behind an undeclared flag, and it takes it.
+			// The wide sweep only tests for a leading dash, so it skips the same token.
+			// Anything reasoning that the debug log redacts at least what analytics
+			// does - the natural assumption, given the wide sweep is the aggressive one
+			// - is wrong for this token shape.
+			name: "a dash-then-digit token: the narrow sweep takes it, the wide sweep does not",
+			command: []string{
+				"test",
+				"--mystery",
+				"-12345678",
+			},
+			env:               []string{},
+			expectedResult:    []string{"-12345678"},
+			expectedAllResult: []string{},
+		},
 	}
 
 	knownCommands := []string{"test", "iac", "container", "update-exclude-policy"}
@@ -178,6 +220,10 @@ func Test_CaptureAllArgs(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			actualResult := GetUnknownParameters(tc.command, tc.env, knownCommands, knownFlags)
 			assert.Equal(t, tc.expectedResult, actualResult)
+
+			if tc.expectedAllResult != nil {
+				assert.Equal(t, tc.expectedAllResult, GetAllUnknownParameters(tc.command, tc.env, knownCommands))
+			}
 		})
 	}
 }
