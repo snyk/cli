@@ -643,7 +643,7 @@ func mainWithErrorCode(additionalExts []workflow.ExtensionInit) int {
 
 	// We want to scrub the debug log of sensitive information. Since we have a list of commands we know can occur, we can intersect that with arguments we don't recognize, and automatically scrub all those from the logs.
 	if debugEnabled {
-		termsToRedact := populateRedactionTerms(globalConfiguration, globalEngine)
+		termsToRedact := collectRedactionTerms(globalConfiguration, globalEngine)
 		writeLogHeader(globalConfiguration, networkAccess)
 		scrubbedLogger.AddTermsToReplace(termsToRedact)
 	}
@@ -716,13 +716,13 @@ func mainWithErrorCode(additionalExts []workflow.ExtensionInit) int {
 	return finalExitCode
 }
 
-// populateRedactionTerms computes likely-secret literal values (unrecognized CLI
+// collectRedactionTerms computes likely-secret literal values (unrecognized CLI
 // arguments and environment variables) for the debug log scrubber, which takes
 // them by direct call from the caller. They are deliberately never written to
 // configuration: that is what the analytics scrub chokepoint reads, and this sweep
 // guesses, so anything it reaches over-redacts (CLI-1819). Over-redacting the debug
 // log is free, since a human reviews it before sharing.
-func populateRedactionTerms(config configuration.Configuration, engine workflow.Engine) []string {
+func collectRedactionTerms(config configuration.Configuration, engine workflow.Engine) []string {
 	knownTerms, _ := instrumentation.GetKnownCommandsAndFlags(engine)
 	knownTerms = append(knownTerms, config.GetString(configuration.API_URL), config.GetString(configuration.ORGANIZATION), config.GetString(configuration.ORGANIZATION_SLUG), config.GetString(clientMachineIdConfigKey))
 	// AI_AGENT is trusted verbatim by agent.DetectAgent, and persona.Report

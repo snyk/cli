@@ -73,7 +73,7 @@ func Test_mainWithErrorCode(t *testing.T) {
 	})
 }
 
-func Test_populateRedactionTerms(t *testing.T) {
+func Test_collectRedactionTerms(t *testing.T) {
 	mockController := gomock.NewController(t)
 	mockEngine := mocks.NewMockEngine(mockController)
 	mockEngine.EXPECT().GetWorkflows().Return(nil)
@@ -81,7 +81,7 @@ func Test_populateRedactionTerms(t *testing.T) {
 	config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
 	t.Setenv("SNYK_TEST_REDACTION_MARKER", "unmistakably-secret-value")
 
-	terms := populateRedactionTerms(config, mockEngine)
+	terms := collectRedactionTerms(config, mockEngine)
 
 	assert.Contains(t, terms, "unmistakably-secret-value")
 	// Configuration is how the sweep would reach the analytics scrub chokepoint, and
@@ -90,25 +90,30 @@ func Test_populateRedactionTerms(t *testing.T) {
 	assert.Empty(t, config.GetStringSlice(logging.REDACTION_TERMS))
 }
 
-func Test_populateRedactionTerms_sweepsBarePositionalOperand(t *testing.T) {
+func Test_collectRedactionTerms_sweepsBarePositionalOperand(t *testing.T) {
 	mockController := gomock.NewController(t)
 	mockEngine := mocks.NewMockEngine(mockController)
 	mockEngine.EXPECT().GetWorkflows().Return(nil)
 
 	oldArgs := append([]string{}, os.Args...)
-	os.Args = []string{"snyk", "test", "unrecognised-operand"}
+	// "monitor" comes from instrumentation.KNOWN_COMMANDS, the base list
+	// GetKnownCommandsAndFlags returns whatever workflows are registered, and it is long
+	// enough to clear utils.MIN_ARG_LENGTH — so only the known-command rule can spare it,
+	// unlike "test", which the length floor spares regardless.
+	os.Args = []string{"snyk", "monitor", "unrecognised-operand"}
 	defer func() { os.Args = oldArgs }()
 
 	config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
 
-	terms := populateRedactionTerms(config, mockEngine)
+	terms := collectRedactionTerms(config, mockEngine)
 
 	// The debug log still wants the aggressive sweep. Analytics no longer reading it
 	// is not a reason to delete it.
 	assert.Contains(t, terms, "unrecognised-operand")
+	assert.NotContains(t, terms, "monitor")
 }
 
-func Test_populateRedactionTerms_excludesClientMachineId(t *testing.T) {
+func Test_collectRedactionTerms_excludesClientMachineId(t *testing.T) {
 	mockController := gomock.NewController(t)
 	mockEngine := mocks.NewMockEngine(mockController)
 	mockEngine.EXPECT().GetWorkflows().Return(nil)
@@ -117,12 +122,12 @@ func Test_populateRedactionTerms_excludesClientMachineId(t *testing.T) {
 	machineId := "studio-device-id-abc12345"
 	t.Setenv("INTERNAL_SNYK_CLIENT_MACHINE_ID", machineId)
 
-	terms := populateRedactionTerms(config, mockEngine)
+	terms := collectRedactionTerms(config, mockEngine)
 
 	assert.NotContains(t, terms, machineId, "client machine id must never be swept into the debug log's term list, or a --debug run masks it out of the log lines that carry it")
 }
 
-func Test_populateRedactionTerms_excludesDetectedAgent(t *testing.T) {
+func Test_collectRedactionTerms_excludesDetectedAgent(t *testing.T) {
 	// Not on agent.canonicalAgent's short-circuit list, so AI_AGENT is trusted
 	// verbatim, and the harness name is what a debug log is read for.
 	// GetUnknownParameters tokenizes its input on whitespace, so a multi-word
@@ -154,7 +159,7 @@ func Test_populateRedactionTerms_excludesDetectedAgent(t *testing.T) {
 			config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
 			t.Setenv("AI_AGENT", tc.agent)
 
-			terms := populateRedactionTerms(config, mockEngine)
+			terms := collectRedactionTerms(config, mockEngine)
 
 			for _, word := range tc.wantWords {
 				assert.NotContains(t, terms, word, "a caller-declared AI_AGENT value must never be swept into the debug log's term list, or a --debug run masks the harness name out of the log")

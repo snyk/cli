@@ -66,17 +66,16 @@ func Test_sendInstrumentation_passesEngineConfigurationToInstrumentationObject(t
 	assert.Equal(t, machineId, (*obj.Data.Attributes.Interaction.Extension)["studio::client_machine_id"])
 }
 
-// sendOneExtension drives one extension field through the real send path and returns
-// the extension as analytics received it. populateRedactionTerms runs first, exactly as
-// the --debug path runs it, so any leak of the argv/environment sweep into configuration
-// is redacting by the time the payload is built.
+// sendOneExtension runs collectRedactionTerms first, exactly as the --debug path does,
+// then drives one extension field through the real send path. If that sweep ever leaked
+// back into configuration, the extension it returns would come back redacted and fail.
 func sendOneExtension(t *testing.T, engineConfig configuration.Configuration, key string, value any) map[string]interface{} {
 	t.Helper()
 	globalConfiguration = configuration.NewWithOpts(configuration.WithAutomaticEnv())
 
 	mockEngine := mocks.NewMockEngine(gomock.NewController(t))
 	mockEngine.EXPECT().GetWorkflows().Return([]workflow.Identifier{})
-	populateRedactionTerms(engineConfig, mockEngine)
+	collectRedactionTerms(engineConfig, mockEngine)
 
 	mockEngine.EXPECT().GetConfiguration().Return(engineConfig).Times(2)
 	mockEngine.EXPECT().Invoke(localworkflows.WORKFLOWID_REPORT_ANALYTICS, gomock.Any(), gomock.Any()).Return(nil, nil)
