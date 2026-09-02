@@ -81,13 +81,31 @@ func Test_populateRedactionTerms(t *testing.T) {
 	config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
 	t.Setenv("SNYK_TEST_REDACTION_MARKER", "unmistakably-secret-value")
 
-	// No debugEnabled anywhere in this call: populateRedactionTerms runs
-	// unconditionally at its call site, so proving it sets config here proves
-	// the behavior holds regardless of debugEnabled.
 	terms := populateRedactionTerms(config, mockEngine)
 
 	assert.Contains(t, terms, "unmistakably-secret-value")
-	assert.Equal(t, terms, config.GetStringSlice(logging.REDACTION_TERMS))
+	// Configuration is how the sweep would reach the analytics scrub chokepoint, and
+	// this is the same call the --debug path makes, so a debug run must not corrupt
+	// analytics in a way a normal run does not.
+	assert.Empty(t, config.GetStringSlice(logging.REDACTION_TERMS))
+}
+
+func Test_populateRedactionTerms_sweepsBarePositionalOperand(t *testing.T) {
+	mockController := gomock.NewController(t)
+	mockEngine := mocks.NewMockEngine(mockController)
+	mockEngine.EXPECT().GetWorkflows().Return(nil)
+
+	oldArgs := append([]string{}, os.Args...)
+	os.Args = []string{"snyk", "test", "unrecognised-operand"}
+	defer func() { os.Args = oldArgs }()
+
+	config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
+
+	terms := populateRedactionTerms(config, mockEngine)
+
+	// The debug log still wants the aggressive sweep. Analytics no longer reading it
+	// is not a reason to delete it.
+	assert.Contains(t, terms, "unrecognised-operand")
 }
 
 func Test_populateRedactionTerms_excludesClientMachineId(t *testing.T) {
@@ -101,15 +119,15 @@ func Test_populateRedactionTerms_excludesClientMachineId(t *testing.T) {
 
 	terms := populateRedactionTerms(config, mockEngine)
 
-	assert.NotContains(t, terms, machineId, "client machine id must never be swept into REDACTION_TERMS, or the analytics scrub chokepoint strips it right back out of its own extension")
+	assert.NotContains(t, terms, machineId, "client machine id must never be swept into the debug log's term list, or a --debug run masks it out of the log lines that carry it")
 }
 
 func Test_populateRedactionTerms_excludesDetectedAgent(t *testing.T) {
 	// Not on agent.canonicalAgent's short-circuit list, so AI_AGENT is trusted
-	// verbatim into the persona.agent extension. GetUnknownParameters
-	// tokenizes its input on whitespace, so a multi-word value only survives
-	// unredacted if each of its words is excluded too, not just the joined
-	// string as a whole.
+	// verbatim, and the harness name is what a debug log is read for.
+	// GetUnknownParameters tokenizes its input on whitespace, so a multi-word
+	// value only survives unredacted if each of its words is excluded too, not
+	// just the joined string as a whole.
 	cases := []struct {
 		name      string
 		agent     string
@@ -139,7 +157,7 @@ func Test_populateRedactionTerms_excludesDetectedAgent(t *testing.T) {
 			terms := populateRedactionTerms(config, mockEngine)
 
 			for _, word := range tc.wantWords {
-				assert.NotContains(t, terms, word, "a caller-declared AI_AGENT value must never be swept into REDACTION_TERMS, or the analytics scrub chokepoint strips it right back out of the persona.agent extension")
+				assert.NotContains(t, terms, word, "a caller-declared AI_AGENT value must never be swept into the debug log's term list, or a --debug run masks the harness name out of the log")
 			}
 		})
 	}

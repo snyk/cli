@@ -59,8 +59,8 @@ func addNetworkingDetails(instrumentor analytics.InstrumentationCollector, confi
 
 // clientMachineIdConfigKey is the config key Studio sets before exec'ing the snyk
 // binary (see Test_addClientMachineId). populateRedactionTerms in main.go must
-// exclude this value from its sweep, or the scrub chokepoint redacts it right back
-// out of the studio::client_machine_id extension it's meant to carry.
+// exclude this value from its sweep, or a --debug run masks it out of every log
+// line that carries it, which is the one place the id is useful to read.
 const clientMachineIdConfigKey = "internal_snyk_client_machine_id"
 
 func addClientMachineId(instrumentor analytics.InstrumentationCollector, config configuration.Configuration) {

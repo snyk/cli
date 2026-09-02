@@ -510,12 +510,6 @@ func tearDown(err error, errorList []error, startTime time.Time, ua networking.U
 	teardownCtx, cancel := context.WithTimeout(context.Background(), teardownTimeout)
 	defer cancel()
 
-	// Populated here (post-command) rather than at startup so the analytics scrub chokepoint
-	// (which reads logging.REDACTION_TERMS off of config) sees these terms on every run, not
-	// just under --debug, without forcing an ORGANIZATION/ORGANIZATION_SLUG network lookup
-	// before the command's own requests run.
-	populateRedactionTerms(globalConfiguration, globalEngine)
-
 	outputError := err
 	allErrors := errorList
 
@@ -723,9 +717,11 @@ func mainWithErrorCode(additionalExts []workflow.ExtensionInit) int {
 }
 
 // populateRedactionTerms computes likely-secret literal values (unrecognized CLI
-// arguments and environment variables) and records them on config under
-// logging.REDACTION_TERMS, so the analytics scrub chokepoint can redact
-// them regardless of whether debug logging is enabled.
+// arguments and environment variables) for the debug log scrubber, which takes
+// them by direct call from the caller. They are deliberately never written to
+// configuration: that is what the analytics scrub chokepoint reads, and this sweep
+// guesses, so anything it reaches over-redacts (CLI-1819). Over-redacting the debug
+// log is free, since a human reviews it before sharing.
 func populateRedactionTerms(config configuration.Configuration, engine workflow.Engine) []string {
 	knownTerms, _ := instrumentation.GetKnownCommandsAndFlags(engine)
 	knownTerms = append(knownTerms, config.GetString(configuration.API_URL), config.GetString(configuration.ORGANIZATION), config.GetString(configuration.ORGANIZATION_SLUG), config.GetString(clientMachineIdConfigKey))
@@ -740,7 +736,6 @@ func populateRedactionTerms(config configuration.Configuration, engine workflow.
 		knownTerms = append(knownTerms, strings.Fields(detectedAgent)...)
 	}
 	termsToRedact := cliv2utils.GetUnknownParameters(os.Args[1:], os.Environ(), knownTerms)
-	config.Set(logging.REDACTION_TERMS, termsToRedact)
 	return termsToRedact
 }
 
