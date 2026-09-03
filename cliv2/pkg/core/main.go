@@ -644,6 +644,8 @@ func mainWithErrorCode(additionalExts []workflow.ExtensionInit) int {
 	// initialize the extensions -> they register themselves at the engine
 	initExtensions(globalEngine, globalConfiguration, additionalExts)
 
+	initContributorCapture()
+
 	// init engine
 	err = globalEngine.Init()
 
