@@ -17,9 +17,11 @@ func initContributorCapture() {
 
 	if globalConfiguration.GetBool(configEnableEntityContributorsPublish) {
 		hook, sink := contributors.NewPostInvokeHook()
-		err := workflow.AddPostInvokeHook(globalEngine, hook)
-		if err != nil {
-			globalEngine.GetNetworkAccess().AddMiddleware(contributor_capture.NewContributorCaptureMiddleware(globalConfiguration, sink, globalLogger))
+		globalEngine.GetNetworkAccess().AddMiddleware(
+			contributor_capture.NewContributorCaptureMiddleware(globalConfiguration, sink, globalLogger),
+		)
+		if err := workflow.AddPostInvokeHook(globalEngine, hook); err != nil {
+			globalLogger.Debug().Err(err).Msg("contributors: failed to register post-invoke hook")
 		}
 	}
 }
