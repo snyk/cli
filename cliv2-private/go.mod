@@ -4,7 +4,7 @@ go 1.26.6
 
 require (
 	github.com/snyk/ambient-canary v0.0.0-20260722064253-fba619a134a9
-	github.com/snyk/cli-extension-axi v0.0.0-20260825145801-2e6df22df8aa
+	github.com/snyk/cli-extension-axi v0.0.0-20260901142946-cb915113acb7
 	github.com/snyk/cli-extension-cos v0.0.0-20260818151318-d63bb9db9484
 	github.com/snyk/cli/cliv2 v0.0.0
 	github.com/snyk/remy-cli-extension v1.41.1
@@ -280,7 +280,7 @@ require (
 	go.yaml.in/yaml/v2 v2.4.3 // indirect
 	go.yaml.in/yaml/v3 v3.0.5 // indirect
 	go.yaml.in/yaml/v4 v4.0.0-rc.2 // indirect
-	golang.org/x/crypto v0.55.0 // indirect
+	golang.org/x/crypto v0.56.0 // indirect
 	golang.org/x/exp v0.0.0-20260410095643-746e56fc9e2f // indirect
 	golang.org/x/mod v0.40.0 // indirect
 	golang.org/x/net v0.58.0 // indirect
