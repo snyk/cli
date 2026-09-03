@@ -386,6 +386,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
       req.url?.includes('/analytics') ||
       req.url?.includes('/instrumentation') ||
       req.url?.includes('/v1/track') ||
+      req.url?.includes('/feature_flags/evaluation') ||
       req.url?.includes('/api/rest/orgs/');
     if (responseDelayMs > 0 && !isExcludedEndpoint) {
       global.setTimeout(() => next(), responseDelayMs);
