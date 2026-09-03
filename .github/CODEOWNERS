@@ -3,3 +3,5 @@
 
 # Unify
 src/lib/plugins/uv/ @snyk/engines_sca-scanners @snyk/developer-experience_cli
+
+cliv2/pkg/core/contributors.go @snyk/platformeng_identity-tenancy
