@@ -319,6 +319,15 @@ func getGlobalFLags() *pflag.FlagSet {
 	return globalFLags
 }
 
+func addMissingToonOutputFlags(flags *pflag.FlagSet) {
+	if flags.Lookup(output_workflow.OUTPUT_CONFIG_KEY_TOON) == nil {
+		flags.Bool(output_workflow.OUTPUT_CONFIG_KEY_TOON, false, "Print toon output to console")
+	}
+	if flags.Lookup(output_workflow.OUTPUT_CONFIG_KEY_TOON_FILE) == nil {
+		flags.String(output_workflow.OUTPUT_CONFIG_KEY_TOON_FILE, "", "Write toon output to file")
+	}
+}
+
 func emptyCommandFunction(_ *cobra.Command, _ []string) error {
 	return fmt.Errorf("%s", unknownCommandMessage)
 }
@@ -662,6 +671,7 @@ func mainWithErrorCode(additionalExts []workflow.ExtensionInit) int {
 	// add output flags as persistent flags
 	outputWorkflow, _ := globalEngine.GetWorkflow(localworkflows.WORKFLOWID_OUTPUT_WORKFLOW)
 	outputFlags := workflow.FlagsetFromConfigurationOptions(outputWorkflow.GetConfigurationOptions())
+	addMissingToonOutputFlags(outputFlags)
 	rootCommand.PersistentFlags().AddFlagSet(outputFlags)
 
 	// add workflows as commands

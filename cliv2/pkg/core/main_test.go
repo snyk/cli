@@ -22,6 +22,7 @@ import (
 	"github.com/snyk/go-application-framework/pkg/local_workflows/content_type"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/json_schemas"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/local_models"
+	"github.com/snyk/go-application-framework/pkg/local_workflows/output_workflow"
 	"github.com/snyk/go-application-framework/pkg/logging"
 	"github.com/snyk/go-application-framework/pkg/mocks"
 	"github.com/snyk/go-application-framework/pkg/networking"
@@ -45,6 +46,19 @@ func cleanup() {
 	helpProvided = false
 	globalConfiguration = nil
 	globalEngine = nil
+}
+
+func Test_addMissingToonOutputFlags(t *testing.T) {
+	flags := pflag.NewFlagSet("output", pflag.ContinueOnError)
+	flags.Bool(output_workflow.OUTPUT_CONFIG_KEY_JSON, false, "")
+	addMissingToonOutputFlags(flags)
+
+	config := configuration.New()
+	require.NoError(t, config.AddFlagSet(flags))
+	require.NoError(t, flags.Parse([]string{"--toon", "--toon-file-output=results.toon", "--json"}))
+	assert.True(t, config.GetBool(output_workflow.OUTPUT_CONFIG_KEY_TOON))
+	assert.Equal(t, "results.toon", config.GetString(output_workflow.OUTPUT_CONFIG_KEY_TOON_FILE))
+	assert.EqualError(t, output_workflow.ValidateOutputConfiguration(config), "toon output cannot be combined with json output")
 }
 
 func Test_mainWithErrorCode(t *testing.T) {
