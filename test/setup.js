@@ -10,6 +10,7 @@ const TOKEN_ENV_VARS = [
   'TEST_SNYK_TOKEN',
   'TEST_SNYK_TOKEN_2',
   'TEST_SNYK_TOKEN_3',
+  'TEST_SNYK_TOKEN_4',
 ];
 
 function selectRandomToken() {
