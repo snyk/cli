@@ -279,6 +279,16 @@ make tidy
 replace github.com/snyk/cli-extension-foo => ../../cli-extension-foo
 ```
 
+**Local testing only.** `replace` directives in `cliv2/go.mod` are for building and testing against local clones on your machine. Do **not** commit active `replace` lines to `main` — they are not portable across machines and are not how dependencies ship. For CI or shared branches, use a temporary commit SHA in `require` (see [Changing the Code](#changing-the-code)) or a dedicated dev branch that you do not merge. Before opening a PR, remove any `replace` lines and run `make tidy` so `go.mod`/`go.sum` reflect published module versions.
+
+Example for IDE work that bundles `snyk-ls` (e.g. testing an LS fix in VS Code via the CLI):
+
+```go
+replace github.com/snyk/snyk-ls => ../../snyk-ls
+```
+
+Then `make build` — the CLI embeds the local LS. Point the IDE at `binary-releases/snyk-linux`, not at a standalone `snyk-ls` binary.
+
 **TypeScript** — update `package.json`, then `npm install` and temporarily commit:
 
 ```json
