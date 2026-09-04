@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"testing"
 
+	snyk_cli_errors "github.com/snyk/error-catalog-golang-public/cli"
 	"github.com/snyk/error-catalog-golang-public/code"
 	"github.com/snyk/error-catalog-golang-public/snyk_errors"
 
@@ -74,6 +75,15 @@ func TestMapErrorToExitCode(t *testing.T) {
 	t.Run("wrapped unsupported project error returns UNSUPPORTED_PROJECTS", func(t *testing.T) {
 		unsupportedErr := code.NewUnsupportedProjectError("test project")
 		wrappedErr := errors.Join(unsupportedErr, errors.New("additional context"))
+		exitCode := mapErrorToExitCode(wrappedErr)
+		if exitCode != constants.SNYK_EXIT_CODE_UNSUPPORTED_PROJECTS {
+			t.Errorf("expected exit code %d, got %d", constants.SNYK_EXIT_CODE_UNSUPPORTED_PROJECTS, exitCode)
+		}
+	})
+
+	t.Run("wrapped no supported files found error returns UNSUPPORTED_PROJECTS", func(t *testing.T) {
+		noFilesErr := snyk_cli_errors.NewNoSupportedFilesFoundError("Could not detect supported target files in /tmp/x.")
+		wrappedErr := errors.Join(noFilesErr, errors.New("failed to get dependency graph"))
 		exitCode := mapErrorToExitCode(wrappedErr)
 		if exitCode != constants.SNYK_EXIT_CODE_UNSUPPORTED_PROJECTS {
 			t.Errorf("expected exit code %d, got %d", constants.SNYK_EXIT_CODE_UNSUPPORTED_PROJECTS, exitCode)

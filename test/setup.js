@@ -6,7 +6,11 @@ const { fipsTestsEnabled } = require('./jest/util/fipsTestHelper');
 const { runSnykCLI } = require('./jest/util/runSnykCLI');
 const { getTestSnykIgnoreListPatterns } = require('./createJestConfig');
 
-const TOKEN_ENV_VARS = ['TEST_SNYK_TOKEN', 'TEST_SNYK_TOKEN_2'];
+const TOKEN_ENV_VARS = [
+  'TEST_SNYK_TOKEN',
+  'TEST_SNYK_TOKEN_2',
+  'TEST_SNYK_TOKEN_3',
+];
 
 function selectRandomToken() {
   const availableTokens = TOKEN_ENV_VARS.filter(
@@ -18,18 +22,9 @@ function selectRandomToken() {
     return { envVar: undefined, token: undefined };
   }
 
-  // Shuffle array to randomize selection order
-  const shuffled = availableTokens.sort(() => Math.random() - 0.5);
-
-  // Return the first valid token from shuffled list
-  for (const envVar of shuffled) {
-    const token = process.env[envVar];
-    if (token && token.trim() !== '') {
-      return { envVar, token };
-    }
-  }
-
-  return { envVar: undefined, token: undefined };
+  const index = Math.floor(Math.random() * availableTokens.length);
+  const envVar = availableTokens[index];
+  return { envVar, token: process.env[envVar] };
 }
 
 module.exports = async function () {

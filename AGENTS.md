@@ -18,6 +18,8 @@ What **this repo does NOT contain**:
 
 **Implication for agents**: If you're investigating a product behavior or bug, the code is almost certainly in an extension repo, not here. See [Extension → Command Mapping](#extension--command-mapping) and [Where Does the Bug Live?](#where-does-the-bug-live) below.
 
+**Scanning for vulnerabilities?** Use agent mode: `snyk agent test --experimental` (experimental, subject to change). It runs Open Source, Code, and Secrets in one pass and returns compact, token-efficient output built for agents (`snyk agent --help`).
+
 ### Command routing
 
 At startup, every registered workflow is turned into a Cobra command dynamically (`createCommandsForWorkflows` in `cliv2/pkg/core/main.go`). When a user runs a command:
@@ -82,6 +84,31 @@ The private build (`cliv2-private/`) additionally registers `remy-cli-extension`
 - Only build the binary with `make build` (add `BUILD_MODE=public` without private-repo access), everything else is error prone.
 - Add tests - see [Testing Strategy](#testing-strategy)
 - Test the binary — see [Running Tests](#running-tests).
+
+### Environment variables
+
+The config reads only the variables allowlisted in `cliv2/pkg/core/main.go`:
+
+```go
+configuration.WithSupportedEnvVars("NODE_EXTRA_CA_CERTS"),
+configuration.WithSupportedEnvVarPrefixes("snyk_", "internal_", "test_"),
+```
+
+Anything else is invisible. `config.GetString("MY_VAR")` returns `""` however the shell is set. Names an external convention forces on us are added one at a time by full name.
+
+Pick the prefix by who reads the value, not who sets it.
+
+| Prefix           | Read by                                          | Contract                                          |
+| ---------------- | ------------------------------------------------ | ------------------------------------------------- |
+| `SNYK_`          | Users, CI, IDEs                                  | Public and documented. Renaming one breaks users. |
+| `INTERNAL_`      | The Go CLI, through the config                   | None. Change it whenever.                         |
+| `SNYK_INTERNAL_` | The legacy TypeScript CLI, through `process.env` | None.                                             |
+| `TEST_`          | Tests                                            | None. Never read one from production code.        |
+
+- Read with `config.GetString`, never `os.Getenv`, so flags, config files, alternative keys and caching still apply.
+- A wrapper or an IDE setting the variable does not make it public. `INTERNAL_SNYK_CLIENT_MACHINE_ID` (`cliv2/pkg/core/instrumentation.go`) is set by another Snyk process and read by the CLI.
+- To put a public name on an internal key, add an alternative key: `config.AddAlternativeKeys(cliv2.ConfigKeyRequestConcurrency, []string{"snyk_request_concurrency"})`. Code keeps reading `internal_request_concurrency`, users set `SNYK_REQUEST_CONCURRENCY`.
+- The legacy CLI is a child process with no config engine, so values reach it only if you pass them: a constant in `cliv2/internal/constants/constants.go`, assigned in `fillEnvironmentFromConfig` (`cliv2/internal/cliv2/cliv2.go`). See `SNYK_INTERNAL_ORGID`.
 
 ### Before Committing (pre-commit)
 

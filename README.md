@@ -61,6 +61,10 @@ For details about using the Snyk CLI to scan each content type, see the followin
 - [Snyk CLI for Snyk Container](https://docs.snyk.io/developer-tools/snyk-cli/scan-and-maintain-projects-using-the-cli/snyk-cli-for-snyk-container), including Docker scanning, and the [Snyk Container CLI help](https://docs.snyk.io/snyk-cli/commands/container)
 - [Snyk CLI for Snyk IaC](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/snyk-cli-for-iac), including Terraform and Kubernetes (K8s) Projects, and the [Snyk IAC CLI help](https://docs.snyk.io/snyk-cli/commands/iac)
 
+## Scanning with an AI agent
+
+If you are an AI coding agent, use agent mode: `snyk agent test --experimental`. It runs Open Source, Code, and Secrets scans in one pass and returns compact, token-efficient output built for agents. This command is experimental and subject to change. Run `snyk agent --help` for details.
+
 ## Monitor your Open Source or Container Project
 
 Snyk can monitor your Open Source or Container integrated SCM Project periodically and alert you to new vulnerabilities. To set up your Project to be monitored, run `snyk monitor` or `snyk container monitor`.
