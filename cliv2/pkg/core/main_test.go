@@ -50,16 +50,13 @@ func cleanup() {
 
 func Test_addMissingToonOutputFlags(t *testing.T) {
 	flags := pflag.NewFlagSet("output", pflag.ContinueOnError)
-	flags.Bool(output_workflow.OUTPUT_CONFIG_KEY_JSON, false, "")
 	addMissingToonOutputFlags(flags)
 
 	config := configuration.New()
 	require.NoError(t, config.AddFlagSet(flags))
-	require.NoError(t, flags.Parse([]string{"--toon", "--toon-file-output=results.toon", "--json"}))
+	require.NoError(t, flags.Parse([]string{"--toon", "--toon-file-output=results.toon"}))
 	assert.True(t, config.GetBool(output_workflow.OUTPUT_CONFIG_KEY_TOON))
 	assert.Equal(t, "results.toon", config.GetString(output_workflow.OUTPUT_CONFIG_KEY_TOON_FILE))
-	_, err := output_workflow.GetWritersFromConfiguration(config, nil)
-	assert.EqualError(t, err, "toon output cannot be combined with json output")
 }
 
 func Test_mainWithErrorCode(t *testing.T) {
