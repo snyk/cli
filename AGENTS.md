@@ -18,6 +18,8 @@ What **this repo does NOT contain**:
 
 **Implication for agents**: If you're investigating a product behavior or bug, the code is almost certainly in an extension repo, not here. See [Extension → Command Mapping](#extension--command-mapping) and [Where Does the Bug Live?](#where-does-the-bug-live) below.
 
+**Scanning for vulnerabilities?** Use agent mode: `snyk agent test --experimental` (experimental, subject to change). It runs Open Source, Code, and Secrets in one pass and returns compact, token-efficient output built for agents (`snyk agent --help`).
+
 ### Command routing
 
 At startup, every registered workflow is turned into a Cobra command dynamically (`createCommandsForWorkflows` in `cliv2/pkg/core/main.go`). When a user runs a command:
@@ -60,27 +62,61 @@ The private build (`cliv2-private/`) additionally registers `remy-cli-extension`
 - **Legacy TS command** (commands that fall back to the TypeScript CLI) → **`src/`**.
 - **Build/CI issue** → **`.circleci/config.yml`**, **`Makefile`**, or **`cliv2/Makefile`**.
 
-## Before Committing (pre-commit)
+## Development
+
+### Setting up the Developer Environment
+
+- Applies to macOS and linux
+- Install homebrew (https://brew.sh/) (used for installing all other dependencies)
+- Do not install anything directly, use the install script
+
+```sh
+./scripts/install-dev-dependencies.sh
+```
+
+### Changing the Code
+
+- The Snyk binary connects multiple repositories to build a single binary.
+- Code changes might be required in different repositories.
+- For local development, use `go mod replace` to point to local code.
+- For CI/CD verification, use temporary commit shas to point to the desired code versions.
+- Use `make clean` to build a binary from scratch, this will remove all build artifacts and dependencies and increases the build time, so only do this if really required for example to build for another platform.
+- Only build the binary with `make build` (add `BUILD_MODE=public` without private-repo access), everything else is error prone.
+- Add tests - see [Testing Strategy](#testing-strategy)
+- Test the binary — see [Running Tests](#running-tests).
+
+### Environment variables
+
+The config reads only the variables allowlisted in `cliv2/pkg/core/main.go`:
+
+```go
+configuration.WithSupportedEnvVars("NODE_EXTRA_CA_CERTS"),
+configuration.WithSupportedEnvVarPrefixes("snyk_", "internal_", "test_"),
+```
+
+Anything else is invisible. `config.GetString("MY_VAR")` returns `""` however the shell is set. Names an external convention forces on us are added one at a time by full name.
+
+Pick the prefix by who reads the value, not who sets it.
+
+| Prefix           | Read by                                          | Contract                                          |
+| ---------------- | ------------------------------------------------ | ------------------------------------------------- |
+| `SNYK_`          | Users, CI, IDEs                                  | Public and documented. Renaming one breaks users. |
+| `INTERNAL_`      | The Go CLI, through the config                   | None. Change it whenever.                         |
+| `SNYK_INTERNAL_` | The legacy TypeScript CLI, through `process.env` | None.                                             |
+| `TEST_`          | Tests                                            | None. Never read one from production code.        |
+
+- Read with `config.GetString`, never `os.Getenv`, so flags, config files, alternative keys and caching still apply.
+- A wrapper or an IDE setting the variable does not make it public. `INTERNAL_SNYK_CLIENT_MACHINE_ID` (`cliv2/pkg/core/instrumentation.go`) is set by another Snyk process and read by the CLI.
+- To put a public name on an internal key, add an alternative key: `config.AddAlternativeKeys(cliv2.ConfigKeyRequestConcurrency, []string{"snyk_request_concurrency"})`. Code keeps reading `internal_request_concurrency`, users set `SNYK_REQUEST_CONCURRENCY`.
+- The legacy CLI is a child process with no config engine, so values reach it only if you pass them: a constant in `cliv2/internal/constants/constants.go`, assigned in `fillEnvironmentFromConfig` (`cliv2/internal/cliv2/cliv2.go`). See `SNYK_INTERNAL_ORGID`.
+
+### Before Committing (pre-commit)
 
 Run these before every commit — they mirror CI, which also fails if any tracked file is left uncommitted.
 
 1. **Format**: `make format` (TypeScript + Go, runs `make tidy`)
 2. **Lint**: `make lint` (TypeScript + Go)
 3. **Verify no drift**: `git diff --name-only` must be empty. Stage anything the steps above changed.
-
-## Before Pushing (pre-push)
-
-1. **Build**: `make build` (add `BUILD_MODE=public` without private-repo access)
-2. **Run the tests** — see [Running Tests](#running-tests).
-
-## Setup
-
-macOS with Homebrew:
-
-```sh
-./scripts/install-dev-dependencies.sh
-npm install
-```
 
 ## Project Structure
 
@@ -113,18 +149,6 @@ Method, not memorized data — resolve specifics from source each time:
 - **Blast radius** (who depends on a package): `go mod why <module>` and `go mod graph` in `cliv2/`; for npm, `npm ls <pkg>`.
 - **Pull down an extension repo**: these are separate GitHub repos — `gh repo clone snyk/<name>` (private ones need `GOPRIVATE` / auth). Use `go.mod replace` to test local changes against the CLI build.
 
-## Code Style
-
-### TypeScript
-
-- **Prettier** (format) + **ESLint** (lint); tests use **Jest** (`*.spec.ts`)
-- Test locations: see [Testing Strategy](#testing-strategy)
-
-### Go (`cliv2/`)
-
-- **gofmt** (format) + **golangci-lint** (lint; version pinned in `cliv2/.golangci.yaml`)
-- Standard Go testing (`*_test.go` next to source); mocks generated via `go generate`
-
 ## Testing Strategy
 
 The CLI follows a layered testing pyramid. Each layer has a different goal, system under test (SUT), and execution context.
@@ -136,6 +160,7 @@ The CLI follows a layered testing pyramid. Each layer has a different goal, syst
 - **Properties**: Uses mocks to simulate external components. No network calls.
 - **Locations**: `test/jest/unit/**/*.spec.ts` (TypeScript), `cliv2/**/*_test.go` (Go).
 - **Runs on**: every CLI branch push, and in plugin/extension CI/CD pipelines.
+- **Note**: Tests and logic should be in the same repo as the code they test.
 
 ### Integration Tests (Grey Box)
 
@@ -152,6 +177,7 @@ The CLI follows a layered testing pyramid. Each layer has a different goal, syst
 - **SUT**: The built CLI binary.
 - **Properties**: End-to-end tests against a configurable (real) Snyk instance. Includes contract tests (CLI arguments, JSON output shape) and enforcement testing.
 - **Runs on**: plugin/extension CI/CD pipelines and environment testing (on-demand/scheduled). A small number of acceptance tests that use `TEST_SNYK_TOKEN` instead of fake-server belong to this layer.
+- **Note**: These tests should cover also features from extensions to ensure that the user experience through the surface remains intact.
 
 ### System Tests (Closed Box)
 
@@ -178,11 +204,12 @@ The CLI follows a layered testing pyramid. Each layer has a different goal, syst
 ## Running Tests
 
 ```sh
-# TypeScript unit tests
-npm run test:unit
+# TypeScript unit tests (some suites validate credentials, so a token is required)
+TEST_SNYK_TOKEN=<token> npm run test:unit
 
-# TypeScript acceptance tests (requires a built binary)
+# TypeScript acceptance/user journey tests (requires a built binary)
 TEST_SNYK_COMMAND=./binary-releases/snyk-macos-arm64 npm run test:acceptance
+TEST_SNYK_COMMAND=./binary-releases/snyk-macos-arm64 npm jest --runInBand test/jest/acceptance/snyk-code/snyk-code-user-journey.spec.ts
 
 # Go tests
 cd cliv2 && make test
@@ -190,6 +217,8 @@ cd cliv2 && make test
 # A single TS test file
 npx jest --runInBand test/jest/unit/path/to/test.spec.ts
 ```
+
+`SNYK_TOKEN` is **not** an alternative to `TEST_SNYK_TOKEN` — `test/setup.js` removes `SNYK_TOKEN` (and `SNYK_API_KEY`) from the environment when either is set, and writes `TEST_SNYK_TOKEN` into the CLI user config so tests run against a known configuration.
 
 ## Running the CLI Locally
 

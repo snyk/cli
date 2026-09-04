@@ -19,10 +19,10 @@ parameters:
   go_version:
     type: string
     # https://go.dev/doc/devel/release
-    default: '1.26.5'
+    default: '1.26.6'
   fips_go_version:
     type: string
-    default: '1.26.5'
+    default: '1.26.6'
   aws_version:
     type: string
     # https://github.com/aws/aws-cli/blob/v2/CHANGELOG.rst
@@ -561,7 +561,9 @@ workflows:
     jobs:
       - prodsec/secrets-scan:
           name: secrets-scan
-          context: snyk-bot-slack
+          context:
+            - snyk-bot-slack
+            - prodsec-orb-runtime
           channel: cli-alerts
           trusted-branch: main
 
@@ -594,6 +596,7 @@ workflows:
             - devex_cli
             - devex_cli_docker_hub
             - team-cli-go-private-modules
+            - prodsec-orb-runtime
           requires:
             - prepare-build
           filters:
@@ -1521,6 +1524,7 @@ jobs:
           open-source-scan-reachability: true
           open-source-scan: high
           open-source-block-ignore-sla: true
+          open-source-agentic-fix-enabled: true
 
   docs-only-check:
     executor: docker-amd64
@@ -2017,7 +2021,7 @@ jobs:
               value: << parameters.executor >>
           steps:
             - run: |
-                export DEBIAN_FRONTEND=noninteractive   
+                export DEBIAN_FRONTEND=noninteractive
                 ln -fs /usr/share/zoneinfo/UTC /etc/localtime
                 apt update && apt install -y sudo curl python3 python3-pip python3-requests
 

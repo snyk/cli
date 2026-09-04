@@ -48,6 +48,10 @@ These commands find and report security issues in Infrastructure as Code files; 
 
 The `snyk code test` command finds security issues using Static Code Analysis.
 
+### [`snyk secrets`](secrets-test.md)
+
+The `snyk secrets test` command scans text files in a repository for hardcoded secrets.
+
 ### [`snyk sbom`](sbom.md)
 
 Generate or test an SBOM document in ecosystems supported by Snyk.
@@ -67,6 +71,10 @@ Find Log4Shell vulnerability.
 ### [`snyk config`](config.md)
 
 Manage Snyk CLI configuration.
+
+### [`snyk fix`](fix.md)
+
+LLM-driven vulnerability remediation for Snyk Open Source and Snyk Code. Use with `--agentic --experimental --sca` or `--sast`.
 
 ### [`snyk policy`](policy.md)
 

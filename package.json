@@ -116,17 +116,17 @@
     "semver": "^6.0.0",
     "snyk-config": "^5.0.0",
     "snyk-cpp-plugin": "^2.24.3",
-    "snyk-docker-plugin": "^9.16.0",
+    "snyk-docker-plugin": "9.20.0",
     "snyk-go-plugin": "2.2.1",
-    "snyk-gradle-plugin": "7.0.0",
+    "snyk-gradle-plugin": "7.1.2",
     "snyk-module": "3.1.0",
     "snyk-mvn-plugin": "4.9.2",
     "snyk-nodejs-lockfile-parser": "2.10.0",
-    "snyk-nodejs-plugin": "^2.2.0",
-    "snyk-nuget-plugin": "4.2.3",
+    "snyk-nodejs-plugin": "^2.2.1",
+    "snyk-nuget-plugin": "^4.5.1",
     "snyk-php-plugin": "1.12.1",
     "snyk-policy": "^4.1.6",
-    "snyk-python-plugin": "^3.2.1",
+    "snyk-python-plugin": "^3.3.1",
     "snyk-resolve-deps": "4.10.0",
     "snyk-sbt-plugin": "3.1.1",
     "snyk-swiftpm-plugin": "1.5.1",
@@ -149,7 +149,7 @@
     "@types/sinon": "^7.5.0",
     "@typescript-eslint/eslint-plugin": "^4.30.0",
     "@typescript-eslint/parser": "^4.30.0",
-    "@yao-pkg/pkg": "6.19.0",
+    "@yao-pkg/pkg": "6.22.0",
     "ajv": "^8.18.0",
     "ajv-draft-04": "^1.0.0",
     "body-parser": "^1.19.0",
@@ -207,7 +207,9 @@
     "snyk-nodejs-lockfile-parser@2.10.0": {
       "uuid": "$uuid"
     },
-    "shescape@<2.1.14": "2.1.14"
+    "shescape@<2.1.14": "2.1.14",
+    "js-yaml@3.15.1": "3.15.2",
+    "js-yaml@4.3.1": "4.3.2"
   },
   "repository": {
     "type": "git",

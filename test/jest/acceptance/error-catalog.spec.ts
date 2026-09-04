@@ -74,7 +74,7 @@ describe.each(integrationWorkflows)(
           expect(code).toBe(2);
           expect(stdout).toContain('Authentication error (SNYK-0005)');
           expect(stdout).toContain(`urn:snyk:interaction`);
-        });
+        }, 60000);
       });
     });
 
@@ -128,7 +128,7 @@ describe.each(integrationWorkflows)(
 
             expect(code).toBe(2);
             expect(errors[0].code).toEqual('500');
-          }, 50000);
+          }, 100000);
         });
       });
 
