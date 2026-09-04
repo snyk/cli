@@ -22,7 +22,7 @@ require (
 	github.com/snyk/code-client-go v1.31.8
 	github.com/snyk/container-cli v0.0.0-20260213211631-cd2b2cf8f3ea
 	github.com/snyk/error-catalog-golang-public v0.0.0-20260806122555-28dc45bbbde6
-	github.com/snyk/go-application-framework v0.18.2
+	github.com/snyk/go-application-framework v0.18.3-0.20260904153233-0e7f03ec6034
 	github.com/snyk/go-httpauth v0.0.0-20260810142636-0f6182aaccbc
 	github.com/snyk/snyk-iac-capture v0.6.5
 	github.com/snyk/snyk-ls v0.0.0-20260902080529-bf1230ca471b
