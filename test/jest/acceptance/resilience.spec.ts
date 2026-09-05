@@ -296,6 +296,10 @@ describe('Resilience - Consistent CLI Behavior', () => {
       SNYK_TOKEN: '123456789',
       SNYK_HTTP_PROTOCOL_UPGRADE: '0',
       SNYK_CFG_ORG: FAKE_ORG,
+      // Reading this flag triggers a network call earlier than the tests
+      // expect, which breaks due to the slow network calls mechanism these
+      // tests use to trigger timeouts.
+      INTERNAL_SNYK_CONTRIBUTORS_ENABLED: 'false',
     };
 
     server = fakeServer(baseApi, baseEnv.SNYK_TOKEN);
