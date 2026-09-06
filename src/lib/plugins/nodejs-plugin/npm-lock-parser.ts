@@ -14,6 +14,8 @@ import {
 import { Options } from '../types';
 import { DepGraph } from '@snyk/dep-graph';
 
+const defaultIncludeComponentMetadata = false;
+
 export async function parse(
   root: string,
   targetFile: string,
@@ -75,6 +77,8 @@ export async function parse(
         pruneCycles: true,
         honorAliases: true,
         showNpmScope: options.showNpmScope,
+        includeComponentMetadata:
+          options.includeComponentMetadata || defaultIncludeComponentMetadata,
       },
     );
   }
@@ -89,6 +93,7 @@ export async function parse(
       strictOutOfSync,
       true,
       options.showNpmScope,
+      options.includeComponentMetadata || defaultIncludeComponentMetadata,
     );
   } finally {
     await spinner.clear<void>(resolveModuleSpinnerLabel)();
@@ -133,6 +138,7 @@ async function buildDepGraph(
           strictOutOfSync: options.strictOutOfSync,
           honorAliases: true,
           showNpmScope: options.showNpmScope,
+          includeComponentMetadata: options.includeComponentMetadata,
         },
       );
     case NodeLockfileVersion.YarnLockV2:
@@ -146,6 +152,8 @@ async function buildDepGraph(
           strictOutOfSync: options.strictOutOfSync,
           honorAliases: true,
           showNpmScope: options.showNpmScope,
+          // Threaded for a uniform API; berry component-metadata is deferred (no-op).
+          includeComponentMetadata: options.includeComponentMetadata,
         },
       );
     case NodeLockfileVersion.NpmLockV2:

@@ -72,7 +72,7 @@ describe('help', () => {
       );
 
       expect(stdout).toContain(
-        'tests container images for any known vulnerabilities',
+        'The snyk container test command tests container images for any known vulnerabilities.',
       );
       expect(code).toBe(0);
       // TODO: Test for stderr when docker issues are resolved

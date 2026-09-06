@@ -1,4 +1,5 @@
 import * as mockFs from 'mock-fs';
+import chalk from 'chalk';
 
 import {
   driftignoreFromPolicy,
@@ -395,6 +396,22 @@ describe('Test describe output', () => {
     const filePath = path.join(__dirname, 'fixtures', name);
     return fs.readFileSync(filePath, 'utf-8');
   };
+
+  // The .console fixtures contain ANSI colour codes, so the output has to be
+  // generated with colour on. Chalk otherwise decides that from the ambient
+  // environment and emits plain text whenever stdout is not a TTY.
+  const originalLevel = chalk.level;
+  const originalEnabled = chalk.enabled;
+
+  beforeAll(() => {
+    chalk.level = 1;
+    chalk.enabled = true;
+  });
+
+  afterAll(() => {
+    chalk.level = originalLevel;
+    chalk.enabled = originalEnabled;
+  });
 
   it('test output for known analysis', () => {
     const analysis = JSON.parse(loadFile('all.json'));

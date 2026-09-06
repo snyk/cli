@@ -86,14 +86,14 @@ try {
       $bashDir = $selectedDir.Replace('\', '/').Replace('C:', '/c')
       $bashLineBase = 'export PATH="' + $bashDir + ':$PATH"'
       if (-not $bashExisting -or -not ($bashExisting -contains $bashLineBase)) {
-        $bashLineBase | Out-File -FilePath $bashEnvScript -Append -Encoding UTF8
+        [System.IO.File]::AppendAllText($bashEnvScript, $bashLineBase + "`n", (New-Object System.Text.UTF8Encoding $false))
       }
 
       if (Test-Path $scriptsDir) {
         $bashScriptsDir = $scriptsDir.Replace('\', '/').Replace('C:', '/c')
         $bashLineScripts = 'export PATH="' + $bashScriptsDir + ':$PATH"'
         if (-not $bashExisting -or -not ($bashExisting -contains $bashLineScripts)) {
-          $bashLineScripts | Out-File -FilePath $bashEnvScript -Append -Encoding UTF8
+          [System.IO.File]::AppendAllText($bashEnvScript, $bashLineScripts + "`n", (New-Object System.Text.UTF8Encoding $false))
         }
       }
     }

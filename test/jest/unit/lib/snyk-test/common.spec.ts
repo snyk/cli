@@ -1,9 +1,11 @@
+import { PassThrough } from 'stream';
 import { CLI, ProblemError } from '@snyk/error-catalog-nodejs-public';
 import { CustomError } from '../../../../../src/lib/errors';
 import { FailedProjectScanError } from '../../../../../src/lib/plugins/get-multi-plugin-result';
 import {
   getOrCreateErrorCatalogError,
   getRequestConcurrency,
+  printDepGraphError,
 } from '../../../../../src/lib/snyk-test/common';
 
 describe('getOrCreateErrorCatalogError', () => {
@@ -117,6 +119,66 @@ describe('getOrCreateErrorCatalogError', () => {
 
     expect(result).toBeInstanceOf(ProblemError);
     expect(result.detail).toBe(defaultErrMessage);
+  });
+});
+
+describe('printDepGraphError', () => {
+  function collectStream(stream: PassThrough): Promise<string> {
+    return new Promise((resolve) => {
+      const chunks: Buffer[] = [];
+      stream.on('data', (chunk) => chunks.push(Buffer.from(chunk)));
+      stream.on('end', () => resolve(Buffer.concat(chunks).toString('utf-8')));
+    });
+  }
+
+  it('normalises a relative targetFile to stay relative to root', async () => {
+    const root = '/project';
+    const failedProjectScanError: FailedProjectScanError = {
+      errMessage: 'scan failed',
+      error: undefined,
+      targetFile: 'subdir/package.json',
+    };
+    const output = new PassThrough();
+    const collected = collectStream(output);
+
+    await printDepGraphError(root, failedProjectScanError, output);
+    output.end();
+
+    const result = JSON.parse(await collected);
+    expect(result.normalisedTargetFile).toBe('subdir/package.json');
+  });
+
+  it('normalises an absolute targetFile to be relative to root', async () => {
+    const root = '/project';
+    const failedProjectScanError: FailedProjectScanError = {
+      errMessage: 'scan failed',
+      error: undefined,
+      targetFile: '/project/subdir/package.json',
+    };
+    const output = new PassThrough();
+    const collected = collectStream(output);
+
+    await printDepGraphError(root, failedProjectScanError, output);
+    output.end();
+
+    const result = JSON.parse(await collected);
+    expect(result.normalisedTargetFile).toBe('subdir/package.json');
+  });
+
+  it('keeps targetFile undefined when it is not provided', async () => {
+    const root = '/project';
+    const failedProjectScanError: FailedProjectScanError = {
+      errMessage: 'scan failed',
+      error: undefined,
+    };
+    const output = new PassThrough();
+    const collected = collectStream(output);
+
+    await printDepGraphError(root, failedProjectScanError, output);
+    output.end();
+
+    const result = JSON.parse(await collected);
+    expect(result.normalisedTargetFile).toBeUndefined();
   });
 });
 

@@ -32,6 +32,16 @@ function aiBomRestEndpointRequests(requests: Request[]): string[] {
   return res;
 }
 
+function getCreateAIBOMRequests(requests: Request[]): Request[] {
+  return requests.filter(
+    (request) =>
+      request.method === 'POST' &&
+      request.url.includes('/ai_boms') &&
+      !request.url.includes('/ai_boms/upload') &&
+      !request.url.includes('cli_policy_test'),
+  );
+}
+
 describe('snyk aibom (mocked servers only)', () => {
   let server: ReturnType<typeof fakeServer>;
   let envWithoutAuth: Record<string, string>;
@@ -61,7 +71,7 @@ describe('snyk aibom (mocked servers only)', () => {
     'test/fixtures/ai-bom/python-chatbot',
   );
 
-  const notSupportedProject = resolve(
+  const excludedProject = resolve(
     projectRoot,
     'test/fixtures/ai-bom/not-supported',
   );
@@ -136,6 +146,21 @@ describe('snyk aibom (mocked servers only)', () => {
       bomFormat: 'CycloneDX',
     });
     expect(bom.components.length).toBeGreaterThan(1);
+  });
+
+  test('`aibom` passes enriched=true when --enriched flag is set', async () => {
+    expect(server.getRequests().length).toEqual(0);
+    const { code } = await runSnykCLI(
+      `aibom ${pythonChatbotProject} --experimental --enriched`,
+      {
+        env,
+      },
+    );
+    expect(code).toEqual(0);
+
+    const createRequests = getCreateAIBOMRequests(server.getRequests());
+    expect(createRequests.length).toBeGreaterThanOrEqual(2);
+    expect(createRequests[1].url).toContain('enriched=true');
   });
 
   test('`aibom` uses upload endpoint if --upload flag is set', async () => {
@@ -233,9 +258,9 @@ describe('snyk aibom (mocked servers only)', () => {
       expect(stdout).toContain('Forbidden (SNYK-AIBOM-0002)');
     });
 
-    test('handles an unsupported project', async () => {
+    test('handles a project with all files excluded', async () => {
       const { code, stdout } = await runSnykCLI(
-        `aibom ${notSupportedProject} --experimental`,
+        `aibom ${excludedProject} --experimental`,
         {
           env,
         },

@@ -1,0 +1,13 @@
+FROM alpine:3.23
+
+# Create the directory structure that JVM uses
+RUN mkdir -p /opt/java/openjdk
+
+# Create a minimal JVM release file with version info
+RUN echo 'JAVA_VERSION="11.0.21"' > /opt/java/openjdk/release && \
+    echo 'OS_NAME="Linux"' >> /opt/java/openjdk/release && \
+    echo 'OS_VERSION="3.19"' >> /opt/java/openjdk/release && \
+    echo 'OS_ARCH="amd64"' >> /opt/java/openjdk/release
+
+# Add a minimal package to scan
+RUN apk add --no-cache busybox

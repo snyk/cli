@@ -257,6 +257,7 @@ async function processWorkspacesProjects(
         dev: options.dev,
         exclude: options.exclude,
         showNpmScope: featureFlags.has(SHOW_NPM_SCOPE),
+        includeComponentMetadata: options['include-component-metadata'],
       },
       targetFiles,
     );

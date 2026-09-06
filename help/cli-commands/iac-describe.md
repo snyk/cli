@@ -1,3 +1,7 @@
+---
+description: The snyk iac describe command that detects drift in infrastructure as code
+---
+
 # IaC describe
 
 ## Usage

@@ -11,7 +11,7 @@ describe('config', () => {
   const orgId = '4e0828f9-d92a-4f54-b005-6b9d8150b75f';
   const testData = {
     appName: 'Test',
-    redirectURIs: 'https://example.com,https://example1.com',
+    redirectURIs: 'https://example.com,https://example.net',
     scopes: 'org.read',
     orgId,
   };

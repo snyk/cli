@@ -7,12 +7,12 @@ import {
   copyFileSync,
   readdirSync,
   statSync,
+  writeFileSync,
 } from 'fs';
 import { matchers } from 'jest-json-schema';
 import { runSnykCLI } from '../../util/runSnykCLI';
 import { EXIT_CODES } from '../../../../src/cli/exit-codes';
 import { join, resolve } from 'path';
-import { randomUUID } from 'crypto';
 import { makeTmpDirectory } from '../../../utils';
 
 expect.extend(matchers);
@@ -24,6 +24,8 @@ const TEST_REPO_COMMIT = '366ae0080cc67973619584080fc85734ba2658b2';
 const TEST_REPO_URL = 'https://github.com/leaktk/fake-leaks';
 const TEST_DIR = 'examples';
 const TEST_FILE = 'some/long/path/server.key';
+const FILE_WITH_GENERIC_SECRET = 'allow-comment.py';
+const DIR_WITH_PRIVATE_KEY = 'some/long/path';
 
 // Global variable to store the path of the cloned repo for this run
 let TEMP_LOCAL_PATH: string;
@@ -73,77 +75,28 @@ const copyFolderSync = (from: string, to: string) => {
   });
 };
 
-/**
- * Sets up an isolated environment for testing the 'ignore' functionality.
- * * Why this is necessary:
- * - Generates unique secret identities within a dedicated temporary folder.
- * - Isolates local state mutations (like .snyk file creation).
- * - Prevents race conditions during concurrent test execution, guaranteeing
- * zero side-effects on other acceptance tests.
- */
-const setupIsolatedIgnoreEnv = async (basePath: string) => {
-  const uuid = randomUUID();
-  const testDir = `${basePath}/ignores_test_${uuid}`;
+// Guards against an empty/malformed SARIF
+// so failures surface as readable assertion messages
+function assertSarifShape(sarifOutput: any): void {
+  expect(Array.isArray(sarifOutput?.runs)).toBe(true);
+  expect(sarifOutput.runs.length).toBeGreaterThan(0);
+  expect(Array.isArray(sarifOutput.runs[0]?.results)).toBe(true);
+}
 
-  // Calculate an expiry date 15 minutes from now in YYYY-MM-DDThh:mm:ss.fffZ format
-  const expiryDate = new Date(Date.now() + 15 * 60000).toISOString();
+function checkSarif(sarifOutput: any, expectedIgnoredFindings: number): any {
+  assertSarifShape(sarifOutput);
 
-  const cleanup = () => {
-    if (existsSync(testDir)) {
-      try {
-        rmSync(testDir, { recursive: true, force: true });
-      } catch (err: any) {
-        console.warn(
-          `Failed to cleanup isolated ignore directory:`,
-          err.message,
-        );
-      }
-    }
-  };
+  const suppressions = sarifOutput.runs[0].results.filter(
+    (result: any) => result.suppressions,
+  );
+  expect(suppressions.length).toBe(expectedIgnoredFindings);
 
-  try {
-    mkdirSync(testDir, { recursive: true });
+  return sarifOutput;
+}
 
-    // Copy the same file twice to trigger the same rule ID for multiple locations in SARIF validation
-    const sourceFile = join(
-      basePath,
-      'semgrep-rules-examples',
-      'detected-sendgrid-api-key.txt',
-    );
-
-    copyFileSync(sourceFile, join(testDir, `sendgrid-keys_1_${uuid}.txt`));
-    copyFileSync(sourceFile, join(testDir, `sendgrid-keys_2_${uuid}.txt`));
-
-    // Run a base JSON scan to extract the exact finding IDs for these files
-    const { stdout: jsonStdout } = await runSnykCLI(
-      `secrets test ${testDir} --json`,
-      { env },
-    );
-    const jsonOutput = JSON.parse(jsonStdout);
-    const results = jsonOutput.runs[0].results || [];
-
-    const findingIds = [
-      ...new Set(
-        results.map((r: any) => r.fingerprints?.identity).filter(Boolean),
-      ),
-    ];
-    const issuesToIgnore = findingIds.slice(0, 2);
-
-    // Ignore the target issues
-    for (const [index, issueId] of issuesToIgnore.entries()) {
-      const reason = `Test ignore reason metadata ${index}`;
-      await runSnykCLI(
-        `ignore --id=${issueId} --expiry=${expiryDate} --reason=${reason}`,
-        { env, cwd: testDir },
-      );
-    }
-
-    return { testDir, cleanup };
-  } catch (error) {
-    cleanup();
-    throw error;
-  }
-};
+function writeDotSnyk(path: string, contents: string): void {
+  writeFileSync(join(path, '.snyk'), contents, 'utf8');
+}
 
 describe('snyk secrets test', () => {
   describe('output formats', () => {
@@ -157,7 +110,7 @@ describe('snyk secrets test', () => {
       expect(code).toBe(EXIT_CODES.VULNS_FOUND);
     });
 
-    it.skip('should display sarif output with --sarif', async () => {
+    it('should display sarif output with --sarif', async () => {
       const { code, stderr } = await runSnykCLI(
         `secrets test ${TEMP_LOCAL_PATH}/${TEST_DIR} --sarif`,
         { env },
@@ -167,7 +120,7 @@ describe('snyk secrets test', () => {
       expect(code).toBe(EXIT_CODES.VULNS_FOUND);
     });
 
-    it.skip('should write sarif to output file with --sarif-file-output', async () => {
+    it('should write sarif to output file with --sarif-file-output', async () => {
       const outputFile = 'test-sarif.json';
       const outputFilePath = `${projectRoot}/${outputFile}`;
 
@@ -183,18 +136,20 @@ describe('snyk secrets test', () => {
     });
   });
 
-  // TODO: Re-enable once SARIF and JSON WIP outputs are finalized [PS-533]
-  it.skip('filters out secret findings when using --severity-threshold', async () => {
+  it('filters out secret findings when using --severity-threshold', async () => {
     const { code, stdout } = await runSnykCLI(
       `secrets test --severity-threshold=critical --sarif ${TEMP_LOCAL_PATH}/${TEST_DIR}`,
       { env },
     );
 
     const sarifOutput = JSON.parse(stdout);
+    assertSarifShape(sarifOutput);
 
+    // examples/ contains a single critical-severity private key, which is kept at
+    // --severity-threshold=critical; any lower-severity findings would be filtered out.
     const findings = sarifOutput.runs[0].results;
-    expect(findings).toHaveLength(0);
-    expect(code).toBe(0);
+    expect(findings).toHaveLength(1);
+    expect(code).toBe(EXIT_CODES.VULNS_FOUND);
   });
 
   describe('input paths', () => {
@@ -311,41 +266,9 @@ describe('snyk secrets test', () => {
         }
       }
     });
-    // TODO: Re-enable once SARIF and JSON WIP outputs are finalized [PS-533]
-    it.skip('should correctly render multiple ignores and their metadata in the output', async () => {
-      const { testDir, cleanup } =
-        await setupIsolatedIgnoreEnv(TEMP_LOCAL_PATH);
-
-      try {
-        // Get human-readable with the ignores included
-        const { stdout, stderr, code } = await runSnykCLI(
-          `secrets test ${testDir} --include-ignores`,
-          { env, cwd: testDir },
-        );
-
-        expect(stderr).toBe('');
-        expect(code).toBe(EXIT_CODES.VULNS_FOUND);
-
-        // Multiple ignores are rendered properly
-        expect(stdout).toMatch(/Ignored:\s*[2-9]/);
-        expect(stdout).toContain('! [IGNORED]');
-
-        // Validate ignores metadata is mapped and rendered correctly
-        // Validates Expiration format
-        expect(stdout).toMatch(/Expiration:\s+[A-Z][a-z]+\s+\d{2},\s+\d{4}/);
-
-        // Validates the Reason field and spacing
-        expect(stdout).toMatch(/Reason:\s+Test ignore reason metadata 0/);
-        expect(stdout).toMatch(/Reason:\s+Test ignore reason metadata 1/);
-        expect(stdout).toMatch(/Ignored on:\s+[A-Z][a-z]+\s+\d{2},\s+\d{4}/);
-      } finally {
-        cleanup();
-      }
-    });
   });
 
-  // TODO: Re-enable once SARIF and JSON WIP outputs are finalized [PS-533]
-  describe.skip('JSON output payload validation', () => {
+  describe('JSON output payload validation', () => {
     it('should return a valid SARIF when json flag is used', async () => {
       const { code, stdout, stderr } = await runSnykCLI(
         `secrets test ${TEMP_LOCAL_PATH}/${TEST_DIR} --json`,
@@ -375,85 +298,64 @@ describe('snyk secrets test', () => {
       expect(run.results[0]).toHaveProperty('ruleId');
     });
   });
-  // TODO: Re-enable once SARIF and JSON WIP outputs are finalized [PS-533]
-  describe.skip('SARIF output payload validation', () => {
-    it('should generate an enriched SARIF payload with ignores', async () => {
-      const { testDir, cleanup } =
-        await setupIsolatedIgnoreEnv(TEMP_LOCAL_PATH);
 
-      try {
-        const { code, stdout, stderr } = await runSnykCLI(
-          `secrets test ${testDir} --include-ignores --sarif`,
-          { env, cwd: testDir },
-        );
+  describe('SARIF output payload validation', () => {
+    it('should generate a well-formed SARIF payload', async () => {
+      // Scan the whole repo (not just examples/) so we get enough results
+      // to validate multi-location grouping.
+      const { code, stdout, stderr } = await runSnykCLI(
+        `secrets test ${TEMP_LOCAL_PATH} --sarif`,
+        { env },
+      );
 
-        expect(stderr).toBe('');
-        expect(code).toBe(EXIT_CODES.VULNS_FOUND);
+      expect(stderr).toBe('');
+      expect(code).toBe(EXIT_CODES.VULNS_FOUND);
 
-        const sarifOutput = JSON.parse(stdout);
-        const fingerprintRegex = /^[a-f0-9]{64}$/i;
-        const slugRegex = /^[a-z0-9-]+$/;
+      const sarifOutput = JSON.parse(stdout);
+      const identityRegex =
+        /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
+      const slugRegex = /^[a-z0-9-]+$/;
 
-        // Only one run is performed
-        const run = sarifOutput.runs[0];
+      // Only one run is performed
+      const run = sarifOutput.runs[0];
 
-        expect(run.tool.driver.name).toBe('Snyk Secrets');
+      expect(run.tool.driver.name).toBe('Snyk Secrets');
 
-        const rules = run.tool.driver.rules || [];
-        const ruleIds = rules.map((rule: any) => rule.id);
-        const uniqueRuleIds = new Set(ruleIds);
+      const rules = run.tool.driver.rules || [];
+      const ruleIds = rules.map((rule: any) => rule.id);
+      const uniqueRuleIds = new Set(ruleIds);
 
-        // Rules should only be included once in the SARIF, and not multiple times
-        expect(ruleIds.length).toBe(uniqueRuleIds.size);
+      // Rules should only be included once in the SARIF, and not multiple times
+      expect(ruleIds.length).toBe(uniqueRuleIds.size);
 
-        rules.forEach((rule: any) => {
-          expect(rule.id).toMatch(slugRegex);
+      rules.forEach((rule: any) => {
+        expect(rule.id).toMatch(slugRegex);
+        expect(rule).toHaveProperty('shortDescription.text');
+      });
 
-          // Rules should have name
-          expect(rule).toHaveProperty('name');
+      let foundMultipleLocations = false;
+      const results = run.results || [];
 
-          // Validates: the properties from the rules include the severity
-          expect(rule.properties).toBeDefined();
-          expect(rule.properties).toHaveProperty('severity');
+      results.forEach((result: any) => {
+        expect(result.ruleId).toMatch(slugRegex);
 
-          // General structural checks
-          expect(rule).toHaveProperty('shortDescription.text');
-        });
+        // Validates: identity fingerprint is included in the result and is a UUID
+        expect(result).toHaveProperty('fingerprints');
+        expect(result.fingerprints).toHaveProperty('identity');
+        expect(result.fingerprints.identity).toMatch(identityRegex);
 
-        let foundMultipleLocations = false;
-        const results = run.results || [];
+        expect(Array.isArray(result.locations)).toBe(true);
+        expect(result.locations.length).toBeGreaterThan(0);
 
-        results.forEach((result: any) => {
-          expect(result.ruleId).toMatch(slugRegex);
+        // Tracks if we successfully grouped multiple locations into a single result
+        if (result.locations.length > 1) {
+          foundMultipleLocations = true;
+        }
+      });
 
-          // Validates: fingerprint is included in the result
-          expect(result).toHaveProperty('fingerprints');
-          expect(result.fingerprints).toHaveProperty('fingerprint');
-          expect(result.fingerprints.fingerprint).toMatch(fingerprintRegex);
-
-          expect(Array.isArray(result.locations)).toBe(true);
-          expect(result.locations.length).toBeGreaterThan(0);
-
-          // Tracks if we successfully grouped multiple locations into a single result
-          if (result.locations.length > 1) {
-            foundMultipleLocations = true;
-          }
-
-          // Validate ignores metadata includes only these fields: status, justification, kind
-          if (result.suppressions && result.suppressions.length > 0) {
-            result.suppressions.forEach((suppression: any) => {
-              const suppressionKeys = Object.keys(suppression).sort();
-              const expectedKeys = ['justification', 'kind', 'status'].sort();
-              expect(suppressionKeys).toEqual(expectedKeys);
-            });
-          }
-        });
-
-        expect(foundMultipleLocations).toBe(true);
-      } finally {
-        cleanup();
-      }
+      expect(foundMultipleLocations).toBe(true);
     });
+
     it('should ensure consistent secret identities regardless of the working directory', async () => {
       // Use existing directories from the repo tree to test different path depths
       // DIR_A is 1 level deep, DIR_C is 2 levels deep
@@ -486,28 +388,33 @@ describe('snyk secrets test', () => {
       expect(resultsA.length).toBeGreaterThan(0);
       expect(resultsA.length).toBe(resultsC.length);
 
-      // Helper to extract and sort fingerprints so order doesn't cause false failures
-      const getFingerprints = (results: any[]) =>
-        results.map((r: any) => r.fingerprints?.fingerprint).sort();
+      // Helper to extract and sort identities so order doesn't cause false failures.
+      // Asserts every result has a defined identity so the comparison can't pass on undefineds.
+      const getIdentities = (results: any[]) => {
+        const identities = results.map((r: any) => {
+          expect(r.fingerprints?.identity).toBeDefined();
+          return r.fingerprints.identity;
+        });
+        return identities.sort();
+      };
 
-      const fingerprintsA = getFingerprints(resultsA);
-      const fingerprintsC = getFingerprints(resultsC);
+      const identitiesA = getIdentities(resultsA);
+      const identitiesC = getIdentities(resultsC);
 
       // Identities must be exactly the same, as they are computed relative to the git root
-      expect(fingerprintsA).toEqual(fingerprintsC);
+      expect(identitiesA).toEqual(identitiesC);
     });
   });
 
   describe('validation', () => {
-    // Skipped because --report functionality is not yet fully functional [PS-533]
-    it.skip('should return an error for --report', async () => {
+    it('should run with --report', async () => {
       const { code, stdout } = await runSnykCLI(
         `secrets test ${TEMP_LOCAL_PATH}/${TEST_DIR} --report`,
         { env },
       );
 
-      expect(stdout).toContain('Feature not enabled');
-      expect(code).toBe(EXIT_CODES.ERROR);
+      expect(stdout).toContain('Your test results are available at:');
+      expect(code).toBe(EXIT_CODES.VULNS_FOUND);
     });
 
     it('should return an error for invalid value of --severity-threshold', async () => {
@@ -541,5 +448,139 @@ describe('snyk secrets test', () => {
         expect(code).toBe(EXIT_CODES.ERROR);
       },
     );
+  });
+
+  describe('with ignored issues', () => {
+    // semgrep-rules-examples provides enough varied findings to ignore
+    const expectedIgnoredCritical = 1;
+    const expectedIgnoredTotal = 2;
+
+    it('filters below-threshold ignored findings with --severity-threshold', async () => {
+      const { stdout, stderr, code } = await runSnykCLI(
+        `secrets test ${TEMP_LOCAL_PATH}/semgrep-rules-examples --severity-threshold=critical --sarif`,
+        { env },
+      );
+
+      expect(stderr).toBe('');
+      expect(code).toBe(EXIT_CODES.VULNS_FOUND);
+
+      const sarifOutput = checkSarif(
+        JSON.parse(stdout),
+        expectedIgnoredCritical,
+      );
+
+      // SARIF level "error" covers both critical and high, so it can't distinguish them on its own.
+      // The per-result message text carries the actual severity word ("critical severity")
+      const results = sarifOutput.runs[0].results;
+      expect(results.length).toBeGreaterThan(0);
+      results.forEach((result: any) => {
+        expect(result.message?.text).toMatch(/critical severity/i);
+        expect(result.message?.text).not.toMatch(/(high|medium|low) severity/i);
+      });
+    });
+
+    it('renders ignore metadata in human-readable output with --include-ignores', async () => {
+      const { stdout, stderr, code } = await runSnykCLI(
+        `secrets test ${TEMP_LOCAL_PATH}/semgrep-rules-examples --include-ignores`,
+        { env },
+      );
+
+      expect(stderr).toBe('');
+      expect(code).toBe(EXIT_CODES.VULNS_FOUND);
+
+      // Each ignored finding renders an [IGNORED] marker.
+      const ignoredMarkers = stdout.match(/\[\s*IGNORED\s*\]/gi) || [];
+      expect(ignoredMarkers.length).toBe(expectedIgnoredTotal);
+      expect(stdout).toMatch(/Ignored:\s*\d+/);
+
+      // Ignore metadata is rendered for every ignored finding.
+      expect(stdout).toMatch(/Reason:\s+\S+/);
+      expect(stdout).toMatch(
+        /Expiration:\s+(?:[A-Z][a-z]+\s+\d{1,2},\s+\d{4}|never)/,
+      );
+      expect(stdout).toMatch(/Ignored on:\s+[A-Z][a-z]+\s+\d{1,2},\s+\d{4}/);
+    });
+
+    it('emits suppressions in SARIF', async () => {
+      const { stdout, stderr, code } = await runSnykCLI(
+        `secrets test ${TEMP_LOCAL_PATH}/semgrep-rules-examples --sarif`,
+        { env },
+      );
+
+      expect(stderr).toBe('');
+      expect(code).toBe(EXIT_CODES.VULNS_FOUND);
+
+      const sarifOutput = checkSarif(JSON.parse(stdout), expectedIgnoredTotal);
+
+      // SARIF suppressions carry the core ignore metadata fields.
+      const ignoredResults = sarifOutput.runs[0].results.filter(
+        (result: any) => result.suppressions,
+      );
+      ignoredResults.forEach((result: any) => {
+        expect(result.suppressions.length).toBeGreaterThan(0);
+        result.suppressions.forEach((suppression: any) => {
+          expect(suppression).toHaveProperty('status');
+          expect(suppression).toHaveProperty('justification');
+          expect(suppression).toHaveProperty('kind');
+        });
+      });
+    });
+
+    it('omits ignored findings from human-readable output by default', async () => {
+      const { stdout, stderr, code } = await runSnykCLI(
+        `secrets test ${TEMP_LOCAL_PATH}/semgrep-rules-examples`,
+        { env },
+      );
+
+      expect(stderr).toBe('');
+      expect(code).toBe(EXIT_CODES.VULNS_FOUND);
+
+      // Per-finding ignore output ([IGNORED] markers and metadata) is suppressed
+      // unless --include-ignores is passed. The summary line still reports a count.
+      expect(stdout).not.toMatch(/\[\s*IGNORED\s*\]/i);
+      expect(stdout).not.toMatch(/Reason:\s+\S+/);
+      expect(stdout).not.toMatch(
+        /Ignored on:\s+[A-Z][a-z]+\s+\d{1,2},\s+\d{4}/,
+      );
+    });
+  });
+
+  describe('.snyk exclusions', () => {
+    afterEach(() => {
+      const dotSnykPath = join(TEMP_LOCAL_PATH, TEST_DIR, '.snyk');
+      if (existsSync(dotSnykPath)) {
+        unlinkSync(dotSnykPath);
+      }
+    });
+
+    it('applies the "secrets" exclude section', async () => {
+      writeDotSnyk(
+        join(TEMP_LOCAL_PATH, TEST_DIR),
+        `version: v1.25.1
+exclude:
+  global:
+    - ${DIR_WITH_PRIVATE_KEY}
+  secrets:
+    - ${FILE_WITH_GENERIC_SECRET}
+`,
+      );
+
+      const { stdout, code } = await runSnykCLI(
+        `secrets test  ${TEMP_LOCAL_PATH}/${TEST_DIR} --sarif`,
+        { env },
+      );
+
+      const sarifOutput = JSON.parse(stdout);
+      assertSarifShape(sarifOutput);
+
+      // examples/ has exactly two findings:
+      // one in FILE_WITH_GENERIC_SECRET and one
+      // under DIR_WITH_PRIVATE_KEY.
+      // The exclude sections above cover both, so
+      // nothing is reported and the scan exits 0.
+      const findings = sarifOutput.runs[0].results;
+      expect(findings).toHaveLength(0);
+      expect(code).toBe(0);
+    });
   });
 });

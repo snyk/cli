@@ -104,18 +104,22 @@ upload_github() {
 }
 
 upload_npm() {
+  # For non-stable releases, specify --tag to avoid npm's prerelease version error
+  local npm_tag_arg=""
+  if [ -n "${RELEASE_CHANNEL}" ] && [ "${RELEASE_CHANNEL}" != "stable" ]; then
+    npm_tag_arg="--tag ${RELEASE_CHANNEL}"
+  fi
+
   if [ "${DRY_RUN}" == true ]; then
     echo "DRY RUN: uploading to npm..."
-    npm config set '//registry.npmjs.org/:_authToken' "${HAMMERHEAD_NPM_TOKEN}"
-    npm publish --dry-run ./binary-releases/snyk-fix.tgz
-    npm publish --dry-run ./binary-releases/snyk-protect.tgz
-    npm publish --dry-run ./binary-releases/snyk.tgz
+    npm publish --dry-run ${npm_tag_arg} ./binary-releases/snyk-fix.tgz
+    npm publish --dry-run ${npm_tag_arg} ./binary-releases/snyk-protect.tgz
+    npm publish --dry-run ${npm_tag_arg} ./binary-releases/snyk.tgz
   else
     echo "Uploading to npm..."
-    npm config set '//registry.npmjs.org/:_authToken' "${HAMMERHEAD_NPM_TOKEN}"
-    npm publish ./binary-releases/snyk-fix.tgz
-    npm publish ./binary-releases/snyk-protect.tgz
-    npm publish ./binary-releases/snyk.tgz
+    npm publish ${npm_tag_arg} ./binary-releases/snyk-fix.tgz
+    npm publish ${npm_tag_arg} ./binary-releases/snyk-protect.tgz
+    npm publish ${npm_tag_arg} ./binary-releases/snyk.tgz
   fi
 }
 
@@ -300,6 +304,12 @@ for arg in "${@}"; do
     
     # 3. Trigger homebrew-tap
     trigger_repository_event "homebrew-tap" "build_and_release"
+    if [ $? -ne 0 ]; then
+        DISTRIBUTION_FAILURE=1
+    fi
+
+    # 4. Trigger axi
+    trigger_repository_event "axi" "cli_release"
     if [ $? -ne 0 ]; then
         DISTRIBUTION_FAILURE=1
     fi

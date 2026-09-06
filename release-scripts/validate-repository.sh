@@ -30,7 +30,7 @@ if [ $retVal -ne 1 ]; then
     exit 1
 fi
 
-npm view snyk versions | grep ${VERSION_TAG}
+npm view snyk versions | grep -F "'${VERSION_TAG}'"
 retVal=$?
 if [ $retVal -ne 1 ]; then
     echo "| [FAIL] The version has already been released to npm."

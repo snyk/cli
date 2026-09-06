@@ -58,7 +58,7 @@ jobs:
 
       - name: Retrieve GitBook content and update README
         run: |
-          cp ./user-docs/docs/developer-tools/snyk-cli/getting-started-with-the-snyk-cli.md ./cli/README.md
+          cp ./user-docs/developer-tools/snyk-cli/getting-started-with-the-snyk-cli.md ./cli/README.md
 
           # GitBook Markdown files often use relative paths for assets (e.g., images)
           # like `../.gitbook/assets/image.png`. When this README.md is viewed directly
@@ -70,7 +70,7 @@ jobs:
           # - `-e`: Specifies the script to be executed. In this case, it's the 's'
           #         (substitute) command which replaces the old path with the new URL.
           sed -i \
-              -e "s|../.gitbook/assets/|https://github.com/snyk/user-docs/raw/HEAD/docs/.gitbook/assets/|g" \
+              -e "s|../.gitbook/assets/|https://github.com/snyk/user-docs/raw/HEAD/developer-tools/.gitbook/assets/|g" \
               ./cli/README.md
 
       - name: Format README with Prettier

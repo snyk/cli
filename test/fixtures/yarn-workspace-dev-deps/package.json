@@ -1,0 +1,21 @@
+{
+  "name": "@demo/workspace-root",
+  "packageManager": "yarn@4.3.0",
+  "version": "0.0.0-development",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "libraries/*"
+  ],
+  "scripts": {
+    "build:all": "yarn workspaces foreach -Avp --topological-dev run build",
+    "test:all": "yarn workspaces foreach -Avp --topological-dev run test"
+  },
+  "devDependencies": {
+    "eslint": "^8",
+    "typescript": "^5"
+  },
+  "resolutions": {
+    "webpack": "^5.90.0"
+  }
+}

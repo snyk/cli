@@ -1,0 +1,38 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>io.snyk.example</groupId>
+  <artifactId>maven-creds-repo</artifactId>
+  <packaging>jar</packaging>
+  <version>1.0-SNAPSHOT</version>
+  <name>Test project with a credentialed repository URL</name>
+  <description>
+    Declares a repository whose URL carries embedded basic-auth credentials
+    (rather than a settings.xml server block), to prove those credentials
+    never leak into the distribution:url dep-graph label.
+  </description>
+
+  <repositories>
+    <repository>
+      <id>creds-repo</id>
+      <url>https://user:secret@example.invalid/maven2</url>
+    </repository>
+  </repositories>
+
+  <dependencies>
+
+    <!-- A single, non-transitive dependency. The test hand-constructs its
+         local .m2 entry (jar + pom + _remote.repositories) rather than
+         resolving it for real, so the dependency itself need not exist on
+         any real repository. -->
+    <dependency>
+      <groupId>io.snyk.example</groupId>
+      <artifactId>creds-dep</artifactId>
+      <version>1.0</version>
+    </dependency>
+
+  </dependencies>
+
+</project>

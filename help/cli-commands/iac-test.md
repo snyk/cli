@@ -1,3 +1,7 @@
+---
+description: The snyk iac test command that tests infrastructure as code files for misconfigurations
+---
+
 # IaC test
 
 ## Usage

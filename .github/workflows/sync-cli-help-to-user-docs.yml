@@ -59,12 +59,11 @@ jobs:
 
       - name: Copy help documentation from user-docs to CLI
         run: |
-          cp ./user-docs/docs/developer-tools/snyk-cli/commands/*.md ./cli/help/cli-commands/
+          cp ./user-docs/developer-tools/snyk-cli/commands/*.md ./cli/help/cli-commands/
 
-      - name: Format help files with Prettier
-        run: |
-          cd ./cli
-          npx prettier --write ./help/cli-commands/*.md
+      - name: Format with Prettier
+        run: npx prettier --write '**/*.md'
+        working-directory: cli
 
       - name: Check for changes
         id: check_changes

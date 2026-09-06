@@ -66,6 +66,11 @@ func main() {
 		"--save_path="+filepath.ToSlash(licensesEmbeddedDir),
 		"--force",
 		"--ignore", "github.com/snyk/cli/cliv2/",
+		// go-licenses can't find a license for this one at all (no LICENSE/
+		// NOTICE/COPYING file in the repo), so it hard-fails save otherwise.
+		// package.json declares "license": "Apache-2.0"; the manual download
+		// below supplies that text directly.
+		"--ignore", "github.com/vercel/detect-agent",
 	); err != nil {
 		log(fmt.Sprintf("Error running go-licenses save: %v", err))
 		os.Exit(1)
@@ -79,6 +84,9 @@ func main() {
 		{"https://raw.githubusercontent.com/alexbrainman/sspi/master/LICENSE", "github.com/alexbrainman/sspi"},
 		{"https://raw.githubusercontent.com/pmezard/go-difflib/master/LICENSE", "github.com/pmezard/go-difflib"},
 		{"https://go.dev/LICENSE?m=text", "go.dev"},
+		// vercel/detect-agent has no LICENSE file upstream; its package.json
+		// declares "license": "Apache-2.0", so we supply that text directly.
+		{"https://www.apache.org/licenses/LICENSE-2.0.txt", "github.com/vercel/detect-agent"},
 	}
 	for _, lic := range manualLicenses {
 		if err := manualLicenseDownload(client, lic.url, lic.pkg); err != nil {

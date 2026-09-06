@@ -1,3 +1,7 @@
+---
+description: The snyk ignore command that ignores a specified issue
+---
+
 # Ignore
 
 ## Usage and description
@@ -8,7 +12,7 @@
 
 The `snyk ignore` command modifies the `.snyk` policy file to ignore a specified issue according to its Snyk ID for all occurrences, its expiry date, a reason, or according to paths in the filesystem for the policy, the issue, or both.
 
-**Note:** Ignoring issues or vulnerabilities using the `.snyk` file is not supported for Snyk Code.
+**Note:** Ignoring issues or vulnerabilities using the `.snyk` file is not supported for Snyk Code. To ignore a Snyk Code finding from the command line, use the [`snyk ignore create`](ignore-create.md) command with Consistent Ignores for Snyk Code.
 
 ### Exclude
 
@@ -79,7 +83,7 @@ Supported formats:
 
 Default: 30 days or none if used with `--file-path`
 
-Note: The `expiry` field is not required. If you need a permanent ignore, omit the option.
+Note: The `expiry` field is not required, it will use the default if omitted. If you need a permanent ignore, set the expiry to a date far in the future (for example, `9999-01-01`).
 
 To ensure that expiration dates are enforced for ignores, you must specify a valid expiration date. The date must be in the Date Time String Javascript format like YYYY-MM-DDThh:mm:ss.fffZ. If the specified expiration date does not adhere to this format, the ignore will be respected and persist indefinitely.
 
