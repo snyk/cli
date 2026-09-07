@@ -2,4 +2,4 @@
 * @snyk/developer-experience_cli
 
 # Unify
-src/lib/plugins/uv/ @snyk/open-source_unify @snyk/developer-experience_cli
+src/lib/plugins/uv/ @snyk/engines_sca-scanners @snyk/developer-experience_cli
