@@ -271,6 +271,12 @@ go run ./scripts/upgrade-snyk-go-dependencies.go -name=go-application-framework
 make tidy
 ```
 
+### Handling `go.sum` and private modules
+
+Always use Go tooling (`go get`, `go mod tidy`, `make tidy`) to update `go.mod` and `go.sum`. Never edit `go.sum` manually — its entries must be in lexicographic order, and manual edits easily break sorting.
+
+When private modules (e.g. `ambient-canary`) block `go mod tidy`, use `go mod tidy -e` to tolerate fetch errors while still maintaining correct formatting and sort order. If manual `go.sum` editing is truly unavoidable (last resort only), entries must be inserted in sorted position — never appended to the end of the file. Verify with `sort -c go.sum` after any manual edit.
+
 ## Building with Local Dependencies
 
 **Go** — add to `cliv2/go.mod`:
