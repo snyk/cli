@@ -474,7 +474,9 @@ func displayError(err error, userInterface ui.UserInterface, config configuratio
 			}
 
 			jsonErrorBuffer, _ := json.MarshalIndent(jsonError, "", "  ")
-			_ = userInterface.OutputError(fmt.Errorf("%s", jsonErrorBuffer))
+			// This document is the command's structured output, so it goes to
+			// stdout; OutputError would route it to stderr in structured mode.
+			_ = userInterface.Output(string(jsonErrorBuffer))
 		} else {
 			ctx = context.WithValue(ctx, uitypes.ErrorTipKey, doctorTip(isCI))
 			uiError := userInterface.OutputError(err, ui.WithContext(ctx))
@@ -517,13 +519,13 @@ func tearDown(err error, errorList []error, startTime time.Time, ua networking.U
 	outputError := err
 	allErrors := errorList
 
-	if err != nil {
+	if cli_errors.IsFailure(err) {
 		allErrors, outputError = processError(err, errorList)
+	}
 
-		for _, tempError := range allErrors {
-			if tempError != nil {
-				cliAnalytics.AddError(tempError)
-			}
+	for _, tempError := range allErrors {
+		if tempError != nil {
+			cliAnalytics.AddError(tempError)
 		}
 	}
 
@@ -603,6 +605,7 @@ func mainWithErrorCode(additionalExts []workflow.ExtensionInit) int {
 
 	globalConfiguration.AddDefaultValue(configuration.FF_OAUTH_AUTH_FLOW_ENABLED, defaultOAuthFF(globalConfiguration))
 	globalConfiguration.AddDefaultValue(configuration.FF_TRANSFORMATION_WORKFLOW, configuration.StandardDefaultValueFunction(true))
+	globalConfiguration.AddDefaultValue(configuration.NETWORK_REQUEST_RETRY_ALLOWED_PATHS, defaultNetworkRequestRetryAllowedPaths())
 
 	if noProxyAuth := globalConfiguration.GetBool(basic_workflows.PROXY_NOAUTH); noProxyAuth {
 		globalConfiguration.Set(configuration.PROXY_AUTHENTICATION_MECHANISM, httpauth.StringFromAuthenticationMechanism(httpauth.NoAuth))
