@@ -53,6 +53,11 @@
     "@sentry/node": "^7.36.0",
     "global-agent": "^3.0.0"
   },
+  "overrides": {
+    "global-agent": {
+      "semver@7.3.8": "7.5.2"
+    }
+  },
   "bundleDependencies": [
     "global-agent",
     "roarr",

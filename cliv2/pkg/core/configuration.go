@@ -2,6 +2,7 @@ package core
 
 import (
 	"os"
+	"strings"
 
 	"github.com/snyk/go-application-framework/pkg/auth"
 	"github.com/snyk/go-application-framework/pkg/configuration"
@@ -26,4 +27,29 @@ func defaultOAuthFF(config configuration.Configuration) configuration.DefaultVal
 
 		return true, nil
 	}
+}
+
+func defaultNetworkRequestRetryAllowedPaths() configuration.DefaultValueFunction {
+	callback := func(_ configuration.Configuration, existingValue interface{}) (interface{}, error) {
+		paths := []string{"oauth2/token", "test-dep-graph", "verify/token", "feature_flags/evaluation"}
+
+		if raw, ok := existingValue.(string); ok {
+			for _, part := range strings.Split(raw, ",") {
+				if trimmed := strings.TrimSpace(part); trimmed != "" {
+					paths = append(paths, trimmed)
+				}
+			}
+		} else if strSlice, ok := existingValue.([]string); ok {
+			paths = append(paths, strSlice...)
+		} else if ifaceSlice, ok := existingValue.([]interface{}); ok {
+			for _, v := range ifaceSlice {
+				if str, ok := v.(string); ok && str != "" {
+					paths = append(paths, str)
+				}
+			}
+		}
+
+		return paths, nil
+	}
+	return callback
 }
