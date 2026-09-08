@@ -5,8 +5,10 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/fs"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 	"testing"
 	"time"
@@ -22,9 +24,11 @@ import (
 	"github.com/snyk/go-application-framework/pkg/local_workflows/content_type"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/json_schemas"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/local_models"
+	"github.com/snyk/go-application-framework/pkg/local_workflows/output_workflow"
 	"github.com/snyk/go-application-framework/pkg/logging"
 	"github.com/snyk/go-application-framework/pkg/mocks"
 	"github.com/snyk/go-application-framework/pkg/networking"
+	"github.com/snyk/go-application-framework/pkg/runtimeinfo"
 	"github.com/snyk/go-application-framework/pkg/utils/ufm"
 	"github.com/snyk/go-application-framework/pkg/workflow"
 	"github.com/spf13/cobra"
@@ -45,6 +49,130 @@ func cleanup() {
 	helpProvided = false
 	globalConfiguration = nil
 	globalEngine = nil
+}
+
+type nopOutputDest struct{}
+
+func (nopOutputDest) Println(a ...any) (int, error) { return fmt.Fprintln(io.Discard, a...) }
+func (nopOutputDest) Remove(p string) error         { return os.Remove(p) }
+func (nopOutputDest) WriteFile(p string, b []byte, _ fs.FileMode) error {
+	return os.WriteFile(p, b, 0644)
+}
+func (nopOutputDest) GetWriter() io.Writer { return io.Discard }
+
+func Test_runSecretsTestCommand_toonFileOutput(t *testing.T) {
+	dir := t.TempDir()
+	toonFile := filepath.Join(dir, "out.toon")
+	sarifFile := filepath.Join(dir, "out.sarif")
+	templates := output_workflow.ApplicationSarifTemplatesUfm
+
+	config := configuration.NewWithOpts()
+	config.Set(output_workflow.OUTPUT_CONFIG_KEY_FILE_WRITERS, []output_workflow.FileWriter{
+		{
+			NameConfigKey: output_workflow.OUTPUT_CONFIG_KEY_SARIF_FILE, MimeType: output_workflow.SARIF_MIME_TYPE,
+			TemplateFiles: templates, WriteEmptyContent: true,
+		},
+		{
+			NameConfigKey: output_workflow.OUTPUT_CONFIG_KEY_TOON_FILE, MimeType: output_workflow.TOON_MIME_TYPE,
+			WriteEmptyContent: true,
+		},
+	})
+	config.Set(output_workflow.OUTPUT_CONFIG_KEY_TOON_FILE, toonFile)
+	config.Set(output_workflow.OUTPUT_CONFIG_KEY_SARIF_FILE, sarifFile)
+	config.Set(configuration.MAX_THREADS, 1)
+
+	logger := zerolog.Nop()
+	mockCtl := gomock.NewController(t)
+	ctx := mocks.NewMockInvocationContext(mockCtl)
+	ctx.EXPECT().GetEnhancedLogger().Return(&logger).AnyTimes()
+	ctx.EXPECT().GetConfiguration().Return(config).AnyTimes()
+	ctx.EXPECT().GetRuntimeInfo().Return(runtimeinfo.New(runtimeinfo.WithName("snyk-cli"), runtimeinfo.WithVersion("1.1301.0"))).AnyTimes()
+	ctx.EXPECT().Context().Return(t.Context()).AnyTimes()
+
+	testResults, err := ufm.NewSerializableTestResultFromBytes([]byte(`[{"testId":"11111111-2222-3333-4444-555555555555","passFail":"fail","findings":[],"executionState":"finished"}]`))
+	require.NoError(t, err)
+	input := []workflow.Data{ufm.CreateWorkflowDataFromTestResults(workflow.NewWorkflowIdentifier("secrets"), testResults)}
+
+	writerMap := output_workflow.GetWritersFromConfiguration(config, nopOutputDest{})
+	_, err = output_workflow.HandleContentTypeUnifiedModel(input, ctx, writerMap)
+	require.NoError(t, err)
+
+	toonBytes, err := os.ReadFile(toonFile)
+	require.NoError(t, err)
+	assert.Contains(t, string(toonBytes), "results[1]:")
+
+	sarifBytes, err := os.ReadFile(sarifFile)
+	require.NoError(t, err)
+	assert.Contains(t, string(sarifBytes), "\"version\": \"2.1.0\"")
+}
+
+func Test_runTestCommand_internalUseUfmPresenterWhenToon(t *testing.T) {
+	defer cleanup()
+	cmd := &cobra.Command{Use: "test"}
+	setup := func(config configuration.Configuration) {
+		globalConfiguration = config
+		globalEngine = workflow.NewWorkFlowEngine(config)
+		require.NoError(t, globalEngine.Init())
+		globalContext = t.Context()
+		noopLog := zerolog.New(io.Discard)
+		globalLogger = &noopLog
+	}
+	t.Run("toon stdout", func(t *testing.T) {
+		config := configuration.NewWithOpts()
+		setup(config)
+		root := &cobra.Command{Use: "snyk", SilenceErrors: true, SilenceUsage: true}
+		addToonOutputFlag(root.PersistentFlags())
+		root.AddCommand(&cobra.Command{Use: "test", RunE: runTestCommand})
+		root.SetArgs([]string{"test", "--toon"})
+		_ = root.Execute()
+		assert.True(t, globalConfiguration.GetBool(internalUseUfmPresenterConfigKey))
+	})
+	t.Run("toon file only", func(t *testing.T) {
+		config := configuration.NewWithOpts()
+		config.Set(output_workflow.OUTPUT_CONFIG_KEY_TOON_FILE, t.TempDir()+"/out.toon")
+		setup(config)
+		_ = runTestCommand(cmd, nil)
+		assert.False(t, globalConfiguration.GetBool(internalUseUfmPresenterConfigKey))
+	})
+	t.Run("default", func(t *testing.T) {
+		setup(configuration.NewWithOpts())
+		_ = runTestCommand(cmd, nil)
+		assert.False(t, globalConfiguration.GetBool(internalUseUfmPresenterConfigKey))
+	})
+}
+
+func Test_addToonOutputFlag(t *testing.T) {
+	flags := pflag.NewFlagSet("output", pflag.ContinueOnError)
+	addToonOutputFlag(flags)
+	addToonOutputFlag(flags)
+
+	config := configuration.New()
+	require.NoError(t, config.AddFlagSet(flags))
+	require.NoError(t, flags.Parse([]string{"--toon"}))
+	assert.True(t, config.GetBool(output_workflow.OUTPUT_CONFIG_KEY_TOON))
+}
+
+func Test_addToonFileOutputFlag(t *testing.T) {
+	for _, args := range [][]string{
+		{"--toon-file-output=result.toon", "project"},
+		{"--toon-file-output", "result.toon", "project"},
+	} {
+		t.Run(strings.Join(args, " "), func(t *testing.T) {
+			flags := pflag.NewFlagSet("output", pflag.ContinueOnError)
+			addToonFileOutputFlag(flags)
+			addToonFileOutputFlag(flags)
+			config := configuration.NewWithOpts()
+			require.NoError(t, config.AddFlagSet(flags))
+			require.NoError(t, flags.Parse(args))
+			assert.Equal(t, "result.toon", config.GetString("toon-file-output"))
+			assert.Equal(t, []string{"project"}, flags.Args())
+		})
+	}
+	t.Run("missing value", func(t *testing.T) {
+		flags := pflag.NewFlagSet("output", pflag.ContinueOnError)
+		addToonFileOutputFlag(flags)
+		require.Error(t, flags.Parse([]string{"--toon-file-output"}))
+	})
 }
 
 func Test_mainWithErrorCode(t *testing.T) {

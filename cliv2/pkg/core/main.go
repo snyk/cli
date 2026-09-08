@@ -260,7 +260,7 @@ func runLegacyHelp() error {
 	return defaultCmd(append(filteredArgs, "--help"))
 }
 
-func runTestCommandWithSarifEqualJson(cmd *cobra.Command, args []string, templateFiles []string) error {
+func runTestCommandWithSarifEqualJson(cmd *cobra.Command, args []string, templateFiles []string, extraFileWriters ...output_workflow.FileWriter) error {
 	// ensure legacy behavior, where sarif and json can be used interchangeably
 	globalConfiguration.AddAlternativeKeys(output_workflow.OUTPUT_CONFIG_KEY_SARIF, []string{output_workflow.OUTPUT_CONFIG_KEY_JSON})
 
@@ -278,6 +278,7 @@ func runTestCommandWithSarifEqualJson(cmd *cobra.Command, args []string, templat
 			WriteEmptyContent: false,
 		},
 	}
+	fileWriters = append(fileWriters, extraFileWriters...)
 	globalConfiguration.Set(output_workflow.OUTPUT_CONFIG_KEY_FILE_WRITERS, fileWriters)
 
 	// ensure that json is translated to sarif for the default writer as well
@@ -294,7 +295,24 @@ func runCodeTestCommand(cmd *cobra.Command, args []string) error {
 }
 
 func runSecretsTestCommand(cmd *cobra.Command, args []string) error {
-	return runTestCommandWithSarifEqualJson(cmd, args, output_workflow.ApplicationSarifTemplatesUfm)
+	return runTestCommandWithSarifEqualJson(cmd, args, output_workflow.ApplicationSarifTemplatesUfm, output_workflow.FileWriter{
+		NameConfigKey:     output_workflow.OUTPUT_CONFIG_KEY_TOON_FILE,
+		MimeType:          output_workflow.TOON_MIME_TYPE,
+		WriteEmptyContent: true,
+	})
+}
+
+// os-flows-owned key; skips local unified render so GAF can present stdout TOON.
+const internalUseUfmPresenterConfigKey = "internal_use_ufm_presenter"
+
+func runTestCommand(cmd *cobra.Command, args []string) error {
+	if err := globalConfiguration.AddFlagSet(cmd.Flags()); err != nil {
+		return err
+	}
+	if globalConfiguration.GetBool(output_workflow.OUTPUT_CONFIG_KEY_TOON) {
+		globalConfiguration.Set(internalUseUfmPresenterConfigKey, true)
+	}
+	return runCommand(cmd, args)
 }
 
 func runAuthCommand(cmd *cobra.Command, args []string) error {
@@ -317,6 +335,19 @@ func getGlobalFLags() *pflag.FlagSet {
 	globalFLags.String(integrationNameFlag, "", "")
 	globalFLags.Int(maxNetworkRequestAttempts, -1, "Maximum total network attempts, including the initial request (minimum: 1)")
 	return globalFLags
+}
+
+// TODO to be removed after CLI-1828
+func addToonOutputFlag(flags *pflag.FlagSet) {
+	if flags.Lookup(output_workflow.OUTPUT_CONFIG_KEY_TOON) == nil {
+		flags.Bool(output_workflow.OUTPUT_CONFIG_KEY_TOON, false, "Print toon output to console")
+	}
+}
+
+func addToonFileOutputFlag(flags *pflag.FlagSet) {
+	if flags.Lookup(output_workflow.OUTPUT_CONFIG_KEY_TOON_FILE) == nil {
+		flags.String(output_workflow.OUTPUT_CONFIG_KEY_TOON_FILE, "", "Write toon output to file")
+	}
 }
 
 func emptyCommandFunction(_ *cobra.Command, _ []string) error {
@@ -376,7 +407,10 @@ func createCommandsForWorkflows(rootCommand *cobra.Command, engine workflow.Engi
 		case "secrets test":
 			// use the special run command to ensure that the non-standard behavior of the command can be kept
 			parentCommand.RunE = runSecretsTestCommand
-		case "test", "monitor":
+		case "test":
+			legacy.SetupTestMonitorCommand(parentCommand)
+			parentCommand.RunE = runTestCommand
+		case "monitor":
 			legacy.SetupTestMonitorCommand(parentCommand)
 		case "auth":
 			parentCommand.RunE = runAuthCommand
@@ -662,6 +696,8 @@ func mainWithErrorCode(additionalExts []workflow.ExtensionInit) int {
 	// add output flags as persistent flags
 	outputWorkflow, _ := globalEngine.GetWorkflow(localworkflows.WORKFLOWID_OUTPUT_WORKFLOW)
 	outputFlags := workflow.FlagsetFromConfigurationOptions(outputWorkflow.GetConfigurationOptions())
+	addToonOutputFlag(outputFlags)
+	addToonFileOutputFlag(outputFlags)
 	rootCommand.PersistentFlags().AddFlagSet(outputFlags)
 
 	// add workflows as commands
