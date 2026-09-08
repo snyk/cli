@@ -6,7 +6,7 @@ require (
 	github.com/snyk/cli-extension-axi v0.0.0-20260901142946-cb915113acb7
 	github.com/snyk/cli-extension-cos v0.0.0-20260818151318-d63bb9db9484
 	github.com/snyk/cli/cliv2 v0.0.0
-	github.com/snyk/remy-cli-extension v1.41.1
+	github.com/snyk/remy-cli-extension v1.42.0
 	github.com/snyk/rift-cli-extension v1.2.2
 )
 
