@@ -5,6 +5,7 @@ go 1.26.6
 require (
 	github.com/snyk/cli-extension-axi v0.0.0-20260901142946-cb915113acb7
 	github.com/snyk/cli-extension-cos v0.0.0-20260818151318-d63bb9db9484
+	github.com/snyk/cli-extension-studio v1.0.0
 	github.com/snyk/cli/cliv2 v0.0.0
 	github.com/snyk/remy-cli-extension v1.42.0
 	github.com/snyk/rift-cli-extension v1.2.2
@@ -301,6 +302,8 @@ require (
 
 // For local development, point to the sibling public module:
 replace github.com/snyk/cli/cliv2 => ../cliv2
+
+// replace github.com/snyk/cli-extension-studio => ../../cli-extension-studio
 
 // replace github.com/snyk/remy-cli-extension => ../../remy-cli-extension
 

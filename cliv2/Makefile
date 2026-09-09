@@ -37,11 +37,17 @@ _validate-build-mode:
 			echo "ERROR: BUILD_MODE=private requested but $(PRIVATE_DIR)/go.mod not found." >&2; \
 			exit 1; \
 		fi; \
-		if ! (cd "$(PRIVATE_DIR)" && $(GOCMD) mod download > /dev/null 2>&1); then \
+		DOWNLOAD_LOG="$$(mktemp)"; \
+		if ! (cd "$(PRIVATE_DIR)" && $(GOCMD) mod download) > "$$DOWNLOAD_LOG" 2>&1; then \
 			echo "ERROR: BUILD_MODE=private requested but private module dependencies cannot be resolved." >&2; \
 			echo "       Check GOPRIVATE and network connectivity." >&2; \
+			echo "       GOPRIVATE=$${GOPRIVATE:-<unset>}" >&2; \
+			echo "       'go mod download' output:" >&2; \
+			sed 's/^/         /' "$$DOWNLOAD_LOG" >&2; \
+			rm -f "$$DOWNLOAD_LOG"; \
 			exit 1; \
 		fi; \
+		rm -f "$$DOWNLOAD_LOG"; \
 	fi
 
 # Build tools
