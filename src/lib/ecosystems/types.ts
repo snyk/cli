@@ -3,7 +3,7 @@ import { SEVERITY } from '../snyk-test/common';
 import { RemediationChanges } from '../snyk-test/legacy';
 import { Options, ProjectAttributes, Tag } from '../types';
 
-export type Ecosystem = 'cpp' | 'docker' | 'code';
+export type Ecosystem = 'cpp' | 'docker';
 
 export type FindingType = 'iacIssue';
 
