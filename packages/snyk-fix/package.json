@@ -46,7 +46,7 @@
     "ora": "5.4.0",
     "p-map": "^4.0.0",
     "strip-ansi": "6.0.0",
-    "toml": "3.0.0"
+    "toml": "4.2.0"
   },
   "repository": {
     "type": "git",
