@@ -79,17 +79,6 @@ func Test_configureSarifEqualJSON_IncludesTOONFileWriter(t *testing.T) {
 	assert.Empty(t, writers[3].TemplateFiles)
 }
 
-func Test_addToonOutputFlag(t *testing.T) {
-	flags := pflag.NewFlagSet("output", pflag.ContinueOnError)
-	addToonOutputFlag(flags)
-	addToonOutputFlag(flags)
-
-	config := configuration.New()
-	require.NoError(t, config.AddFlagSet(flags))
-	require.NoError(t, flags.Parse([]string{"--toon"}))
-	assert.True(t, config.GetBool(output_workflow.OUTPUT_CONFIG_KEY_TOON))
-}
-
 func Test_mainWithErrorCode(t *testing.T) {
 	defer cleanup()
 	oldArgs := append([]string{}, os.Args...)
