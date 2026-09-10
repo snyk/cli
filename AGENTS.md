@@ -255,6 +255,8 @@ Keep the first line under 72 characters. This format is enforced on every commit
 
 ## Pull Request Checks
 
+Before creating or editing a PR, read `.github/PULL_REQUEST_TEMPLATE.md` and fill its relevant sections, including **"What's the product update that needs to be communicated to CLI users?"**, manual testing instructions, and a risk assessment. This applies to dependency-only bumps too: describe the user-visible fix brought in by the dependency, link the upstream change and regression coverage, and state any remaining limitations. Check previous reviewer feedback before asking for review. Keep the description within 200 words (250 hard ceiling), and distinguish completed validation from pending or blocked checks.
+
 PR conventions are enforced by **Danger** (`dangerfile.js` is authoritative). To pass first time:
 
 - **Squash to a single commit** before merging — multiple commits are flagged.
