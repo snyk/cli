@@ -179,14 +179,6 @@ func runCommand(cmd *cobra.Command, args []string) error {
 	return runMainWorkflow(globalConfiguration, cmd, args, os.Args)
 }
 
-func validateOutputFormatSelection(config configuration.Configuration, cmd *cobra.Command) error {
-	if config.GetBool(constants.SNYK_FORCE_LEGACY_CLI_ENV) {
-		return nil
-	}
-
-	return behavior.ValidateOutputFormatSelection(getFullCommandString(cmd), config)
-}
-
 func runMainWorkflow(config configuration.Configuration, cmd *cobra.Command, args []string, rawArgs []string) error {
 	err := config.AddFlagSet(cmd.Flags())
 	if err != nil {
@@ -199,7 +191,7 @@ func runMainWorkflow(config configuration.Configuration, cmd *cobra.Command, arg
 	mainUI := consoleui.New(consoleui.WithInput(os.Stdin), consoleui.WithOutput(os.Stdout), consoleui.WithProgressWriter(os.Stderr), errorUI)
 	globalEngine.SetUserInterface(mainUI)
 
-	if err := validateOutputFormatSelection(config, cmd); err != nil {
+	if err := behavior.ValidateOutputFormatSelection(getFullCommandString(cmd), config); err != nil {
 		return err
 	}
 

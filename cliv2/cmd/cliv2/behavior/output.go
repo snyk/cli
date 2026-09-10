@@ -91,7 +91,7 @@ func IsDataRenderingError(err error) bool {
 func RenderStructuredError(format OutputFormat, err StructuredError) ([]byte, error) {
 	switch format {
 	case outputFormatTOON:
-		return renderTOONError(err)
+		return renderTOONError(err), nil
 	case outputFormatJSON:
 		return json.MarshalIndent(err, "", "  ")
 	case outputFormatSARIF, outputFormatHTML:
@@ -100,14 +100,15 @@ func RenderStructuredError(format OutputFormat, err StructuredError) ([]byte, er
 	return nil, fmt.Errorf("unsupported structured error output format: %s", format)
 }
 
-func renderTOONError(err StructuredError) ([]byte, error) {
-	return fmt.Appendf(
-		[]byte{},
-		"error: %s\nok: %t\npath: %s",
-		formatTOONString(err.ErrorMsg),
-		err.Ok,
-		formatTOONString(err.Path),
-	), nil
+// ok is omitted here: this renderer only ever runs from the error path, where
+// it is always false, so it carries no information for a TOON consumer.
+func renderTOONError(err StructuredError) []byte {
+	var document strings.Builder
+	document.WriteString("error: ")
+	document.WriteString(formatTOONString(err.ErrorMsg))
+	document.WriteString("\npath: ")
+	document.WriteString(formatTOONString(err.Path))
+	return []byte(document.String())
 }
 
 func formatTOONString(value string) string {

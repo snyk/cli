@@ -185,7 +185,7 @@ func TestRenderStructuredError_quotesToonStrings(t *testing.T) {
 				ErrorMsg: "scan: failed\nretry",
 				Path:     " /workspace ",
 			},
-			expected: "error: \"scan: failed\\nretry\"\nok: false\npath: \" /workspace \"",
+			expected: "error: \"scan: failed\\nretry\"\npath: \" /workspace \"",
 		},
 		{
 			name: "control characters",
@@ -193,7 +193,7 @@ func TestRenderStructuredError_quotesToonStrings(t *testing.T) {
 				Ok:       false,
 				ErrorMsg: "invalid\x01detail",
 			},
-			expected: "error: \"invalid\\u0001detail\"\nok: false\npath: \"\"",
+			expected: "error: \"invalid\\u0001detail\"\npath: \"\"",
 		},
 	}
 
@@ -215,7 +215,7 @@ func TestRenderStructuredError_keepsSafeToonStringsUnquoted(t *testing.T) {
 	})
 
 	require.NoError(t, err)
-	assert.Equal(t, "error: scan failed, retry\nok: false\npath: \"\\\\\\\\server\\\\share\"", string(actual))
+	assert.Equal(t, "error: scan failed, retry\npath: \"\\\\\\\\server\\\\share\"", string(actual))
 
 	actual, err = RenderStructuredError(outputFormatTOON, StructuredError{
 		Ok:       false,
@@ -224,5 +224,5 @@ func TestRenderStructuredError_keepsSafeToonStringsUnquoted(t *testing.T) {
 	})
 
 	require.NoError(t, err)
-	assert.Equal(t, "error: \"true\"\nok: false\npath: \"#comment\"", string(actual))
+	assert.Equal(t, "error: \"true\"\npath: \"#comment\"", string(actual))
 }

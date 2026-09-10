@@ -320,7 +320,7 @@ func Test_validateOutputFormatSelection(t *testing.T) {
 		config := configuration.NewWithOpts()
 		require.NoError(t, config.AddFlagSet(cmd.Flags()))
 
-		err := validateOutputFormatSelection(config, cmd)
+		err := behavior.ValidateOutputFormatSelection(getFullCommandString(cmd), config)
 		require.Error(t, err)
 		var catalogError snyk_errors.Error
 		require.ErrorAs(t, err, &catalogError)
@@ -329,13 +329,6 @@ func Test_validateOutputFormatSelection(t *testing.T) {
 			"The following option combination is not currently supported: code test + sarif + json",
 			catalogError.Detail,
 		)
-	})
-
-	t.Run("defers to the legacy validator when legacy mode is forced", func(t *testing.T) {
-		config := configuration.NewWithOpts()
-		config.Set(constants.SNYK_FORCE_LEGACY_CLI_ENV, true)
-
-		assert.NoError(t, validateOutputFormatSelection(config, cmd))
 	})
 }
 
@@ -829,7 +822,7 @@ func Test_displayError(t *testing.T) {
 
 				displayError(tt.err, console, config, t.Context(), false)
 
-				expected := fmt.Sprintf("error: %s\nok: false\npath: /workspace\n", getErrorMessage(tt.err))
+				expected := fmt.Sprintf("error: %s\npath: /workspace\n", getErrorMessage(tt.err))
 				assert.Equal(t, expected, stdout.String())
 				assert.Empty(t, stderr.String())
 			})
