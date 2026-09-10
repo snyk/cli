@@ -411,7 +411,7 @@ describe.each(userJourneyWorkflows)(
             env,
           });
           expect(stdout).toContainText(
-            new UnsupportedOptionCombinationError(['test', 'sarif', 'json'])
+            new UnsupportedOptionCombinationError(['iac test', 'sarif', 'json'])
               .userMessage,
           );
           expect(code).toEqual(2);

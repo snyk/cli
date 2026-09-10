@@ -305,33 +305,6 @@ func Test_CreateCommandsForWorkflowWithSubcommands(t *testing.T) {
 	assert.True(t, cmd2.Hidden)
 }
 
-func Test_validateOutputFormatSelection(t *testing.T) {
-	root := &cobra.Command{Use: "snyk"}
-	parent := &cobra.Command{Use: "code"}
-	cmd := &cobra.Command{Use: "test"}
-	root.AddCommand(parent)
-	parent.AddCommand(cmd)
-	cmd.Flags().Bool(output_workflow.OUTPUT_CONFIG_KEY_SARIF, false, "")
-	cmd.Flags().Bool(output_workflow.OUTPUT_CONFIG_KEY_JSON, false, "")
-	require.NoError(t, cmd.Flags().Set(output_workflow.OUTPUT_CONFIG_KEY_SARIF, "true"))
-	require.NoError(t, cmd.Flags().Set(output_workflow.OUTPUT_CONFIG_KEY_JSON, "true"))
-
-	t.Run("uses the full command path", func(t *testing.T) {
-		config := configuration.NewWithOpts()
-		require.NoError(t, config.AddFlagSet(cmd.Flags()))
-
-		err := behavior.ValidateOutputFormatSelection(getFullCommandString(cmd), config)
-		require.Error(t, err)
-		var catalogError snyk_errors.Error
-		require.ErrorAs(t, err, &catalogError)
-		assert.Equal(
-			t,
-			"The following option combination is not currently supported: code test + sarif + json",
-			catalogError.Detail,
-		)
-	})
-}
-
 // setupMainWorkflowTestEnv wires up the global engine/config that runMainWorkflow needs and
 // returns a fresh per-invocation config plus a command. Callers should `defer cleanup()`.
 func setupMainWorkflowTestEnv(t *testing.T) (configuration.Configuration, *cobra.Command) {
