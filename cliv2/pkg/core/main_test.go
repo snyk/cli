@@ -121,7 +121,10 @@ func Test_runTestCommand_internalUseUfmPresenterWhenToon(t *testing.T) {
 		config := configuration.NewWithOpts()
 		setup(config)
 		root := &cobra.Command{Use: "snyk", SilenceErrors: true, SilenceUsage: true}
-		addToonOutputFlag(root.PersistentFlags())
+		require.NoError(t, localworkflows.InitOutputWorkflow(globalEngine))
+		outputWorkflow, ok := globalEngine.GetWorkflow(localworkflows.WORKFLOWID_OUTPUT_WORKFLOW)
+		require.True(t, ok)
+		root.PersistentFlags().AddFlagSet(workflow.FlagsetFromConfigurationOptions(outputWorkflow.GetConfigurationOptions()))
 		root.AddCommand(&cobra.Command{Use: "test", RunE: runTestCommand})
 		root.SetArgs([]string{"test", "--toon"})
 		_ = root.Execute()
@@ -138,40 +141,6 @@ func Test_runTestCommand_internalUseUfmPresenterWhenToon(t *testing.T) {
 		setup(configuration.NewWithOpts())
 		_ = runTestCommand(cmd, nil)
 		assert.False(t, globalConfiguration.GetBool(internalUseUfmPresenterConfigKey))
-	})
-}
-
-func Test_addToonOutputFlag(t *testing.T) {
-	flags := pflag.NewFlagSet("output", pflag.ContinueOnError)
-	addToonOutputFlag(flags)
-	addToonOutputFlag(flags)
-
-	config := configuration.New()
-	require.NoError(t, config.AddFlagSet(flags))
-	require.NoError(t, flags.Parse([]string{"--toon"}))
-	assert.True(t, config.GetBool(output_workflow.OUTPUT_CONFIG_KEY_TOON))
-}
-
-func Test_addToonFileOutputFlag(t *testing.T) {
-	for _, args := range [][]string{
-		{"--toon-file-output=result.toon", "project"},
-		{"--toon-file-output", "result.toon", "project"},
-	} {
-		t.Run(strings.Join(args, " "), func(t *testing.T) {
-			flags := pflag.NewFlagSet("output", pflag.ContinueOnError)
-			addToonFileOutputFlag(flags)
-			addToonFileOutputFlag(flags)
-			config := configuration.NewWithOpts()
-			require.NoError(t, config.AddFlagSet(flags))
-			require.NoError(t, flags.Parse(args))
-			assert.Equal(t, "result.toon", config.GetString("toon-file-output"))
-			assert.Equal(t, []string{"project"}, flags.Args())
-		})
-	}
-	t.Run("missing value", func(t *testing.T) {
-		flags := pflag.NewFlagSet("output", pflag.ContinueOnError)
-		addToonFileOutputFlag(flags)
-		require.Error(t, flags.Parse([]string{"--toon-file-output"}))
 	})
 }
 
