@@ -119,7 +119,10 @@ jobs:
         shell: pwsh
         run: |
           Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-          Invoke-RestMethod -Uri https://get.scoop.sh | Invoke-Expression
+          Invoke-RestMethod -Uri https://get.scoop.sh -OutFile install-scoop.ps1
+          if ((Get-Item install-scoop.ps1).Length -lt 1000) { throw "Scoop installer download looks truncated" }
+          & ./install-scoop.ps1
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           scoop bucket add snyk https://github.com/snyk/scoop-snyk
           scoop install snyk
       - name: Capture version and shasum metadata
