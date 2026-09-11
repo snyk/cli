@@ -191,6 +191,8 @@ func runMainWorkflow(config configuration.Configuration, cmd *cobra.Command, arg
 	mainUI := consoleui.New(consoleui.WithInput(os.Stdin), consoleui.WithOutput(os.Stdout), consoleui.WithProgressWriter(os.Stderr), errorUI)
 	globalEngine.SetUserInterface(mainUI)
 
+	updateConfigFromParameter(config, args, rawArgs)
+
 	if err := behavior.ValidateOutputFormatSelection(getFullCommandString(cmd), config); err != nil {
 		return err
 	}
@@ -201,8 +203,6 @@ func runMainWorkflow(config configuration.Configuration, cmd *cobra.Command, arg
 			return cli.NewCommandIsExperimentalError(getFullCommandString(cmd))
 		}
 	}
-
-	updateConfigFromParameter(config, args, rawArgs)
 
 	name := getFullCommandString(cmd)
 	globalLogger.Print("Running ", name)
