@@ -39,12 +39,15 @@ var outputFormats = []OutputFormat{
 	outputFormatHTML,
 }
 
-// A format's alternate keys (e.g. sarif accepts json as a fallback for code
-// test/secrets test, so the two are interchangeable there) are treated as one
-// selection rather than two, so that doesn't get flagged as a conflict.
+// sarif+json predates --toon/--html and must stay accepted for every command;
+// every other pairing is new and safe to reject.
 func ValidateOutputFormatSelection(command string, config configuration.Configuration) error {
 	selected := []string{command}
 	aliasedAway := map[string]bool{}
+	if config.GetBool(string(outputFormatSARIF)) && config.GetBool(string(outputFormatJSON)) {
+		aliasedAway[string(outputFormatJSON)] = true
+	}
+
 	for _, format := range outputFormats {
 		key := string(format)
 		if aliasedAway[key] || !config.GetBool(key) {

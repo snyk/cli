@@ -8,6 +8,7 @@ import (
 
 	"github.com/snyk/error-catalog-golang-public/snyk_errors"
 	"github.com/snyk/go-application-framework/pkg/configuration"
+	"github.com/snyk/go-application-framework/pkg/local_workflows/output_workflow"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -30,6 +31,16 @@ func TestValidateOutputFormatSelection(t *testing.T) {
 
 	for index, first := range formats {
 		for _, second := range formats[index+1:] {
+			if (first == outputFormatSARIF && second == outputFormatJSON) ||
+				(first == outputFormatJSON && second == outputFormatSARIF) {
+				t.Run("allows "+string(first)+" with "+string(second), func(t *testing.T) {
+					config := outputConfig(first, second)
+
+					assert.NoError(t, ValidateOutputFormatSelection("test", config))
+				})
+				continue
+			}
+
 			t.Run("rejects "+string(first)+" with "+string(second), func(t *testing.T) {
 				config := outputConfig(first, second)
 
@@ -82,6 +93,16 @@ func TestValidateOutputFormatSelection_RejectsConfigConflict(t *testing.T) {
 	require.Error(t, err, "toon and json from config must conflict")
 }
 
+func TestValidateOutputFormatSelection_AllowsSarifAndJSONForAnyCommand(t *testing.T) {
+	// Preserves behavior (before --toon/--html existed) for every
+	// command, not just code test/secrets test's explicit aliasing.
+	config := configuration.NewWithOpts()
+	config.Set(string(outputFormatSARIF), true)
+	config.Set(string(outputFormatJSON), true)
+
+	assert.NoError(t, ValidateOutputFormatSelection("iac test", config))
+}
+
 func TestValidateOutputFormatSelection_AllowsAliasedFormats(t *testing.T) {
 	// code test/secrets test register sarif and json as interchangeable via
 	// AddAlternativeKeys; that pair must not be flagged as a conflict.
@@ -90,6 +111,18 @@ func TestValidateOutputFormatSelection_AllowsAliasedFormats(t *testing.T) {
 	config.Set(string(outputFormatJSON), true)
 
 	assert.NoError(t, ValidateOutputFormatSelection("code test", config))
+}
+
+func TestValidateOutputFormatSelection_IgnoresFileOutputFlags(t *testing.T) {
+	// *-file-output flags write to a file, not stdout, so they never compete
+	// with a console format or each other.
+	config := configuration.NewWithOpts()
+	config.Set(string(outputFormatHTML), true)
+	config.Set(output_workflow.OUTPUT_CONFIG_KEY_JSON_FILE, true)
+	config.Set(output_workflow.OUTPUT_CONFIG_KEY_SARIF_FILE, true)
+	config.Set(output_workflow.OUTPUT_CONFIG_KEY_TOON_FILE, true)
+
+	assert.NoError(t, ValidateOutputFormatSelection("test", config))
 }
 
 func outputConfig(selected ...OutputFormat) configuration.Configuration {

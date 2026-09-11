@@ -805,19 +805,19 @@ func Test_displayError(t *testing.T) {
 		assert.Empty(t, stderr.String())
 	})
 
-	t.Run("renders JSON and SARIF conflicts with the legacy detail", func(t *testing.T) {
+	t.Run("renders TOON and HTML conflicts with the legacy detail", func(t *testing.T) {
 		var stdout bytes.Buffer
 		var stderr bytes.Buffer
 		console := consoleui.New(consoleui.WithOutput(&stdout), consoleui.WithErrorOutput(&stderr))
 		config := configuration.NewWithOpts()
-		config.Set(output_workflow.OUTPUT_CONFIG_KEY_JSON, true)
-		config.Set(output_workflow.OUTPUT_CONFIG_KEY_SARIF, true)
+		config.Set(output_workflow.OUTPUT_CONFIG_KEY_TOON, true)
+		config.Set(output_workflow.OUTPUT_CONFIG_KEY_HTML, true)
 		err := behavior.ValidateOutputFormatSelection("test", config)
 		require.Error(t, err)
 
 		displayError(err, console, config, t.Context(), false)
 
-		assert.Contains(t, stdout.String(), "The following option combination is not currently supported: test + sarif + json")
+		assert.Contains(t, stdout.String(), "The following option combination is not currently supported: test + toon + html")
 		assert.Empty(t, stderr.String())
 	})
 
@@ -861,8 +861,12 @@ func Test_displayError_errorStreamSelection(t *testing.T) {
 		{"toon alone", []string{output_workflow.OUTPUT_CONFIG_KEY_TOON}, false},
 		{"sarif alone", []string{output_workflow.OUTPUT_CONFIG_KEY_SARIF}, true},
 		{"html alone", []string{output_workflow.OUTPUT_CONFIG_KEY_HTML}, true},
-		{"json + sarif conflict", []string{output_workflow.OUTPUT_CONFIG_KEY_JSON, output_workflow.OUTPUT_CONFIG_KEY_SARIF}, false},
+		{"json + sarif (legacy-compatible, no conflict)", []string{output_workflow.OUTPUT_CONFIG_KEY_JSON, output_workflow.OUTPUT_CONFIG_KEY_SARIF}, false},
+		{"json + html conflict", []string{output_workflow.OUTPUT_CONFIG_KEY_JSON, output_workflow.OUTPUT_CONFIG_KEY_HTML}, false},
+		{"json + toon conflict", []string{output_workflow.OUTPUT_CONFIG_KEY_JSON, output_workflow.OUTPUT_CONFIG_KEY_TOON}, false},
 		{"sarif + html conflict", []string{output_workflow.OUTPUT_CONFIG_KEY_SARIF, output_workflow.OUTPUT_CONFIG_KEY_HTML}, true},
+		{"sarif + toon conflict", []string{output_workflow.OUTPUT_CONFIG_KEY_SARIF, output_workflow.OUTPUT_CONFIG_KEY_TOON}, false},
+		{"toon + html conflict", []string{output_workflow.OUTPUT_CONFIG_KEY_TOON, output_workflow.OUTPUT_CONFIG_KEY_HTML}, false},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			config := configuration.NewWithOpts()
@@ -871,10 +875,11 @@ func Test_displayError_errorStreamSelection(t *testing.T) {
 			}
 
 			var err error
-			if len(tc.formats) > 1 {
-				err = behavior.ValidateOutputFormatSelection("test", config)
-				require.Error(t, err)
-			} else {
+			conflictErr := behavior.ValidateOutputFormatSelection("test", config)
+			switch {
+			case conflictErr != nil:
+				err = conflictErr
+			default:
 				err = catalogcli.NewNoSupportedFilesFoundError("scan failed")
 			}
 
