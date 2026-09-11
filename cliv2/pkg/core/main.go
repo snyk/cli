@@ -9,7 +9,6 @@ import (
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -33,6 +32,7 @@ import (
 	"github.com/snyk/go-application-framework/pkg/instrumentation"
 	"github.com/snyk/go-application-framework/pkg/logging"
 
+	"github.com/snyk/cli/cliv2/cmd/cliv2/behavior"
 	"github.com/snyk/cli/cliv2/cmd/cliv2/behavior/legacy"
 	"github.com/snyk/cli/cliv2/internal/cliv2"
 	"github.com/snyk/cli/cliv2/internal/constants"
@@ -104,12 +104,6 @@ const (
 	maxNetworkRequestAttempts string = "max-attempts"
 	teardownTimeout                  = 5 * time.Second
 )
-
-type JsonErrorStruct struct {
-	Ok       bool   `json:"ok"`
-	ErrorMsg string `json:"error"`
-	Path     string `json:"path"`
-}
 
 type HandleError int
 
@@ -193,12 +187,15 @@ func runMainWorkflow(config configuration.Configuration, cmd *cobra.Command, arg
 	}
 
 	// init UI
-	errorUI := consoleui.WithErrorOutput(os.Stdout)
-	if output_workflow.DefaultOutputIsStructured(config) {
-		errorUI = consoleui.WithErrorOutput(os.Stderr)
-	}
+	errorUI := consoleui.WithErrorOutput(behavior.SelectErrorOutputWriter(config, os.Stdout, os.Stderr))
 	mainUI := consoleui.New(consoleui.WithInput(os.Stdin), consoleui.WithOutput(os.Stdout), consoleui.WithProgressWriter(os.Stderr), errorUI)
 	globalEngine.SetUserInterface(mainUI)
+
+	updateConfigFromParameter(config, args, rawArgs)
+
+	if err := behavior.ValidateOutputFormatSelection(getFullCommandString(cmd), config); err != nil {
+		return err
+	}
 
 	// global handling of experimental commands
 	if config_utils.IsExperimental(cmd.Flags()) {
@@ -206,8 +203,6 @@ func runMainWorkflow(config configuration.Configuration, cmd *cobra.Command, arg
 			return cli.NewCommandIsExperimentalError(getFullCommandString(cmd))
 		}
 	}
-
-	updateConfigFromParameter(config, args, rawArgs)
 
 	name := getFullCommandString(cmd)
 	globalLogger.Print("Running ", name)
@@ -479,19 +474,27 @@ func displayError(err error, userInterface ui.UserInterface, config configuratio
 			return
 		}
 
-		if config.GetBool(output_workflow.OUTPUT_CONFIG_KEY_JSON) {
+		outputFormat, structuredOutputSelected := behavior.StructuredErrorOutputFormat(config)
+		if structuredOutputSelected && !behavior.IsDataRenderingError(err) {
 			message := getErrorMessage(err)
 
-			jsonError := JsonErrorStruct{
+			structuredError := behavior.StructuredError{
 				Ok:       false,
 				ErrorMsg: message,
-				Path:     globalConfiguration.GetString(configuration.INPUT_DIRECTORY),
+				Path:     config.GetString(configuration.INPUT_DIRECTORY),
 			}
 
-			jsonErrorBuffer, _ := json.MarshalIndent(jsonError, "", "  ")
+			output, renderErr := behavior.RenderStructuredError(outputFormat, structuredError)
+			if renderErr != nil {
+				_ = userInterface.OutputError(renderErr)
+				return
+			}
+
 			// This document is the command's structured output, so it goes to
 			// stdout; OutputError would route it to stderr in structured mode.
-			_ = userInterface.Output(string(jsonErrorBuffer))
+			if outputErr := userInterface.Output(string(output)); outputErr != nil {
+				_ = userInterface.OutputError(outputErr)
+			}
 		} else {
 			ctx = context.WithValue(ctx, uitypes.ErrorTipKey, doctorTip(isCI))
 			uiError := userInterface.OutputError(err, ui.WithContext(ctx))
