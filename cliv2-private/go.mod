@@ -307,7 +307,7 @@ replace github.com/snyk/cli/cliv2 => ../cliv2
 
 // replace github.com/snyk/remy-cli-extension => ../../remy-cli-extension
 
-// replace github.com/snyk/go-application-framework => ../../go-application-framework
+replace github.com/snyk/go-application-framework => ../../go-application-framework
 
 // replace github.com/snyk/snyk-ls => ../../snyk-ls
 
