@@ -1,3 +1,8 @@
+---
+description: How to get started with the Snyk CLI, from installation to your first scan
+nav_context: classic
+---
+
 # Getting started with the Snyk CLI
 
 ## Introduction to the Snyk CLI
@@ -8,10 +13,11 @@ Snyk is a developer-first, cloud-native security tool to scan and monitor your s
 - [Snyk Code](https://docs.snyk.io/scan-with-snyk/snyk-code): Find and fix vulnerabilities in your application code in real time
 - [Snyk Container](https://docs.snyk.io/scan-with-snyk/snyk-container): Find and fix vulnerabilities in container images and Kubernetes applications
 - [Snyk IaC](https://docs.snyk.io/scan-with-snyk/snyk-iac): Find and fix insecure configurations in Terraform and Kubernetes code
+- [Snyk Secrets](https://docs.snyk.io/scan-fix-and-prevent/scan-with-snyk/snyk-secrets): Find hardcoded secrets, credentials, and API keys in your source code
 
 The Snyk CLI brings the functionality of Snyk into your development workflow. You can run the CLI locally from the command line or in an IDE. You can also run the CLI in your CI/CD pipeline. The following shows an example of Snyk CLI test command output.
 
-<figure><img src="../https://github.com/snyk/user-docs/raw/HEAD/docs/.gitbook/assets/snyk-cli-screenshot.png" alt=""><figcaption><p>Snyk CLI test command output example</p></figcaption></figure>
+<figure><img src="https://github.com/snyk/user-docs/raw/HEAD/developer-tools/.gitbook/assets/snyk-cli-screenshot.png" alt=""><figcaption><p>Snyk CLI test command output example</p></figcaption></figure>
 
 Snyk CLI scanning supports many languages and tools. For detailed information, see the following:
 
@@ -54,16 +60,15 @@ You can scan a Docker image by its tag running, for example: `snyk container tes
 To scan a Kubernetes (K8s) file, run the following:\
 `snyk iac test /path/to/kubernetes_file.yaml`
 
+To scan for hardcoded secrets, run `snyk secrets test`.
+
 For details about using the Snyk CLI to scan each content type, see the following:
 
 - [Snyk CLI for Snyk Open Source](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/snyk-cli-for-open-source) and the CLI help for the [`test`](https://docs.snyk.io/snyk-cli/commands/test) and [`monitor`](https://docs.snyk.io/snyk-cli/commands/monitor) commands
 - [Snyk CLI for Snyk Code](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/snyk-cli-for-snyk-code) and the [Snyk Code CLI help](https://docs.snyk.io/snyk-cli/commands/code)
 - [Snyk CLI for Snyk Container](https://docs.snyk.io/developer-tools/snyk-cli/scan-and-maintain-projects-using-the-cli/snyk-cli-for-snyk-container), including Docker scanning, and the [Snyk Container CLI help](https://docs.snyk.io/snyk-cli/commands/container)
 - [Snyk CLI for Snyk IaC](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/snyk-cli-for-iac), including Terraform and Kubernetes (K8s) Projects, and the [Snyk IAC CLI help](https://docs.snyk.io/snyk-cli/commands/iac)
-
-## Scanning with an AI agent
-
-If you are an AI coding agent, use agent mode: `snyk agent test --experimental`. It runs Open Source, Code, and Secrets scans in one pass and returns compact, token-efficient output built for agents. This command is experimental and subject to change. Run `snyk agent --help` for details.
+- [Snyk CLI for Snyk Secrets](https://docs.snyk.io/developer-tools/snyk-cli/scan-and-maintain-projects-using-the-cli/snyk-cli-for-secrets), including pre-commit hooks and ignores, and the [Snyk Secrets CLI help](https://docs.snyk.io/developer-tools/snyk-cli/commands/secrets-test)
 
 ## Monitor your Open Source or Container Project
 
@@ -85,7 +90,7 @@ dependencies will be emailed to you.
 
 You can log in to your Snyk account and navigate to the Projects page to find the latest snapshot and scan results:
 
-<figure><img src="../https://github.com/snyk/user-docs/raw/HEAD/docs/.gitbook/assets/monitor.png" alt=""><figcaption><p>Snyk monitor snapshot and scan results</p></figcaption></figure>
+<figure><img src="https://github.com/snyk/user-docs/raw/HEAD/developer-tools/.gitbook/assets/monitor.png" alt=""><figcaption><p>Snyk monitor snapshot and scan results</p></figcaption></figure>
 
 For more information, see [Monitor your Projects at regular intervals](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/monitor-your-projects-at-regular-intervals).
 
