@@ -69,6 +69,14 @@ func addClientMachineId(instrumentor analytics.InstrumentationCollector, config 
 	}
 }
 
+const AgentSessionIdConfigKey = "internal_snyk_agent_session_id"
+
+func addAgentSessionId(instrumentor analytics.InstrumentationCollector, config configuration.Configuration) {
+	if id := config.GetString(AgentSessionIdConfigKey); id != "" {
+		instrumentor.AddExtension("studio::client_session_id", id)
+	}
+}
+
 func updateInstrumentationDataBeforeSending(cliAnalytics analytics.Analytics, startTime time.Time, ua networking.UserAgentInfo, exitCode int) {
 	targetId, targetIdError := instrumentation.GetTargetId(globalConfiguration.GetString(configuration.INPUT_DIRECTORY), instrumentation.AutoDetectedTargetId, instrumentation.WithConfiguredRepository(globalConfiguration))
 	if targetIdError != nil {
@@ -83,6 +91,7 @@ func updateInstrumentationDataBeforeSending(cliAnalytics analytics.Analytics, st
 	addRuntimeDetails(cliAnalytics.GetInstrumentation(), ua)
 	addNetworkingDetails(cliAnalytics.GetInstrumentation(), globalConfiguration)
 	addClientMachineId(cliAnalytics.GetInstrumentation(), globalConfiguration)
+	addAgentSessionId(cliAnalytics.GetInstrumentation(), globalConfiguration)
 
 	cliAnalytics.GetInstrumentation().AddExtension("exitcode", exitCode)
 	if exitCode == 2 {
