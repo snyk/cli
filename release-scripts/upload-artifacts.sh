@@ -170,6 +170,44 @@ trigger_repository_event() {
   fi
 }
 
+# Request a channel-specific Endpoint Explorer refresh without making the CLI
+# release depend on the dispatch or the resulting workflow.
+trigger_endpoint_explorer_refresh() {
+  channel=$1
+
+  if [ -z "${HAMMERHEAD_GITHUB_PAT:-}" ]; then
+    echo "WARNING: HAMMERHEAD_GITHUB_PAT is unavailable; Endpoint Explorer $channel refresh was not requested."
+    return 0
+  fi
+
+  echo "Triggering Endpoint Explorer $channel refresh..."
+  curl_status=0
+  response=$(curl \
+    --location \
+    --request POST \
+    --connect-timeout 2 \
+    --max-time 5 \
+    --header "Accept: application/vnd.github+json" \
+    --header "Authorization: Bearer $HAMMERHEAD_GITHUB_PAT" \
+    --header "X-GitHub-Api-Version: 2022-11-28" \
+    --data "{\"ref\":\"main\",\"inputs\":{\"channel\":\"$channel\"}}" \
+    --write-out "%{http_code}" \
+    --silent \
+    --show-error \
+    --output /dev/null \
+    "https://api.github.com/repos/snyk/endpoint-binary-explorer/actions/workflows/refresh-cli-data.yml/dispatches") || curl_status=$?
+
+  if [ "$curl_status" -ne 0 ]; then
+    echo "WARNING: Endpoint Explorer $channel refresh dispatch failed (curl exit $curl_status); continuing the CLI release."
+  elif [ "$response" != "204" ]; then
+    echo "WARNING: Endpoint Explorer $channel refresh was not requested (HTTP $response); continuing the CLI release."
+  else
+    echo "Endpoint Explorer $channel refresh requested."
+  fi
+
+  return 0
+}
+
 trigger_build_agentic_integration() {
   echo "Triggering build-and-release workflow at agentic-integration-wrappers..."
   echo "Version: $VERSION_TAG"
@@ -289,6 +327,12 @@ for arg in "${@}"; do
   # Trigger builds across distribution channel repositories
   elif [ "${arg}" == "trigger-distribution-channels" ]; then
     DISTRIBUTION_FAILURE=0
+
+    # Refresh the Endpoint Explorer independently of the required distribution
+    # triggers. Release candidates are not represented by an Explorer channel.
+    if [ "$RELEASE_CHANNEL" == "stable" ] || [ "$RELEASE_CHANNEL" == "preview" ]; then
+      trigger_endpoint_explorer_refresh "$RELEASE_CHANNEL"
+    fi
     
     # 1. Trigger snyk-images
     trigger_repository_event "snyk-images" "build_and_push_images"
