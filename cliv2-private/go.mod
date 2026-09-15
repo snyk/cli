@@ -1,13 +1,13 @@
 module github.com/snyk/cli/cliv2-private
 
-go 1.26.8
+go 1.26.6
 
 require (
 	github.com/snyk/cli-extension-axi v0.0.0-20260901142946-cb915113acb7
 	github.com/snyk/cli-extension-cos v0.0.0-20260818151318-d63bb9db9484
 	github.com/snyk/cli-extension-studio v1.0.1
 	github.com/snyk/cli/cliv2 v0.0.0
-	github.com/snyk/remy-cli-extension v1.45.0
+	github.com/snyk/remy-cli-extension v1.42.0
 	github.com/snyk/rift-cli-extension v1.2.2
 )
 
@@ -213,17 +213,17 @@ require (
 	github.com/skeema/knownhosts v1.3.2 // indirect
 	github.com/snyk/cli-extension-agent-scan v0.0.0-20260821092236-dc228259a004 // indirect
 	github.com/snyk/cli-extension-ai-bom v0.0.0-20260817214817-d0a81ac40172 // indirect
-	github.com/snyk/cli-extension-dep-graph/v2 v2.18.0 // indirect
+	github.com/snyk/cli-extension-dep-graph/v2 v2.16.0 // indirect
 	github.com/snyk/cli-extension-iac v0.0.0-20260515092252-505c498f1077 // indirect
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20260818142329-df932cc1794f // indirect
-	github.com/snyk/cli-extension-os-flows v0.0.0-20260917114800-106ac7150642 // indirect
+	github.com/snyk/cli-extension-os-flows v0.0.0-20260915140702-9e41e4c2cc9a // indirect
 	github.com/snyk/cli-extension-sbom v0.0.0-20260818092356-16ee760085f9 // indirect
 	github.com/snyk/cli-extension-secrets v0.0.0-20260811115637-ee872c26b0cd // indirect
 	github.com/snyk/code-client-go v1.31.8 // indirect
 	github.com/snyk/container-cli v0.0.0-20260213211631-cd2b2cf8f3ea // indirect
 	github.com/snyk/dep-graph/go v0.0.0-20260127160647-c836da762c62 // indirect
 	github.com/snyk/error-catalog-golang-public v0.0.0-20260914083231-5ff7dfd3c70d // indirect
-	github.com/snyk/go-application-framework v0.25.3-0.20260918144703-6b159eda3e77 // indirect
+	github.com/snyk/go-application-framework v0.25.1-0.20260916131457-fb6b26c5fad8 // indirect
 	github.com/snyk/go-httpauth v0.0.0-20260810142636-0f6182aaccbc // indirect
 	github.com/snyk/policy-engine v1.1.4 // indirect
 	github.com/snyk/snyk-iac-capture v0.6.5 // indirect
