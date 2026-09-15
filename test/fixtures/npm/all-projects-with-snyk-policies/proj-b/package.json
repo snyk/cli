@@ -1,0 +1,10 @@
+{
+  "name": "proj-b",
+  "version": "1.2.3",
+  "description": "",
+  "main": "index.js",
+  "license": "ISC",
+  "dependencies": {
+    "lodash": "4.17.15"
+  }
+}
