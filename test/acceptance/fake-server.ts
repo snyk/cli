@@ -33,6 +33,7 @@ const featureFlagDefaults = (): Map<string, boolean> => {
     ['sbomTestReachability', false],
     ['useTestShimForOSCliTest', false],
     ['cliDotnetRuntimeResolution', false],
+    ['optOutUnifiedTestApiCliRollout', false],
   ]);
 };
 
@@ -516,6 +517,8 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     const batchNameToConfigKey: Record<string, string> = {
       'unified-test-api-os-cli':
         'internal_snyk_cli_use_unified_test_api_for_os_cli_test',
+      optOutUnifiedTestApiCliRollout:
+        'internal_snyk_cli_opt_out_unified_test_api_rollout',
     };
     const evaluations = flags.map((key) => {
       const alias = batchNameToConfigKey[key] ?? key;
