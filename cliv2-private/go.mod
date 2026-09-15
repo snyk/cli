@@ -213,7 +213,7 @@ require (
 	github.com/skeema/knownhosts v1.3.2 // indirect
 	github.com/snyk/cli-extension-agent-scan v0.0.0-20260821092236-dc228259a004 // indirect
 	github.com/snyk/cli-extension-ai-bom v0.0.0-20260817214817-d0a81ac40172 // indirect
-	github.com/snyk/cli-extension-dep-graph/v2 v2.16.0 // indirect
+	github.com/snyk/cli-extension-dep-graph/v2 v2.17.1 // indirect
 	github.com/snyk/cli-extension-iac v0.0.0-20260515092252-505c498f1077 // indirect
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20260818142329-df932cc1794f // indirect
 	github.com/snyk/cli-extension-os-flows v0.0.0-20260915140702-9e41e4c2cc9a // indirect
@@ -223,7 +223,7 @@ require (
 	github.com/snyk/container-cli v0.0.0-20260213211631-cd2b2cf8f3ea // indirect
 	github.com/snyk/dep-graph/go v0.0.0-20260127160647-c836da762c62 // indirect
 	github.com/snyk/error-catalog-golang-public v0.0.0-20260914083231-5ff7dfd3c70d // indirect
-	github.com/snyk/go-application-framework v0.25.1-0.20260917105617-a5b3bf8db02d // indirect
+	github.com/snyk/go-application-framework v0.25.1-0.20260917105620-5134bba383af // indirect
 	github.com/snyk/go-httpauth v0.0.0-20260810142636-0f6182aaccbc // indirect
 	github.com/snyk/policy-engine v1.1.4 // indirect
 	github.com/snyk/snyk-iac-capture v0.6.5 // indirect

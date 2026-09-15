@@ -11,20 +11,55 @@ const toonSection = /^sca(?:\[\d+\]\{|:)/m;
 
 // Structure from GAF internal/presenters/testdata/ufm/toon/{sca,empty_sca}.toon
 // — contract fields only, not byte goldens from real scans.
-function expectUfmToonContract(stdout: string, variant: 'sca' | 'empty_sca') {
+function expectUfmToonContract(
+  stdout: string,
+  variant: 'sca' | 'empty_sca',
+  full = false,
+) {
   expect(stdout).toContain('org: aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee');
-  expect(stdout).toContain('hint: add --toon=full for all fields');
+  if (full) {
+    expect(stdout).not.toContain('hint: add --toon=full for all fields');
+  } else {
+    expect(stdout).toContain('hint: add --toon=full for all fields');
+  }
 
   if (variant === 'sca') {
-    expect(stdout).toContain('sca[2]{fixable,id,pkg,severity}:');
-    expect(stdout).toContain(
-      'yes,SNYK-PYTHON-JINJA2-1012994,jinja2@2.11.2,medium',
-    );
-    expect(stdout).toContain(
-      'yes,SNYK-PYTHON-URLLIB3-14192442,urllib3@1.24.3,high',
-    );
+    if (full) {
+      expect(stdout).toContain(
+        'sca[2]{cvss,fixable,id,pkg,severity,title,upgrade}:',
+      );
+      expect(stdout).toContain(
+        '"5.3",yes,SNYK-PYTHON-JINJA2-1012994,jinja2@2.11.2,medium,Regular Expression Denial of Service (ReDoS),jinja2@2.11.3',
+      );
+      expect(stdout).toContain(
+        '"8.9",yes,SNYK-PYTHON-URLLIB3-14192442,urllib3@1.24.3,high,Improper Handling of Highly Compressed Data (Data Amplification),urllib3@2.6.0',
+      );
+    } else {
+      expect(stdout).toContain('sca[2]{fixable,id,pkg,severity}:');
+      expect(stdout).toContain(
+        'yes,SNYK-PYTHON-JINJA2-1012994,jinja2@2.11.2,medium',
+      );
+      expect(stdout).toContain(
+        'yes,SNYK-PYTHON-URLLIB3-14192442,urllib3@1.24.3,high',
+      );
+    }
   } else {
     expect(stdout).toMatch(/^sca: \[\]$/m);
+  }
+}
+
+// `--toon=<mode>` also selects TOON for stdout, so combined with a file
+// output both destinations render; without it stdout stays human-readable.
+function expectStdoutForFileOutput(
+  stdout: string,
+  variant: 'sca' | 'empty_sca',
+  full: boolean,
+) {
+  if (full) {
+    expectUfmToonContract(stdout, variant, full);
+  } else {
+    expect(stdout).not.toMatch(toonSection);
+    expect(stdout).toContain('Tested');
   }
 }
 
@@ -95,46 +130,103 @@ describe('snyk test --toon', () => {
     server.close(() => done());
   });
 
-  test.each(['--toon', '--toon-file-output=result.toon'])(
-    '`snyk test %s` emits UFM TOON',
-    async (flag) => {
-      const project = await createProject('npm/with-vulnerable-lodash-dep');
-      const findings = JSON.parse(
-        await fs.readFile(
-          getFixturePath('sbom/uv-findings-response.json'),
-          'utf8',
-        ),
-      ).data;
-      mockResults(findings);
+  test('legacy route ignores --toon flags', async () => {
+    server.setFeatureFlag('useExperimentalRiskScore', false);
+    server.setFeatureFlag('useExperimentalRiskScoreInCLI', false);
+    const project = await createProject('npm/with-vulnerable-lodash-dep');
+    const findings = JSON.parse(
+      await fs.readFile(
+        getFixturePath('sbom/uv-findings-response.json'),
+        'utf8',
+      ),
+    ).data;
+    mockResults(findings);
 
-      const { code, stdout, stderr } = await runSnykCLI(
-        `test --org=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee ${flag}`,
-        {
-          cwd: project.path(),
-          env,
-        },
-      );
+    const { stdout, stderr } = await runSnykCLI(
+      'test --org=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee --toon --toon-file-output=result.toon',
+      {
+        cwd: project.path(),
+        env,
+      },
+    );
 
-      expect(stderr).toBe('');
-      expect(code).toEqual(1);
-      if (flag === '--toon') {
-        expectUfmToonContract(stdout, 'sca');
-      } else {
-        expectUfmToonContract(await project.read('result.toon'), 'sca');
-        expect(stdout).not.toMatch(toonSection);
-        expect(stdout).toContain('Tested');
-      }
-    },
-  );
+    expect(stderr).toBe('');
+    expect(stdout).toContain('Tested');
+    expect(stdout).not.toMatch(toonSection);
+    await expect(project.read('result.toon')).rejects.toThrow();
+  });
 
-  test.each(['--toon', '--toon-file-output=result.toon'])(
-    '`snyk test %s` preserves empty API findings',
-    async (flag) => {
+  test.each([
+    ['--toon', ''],
+    ['--toon', '--toon=full'],
+    ['--toon-file-output=result.toon', ''],
+    ['--toon-file-output=result.toon', '--toon=full'],
+  ])('`snyk test %s %s` emits UFM TOON', async (flag, fullFlag) => {
+    const project = await createProject('npm/with-vulnerable-lodash-dep');
+    const findings = JSON.parse(
+      await fs.readFile(
+        getFixturePath('sbom/uv-findings-response.json'),
+        'utf8',
+      ),
+    ).data;
+    mockResults(findings);
+
+    const { code, stdout, stderr } = await runSnykCLI(
+      `test --org=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee ${flag}${fullFlag ? ` ${fullFlag}` : ''}`,
+      {
+        cwd: project.path(),
+        env,
+      },
+    );
+
+    expect(stderr).toBe('');
+    expect(code).toEqual(1);
+    const full = fullFlag === '--toon=full';
+    if (flag === '--toon') {
+      expectUfmToonContract(stdout, 'sca', full);
+    } else {
+      expectUfmToonContract(await project.read('result.toon'), 'sca', full);
+      expectStdoutForFileOutput(stdout, 'sca', full);
+    }
+  });
+
+  test('`snyk test --toon=false` renders human-readable output', async () => {
+    const project = await createProject('npm/with-vulnerable-lodash-dep');
+    const findings = JSON.parse(
+      await fs.readFile(
+        getFixturePath('sbom/uv-findings-response.json'),
+        'utf8',
+      ),
+    ).data;
+    mockResults(findings);
+
+    const { code, stdout, stderr } = await runSnykCLI(
+      'test --org=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee --toon=false',
+      {
+        cwd: project.path(),
+        env,
+      },
+    );
+
+    expect(stderr).toBe('');
+    expect(code).toEqual(1);
+    expect(stdout).toContain('Tested');
+    expect(stdout).not.toMatch(toonSection);
+  });
+
+  test.each([
+    ['--toon', ''],
+    ['--toon', '--toon=full'],
+    ['--toon-file-output=result.toon', ''],
+    ['--toon-file-output=result.toon', '--toon=full'],
+  ])(
+    '`snyk test %s %s` preserves empty API findings',
+    async (flag, fullFlag) => {
       const project = await createProject('npm/with-vulnerable-lodash-dep');
       mockResults([]);
 
       const { code, stdout, stderr } = await runSnykCLI(
-        `test --org=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee ${flag}`,
+        `test --org=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee ${flag}${fullFlag ? ` ${fullFlag}` : ''}`,
         {
           cwd: project.path(),
           env,
@@ -143,19 +235,28 @@ describe('snyk test --toon', () => {
 
       expect(stderr).toBe('');
       expect(code).toEqual(0);
+      const full = fullFlag === '--toon=full';
       if (flag === '--toon') {
-        expectUfmToonContract(stdout, 'empty_sca');
+        expectUfmToonContract(stdout, 'empty_sca', full);
       } else {
-        expectUfmToonContract(await project.read('result.toon'), 'empty_sca');
-        expect(stdout).not.toMatch(toonSection);
-        expect(stdout).toContain('Tested');
+        expectUfmToonContract(
+          await project.read('result.toon'),
+          'empty_sca',
+          full,
+        );
+        expectStdoutForFileOutput(stdout, 'empty_sca', full);
       }
     },
   );
 
-  test.each(['--toon', '--toon-file-output=result.toon'])(
-    '`snyk test --all-projects %s` includes both projects',
-    async (flag) => {
+  test.each([
+    ['--toon', ''],
+    ['--toon', '--toon=full'],
+    ['--toon-file-output=result.toon', ''],
+    ['--toon-file-output=result.toon', '--toon=full'],
+  ])(
+    '`snyk test --all-projects %s %s` includes both projects',
+    async (flag, fullFlag) => {
       const project = await createProject('npm/with-vulnerable-lodash-dep');
       try {
         await fs.mkdir(project.path('subproject'));
@@ -172,15 +273,16 @@ describe('snyk test --toon', () => {
         mockResults([], targetFiles);
 
         const { code, stdout, stderr } = await runSnykCLI(
-          `test --all-projects --org=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee ${flag}`,
+          `test --all-projects --org=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee ${flag}${fullFlag ? ` ${fullFlag}` : ''}`,
           { cwd: project.path(), env },
         );
 
         expect(stderr).toBe('');
         expect(code).toBe(0);
+        const full = fullFlag === '--toon=full';
         const output =
           flag === '--toon' ? stdout : await project.read('result.toon');
-        expectUfmToonContract(output, 'empty_sca');
+        expectUfmToonContract(output, 'empty_sca', full);
         const submittedPaths = server
           .getRequests()
           .filter(
@@ -193,8 +295,7 @@ describe('snyk test --toon', () => {
           .map((file: string) => file.replace(/\\/g, '/'));
         expect(submittedPaths.sort()).toEqual(targetFiles.sort());
         if (flag !== '--toon') {
-          expect(stdout).not.toMatch(toonSection);
-          expect(stdout).toContain('Tested');
+          expectStdoutForFileOutput(stdout, 'empty_sca', full);
         }
       } finally {
         await project.remove();
