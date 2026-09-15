@@ -111,22 +111,16 @@ describe('snyk secrets test TOON output', () => {
           flag === '--toon'
             ? stdout
             : await fs.readFile(join(directory, 'result.toon'), 'utf8');
-        expect(output).toMatch(/^results\[1\]:/);
-        expect(output).toContain('executionState: finished');
-        expect(output).toContain('errors: null');
-        expect(output).toContain(`passFail: ${count ? 'fail' : 'pass'}`);
-        expect(output).toContain(`count: ${count}`);
-        expect(output).toContain('effectiveSummary:');
-        expect(output).toContain('rawSummary:');
+        expect(output).toContain(`org: ${orgId}`);
+        expect(output).toContain('hint: add --full for all fields');
         if (count) {
-          expect(output).toContain('finding_type: secret');
-          expect(output).toContain('config.txt');
-          expect(output).toContain('Synthetic secret');
+          expect(output).toContain('secrets[1]{file,line,rule,severity}:');
+          expect(output).toContain('config.txt,1,synthetic-secret,high');
         } else {
-          expect(output).toContain('findings: []');
+          expect(output).toMatch(/^secrets: \[\]$/m);
         }
         if (flag !== '--toon') {
-          expect(stdout).not.toMatch(/results\[\d+\]:/);
+          expect(stdout).not.toMatch(/^secrets(?:\[\d+\]\{|:)/m);
           expect(stdout).toContain('Secret Detection');
         }
         expect(server.getRequests()).toEqual(
