@@ -45,16 +45,6 @@ const TEST_CASES: Array<TestCase> = [
     },
   },
   {
-    name: 'Snyk Code (legacy)',
-    cmd: 'code test --sarif',
-    target: join(__dirname, '../../fixtures/sast/with_code_issues'),
-    env: {
-      ...process.env,
-      INTERNAL_SNYK_CODE_IGNORES_ENABLED: 'false',
-      INTERNAL_SNYK_CODE_NATIVE_IMPLEMENTATION: 'false',
-    },
-  },
-  {
     name: 'Snyk Container',
     cmd: 'container test --sarif',
     target:
