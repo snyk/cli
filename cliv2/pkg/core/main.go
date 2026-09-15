@@ -193,10 +193,6 @@ func runMainWorkflow(config configuration.Configuration, cmd *cobra.Command, arg
 
 	updateConfigFromParameter(config, args, rawArgs)
 
-	if err := behavior.ValidateOutputFormatSelection(getFullCommandString(cmd), config); err != nil {
-		return err
-	}
-
 	// global handling of experimental commands
 	if config_utils.IsExperimental(cmd.Flags()) {
 		if !globalConfiguration.GetBool(configuration.FLAG_EXPERIMENTAL) {

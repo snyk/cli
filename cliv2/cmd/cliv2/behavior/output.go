@@ -8,7 +8,6 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/snyk/error-catalog-golang-public/cli"
 	"github.com/snyk/error-catalog-golang-public/errorcodes"
 	"github.com/snyk/error-catalog-golang-public/snyk_errors"
 	"github.com/snyk/go-application-framework/pkg/configuration"
@@ -26,47 +25,9 @@ type StructuredError struct {
 type OutputFormat string
 
 const (
-	outputFormatTOON  OutputFormat = output_workflow.OUTPUT_CONFIG_KEY_TOON
-	outputFormatJSON  OutputFormat = output_workflow.OUTPUT_CONFIG_KEY_JSON
-	outputFormatSARIF OutputFormat = output_workflow.OUTPUT_CONFIG_KEY_SARIF
-	outputFormatHTML  OutputFormat = output_workflow.OUTPUT_CONFIG_KEY_HTML
+	outputFormatTOON OutputFormat = output_workflow.OUTPUT_CONFIG_KEY_TOON
+	outputFormatJSON OutputFormat = output_workflow.OUTPUT_CONFIG_KEY_JSON
 )
-
-var outputFormats = []OutputFormat{
-	outputFormatTOON,
-	outputFormatSARIF,
-	outputFormatJSON,
-	outputFormatHTML,
-}
-
-// sarif+json predates --toon/--html and must stay accepted for every command;
-// every other pairing is new and safe to reject.
-func ValidateOutputFormatSelection(command string, config configuration.Configuration) error {
-	selected := []string{command}
-	aliasedAway := map[string]bool{}
-	if config.GetBool(string(outputFormatSARIF)) && config.GetBool(string(outputFormatJSON)) {
-		aliasedAway[string(outputFormatJSON)] = true
-	}
-
-	for _, format := range outputFormats {
-		key := string(format)
-		if aliasedAway[key] || !config.GetBool(key) {
-			continue
-		}
-
-		selected = append(selected, key)
-		if len(selected) > 2 {
-			detail := "The following option combination is not currently supported: " + strings.Join(selected, " + ")
-			return cli.NewInvalidFlagOptionError(detail)
-		}
-
-		for _, alt := range config.GetAlternativeKeys(key) {
-			aliasedAway[alt] = true
-		}
-	}
-
-	return nil
-}
 
 func SelectErrorOutputWriter(config configuration.Configuration, stdout, stderr io.Writer) io.Writer {
 	if output_workflow.DefaultOutputIsStructured(config) {
@@ -97,7 +58,6 @@ func RenderStructuredError(format OutputFormat, err StructuredError) ([]byte, er
 		return renderTOONError(err), nil
 	case outputFormatJSON:
 		return json.MarshalIndent(err, "", "  ")
-	case outputFormatSARIF, outputFormatHTML:
 	}
 
 	return nil, fmt.Errorf("unsupported structured error output format: %s", format)

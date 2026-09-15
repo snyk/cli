@@ -406,14 +406,15 @@ describe.each(userJourneyWorkflows)(
           });
         });
 
-        test('iac test allows --sarif with --json (legacy behavior preserved)', async () => {
-          const { stdout } = await runSnykCLI(`iac test --sarif --json`, {
+        test('iac test with flags not allowed with --sarif', async () => {
+          const { code, stdout } = await runSnykCLI(`iac test --sarif --json`, {
             env,
           });
-          expect(stdout).not.toContainText(
-            new UnsupportedOptionCombinationError(['iac test', 'sarif', 'json'])
+          expect(stdout).toContainText(
+            new UnsupportedOptionCombinationError(['test', 'sarif', 'json'])
               .userMessage,
           );
+          expect(code).toEqual(2);
         });
 
         test('container test with flags not allowed with --sarif', async () => {

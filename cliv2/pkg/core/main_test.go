@@ -396,19 +396,6 @@ func Test_runMainWorkflow_inputDirectoryParsing(t *testing.T) {
 	}
 }
 
-func Test_runMainWorkflow_inputDirectorySetBeforeOutputFormatValidation(t *testing.T) {
-	defer cleanup()
-	config, cmd := setupMainWorkflowTestEnv(t)
-	config.Set(output_workflow.OUTPUT_CONFIG_KEY_TOON, true)
-	config.Set(output_workflow.OUTPUT_CONFIG_KEY_HTML, true)
-
-	err := runMainWorkflow(config, cmd, []string{"./myproject"}, []string{"snyk", "test", "./myproject", "--toon", "--html"})
-
-	require.Error(t, err, "conflicting --toon/--html should be rejected by ValidateOutputFormatSelection")
-	assert.Equal(t, []string{"./myproject"}, config.GetStringSlice(configuration.INPUT_DIRECTORY),
-		"scan path must be recorded before the output-format validation error is returned")
-}
-
 func Test_getErrorFromWorkFlowData(t *testing.T) {
 	engine := workflow.NewWorkFlowEngine(configuration.New())
 	assert.NoError(t, engine.Init())
@@ -818,22 +805,6 @@ func Test_displayError(t *testing.T) {
 		assert.Empty(t, stderr.String())
 	})
 
-	t.Run("renders TOON and HTML conflicts with the legacy detail", func(t *testing.T) {
-		var stdout bytes.Buffer
-		var stderr bytes.Buffer
-		console := consoleui.New(consoleui.WithOutput(&stdout), consoleui.WithErrorOutput(&stderr))
-		config := configuration.NewWithOpts()
-		config.Set(output_workflow.OUTPUT_CONFIG_KEY_TOON, true)
-		config.Set(output_workflow.OUTPUT_CONFIG_KEY_HTML, true)
-		err := behavior.ValidateOutputFormatSelection("test", config)
-		require.Error(t, err)
-
-		displayError(err, console, config, t.Context(), false)
-
-		assert.Contains(t, stdout.String(), "The following option combination is not currently supported: test + toon + html")
-		assert.Empty(t, stderr.String())
-	})
-
 	t.Run("keeps data rendering errors on stderr", func(t *testing.T) {
 		var stdout bytes.Buffer
 		var stderr bytes.Buffer
@@ -874,12 +845,12 @@ func Test_displayError_errorStreamSelection(t *testing.T) {
 		{"toon alone", []string{output_workflow.OUTPUT_CONFIG_KEY_TOON}, false},
 		{"sarif alone", []string{output_workflow.OUTPUT_CONFIG_KEY_SARIF}, true},
 		{"html alone", []string{output_workflow.OUTPUT_CONFIG_KEY_HTML}, true},
-		{"json + sarif (legacy-compatible, no conflict)", []string{output_workflow.OUTPUT_CONFIG_KEY_JSON, output_workflow.OUTPUT_CONFIG_KEY_SARIF}, false},
-		{"json + html conflict", []string{output_workflow.OUTPUT_CONFIG_KEY_JSON, output_workflow.OUTPUT_CONFIG_KEY_HTML}, false},
-		{"json + toon conflict", []string{output_workflow.OUTPUT_CONFIG_KEY_JSON, output_workflow.OUTPUT_CONFIG_KEY_TOON}, false},
-		{"sarif + html conflict", []string{output_workflow.OUTPUT_CONFIG_KEY_SARIF, output_workflow.OUTPUT_CONFIG_KEY_HTML}, true},
-		{"sarif + toon conflict", []string{output_workflow.OUTPUT_CONFIG_KEY_SARIF, output_workflow.OUTPUT_CONFIG_KEY_TOON}, false},
-		{"toon + html conflict", []string{output_workflow.OUTPUT_CONFIG_KEY_TOON, output_workflow.OUTPUT_CONFIG_KEY_HTML}, false},
+		{"json + sarif", []string{output_workflow.OUTPUT_CONFIG_KEY_JSON, output_workflow.OUTPUT_CONFIG_KEY_SARIF}, false},
+		{"json + html", []string{output_workflow.OUTPUT_CONFIG_KEY_JSON, output_workflow.OUTPUT_CONFIG_KEY_HTML}, false},
+		{"json + toon", []string{output_workflow.OUTPUT_CONFIG_KEY_JSON, output_workflow.OUTPUT_CONFIG_KEY_TOON}, false},
+		{"sarif + html", []string{output_workflow.OUTPUT_CONFIG_KEY_SARIF, output_workflow.OUTPUT_CONFIG_KEY_HTML}, true},
+		{"sarif + toon", []string{output_workflow.OUTPUT_CONFIG_KEY_SARIF, output_workflow.OUTPUT_CONFIG_KEY_TOON}, false},
+		{"toon + html", []string{output_workflow.OUTPUT_CONFIG_KEY_TOON, output_workflow.OUTPUT_CONFIG_KEY_HTML}, false},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			config := configuration.NewWithOpts()
@@ -887,14 +858,7 @@ func Test_displayError_errorStreamSelection(t *testing.T) {
 				config.Set(format, true)
 			}
 
-			var err error
-			conflictErr := behavior.ValidateOutputFormatSelection("test", config)
-			switch {
-			case conflictErr != nil:
-				err = conflictErr
-			default:
-				err = catalogcli.NewNoSupportedFilesFoundError("scan failed")
-			}
+			err := catalogcli.NewNoSupportedFilesFoundError("scan failed")
 
 			var stdout, stderr bytes.Buffer
 			errorWriter := behavior.SelectErrorOutputWriter(config, &stdout, &stderr)
