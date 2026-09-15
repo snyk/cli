@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="dotnet2_new_mvc_project/new_mvc_project.csproj" />
+  <Project Path="WebApplication2/WebApplication2.csproj" />
+</Solution>
