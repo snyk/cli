@@ -75,7 +75,7 @@
     "@snyk/snyk-hex-plugin": "2.2.1",
     "@types/marked": "^4.0.0",
     "abbrev": "^1.1.1",
-    "adm-zip": "^0.5.9",
+    "adm-zip": "^0.6.1",
     "ansi-escapes": "3.2.0",
     "chalk": "^2.4.2",
     "cli-spinner": "0.2.10",
@@ -201,6 +201,12 @@
       "ajv@6.10.2": "8.18.0"
     },
     "axios": "^1.15.0",
+    "snyk-cpp-plugin": {
+      "adm-zip": "$adm-zip"
+    },
+    "snyk-docker-plugin": {
+      "adm-zip": "$adm-zip"
+    },
     "@snyk/error-catalog-nodejs-public@4.0.4": {
       "uuid": "$uuid"
     },
