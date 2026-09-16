@@ -255,6 +255,8 @@ Keep the first line under 72 characters. This format is enforced on every commit
 
 ## Pull Request Checks
 
+Before creating or editing a PR, read `.github/PULL_REQUEST_TEMPLATE.md` and fill its relevant sections, including **"What's the product update that needs to be communicated to CLI users?"**, manual testing instructions, and a risk assessment. This applies to dependency-only bumps too: describe the user-visible fix brought in by the dependency, link the upstream change and regression coverage, and state any remaining limitations. Check previous reviewer feedback before asking for review. Keep the description within 200 words (250 hard ceiling), and distinguish completed validation from pending or blocked checks.
+
 PR conventions are enforced by **Danger** (`dangerfile.js` is authoritative). To pass first time:
 
 - **Squash to a single commit** before merging — multiple commits are flagged.
@@ -270,6 +272,12 @@ PR conventions are enforced by **Danger** (`dangerfile.js` is authoritative). To
 go run ./scripts/upgrade-snyk-go-dependencies.go -name=go-application-framework
 make tidy
 ```
+
+### Handling `go.sum` and private modules
+
+Always use Go tooling (`go get`, `go mod tidy`, `make tidy`) to update `go.mod` and `go.sum`. Never edit `go.sum` manually — its entries must be in lexicographic order, and manual edits easily break sorting.
+
+When private modules (e.g. `ambient-canary`) block `go mod tidy`, use `go mod tidy -e` to tolerate fetch errors while still maintaining correct formatting and sort order. If manual `go.sum` editing is truly unavoidable (last resort only), entries must be inserted in sorted position — never appended to the end of the file. Verify with `sort -c go.sum` after any manual edit.
 
 ## Building with Local Dependencies
 

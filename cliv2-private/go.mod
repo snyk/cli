@@ -3,12 +3,12 @@ module github.com/snyk/cli/cliv2-private
 go 1.26.6
 
 require (
-	github.com/snyk/ambient-canary v0.0.0-20260722064253-fba619a134a9
 	github.com/snyk/cli-extension-axi v0.0.0-20260901142946-cb915113acb7
 	github.com/snyk/cli-extension-cos v0.0.0-20260818151318-d63bb9db9484
+	github.com/snyk/cli-extension-studio v1.0.1
 	github.com/snyk/cli/cliv2 v0.0.0
-	github.com/snyk/remy-cli-extension v1.41.1
-	github.com/snyk/rift-cli-extension v1.2.0
+	github.com/snyk/remy-cli-extension v1.42.0
+	github.com/snyk/rift-cli-extension v1.2.2
 )
 
 require (
@@ -180,8 +180,6 @@ require (
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/oapi-codegen/runtime v1.6.0 // indirect
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
-	github.com/opcoder0/capabilities v0.0.0-20221222060822-17fd73bffd2a // indirect
-	github.com/opcoder0/fanotify v0.4.2 // indirect
 	github.com/open-policy-agent/opa v0.69.0 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/otiai10/copy v1.14.1 // indirect
@@ -215,21 +213,21 @@ require (
 	github.com/skeema/knownhosts v1.3.2 // indirect
 	github.com/snyk/cli-extension-agent-scan v0.0.0-20260821092236-dc228259a004 // indirect
 	github.com/snyk/cli-extension-ai-bom v0.0.0-20260817214817-d0a81ac40172 // indirect
-	github.com/snyk/cli-extension-dep-graph/v2 v2.15.0 // indirect
+	github.com/snyk/cli-extension-dep-graph/v2 v2.16.0 // indirect
 	github.com/snyk/cli-extension-iac v0.0.0-20260515092252-505c498f1077 // indirect
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20260818142329-df932cc1794f // indirect
-	github.com/snyk/cli-extension-os-flows v0.0.0-20260903073306-ad447d86c87d // indirect
+	github.com/snyk/cli-extension-os-flows v0.0.0-20260915140702-9e41e4c2cc9a // indirect
 	github.com/snyk/cli-extension-sbom v0.0.0-20260818092356-16ee760085f9 // indirect
 	github.com/snyk/cli-extension-secrets v0.0.0-20260811115637-ee872c26b0cd // indirect
 	github.com/snyk/code-client-go v1.31.8 // indirect
 	github.com/snyk/container-cli v0.0.0-20260213211631-cd2b2cf8f3ea // indirect
 	github.com/snyk/dep-graph/go v0.0.0-20260127160647-c836da762c62 // indirect
-	github.com/snyk/error-catalog-golang-public v0.0.0-20260806122555-28dc45bbbde6 // indirect
-	github.com/snyk/go-application-framework v0.21.0 // indirect
+	github.com/snyk/error-catalog-golang-public v0.0.0-20260914083231-5ff7dfd3c70d // indirect
+	github.com/snyk/go-application-framework v0.25.0 // indirect
 	github.com/snyk/go-httpauth v0.0.0-20260810142636-0f6182aaccbc // indirect
 	github.com/snyk/policy-engine v1.1.4 // indirect
 	github.com/snyk/snyk-iac-capture v0.6.5 // indirect
-	github.com/snyk/snyk-ls v0.0.0-20260902080529-bf1230ca471b // indirect
+	github.com/snyk/snyk-ls v0.0.0-20260907062128-ef4a43fa0dbf // indirect
 	github.com/snyk/studio-mcp v1.15.4 // indirect
 	github.com/sourcegraph/go-lsp v0.0.0-20240223163137-f80c5dd31dfd // indirect
 	github.com/spf13/afero v1.15.0 // indirect
@@ -241,7 +239,6 @@ require (
 	github.com/standard-webhooks/standard-webhooks/libraries v0.0.1 // indirect
 	github.com/stretchr/testify v1.11.1 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
-	github.com/syncthing/notify v0.0.0-20250528144937-c7027d4f7465 // indirect
 	github.com/tchap/go-patricia/v2 v2.3.1 // indirect
 	github.com/tidwall/gjson v1.18.0 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
@@ -295,7 +292,7 @@ require (
 	google.golang.org/genproto v0.0.0-20260519071638-aa98bba5eb94 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20260630182238-925bb5da69e7 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260803160001-6ac0973c030d // indirect
-	google.golang.org/grpc v1.83.1 // indirect
+	google.golang.org/grpc v1.83.2 // indirect
 	google.golang.org/protobuf v1.36.11 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
@@ -305,6 +302,8 @@ require (
 
 // For local development, point to the sibling public module:
 replace github.com/snyk/cli/cliv2 => ../cliv2
+
+// replace github.com/snyk/cli-extension-studio => ../../cli-extension-studio
 
 // replace github.com/snyk/remy-cli-extension => ../../remy-cli-extension
 
@@ -329,7 +328,5 @@ replace github.com/snyk/cli/cliv2 => ../cliv2
 // replace github.com/snyk/cli-extension-secrets => ../../cli-extension-secrets
 
 // replace github.com/snyk/cli-extension-cos => ../../cli-extension-cos
-
-// replace github.com/snyk/ambient-canary => ../../ambient-canary
 
 // replace github.com/snyk/rift-cli-extension => ../../rift-cli-extension

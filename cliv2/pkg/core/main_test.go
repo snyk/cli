@@ -22,6 +22,7 @@ import (
 	"github.com/snyk/go-application-framework/pkg/local_workflows/content_type"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/json_schemas"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/local_models"
+	"github.com/snyk/go-application-framework/pkg/local_workflows/output_workflow"
 	"github.com/snyk/go-application-framework/pkg/logging"
 	"github.com/snyk/go-application-framework/pkg/mocks"
 	"github.com/snyk/go-application-framework/pkg/networking"
@@ -45,6 +46,32 @@ func cleanup() {
 	helpProvided = false
 	globalConfiguration = nil
 	globalEngine = nil
+}
+
+func Test_configureSarifEqualJSON_IncludesHTMLFileWriter(t *testing.T) {
+	config := configuration.NewWithOpts()
+
+	configureSarifEqualJSON(config, nil)
+
+	writers, ok := config.Get(output_workflow.OUTPUT_CONFIG_KEY_FILE_WRITERS).([]output_workflow.FileWriter)
+	require.True(t, ok)
+	require.Len(t, writers, 4)
+	assert.Equal(t, output_workflow.OUTPUT_CONFIG_KEY_HTML_FILE, writers[2].NameConfigKey)
+	assert.Equal(t, output_workflow.HTML_MIME_TYPE, writers[2].MimeType)
+	assert.Empty(t, writers[2].TemplateFiles)
+}
+
+func Test_configureSarifEqualJSON_IncludesTOONFileWriter(t *testing.T) {
+	config := configuration.NewWithOpts()
+
+	configureSarifEqualJSON(config, nil)
+
+	writers, ok := config.Get(output_workflow.OUTPUT_CONFIG_KEY_FILE_WRITERS).([]output_workflow.FileWriter)
+	require.True(t, ok)
+	require.Len(t, writers, 4)
+	assert.Equal(t, output_workflow.OUTPUT_CONFIG_KEY_TOON_FILE, writers[3].NameConfigKey)
+	assert.Equal(t, output_workflow.TOON_MIME_TYPE, writers[3].MimeType)
+	assert.Empty(t, writers[3].TemplateFiles)
 }
 
 func Test_mainWithErrorCode(t *testing.T) {
