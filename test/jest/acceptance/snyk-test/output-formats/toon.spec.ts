@@ -13,7 +13,7 @@ const toonSection = /^sca(?:\[\d+\]\{|:)/m;
 // — contract fields only, not byte goldens from real scans.
 function expectUfmToonContract(stdout: string, variant: 'sca' | 'empty_sca') {
   expect(stdout).toContain('org: aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee');
-  expect(stdout).toContain('hint: add --full for all fields');
+  expect(stdout).toContain('hint: add --toon=full for all fields');
 
   if (variant === 'sca') {
     expect(stdout).toContain('sca[2]{fixable,id,pkg,severity}:');

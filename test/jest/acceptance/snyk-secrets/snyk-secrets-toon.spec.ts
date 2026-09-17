@@ -112,7 +112,7 @@ describe('snyk secrets test TOON output', () => {
             ? stdout
             : await fs.readFile(join(directory, 'result.toon'), 'utf8');
         expect(output).toContain(`org: ${orgId}`);
-        expect(output).toContain('hint: add --full for all fields');
+        expect(output).toContain('hint: add --toon=full for all fields');
         if (count) {
           expect(output).toContain('secrets[1]{file,line,rule,severity}:');
           expect(output).toContain('config.txt,1,synthetic-secret,high');
