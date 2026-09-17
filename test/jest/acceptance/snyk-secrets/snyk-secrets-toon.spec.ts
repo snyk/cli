@@ -41,101 +41,114 @@ describe('snyk secrets test TOON output', () => {
   afterAll(() => server.closePromise());
 
   describe.each([0, 1])('%i findings', (count) => {
-    test.each(['--toon', '--toon-file-output=result.toon'])(
-      '%s preserves the result and exit code',
-      async (flag) => {
-        server.setEndpointResponse(testPath, {
-          data: {
-            id: testId,
-            type: 'tests',
-            attributes: {
-              state: { execution: 'finished' },
-              outcome: { result: count ? 'fail' : 'pass' },
-              effective_summary: { count },
-              raw_summary: { count },
-              config: { scan_config: { secrets: {} } },
-            },
+    test.each([
+      ['--toon', ''],
+      ['--toon', '--toon=full'],
+      ['--toon-file-output=result.toon', ''],
+      ['--toon-file-output=result.toon', '--toon=full'],
+    ])('%s %s preserves the result and exit code', async (flag, fullFlag) => {
+      server.setEndpointResponse(testPath, {
+        data: {
+          id: testId,
+          type: 'tests',
+          attributes: {
+            state: { execution: 'finished' },
+            outcome: { result: count ? 'fail' : 'pass' },
+            effective_summary: { count },
+            raw_summary: { count },
+            config: { scan_config: { secrets: {} } },
           },
-        });
-        server.setEndpointResponse(`${testPath}/findings`, {
-          data: count
-            ? [
-                {
-                  id: '00000000-0000-4000-8000-000000000003',
-                  type: 'findings',
-                  attributes: {
-                    finding_type: 'secret',
-                    title: 'Synthetic secret',
-                    key: 'synthetic-secret',
-                    cause_of_failure: true,
-                    rating: { severity: 'high' },
-                    locations: [
-                      {
-                        type: 'source',
-                        file_path: 'config.txt',
-                        from_line: 1,
-                        to_line: 1,
-                      },
-                    ],
-                    problems: [
-                      {
-                        id: 'synthetic-secret',
-                        source: 'secret',
-                        name: 'Synthetic secret',
-                      },
-                    ],
-                    evidence: [],
-                    policy_modifications: [],
-                    risk: {},
-                  },
+        },
+      });
+      server.setEndpointResponse(`${testPath}/findings`, {
+        data: count
+          ? [
+              {
+                id: '00000000-0000-4000-8000-000000000003',
+                type: 'findings',
+                attributes: {
+                  finding_type: 'secret',
+                  title: 'Synthetic secret',
+                  key: 'synthetic-secret',
+                  cause_of_failure: true,
+                  rating: { severity: 'high' },
+                  locations: [
+                    {
+                      type: 'source',
+                      file_path: 'config.txt',
+                      from_line: 1,
+                      to_line: 1,
+                    },
+                  ],
+                  problems: [
+                    {
+                      id: 'synthetic-secret',
+                      source: 'secret',
+                      name: 'Synthetic secret',
+                    },
+                  ],
+                  evidence: [],
+                  policy_modifications: [],
+                  risk: {},
                 },
-              ]
-            : [],
+              },
+            ]
+          : [],
+      });
+      for (const endpoint of [testPath, `${testPath}/findings`]) {
+        server.setEndpointHeaders(endpoint, {
+          'Content-Type': 'application/vnd.api+json',
         });
-        for (const endpoint of [testPath, `${testPath}/findings`]) {
-          server.setEndpointHeaders(endpoint, {
-            'Content-Type': 'application/vnd.api+json',
-          });
-        }
+      }
 
-        const { code, stdout, stderr } = await runSnykCLI(
-          `secrets test --org=${orgId} ${flag}`,
-          {
-            cwd: directory,
-            env,
-          },
-        );
-        expect(stderr).toBe('');
-        expect(code).toBe(count ? 1 : 0);
-        const output =
-          flag === '--toon'
-            ? stdout
-            : await fs.readFile(join(directory, 'result.toon'), 'utf8');
-        expect(output).toContain(`org: ${orgId}`);
+      const { code, stdout, stderr } = await runSnykCLI(
+        `secrets test --org=${orgId} ${flag}${fullFlag ? ` ${fullFlag}` : ''}`,
+        {
+          cwd: directory,
+          env,
+        },
+      );
+      expect(stderr).toBe('');
+      expect(code).toBe(count ? 1 : 0);
+      const full = fullFlag === '--toon=full';
+      const output =
+        flag === '--toon'
+          ? stdout
+          : await fs.readFile(join(directory, 'result.toon'), 'utf8');
+      expect(output).toContain(`org: ${orgId}`);
+      if (full) {
+        expect(output).not.toContain('hint: add --toon=full for all fields');
+      } else {
         expect(output).toContain('hint: add --toon=full for all fields');
-        if (count) {
-          expect(output).toContain('secrets[1]{file,line,rule,severity}:');
-          expect(output).toContain('config.txt,1,synthetic-secret,high');
+      }
+      if (count) {
+        expect(output).toContain('secrets[1]{file,line,rule,severity}:');
+        expect(output).toContain('config.txt,1,synthetic-secret,high');
+      } else {
+        expect(output).toMatch(/^secrets: \[\]$/m);
+      }
+      if (flag !== '--toon') {
+        if (full) {
+          // `--toon=<mode>` also selects TOON for stdout alongside the file.
+          expect(stdout).toContain(`org: ${orgId}`);
+          expect(stdout).toMatch(/^secrets(?:\[\d+\]\{|:)/m);
         } else {
-          expect(output).toMatch(/^secrets: \[\]$/m);
-        }
-        if (flag !== '--toon') {
           expect(stdout).not.toMatch(/^secrets(?:\[\d+\]\{|:)/m);
           expect(stdout).toContain('Secret Detection');
         }
-        expect(server.getRequests()).toEqual(
-          expect.arrayContaining([
-            expect.objectContaining({
-              method: 'POST',
-              path: `/rest/orgs/${orgId}/tests`,
-            }),
-            expect.objectContaining({
-              method: 'GET',
-              path: `${testPath}/findings`,
-            }),
-          ]),
-        );
-      },
-    );
+      }
+      expect(server.getRequests()).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            method: 'POST',
+            path: `/rest/orgs/${orgId}/tests`,
+          }),
+          expect.objectContaining({
+            method: 'GET',
+            path: `${testPath}/findings`,
+          }),
+        ]),
+      );
+    });
   });
 });
