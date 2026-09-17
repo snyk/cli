@@ -515,7 +515,11 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     // with the full config key. Add an entry here when writing acceptance tests
     // for a new flag so both forms resolve correctly.
     const batchNameToConfigKey: Record<string, string> = {
-      'unified-test-api-os-cli':
+      // Successor to `unified-test-api-os-cli`. Both names stay live: CLI
+      // versions predating the OSF-503 fix keep asking for the old one and
+      // stay at its frozen exposure, while only builds carrying the fix ask
+      // for this one, so the rollout can expand without reaching them.
+      'unified-test-api-os-cli-v2':
         'internal_snyk_cli_use_unified_test_api_for_os_cli_test',
       optOutUnifiedTestApiCliRollout:
         'internal_snyk_cli_opt_out_unified_test_api_rollout',

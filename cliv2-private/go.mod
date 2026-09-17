@@ -1,6 +1,6 @@
 module github.com/snyk/cli/cliv2-private
 
-go 1.26.6
+go 1.26.8
 
 require (
 	github.com/snyk/cli-extension-axi v0.0.0-20260901142946-cb915113acb7
@@ -213,10 +213,10 @@ require (
 	github.com/skeema/knownhosts v1.3.2 // indirect
 	github.com/snyk/cli-extension-agent-scan v0.0.0-20260821092236-dc228259a004 // indirect
 	github.com/snyk/cli-extension-ai-bom v0.0.0-20260817214817-d0a81ac40172 // indirect
-	github.com/snyk/cli-extension-dep-graph/v2 v2.17.1 // indirect
+	github.com/snyk/cli-extension-dep-graph/v2 v2.18.0 // indirect
 	github.com/snyk/cli-extension-iac v0.0.0-20260515092252-505c498f1077 // indirect
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20260818142329-df932cc1794f // indirect
-	github.com/snyk/cli-extension-os-flows v0.0.0-20260915140702-9e41e4c2cc9a // indirect
+	github.com/snyk/cli-extension-os-flows v0.0.0-20260917114800-106ac7150642 // indirect
 	github.com/snyk/cli-extension-sbom v0.0.0-20260818092356-16ee760085f9 // indirect
 	github.com/snyk/cli-extension-secrets v0.0.0-20260811115637-ee872c26b0cd // indirect
 	github.com/snyk/code-client-go v1.31.8 // indirect
