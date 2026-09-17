@@ -605,8 +605,8 @@ github.com/snyk/dep-graph/go v0.0.0-20260127160647-c836da762c62 h1:kgZNQ5ztI4+n3
 github.com/snyk/dep-graph/go v0.0.0-20260127160647-c836da762c62/go.mod h1:hTr91da/4ze2nk9q6ZW1BmfM2Z8rLUZSEZ3kK+6WGpc=
 github.com/snyk/error-catalog-golang-public v0.0.0-20260914083231-5ff7dfd3c70d h1:w8oFrikQWtvGW2IPXHUxs5sFuqorRcxODiA5eCwUm6o=
 github.com/snyk/error-catalog-golang-public v0.0.0-20260914083231-5ff7dfd3c70d/go.mod h1:0dz+HUR/r7VLlQpLfF0a/F1tdHH84NLTZzCxjZ+Q1nk=
-github.com/snyk/go-application-framework v0.25.1-0.20260916131457-fb6b26c5fad8 h1:bIkYkCHtGcsDcsGSPwZ7VBT5T3E2UI1ZlAVzYbvcniY=
-github.com/snyk/go-application-framework v0.25.1-0.20260916131457-fb6b26c5fad8/go.mod h1:3OTJn8QqzBFOXNZxpzGs0CREubF48BRXJrszsKa2zNc=
+github.com/snyk/go-application-framework v0.25.1-0.20260916180722-2758ea29321d h1:AKnKvkrfUgIkHKo1ip/vA5Q/pPpN6g06E2mflvwpjOk=
+github.com/snyk/go-application-framework v0.25.1-0.20260916180722-2758ea29321d/go.mod h1:3OTJn8QqzBFOXNZxpzGs0CREubF48BRXJrszsKa2zNc=
 github.com/snyk/go-httpauth v0.0.0-20260810142636-0f6182aaccbc h1:tuZVhmJFxS4qJlwYIIIw8xgw3VaVqIR3IAV0WaaFVnI=
 github.com/snyk/go-httpauth v0.0.0-20260810142636-0f6182aaccbc/go.mod h1:f42qLL7WXOS0od7dXJV/hK3myjms/r6HsXgLrg1HRRY=
 github.com/snyk/policy-engine v1.1.4 h1:0XpaMpl7ixSk4+dlpHYg2iKEBuv+5Ci+QIcbsmhktao=
