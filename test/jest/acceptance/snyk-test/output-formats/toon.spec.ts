@@ -7,28 +7,24 @@ import { getAvailableServerPort } from '../../../util/getServerPort';
 
 jest.setTimeout(1000 * 60);
 
-const toonEnvelope = /^results\[\d+\]:/;
+const toonSection = /^sca(?:\[\d+\]\{|:)/m;
 
 // Structure from GAF internal/presenters/testdata/ufm/toon/{sca,empty_sca}.toon
 // — contract fields only, not byte goldens from real scans.
 function expectUfmToonContract(stdout: string, variant: 'sca' | 'empty_sca') {
-  expect(stdout).toMatch(toonEnvelope);
-  expect(stdout).toContain('executionState: finished');
-  expect(stdout).toContain('errors: null');
-  expect(stdout).toContain('effectiveSummary');
-  expect(stdout).toContain('rawSummary');
+  expect(stdout).toContain('org: aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee');
+  expect(stdout).toContain('hint: add --toon=full for all fields');
 
   if (variant === 'sca') {
-    expect(stdout).toContain('passFail: fail');
-    expect(stdout).toContain('finding_type: sca');
-    expect(stdout).toContain('type: findings');
-    expect(stdout).toContain('attributes:');
-    expect(stdout).toContain('locations');
-    expect(stdout).toContain('problems');
+    expect(stdout).toContain('sca[2]{fixable,id,pkg,severity}:');
+    expect(stdout).toContain(
+      'yes,SNYK-PYTHON-JINJA2-1012994,jinja2@2.11.2,medium',
+    );
+    expect(stdout).toContain(
+      'yes,SNYK-PYTHON-URLLIB3-14192442,urllib3@1.24.3,high',
+    );
   } else {
-    expect(stdout).toContain('passFail: pass');
-    expect(stdout).toContain('findings: []');
-    expect(stdout).toContain('count: 0');
+    expect(stdout).toMatch(/^sca: \[\]$/m);
   }
 }
 
@@ -125,7 +121,7 @@ describe('snyk test --toon', () => {
         expectUfmToonContract(stdout, 'sca');
       } else {
         expectUfmToonContract(await project.read('result.toon'), 'sca');
-        expect(stdout).not.toMatch(toonEnvelope);
+        expect(stdout).not.toMatch(toonSection);
         expect(stdout).toContain('Tested');
       }
     },
@@ -151,7 +147,7 @@ describe('snyk test --toon', () => {
         expectUfmToonContract(stdout, 'empty_sca');
       } else {
         expectUfmToonContract(await project.read('result.toon'), 'empty_sca');
-        expect(stdout).not.toMatch(toonEnvelope);
+        expect(stdout).not.toMatch(toonSection);
         expect(stdout).toContain('Tested');
       }
     },
@@ -184,10 +180,7 @@ describe('snyk test --toon', () => {
         expect(code).toBe(0);
         const output =
           flag === '--toon' ? stdout : await project.read('result.toon');
-        expect(output).toMatch(/^results\[2\]:/);
-        expect(output.match(/paths\[1\]: (.+)/g)?.sort()).toEqual(
-          targetFiles.map((file) => `paths[1]: ${file}`).sort(),
-        );
+        expectUfmToonContract(output, 'empty_sca');
         const submittedPaths = server
           .getRequests()
           .filter(
@@ -200,7 +193,7 @@ describe('snyk test --toon', () => {
           .map((file: string) => file.replace(/\\/g, '/'));
         expect(submittedPaths.sort()).toEqual(targetFiles.sort());
         if (flag !== '--toon') {
-          expect(stdout).not.toMatch(toonEnvelope);
+          expect(stdout).not.toMatch(toonSection);
           expect(stdout).toContain('Tested');
         }
       } finally {
