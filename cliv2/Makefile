@@ -138,7 +138,9 @@ ifeq ($(GOHOSTOS), windows)
 endif
 
 # some make file variables
-LOG_PREFIX = --
+# Timing spike: LOG_PREFIX is a recursive variable, so $(shell date) is evaluated each time
+# a recipe line expands it, giving every "-- ..." log line the time it was printed.
+LOG_PREFIX = -- [$(shell date +%H:%M:%S)]
 
 $(BUILD_DIR):
 	@mkdir $@
