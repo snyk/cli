@@ -5,7 +5,7 @@ go 1.26.8
 require (
 	github.com/snyk/cli-extension-axi v0.0.0-20260901142946-cb915113acb7
 	github.com/snyk/cli-extension-cos v0.0.0-20260818151318-d63bb9db9484
-	github.com/snyk/cli-extension-studio v1.0.1
+	github.com/snyk/cli-extension-studio v1.0.2
 	github.com/snyk/cli/cliv2 v0.0.0
 	github.com/snyk/remy-cli-extension v1.45.0
 	github.com/snyk/rift-cli-extension v1.2.2
