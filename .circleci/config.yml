@@ -409,6 +409,26 @@ commands:
             # Propagate GOPRIVATE to subsequent bash steps.
             echo 'export GOPRIVATE=github.com/snyk' >> "$BASH_ENV"
 
+  setup-go-build-cache:
+    description: >-
+      Timing spike: pin GOMODCACHE and GOCACHE to a directory inside the checkout so the
+      CircleCI cache can save and restore them on every executor. The default locations
+      differ per OS, and the Windows one was never cached, so Windows re-downloaded every
+      module on every build.
+    steps:
+      - run:
+          name: Configure Go module and build cache paths
+          shell: bash
+          command: |
+            # Git bash on Windows: `pwd -W` gives a Windows-style path (C:/...), which Go needs.
+            ROOT="$(pwd -W 2>/dev/null || pwd)"
+            mkdir -p .go-cache/mod .go-cache/build
+            echo "export GOMODCACHE=\"$ROOT/.go-cache/mod\"" >> "$BASH_ENV"
+            echo "export GOCACHE=\"$ROOT/.go-cache/build\"" >> "$BASH_ENV"
+            echo "GOMODCACHE=$ROOT/.go-cache/mod"
+            echo "GOCACHE=$ROOT/.go-cache/build"
+            du -sh .go-cache/mod .go-cache/build 2>/dev/null || true
+
   install-deps-python:
     parameters:
       os:
@@ -1735,17 +1755,32 @@ jobs:
           go_version: << parameters.go_version >>
           extraction_path: << parameters.install_path >>
       - setup-go-private-modules
+      - setup-go-build-cache
       - restore_cache:
-          key: go-build-{{ arch }}-{{ checksum "cliv2/go.sum" }}
+          name: Restore Go module and build cache
+          keys:
+            - go-cache-v1-{{ arch }}-{{ checksum "cliv2/go.sum" }}
+            - go-cache-v1-{{ arch }}-
+      - run:
+          name: Go cache size after restore
+          shell: bash
+          command: du -sh .go-cache/mod .go-cache/build 2>/dev/null || echo "cache empty"
       - make-binary:
           static: << parameters.static_binary >>
           go_arch: << parameters.go_arch >>
           go_target_os: << parameters.go_target_os >>
           make_target: << parameters.make_target >>
           c_compiler: << parameters.c_compiler >>
+      - run:
+          name: Go cache size before save
+          shell: bash
+          command: du -sh .go-cache/mod .go-cache/build 2>/dev/null || true
       - save_cache:
-          key: go-build-{{ arch }}-{{ checksum "cliv2/go.sum" }}
-          paths: [/home/circleci/go/pkg/mod]
+          name: Save Go module and build cache
+          key: go-cache-v1-{{ arch }}-{{ checksum "cliv2/go.sum" }}
+          paths:
+            - .go-cache/mod
+            - .go-cache/build
       - store_artifacts:
           path: binary-releases
       - persist_to_workspace:
