@@ -24,7 +24,8 @@ const (
 )
 
 func log(msg string) {
-	fmt.Fprintln(os.Stderr, msg)
+	// Timing spike: prefix each stage with the time it started.
+	fmt.Fprintf(os.Stderr, "[%s] %s\n", time.Now().Format("15:04:05"), msg)
 }
 
 func newHTTPClient() *http.Client {

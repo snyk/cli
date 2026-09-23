@@ -252,8 +252,9 @@ test-release-scripts:
 pre-build: pre-build-binary-wrapper $(BINARY_RELEASES_FOLDER_TS_CLI) $(BINARY_RELEASES_FOLDER_TS_CLI)/version
 
 # Timing spike: start/done markers around the build targets (pre-build runs before "start").
+# `$$(date)` is evaluated by the shell when the line runs, not by make when the recipe expands.
 define log-time
-	@echo "=== [$(shell date +%H:%M:%S)] $(1)"
+	@echo "=== [$$(date +%H:%M:%S)] $(1)"
 endef
 
 .PHONY: build-fips

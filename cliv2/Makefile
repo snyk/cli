@@ -138,9 +138,10 @@ ifeq ($(GOHOSTOS), windows)
 endif
 
 # some make file variables
-# Timing spike: LOG_PREFIX is a recursive variable, so $(shell date) is evaluated each time
-# a recipe line expands it, giving every "-- ..." log line the time it was printed.
-LOG_PREFIX = -- [$(shell date +%H:%M:%S)]
+# Timing spike: `$$(date)` is evaluated by the shell when the echo runs, so every "-- ..." log
+# line carries the time it was printed. ($(shell date) would be expanded by make once for the
+# whole recipe, giving every line of a recipe the same time.)
+LOG_PREFIX = -- [$$(date +%H:%M:%S)]
 
 $(BUILD_DIR):
 	@mkdir $@
@@ -261,6 +262,7 @@ $(CACHE_DIR)/prepare-3rd-party-licenses:
 	@echo "$(LOG_PREFIX) Preparing 3rd Party Licenses"
 	@GOOS=$(GOHOSTOS) GOARCH=$(GOHOSTARCH) $(GOCMD) run scripts/prepare_licenses.go > $(CACHE_DIR)/prepare-3rd-party-licenses 2> $(CACHE_DIR)/prepare-3rd-party-licenses.log \
 		|| (cat $(CACHE_DIR)/prepare-3rd-party-licenses.log && exit 1)
+	@cat $(CACHE_DIR)/prepare-3rd-party-licenses.log
 	@echo "$(LOG_PREFIX) 3rd party licenses: ok"
 
 .PHONY: generate
