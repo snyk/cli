@@ -332,6 +332,45 @@ commands:
       - install-deps-windows-signing
       - install-deps-windows-native-build
 
+  # Spike (#3): the tools the Windows *build* actually needs: Node (packaging the TS CLI),
+  # Python (download_go.py), Make. Maven, Gradle, .NET and uv are acceptance-test
+  # dependencies. Restores the same tools cache as the full variant, read-only, so it
+  # never writes a partial cache under the shared key.
+  install-deps-windows-native-build-min:
+    steps:
+      - run:
+          name: Ensure tools cache directory
+          shell: powershell
+          command: |
+            $cacheDir = '<< pipeline.parameters.windows_cache_dir >>'
+            if (-not (Test-Path $cacheDir)) {
+              New-Item -ItemType Directory -Path $cacheDir | Out-Null
+            }
+      - restore_cache:
+          name: Restoring Windows tools cache
+          keys:
+            - windows-tools-cache-v5-{{ arch }}-{{ checksum ".nvmrc" }}
+      - run:
+          name: Install Node.js (native)
+          shell: powershell
+          command: |
+            .\scripts\windows\install-node.ps1
+      - run:
+          name: Install Python 3.12.8 (native)
+          shell: powershell
+          command: |
+            .\scripts\windows\install-python3.ps1
+      - run:
+          name: Install GNU Make 4.4.1 (native)
+          shell: powershell
+          command: |
+            .\scripts\windows\install-make.ps1
+
+  install-deps-windows-native-min-signing:
+    steps:
+      - install-deps-windows-signing
+      - install-deps-windows-native-build-min
+
   install-deps-windows-signing:
     steps:
       - run:
@@ -833,7 +872,7 @@ workflows:
           go_download_base_url: << pipeline.parameters.fips_go_download_base_url >>
           go_version: << pipeline.parameters.fips_go_version >>
           make_target: build clean-golang build-fips BUILD_MODE=private
-          install_deps_extension: windows-native-full-signing
+          install_deps_extension: windows-native-min-signing
           install_path: 'C:\'
           executor: win-server2022-amd64
           context:
