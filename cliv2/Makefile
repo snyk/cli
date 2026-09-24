@@ -326,7 +326,11 @@ test-signature: ISSIGNED_SCRIPT
 # Typescript CLI targets
 $(V1_WORKING_DIR)/$(V1_BINARY_FOLDER)/$(V1_BINARY_SUBFOLDER)$(V1_EXECUTABLE_NAME):
 	@echo "$(LOG_PREFIX) Building legacy CLI"
-	@cd $(V1_WORKING_DIR) && npm i && npm run $(V1_BUILD_TYPE)
+	@echo "$(LOG_PREFIX) legacy CLI: npm i"
+	@cd $(V1_WORKING_DIR) && npm i
+	@echo "$(LOG_PREFIX) legacy CLI: npm run $(V1_BUILD_TYPE)"
+	@cd $(V1_WORKING_DIR) && npm run $(V1_BUILD_TYPE)
+	@echo "$(LOG_PREFIX) legacy CLI: packaging $(V1_BINARY_FOLDER)/$(V1_BINARY_SUBFOLDER)$(V1_EXECUTABLE_NAME)"
 	@$(MAKE) -C $(V1_WORKING_DIR) $(V1_BINARY_FOLDER)/$(V1_BINARY_SUBFOLDER)$(V1_EXECUTABLE_NAME) BINARY_RELEASES_FOLDER_TS_CLI=$(V1_BINARY_FOLDER)
 
 .PHONY: build-ts-cli

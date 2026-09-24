@@ -139,7 +139,9 @@ $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-alpine-arm64: prepack | $(BINARY_RELEASES_
 	$(MAKE) $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-alpine-arm64.sha256
 
 $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-linux: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
+	$(call log-time,pkg snyk-linux: start)
 	$(PKG) -t node$(PKG_NODE_VERSION)-linux-x64 -o $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-linux
+	$(call log-time,pkg snyk-linux: done)
 	$(MAKE) $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-linux.sha256
 
 $(BINARY_RELEASES_FOLDER_TS_CLI)/experimental/snyk-linux: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
@@ -169,8 +171,11 @@ $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-macos-arm64: prepack | $(BINARY_RELEASES_F
 	$(MAKE) $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-macos-arm64.sha256
 
 $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-win.exe: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
+	$(call log-time,pkg snyk-win.exe: start)
 	$(PKG) -t node$(PKG_NODE_VERSION)-win-x64 -o $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-win.exe
+	$(call log-time,pkg snyk-win.exe: done / sign: start)
 	powershell $(WORKING_DIR)/cliv2/scripts/sign_windows.ps1 $(BINARY_RELEASES_FOLDER_TS_CLI) snyk-win.exe
+	$(call log-time,sign snyk-win.exe: done)
 	$(MAKE) $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-win.exe.sha256
 
 $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-for-docker-desktop-darwin-x64.tar.gz: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
