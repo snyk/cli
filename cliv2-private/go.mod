@@ -5,9 +5,9 @@ go 1.26.6
 require (
 	github.com/snyk/cli-extension-axi v0.0.0-20260901142946-cb915113acb7
 	github.com/snyk/cli-extension-cos v0.0.0-20260818151318-d63bb9db9484
-	github.com/snyk/cli-extension-studio v1.0.1
+	github.com/snyk/cli-extension-studio v1.0.3
 	github.com/snyk/cli/cliv2 v0.0.0
-	github.com/snyk/remy-cli-extension v1.42.0
+	github.com/snyk/remy-cli-extension v1.41.1
 	github.com/snyk/rift-cli-extension v1.2.2
 )
 
@@ -223,7 +223,7 @@ require (
 	github.com/snyk/container-cli v0.0.0-20260213211631-cd2b2cf8f3ea // indirect
 	github.com/snyk/dep-graph/go v0.0.0-20260127160647-c836da762c62 // indirect
 	github.com/snyk/error-catalog-golang-public v0.0.0-20260806122555-28dc45bbbde6 // indirect
-	github.com/snyk/go-application-framework v0.25.3-0.20260924093927-9a557f071877 // indirect
+	github.com/snyk/go-application-framework v0.25.3-0.20260924095456-625c9a6dacee // indirect
 	github.com/snyk/go-httpauth v0.0.0-20260810142636-0f6182aaccbc // indirect
 	github.com/snyk/policy-engine v1.1.4 // indirect
 	github.com/snyk/snyk-iac-capture v0.6.5 // indirect
@@ -292,7 +292,7 @@ require (
 	google.golang.org/genproto v0.0.0-20260519071638-aa98bba5eb94 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20260630182238-925bb5da69e7 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260803160001-6ac0973c030d // indirect
-	google.golang.org/grpc v1.83.2 // indirect
+	google.golang.org/grpc v1.83.1 // indirect
 	google.golang.org/protobuf v1.36.11 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
@@ -302,8 +302,6 @@ require (
 
 // For local development, point to the sibling public module:
 replace github.com/snyk/cli/cliv2 => ../cliv2
-
-// replace github.com/snyk/cli-extension-studio => ../../cli-extension-studio
 
 // replace github.com/snyk/remy-cli-extension => ../../remy-cli-extension
 
@@ -328,5 +326,7 @@ replace github.com/snyk/cli/cliv2 => ../cliv2
 // replace github.com/snyk/cli-extension-secrets => ../../cli-extension-secrets
 
 // replace github.com/snyk/cli-extension-cos => ../../cli-extension-cos
+
+// replace github.com/snyk/ambient-canary => ../../ambient-canary
 
 // replace github.com/snyk/rift-cli-extension => ../../rift-cli-extension

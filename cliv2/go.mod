@@ -22,7 +22,7 @@ require (
 	github.com/snyk/code-client-go v1.31.8
 	github.com/snyk/container-cli v0.0.0-20260213211631-cd2b2cf8f3ea
 	github.com/snyk/error-catalog-golang-public v0.0.0-20260806122555-28dc45bbbde6
-	github.com/snyk/go-application-framework v0.25.3-0.20260924093927-9a557f071877
+	github.com/snyk/go-application-framework v0.25.3-0.20260924095456-625c9a6dacee
 	github.com/snyk/go-httpauth v0.0.0-20260810142636-0f6182aaccbc
 	github.com/snyk/snyk-iac-capture v0.6.5
 	github.com/snyk/snyk-ls v0.0.0-20260907062128-ef4a43fa0dbf
@@ -259,7 +259,7 @@ require (
 	google.golang.org/genproto v0.0.0-20260519071638-aa98bba5eb94 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20260630182238-925bb5da69e7 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260803160001-6ac0973c030d // indirect
-	google.golang.org/grpc v1.83.2 // indirect
+	google.golang.org/grpc v1.83.1 // indirect
 	google.golang.org/protobuf v1.36.11 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
