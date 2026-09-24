@@ -8,7 +8,7 @@ require (
 	github.com/snyk/cli-extension-studio v1.0.3
 	github.com/snyk/cli/cliv2 v0.0.0
 	github.com/snyk/remy-cli-extension v1.41.1
-	github.com/snyk/rift-cli-extension v1.2.2
+	github.com/snyk/rift-cli-extension v1.2.0
 )
 
 require (
@@ -223,11 +223,11 @@ require (
 	github.com/snyk/container-cli v0.0.0-20260213211631-cd2b2cf8f3ea // indirect
 	github.com/snyk/dep-graph/go v0.0.0-20260127160647-c836da762c62 // indirect
 	github.com/snyk/error-catalog-golang-public v0.0.0-20260806122555-28dc45bbbde6 // indirect
-	github.com/snyk/go-application-framework v0.25.3-0.20260924095847-a300e239861b // indirect
+	github.com/snyk/go-application-framework v0.25.3-0.20260924110653-73007cd39ce6 // indirect
 	github.com/snyk/go-httpauth v0.0.0-20260810142636-0f6182aaccbc // indirect
 	github.com/snyk/policy-engine v1.1.4 // indirect
 	github.com/snyk/snyk-iac-capture v0.6.5 // indirect
-	github.com/snyk/snyk-ls v0.0.0-20260907062128-ef4a43fa0dbf // indirect
+	github.com/snyk/snyk-ls v0.0.0-20260902080529-bf1230ca471b // indirect
 	github.com/snyk/studio-mcp v1.15.4 // indirect
 	github.com/sourcegraph/go-lsp v0.0.0-20240223163137-f80c5dd31dfd // indirect
 	github.com/spf13/afero v1.15.0 // indirect
