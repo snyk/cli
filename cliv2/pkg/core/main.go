@@ -261,13 +261,8 @@ func runLegacyHelp() error {
 }
 
 func runTestCommandWithSarifEqualJson(cmd *cobra.Command, args []string, templateFiles []string) error {
-	configureSarifEqualJSON(globalConfiguration, templateFiles)
-	return runCommand(cmd, args)
-}
-
-func configureSarifEqualJSON(config configuration.Configuration, templateFiles []string) {
 	// ensure legacy behavior, where sarif and json can be used interchangeably
-	config.AddAlternativeKeys(output_workflow.OUTPUT_CONFIG_KEY_SARIF, []string{output_workflow.OUTPUT_CONFIG_KEY_JSON})
+	globalConfiguration.AddAlternativeKeys(output_workflow.OUTPUT_CONFIG_KEY_SARIF, []string{output_workflow.OUTPUT_CONFIG_KEY_JSON})
 
 	fileWriters := []output_workflow.FileWriter{
 		{
@@ -282,26 +277,16 @@ func configureSarifEqualJSON(config configuration.Configuration, templateFiles [
 			TemplateFiles:     templateFiles,
 			WriteEmptyContent: false,
 		},
-		{
-			NameConfigKey:     output_workflow.OUTPUT_CONFIG_KEY_HTML_FILE,
-			MimeType:          output_workflow.HTML_MIME_TYPE,
-			TemplateFiles:     nil,
-			WriteEmptyContent: true,
-		},
-		{
-			NameConfigKey:     output_workflow.OUTPUT_CONFIG_KEY_TOON_FILE,
-			MimeType:          output_workflow.TOON_MIME_TYPE,
-			TemplateFiles:     nil,
-			WriteEmptyContent: true,
-		},
 	}
-	config.Set(output_workflow.OUTPUT_CONFIG_KEY_FILE_WRITERS, fileWriters)
+	globalConfiguration.Set(output_workflow.OUTPUT_CONFIG_KEY_FILE_WRITERS, fileWriters)
 
 	// ensure that json is translated to sarif for the default writer as well
 	defaultWriterLookup := map[string]string{
 		output_workflow.JSON_MIME_TYPE: output_workflow.SARIF_MIME_TYPE,
 	}
-	config.Set(output_workflow.OUTPUT_CONFIG_KEY_DEFAULT_WRITER_LUT, defaultWriterLookup)
+	globalConfiguration.Set(output_workflow.OUTPUT_CONFIG_KEY_DEFAULT_WRITER_LUT, defaultWriterLookup)
+
+	return runCommand(cmd, args)
 }
 
 func runCodeTestCommand(cmd *cobra.Command, args []string) error {
