@@ -1,5 +1,5 @@
 # CLI
-* @snyk/developer-experience_cli
+* @snyk/developer-agentic-experience_endpoint-experience @snyk/developer-experience_cli
 
 # Unify
-src/lib/plugins/uv/ @snyk/engines_sca-scanners @snyk/developer-experience_cli
+src/lib/plugins/uv/ @snyk/engines_sca-scanners @snyk/developer-experience_cli @snyk/developer-agentic-experience_endpoint-experience
