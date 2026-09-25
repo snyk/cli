@@ -20,6 +20,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/rs/zerolog"
+	"github.com/snyk/cli-extension-dep-graph/v2/pkg/ecosystems/orchestrator"
 	"github.com/snyk/error-catalog-golang-public/cli"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -103,6 +104,8 @@ const (
 	integrationNameFlag       string = "integration-name"
 	maxNetworkRequestAttempts string = "max-attempts"
 	teardownTimeout                  = 5 * time.Second
+	// codeUseUfmConfigKey mirrors code_workflow.ConfigurationUseUFM, which code-client-go keeps in an internal package
+	codeUseUfmConfigKey string = "internal_code_use_ufm"
 )
 
 type HandleError int
@@ -251,26 +254,27 @@ func runLegacyHelp() error {
 	return defaultCmd(append(filteredArgs, "--help"))
 }
 
-func runTestCommandWithSarifEqualJson(cmd *cobra.Command, args []string, templateFiles []string) error {
-	configureSarifEqualJSON(globalConfiguration, templateFiles)
+func runTestCommandWithSarifEqualJson(cmd *cobra.Command, args []string) error {
+	configureSarifEqualJSON(globalConfiguration)
 	return runCommand(cmd, args)
 }
 
-func configureSarifEqualJSON(config configuration.Configuration, templateFiles []string) {
+func configureSarifEqualJSON(config configuration.Configuration) {
 	// ensure legacy behavior, where sarif and json can be used interchangeably
 	config.AddAlternativeKeys(output_workflow.OUTPUT_CONFIG_KEY_SARIF, []string{output_workflow.OUTPUT_CONFIG_KEY_JSON})
 
+	// TemplateFiles stay empty so the output workflow picks the templates matching the data model (LFM or UFM)
 	fileWriters := []output_workflow.FileWriter{
 		{
 			NameConfigKey:     output_workflow.OUTPUT_CONFIG_KEY_SARIF_FILE,
 			MimeType:          output_workflow.SARIF_MIME_TYPE,
-			TemplateFiles:     templateFiles,
+			TemplateFiles:     nil,
 			WriteEmptyContent: true,
 		},
 		{
 			NameConfigKey:     output_workflow.OUTPUT_CONFIG_KEY_JSON_FILE,
 			MimeType:          output_workflow.SARIF_MIME_TYPE,
-			TemplateFiles:     templateFiles,
+			TemplateFiles:     nil,
 			WriteEmptyContent: false,
 		},
 		{
@@ -295,12 +299,37 @@ func configureSarifEqualJSON(config configuration.Configuration, templateFiles [
 	config.Set(output_workflow.OUTPUT_CONFIG_KEY_DEFAULT_WRITER_LUT, defaultWriterLookup)
 }
 
+// enableUfmForHtmlOutput routes test commands through their UFM producing flows when HTML output is requested,
+// since HTML is only rendered from the unified findings model.
+func enableUfmForHtmlOutput(config configuration.Configuration, flags *pflag.FlagSet) {
+	html, _ := flags.GetBool(output_workflow.OUTPUT_CONFIG_KEY_HTML)
+	htmlFile, _ := flags.GetString(output_workflow.OUTPUT_CONFIG_KEY_HTML_FILE)
+	if !html && htmlFile == "" {
+		return
+	}
+
+	if !config.IsSet(orchestrator.FlagUnifiedTestAPIOsCLI.Key) {
+		config.Set(orchestrator.FlagUnifiedTestAPIOsCLI.Key, true)
+	}
+
+	if !config.IsSet(codeUseUfmConfigKey) {
+		config.Set(codeUseUfmConfigKey, true)
+	}
+}
+
+func runOsTestCommand(cmd *cobra.Command, args []string) error {
+	enableUfmForHtmlOutput(globalConfiguration, cmd.Flags())
+	return runCommand(cmd, args)
+}
+
 func runCodeTestCommand(cmd *cobra.Command, args []string) error {
-	return runTestCommandWithSarifEqualJson(cmd, args, output_workflow.ApplicationSarifTemplates)
+	enableUfmForHtmlOutput(globalConfiguration, cmd.Flags())
+	return runTestCommandWithSarifEqualJson(cmd, args)
 }
 
 func runSecretsTestCommand(cmd *cobra.Command, args []string) error {
-	return runTestCommandWithSarifEqualJson(cmd, args, output_workflow.ApplicationSarifTemplatesUfm)
+	enableUfmForHtmlOutput(globalConfiguration, cmd.Flags())
+	return runTestCommandWithSarifEqualJson(cmd, args)
 }
 
 func runAuthCommand(cmd *cobra.Command, args []string) error {
@@ -382,7 +411,10 @@ func createCommandsForWorkflows(rootCommand *cobra.Command, engine workflow.Engi
 		case "secrets test":
 			// use the special run command to ensure that the non-standard behavior of the command can be kept
 			parentCommand.RunE = runSecretsTestCommand
-		case "test", "monitor":
+		case "test":
+			legacy.SetupTestMonitorCommand(parentCommand)
+			parentCommand.RunE = runOsTestCommand
+		case "monitor":
 			legacy.SetupTestMonitorCommand(parentCommand)
 		case "auth":
 			parentCommand.RunE = runAuthCommand

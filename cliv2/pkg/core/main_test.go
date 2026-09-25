@@ -14,6 +14,7 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/rs/zerolog"
+	"github.com/snyk/cli-extension-dep-graph/v2/pkg/ecosystems/orchestrator"
 	catalogcli "github.com/snyk/error-catalog-golang-public/cli"
 	"github.com/snyk/error-catalog-golang-public/code"
 	"github.com/snyk/error-catalog-golang-public/snyk"
@@ -56,7 +57,7 @@ func cleanup() {
 func Test_configureSarifEqualJSON_IncludesHTMLFileWriter(t *testing.T) {
 	config := configuration.NewWithOpts()
 
-	configureSarifEqualJSON(config, nil)
+	configureSarifEqualJSON(config)
 
 	writers, ok := config.Get(output_workflow.OUTPUT_CONFIG_KEY_FILE_WRITERS).([]output_workflow.FileWriter)
 	require.True(t, ok)
@@ -66,10 +67,44 @@ func Test_configureSarifEqualJSON_IncludesHTMLFileWriter(t *testing.T) {
 	assert.Empty(t, writers[2].TemplateFiles)
 }
 
+func Test_enableUfmForHtmlOutput(t *testing.T) {
+	testCases := []struct {
+		name     string
+		args     []string
+		expected bool
+	}{
+		{name: "no html flags", args: []string{}, expected: false},
+		{name: "--html", args: []string{"--html"}, expected: true},
+		{name: "--html=false", args: []string{"--html=false"}, expected: false},
+		{name: "--html-file-output", args: []string{"--html-file-output=report.html"}, expected: true},
+		{name: "--json", args: []string{"--json"}, expected: false},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			config := configuration.NewWithOpts()
+			flags := pflag.NewFlagSet("test", pflag.ContinueOnError)
+			flags.Bool(output_workflow.OUTPUT_CONFIG_KEY_HTML, false, "")
+			flags.String(output_workflow.OUTPUT_CONFIG_KEY_HTML_FILE, "", "")
+			flags.Bool(output_workflow.OUTPUT_CONFIG_KEY_JSON, false, "")
+			require.NoError(t, flags.Parse(tc.args))
+
+			enableUfmForHtmlOutput(config, flags)
+
+			assert.Equal(t, tc.expected, config.IsSet(orchestrator.FlagUnifiedTestAPIOsCLI.Key))
+			assert.Equal(t, tc.expected, config.IsSet(codeUseUfmConfigKey))
+			if tc.expected {
+				assert.True(t, config.GetBool(orchestrator.FlagUnifiedTestAPIOsCLI.Key))
+				assert.True(t, config.GetBool(codeUseUfmConfigKey))
+			}
+		})
+	}
+}
+
 func Test_configureSarifEqualJSON_IncludesTOONFileWriter(t *testing.T) {
 	config := configuration.NewWithOpts()
 
-	configureSarifEqualJSON(config, nil)
+	configureSarifEqualJSON(config)
 
 	writers, ok := config.Get(output_workflow.OUTPUT_CONFIG_KEY_FILE_WRITERS).([]output_workflow.FileWriter)
 	require.True(t, ok)
