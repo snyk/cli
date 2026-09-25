@@ -155,6 +155,20 @@ describe.each(userJourneyWorkflows)(
           expect(code).toEqual(2);
         });
 
+        test('snyk test --file=file.slnx --project-name=NAME', async () => {
+          const { code, stdout } = await runSnykCLI(
+            `test --file=file.slnx --project-name=NAME`,
+            {
+              env,
+            },
+          );
+
+          expect(stdout).toContainText(
+            'The following option combination is not currently supported: file=*.slnx + project-name',
+          );
+          expect(code).toEqual(2);
+        });
+
         test('snyk test --file=blah --scan-all-unmanaged', async () => {
           const { code, stdout } = await runSnykCLI(
             `test --file=blah --scan-all-unmanaged`,
