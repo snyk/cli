@@ -833,6 +833,16 @@ func Test_GetErrorFromFile(t *testing.T) {
 		assert.Nil(t, err)
 	})
 
+	t.Run("stamps a source on errors rebuilt from the TypeScript CLI", func(t *testing.T) {
+		exitCodeErr := getExitError(2)
+		sentErr, err := cliv2.GetErrorFromFile(exitCodeErr, validFilePath, config)
+
+		snykErr := snyk_errors.Error{}
+		assert.Nil(t, err)
+		assert.ErrorAs(t, sentErr, &snykErr)
+		assert.Regexp(t, `internal/cliv2/cliv2\.go:\d+$`, snykErr.Source)
+	})
+
 	t.Run("retrieves errors for exit code 44", func(t *testing.T) {
 		exitCodeErr := getExitError(44)
 		sentErr, err := cliv2.GetErrorFromFile(exitCodeErr, validFilePath, config)

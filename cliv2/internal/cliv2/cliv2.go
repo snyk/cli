@@ -15,7 +15,9 @@ import (
 	"path"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"slices"
+	"strconv"
 	"strings"
 	"time"
 
@@ -548,7 +550,13 @@ func GetErrorFromFile(execErr error, errFilePath string, config configuration.Co
 
 		errs := make([]error, len(jsonErrors)+1)
 		errs = append(errs, execErr)
+		// Add the Source, but the TS error does not records where the error came from,
+		// so just use here as the error's Source.
+		// TODO - Have the TS error give us its stacktrace and use that.
+		// TODO(CLI-1875): source format not decided yet (plain path vs URI), agree with the errors extension plan.
+		_, file, line, _ := runtime.Caller(0)
 		for _, jerr := range jsonErrors {
+			jerr.Source = file + ":" + strconv.Itoa(line)
 			jerr.Meta["orign"] = "Typescript-CLI"
 			jerr.Meta[ERROR_HAS_BEEN_DISPLAYED] = hasBeenDisplayed
 			errs = append(errs, jerr)

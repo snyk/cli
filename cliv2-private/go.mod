@@ -303,6 +303,8 @@ require (
 // For local development, point to the sibling public module:
 replace github.com/snyk/cli/cliv2 => ../cliv2
 
+replace github.com/snyk/error-catalog-golang-public => ../../error-catalog-golang-public
+
 // replace github.com/snyk/cli-extension-studio => ../../cli-extension-studio
 
 // replace github.com/snyk/remy-cli-extension => ../../remy-cli-extension

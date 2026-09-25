@@ -14,6 +14,8 @@ CLI_V1_VERSION_TAG = 0.0.0
 CLI_V1_LOCATION =
 USE_LEGACY_EXECUTABLE_NAME =
 LDFLAGS = -s -w
+# Module-relative source paths, so error source locations never carry the build machine's paths.
+TRIMPATH = -trimpath
 SHASUM_CMD = shasum
 export LS_PROTOCOL_VERSION=
 STATIC_NODE_BINARY = false
@@ -212,7 +214,8 @@ $(BUILD_DIR)/$(V2_EXECUTABLE_NAME): $(BUILD_DIR) $(SRCS) generate-ls-protocol-me
 	@echo "$(LOG_PREFIX)  EXTRA_FLAGS: "
 	@$(foreach flag,$(filter -X%,$(subst -X ,$(space)-X,$(EXTRA_FLAGS))),echo "$(LOG_PREFIX)    $(flag)";)
 	@echo "$(LOG_PREFIX)  GCFLAGS:     $(GCFLAGS)"
-	@cd $(BUILD_ROOT_DIR) && CGO_ENABLED=$(CGO_ENABLED)  GOEXPERIMENT=$(FIPS_CRYPTO_BACKEND) MS_GO_NOSYSTEMCRYPTO=$(MS_GO_NOSYSTEMCRYPTO) GOOS=$(_GO_OS) GOARCH=$(GOARCH) $(GOCMD) build -tags=application -ldflags="$(LDFLAGS) $(EXTRA_FLAGS)" $(GCFLAGS) -o $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) ./cmd/cliv2
+	@echo "$(LOG_PREFIX)  TRIMPATH:    $(TRIMPATH)"
+	@cd $(BUILD_ROOT_DIR) && CGO_ENABLED=$(CGO_ENABLED)  GOEXPERIMENT=$(FIPS_CRYPTO_BACKEND) MS_GO_NOSYSTEMCRYPTO=$(MS_GO_NOSYSTEMCRYPTO) GOOS=$(_GO_OS) GOARCH=$(GOARCH) $(GOCMD) build -tags=application $(TRIMPATH) -ldflags="$(LDFLAGS) $(EXTRA_FLAGS)" $(GCFLAGS) -o $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) ./cmd/cliv2
 
 .PHONY: fips
 fips:
@@ -234,6 +237,7 @@ experimental:
 debug:
 	$(eval LDFLAGS := -X github.com/snyk/snyk-ls/application/config.Development=true -X github.com/snyk/cli/cliv2/pkg/core.buildType=debug)
 	$(eval GCFLAGS := -gcflags="all=-N -l")
+	$(eval TRIMPATH := )
 	@echo "$(LOG_PREFIX) DEBUG"
 
 .PHONY: build
