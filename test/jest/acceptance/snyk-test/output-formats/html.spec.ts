@@ -101,7 +101,7 @@ describe('snyk test --html', () => {
   });
 
   beforeEach(() => {
-    // Select the native OS route; legacy ignores HTML/TOON flags.
+    // Select the native OS route; legacy ignores HTML flags.
     server.setFeatureFlag('useExperimentalRiskScore', true);
     server.setFeatureFlag('useExperimentalRiskScoreInCLI', true);
   });
