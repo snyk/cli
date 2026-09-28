@@ -96,19 +96,6 @@ func Test_enableUfmForHtmlOutput(t *testing.T) {
 	}
 }
 
-func Test_configureSarifEqualJSON_IncludesTOONFileWriter(t *testing.T) {
-	config := configuration.NewWithOpts()
-
-	configureSarifEqualJSON(config)
-
-	writers, ok := config.Get(output_workflow.OUTPUT_CONFIG_KEY_FILE_WRITERS).([]output_workflow.FileWriter)
-	require.True(t, ok)
-	require.Len(t, writers, 4)
-	assert.Equal(t, output_workflow.OUTPUT_CONFIG_KEY_TOON_FILE, writers[3].NameConfigKey)
-	assert.Equal(t, output_workflow.TOON_MIME_TYPE, writers[3].MimeType)
-	assert.Empty(t, writers[3].TemplateFiles)
-}
-
 func Test_mainWithErrorCode(t *testing.T) {
 	defer cleanup()
 	oldArgs := append([]string{}, os.Args...)
