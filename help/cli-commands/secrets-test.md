@@ -1,3 +1,9 @@
+---
+description: >-
+  The snyk secrets test command, which scans for hard-coded secrets and
+  credentials
+---
+
 # Secrets test
 
 ## Prerequisites
@@ -66,19 +72,19 @@ Example of setting to the latest Git tag:
 
 ### `--project-environment=<ENVIRONMENT>[,<ENVIRONMENT>]...`
 
-Set the project environment attribute to one or more comma-separated values. To clear the project environment, set `--project-environment=`. Allowed values: `frontend`, `backend`, `internal`, `external`, `mobile`, `saas`, `onprem`, `hosted`, `distributed`. For more information, visit [Project attributes](https://app.gitbook.com/s/BJO0IZx7zB6bOkotxQP2/scan-with-snyk/snyk-projects/project-attributes).
+Set the project environment attribute to one or more comma-separated values. To clear the project environment, set `--project-environment=`. Allowed values: `frontend`, `backend`, `internal`, `external`, `mobile`, `saas`, `onprem`, `hosted`, `distributed`. For more information, visit [Project attributes](https://docs.snyk.io/scan-fix-and-prevent/scan-with-snyk/snyk-projects/project-attributes).
 
 ### `--project-lifecycle=<LIFECYCLE>[,<LIFECYCLE>]...`
 
-Set the project lifecycle attribute to one or more comma-separated values. To clear the project lifecycle, set `--project-lifecycle=`. Allowed values: `production`, `development`, `sandbox`. For more information, visit [Project attributes](https://app.gitbook.com/s/BJO0IZx7zB6bOkotxQP2/scan-with-snyk/snyk-projects/project-attributes).
+Set the project lifecycle attribute to one or more comma-separated values. To clear the project lifecycle, set `--project-lifecycle=`. Allowed values: `production`, `development`, `sandbox`. For more information, visit [Project attributes](https://docs.snyk.io/scan-fix-and-prevent/scan-with-snyk/snyk-projects/project-attributes).
 
 ### `--project-business-criticality=<BUSINESS_CRITICALITY>[,<BUSINESS_CRITICALITY>]...`
 
-Set the project business-criticality attribute to one or more comma-separated values. To clear the project business criticality, set `--project-business-criticality=`. Allowed values: `critical`, `high`, `medium`, `low`. For more information, visit [Project attributes](https://app.gitbook.com/s/BJO0IZx7zB6bOkotxQP2/scan-with-snyk/snyk-projects/project-attributes).
+Set the project business-criticality attribute to one or more comma-separated values. To clear the project business criticality, set `--project-business-criticality=`. Allowed values: `critical`, `high`, `medium`, `low`. For more information, visit [Project attributes](https://docs.snyk.io/scan-fix-and-prevent/scan-with-snyk/snyk-projects/project-attributes).
 
 ### `--project-tags=<TAG>[,<TAG>]...`
 
-Set the project tags to one or more comma-separated key-value pairs with an `=` separator. Example: `snyk secrets test --project-tags=department=finance,team=alpha`. To clear the project tags, set `--project-tags=`. For more information, including allowable characters, visit [Project tags](https://app.gitbook.com/s/BJO0IZx7zB6bOkotxQP2/scan-with-snyk/snyk-projects/project-tags).
+Set the project tags to one or more comma-separated key-value pairs with an `=` separator. Example: `snyk secrets test --project-tags=department=finance,team=alpha`. To clear the project tags, set `--project-tags=`. For more information, including allowable characters, visit [Project tags](https://docs.snyk.io/scan-fix-and-prevent/scan-with-snyk/snyk-projects/project-tags).
 
 ### `--json`
 
