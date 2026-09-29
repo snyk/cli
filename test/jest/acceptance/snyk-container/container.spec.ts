@@ -174,7 +174,7 @@ describe('snyk container', () => {
       expect(jsonOutput.ok).toEqual(false);
       expect(jsonOutput.uniqueCount).toBeGreaterThan(0);
       expect(code).toEqual(1);
-    }, 30000);
+    });
 
     it('detects stripped Go binaries and reports fleet-server dependencies', async () => {
       const { code, stdout } = await runSnykCLI(
@@ -208,7 +208,7 @@ describe('snyk container', () => {
       expect(jsonOutput).toBeDefined();
       expect(jsonOutput.vulnerabilities).toBeDefined();
       expect(Array.isArray(jsonOutput.vulnerabilities)).toBe(true);
-    }, 180000);
+    });
 
     it('npm depGraph is generated in an npm image with lockfiles', async () => {
       const { code, stdout, stderr } = await runSnykCLIWithDebug(

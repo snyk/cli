@@ -1,13 +1,14 @@
-## [1.1307.4](https://github.com/snyk/snyk/compare/v1.1307.3...v1.1307.4) (2026-09-23)
+## [1.1308.0](https://github.com/snyk/snyk/compare/v1.1307.4...v1.1308.0) (2026-09-29)
 
 The Snyk CLI is being deployed to different deployment channels, users can select the stability level according to their needs. For details please see [this documentation](https://docs.snyk.io/snyk-cli/releases-and-channels-for-the-snyk-cli)
 
 ### Features
 
-* **studio**: New experimental `snyk studio` command that sets up Snyk Studio in your AI coding tools (Cursor, Claude Code, Codex, Copilot, Gemini, Kiro, Windsurf), so the code they generate gets scanned in the background as it's written. Run `snyk studio install --experimental` to get started. ([49653c8](https://github.com/snyk/snyk/commit/49653c889f0c2d812395e473194b278fce0e0512))
-* **fix**: New `snyk fix --agentic` flags to narrow down what gets fixed: `--severity-filter` fixes only the listed severities, `--breakability-filter` fixes only Open Source upgrades with the listed breakability, and `--exclude-ids` fixes everything except the listed issue IDs. ([35298ae](https://github.com/snyk/snyk/commit/35298ae98f2b731bbfaddd7a0ee38c8bc1967168))
-* **fix**: `snyk fix --agentic` now keeps a failed fix's changes by default so you can review them, and reports the fix as failed. Pass `--enable-revert` to roll the changes back automatically instead. ([35298ae](https://github.com/snyk/snyk/commit/35298ae98f2b731bbfaddd7a0ee38c8bc1967168))
+* **test, code, secrets**: `snyk test`, `snyk code test` and `snyk secrets test` can now generate an HTML report. Use `--html` to print it to stdout, or `--html-file-output=<path>` to write it to a file. ([0e10434](https://github.com/snyk/snyk/commit/0e10434fdb632639177530b2bef62295a9dd5763), [af6a2a4](https://github.com/snyk/snyk/commit/af6a2a428cc3dc006871500ed6305f059d431c7b))
+* **agent-scan**: The experimental `snyk agent-scan` command now reports risk indicators instead of issue codes. If you post-process its `--json` output, update your scripts to the new format. ([d5451a6](https://github.com/snyk/snyk/commit/d5451a6d1ec7521ddb1f4fa358c8dff24f8088b4))
 
 ### Bug Fixes
 
-* **test**: `--iac`, `--docker`, `--container` and `--code` no longer get silently dropped for orgs on the unified test API — each now runs the correct scan again instead of an open-source test (which could fail with "No supported files found" or scan the wrong target). ([87568ab](https://github.com/snyk/snyk/commit/87568abd6fd55ae098f306634347b5cf300ab1fd))
+* **sbom**: Maven and Gradle SBOMs, and `--print-graph`, no longer stall on large multi-module builds. They now finish seconds after the build tool exits. On projects with dependency cycles, the output may contain extra `pruned: cyclic` placeholder nodes. No packages or dependency edges are dropped. ([73f038c](https://github.com/snyk/snyk/commit/73f038c6eaa546213f785824be42b4376b51215c))
+* **test**: Gradle projects with very deep inter-module dependency chains no longer fail with a stack overflow. ([fc4f8ec](https://github.com/snyk/snyk/commit/fc4f8ec07f76e2bb5aecf290335af2f44c5658e8), [ce4e5d6](https://github.com/snyk/snyk/commit/ce4e5d6b0732e7e01c62f00aab5afc8f780c4baa))
+* **test**: .NET scans fall back to legacy scanning when the .NET SDK isn't installed. They also handle projects restored in a different build directory, and work when global NuGet source-mapping rules are configured. ([b8461c8](https://github.com/snyk/snyk/commit/b8461c8c7198315b78f8feda23fd8ba3a4fd74aa))

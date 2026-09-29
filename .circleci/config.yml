@@ -1525,6 +1525,7 @@ jobs:
           open-source-scan: high
           open-source-block-ignore-sla: true
           open-source-agentic-fix-enabled: true
+          open-source-agentic-fix-base-branch: main
 
   docs-only-check:
     executor: docker-amd64
