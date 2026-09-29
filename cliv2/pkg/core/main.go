@@ -691,8 +691,8 @@ func mainWithErrorCode(additionalExts []workflow.ExtensionInit) int {
 	// We want to scrub the debug log of sensitive information. Since we have a list of commands we know can occur, we can intersect that with arguments we don't recognize, and automatically scrub all those from the logs.
 	if debugEnabled {
 		termsToRedact := populateRedactionTerms(globalConfiguration, globalEngine)
-		writeLogHeader(globalConfiguration, networkAccess)
 		scrubbedLogger.AddTermsToReplace(termsToRedact)
+		writeLogHeader(globalConfiguration, networkAccess)
 	}
 
 	if err != nil {
