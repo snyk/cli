@@ -8,7 +8,7 @@ import { mapSnykIacTestOutputToTestOutput, TestOutput } from './results';
 import * as os from 'os';
 import * as fs from 'fs';
 import * as path from 'path';
-import * as rimraf from 'rimraf';
+import { rimraf } from 'rimraf';
 import config from '../../../../config';
 import { api, getOAuthToken } from '../../../../api-token';
 import envPaths from 'env-paths';
@@ -264,15 +264,7 @@ async function readFile(path: string) {
 }
 
 async function remove(path: string) {
-  return new Promise<void>((resolve, reject) => {
-    rimraf(path, (err) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve();
-      }
-    });
-  });
+  await rimraf(path);
 }
 
 function getApiToken() {
