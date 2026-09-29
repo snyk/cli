@@ -12,6 +12,7 @@ import (
 	"github.com/snyk/go-application-framework/pkg/mocks"
 	"github.com/snyk/go-application-framework/pkg/workflow"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func Test_shallSendInstrumentation(t *testing.T) {
@@ -66,6 +67,21 @@ func Test_sendInstrumentation_passesEngineConfigurationToInstrumentationObject(t
 	obj, err := analytics.GetV2InstrumentationObject(instrumentor, analytics.WithConfiguration(engineConfig))
 	assert.NoError(t, err)
 	assert.Equal(t, machineId, (*obj.Data.Attributes.Interaction.Extension)["studio::client_machine_id"])
+}
+
+func Test_inferredTermsRedactUntrustedAnalyticsExtensions(t *testing.T) {
+	controller := gomock.NewController(t)
+	engine := mocks.NewMockEngine(controller)
+	engine.EXPECT().GetWorkflows().Return(nil)
+	config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
+	t.Setenv("SNYK_TEST_REDACTION_NUMBER", "12345")
+	populateRedactionTerms(config, engine)
+
+	instrumentor := analytics.NewInstrumentationCollector()
+	instrumentor.AddExtension("input", "12345")
+	result, err := analytics.GetV2InstrumentationObject(instrumentor, analytics.WithConfiguration(config))
+	require.NoError(t, err)
+	assert.Equal(t, "***", (*result.Data.Attributes.Interaction.Extension)["input"])
 }
 
 func Test_addClientMachineId(t *testing.T) {

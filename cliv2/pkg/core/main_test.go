@@ -1,6 +1,7 @@
 package core
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -128,15 +129,35 @@ func Test_populateRedactionTerms(t *testing.T) {
 	mockEngine.EXPECT().GetWorkflows().Return(nil)
 
 	config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
+	config.Set(logging.REDACTION_TERMS, []string{"embedded-secret"})
 	t.Setenv("SNYK_TEST_REDACTION_MARKER", "unmistakably-secret-value")
 
 	// No debugEnabled anywhere in this call: populateRedactionTerms runs
 	// unconditionally at its call site, so proving it sets config here proves
 	// the behavior holds regardless of debugEnabled.
-	terms := populateRedactionTerms(config, mockEngine)
+	populateRedactionTerms(config, mockEngine)
+	terms := config.GetStringSlice(logging.REDACTION_TERMS)
 
 	assert.Contains(t, terms, "unmistakably-secret-value")
-	assert.Equal(t, terms, config.GetStringSlice(logging.REDACTION_TERMS))
+	assert.Contains(t, terms, "embedded-secret")
+}
+
+func Test_debugEventsUseRefreshedRedactionTerms(t *testing.T) {
+	config := configuration.NewWithOpts()
+	var output bytes.Buffer
+	writer := newRefreshableScrubbingWriter(zerolog.MultiLevelWriter(&output), config)
+	logger := zerolog.New(writer)
+	logger.Info().Msg("requests")
+	require.NotEmpty(t, output.String())
+
+	config.Set(logging.REDACTION_TERMS, []string{"requests"})
+	writer.Refresh(config)
+	logger.Info().Msg("no_relevant_requests requests")
+
+	events := strings.Split(strings.TrimSpace(output.String()), "\n")
+	require.Len(t, events, 2)
+	assert.Contains(t, events[0], "requests")
+	assert.Contains(t, events[1], "no_relevant_requests ***")
 }
 
 func Test_populateRedactionTerms_excludesClientMachineId(t *testing.T) {
@@ -148,9 +169,9 @@ func Test_populateRedactionTerms_excludesClientMachineId(t *testing.T) {
 	machineId := "studio-device-id-abc12345"
 	t.Setenv("INTERNAL_SNYK_CLIENT_MACHINE_ID", machineId)
 
-	terms := populateRedactionTerms(config, mockEngine)
+	populateRedactionTerms(config, mockEngine)
 
-	assert.NotContains(t, terms, machineId, "client machine id must never be swept into REDACTION_TERMS, or the analytics scrub chokepoint strips it right back out of its own extension")
+	assert.NotContains(t, config.GetStringSlice(logging.REDACTION_TERMS), machineId, "client machine id must never be swept into redaction terms, or analytics strips it from its own extension")
 }
 
 func Test_populateRedactionTerms_excludesDetectedAgent(t *testing.T) {
@@ -185,10 +206,10 @@ func Test_populateRedactionTerms_excludesDetectedAgent(t *testing.T) {
 			config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
 			t.Setenv("AI_AGENT", tc.agent)
 
-			terms := populateRedactionTerms(config, mockEngine)
+			populateRedactionTerms(config, mockEngine)
 
 			for _, word := range tc.wantWords {
-				assert.NotContains(t, terms, word, "a caller-declared AI_AGENT value must never be swept into REDACTION_TERMS, or the analytics scrub chokepoint strips it right back out of the persona.agent extension")
+				assert.NotContains(t, config.GetStringSlice(logging.REDACTION_TERMS), word, "a caller-declared AI_AGENT value must never be swept into REDACTION_TERMS, or the analytics scrub chokepoint strips it right back out of the persona.agent extension")
 			}
 		})
 	}
