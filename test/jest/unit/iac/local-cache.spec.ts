@@ -84,11 +84,11 @@ describe('initLocalCache - downloads bundle successfully', () => {
 
   it('cleans up the custom folder after finishes', () => {
     const iacPath: fs.PathLike = path.normalize(LOCAL_POLICY_ENGINE_DIR);
-    const spy = jest.spyOn(rimraf, 'sync');
+    const spy = jest.spyOn(rimraf, 'rimrafSync');
 
     localCacheModule.cleanLocalCache();
 
-    expect(spy).toHaveBeenCalledWith(iacPath);
+    expect(spy).toHaveBeenCalledWith(iacPath.toString());
     jest.restoreAllMocks();
     expect(fs.existsSync(iacPath)).toBeFalsy();
   });
