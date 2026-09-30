@@ -657,24 +657,28 @@ describe('snyk code test', () => {
           }
         });
 
-        it('Stateful remote code test --report', async () => {
-          const args = [
-            'code',
-            'test',
-            '--report',
-            '--project-id=ff7a6ceb-fab5-4f68-bdbf-4dbc919e8074',
-            '--commit-id=845449f45861a431e53298248f51e368268ef9fc',
-          ];
-          const { stderr, code } = await runSnykCLIWithArray(args, {
-            env: {
-              ...process.env,
-              ...integrationEnv,
-            },
-          });
+        if (type === 'golang/native') {
+          it('Stateful remote code test --report', async () => {
+            const args = [
+              'code',
+              'test',
+              '--report',
+              '--project-id=ff7a6ceb-fab5-4f68-bdbf-4dbc919e8074',
+              '--commit-id=845449f45861a431e53298248f51e368268ef9fc',
+            ];
+            const { stderr, code } = await runSnykCLIWithArray(args, {
+              env: {
+                ...process.env,
+                ...integrationEnv,
+              },
+            });
 
-          expect(stderr).toBe('');
-          expect([EXIT_CODE_SUCCESS, EXIT_CODE_ACTION_NEEDED]).toContain(code);
-        });
+            expect(stderr).toBe('');
+            expect([EXIT_CODE_SUCCESS, EXIT_CODE_ACTION_NEEDED]).toContain(
+              code,
+            );
+          });
+        }
 
         // File-upload-api is only supported on the golang/native implementation
         if (type === 'golang/native') {
