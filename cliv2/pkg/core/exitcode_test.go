@@ -10,6 +10,7 @@ import (
 	snyk_cli_errors "github.com/snyk/error-catalog-golang-public/cli"
 	"github.com/snyk/error-catalog-golang-public/code"
 	"github.com/snyk/error-catalog-golang-public/snyk_errors"
+	"github.com/snyk/error-catalog-golang-public/supplychain"
 
 	"github.com/snyk/cli/cliv2/internal/constants"
 	cli_errors "github.com/snyk/cli/cliv2/internal/errors"
@@ -87,6 +88,27 @@ func TestMapErrorToExitCode(t *testing.T) {
 		exitCode := mapErrorToExitCode(wrappedErr)
 		if exitCode != constants.SNYK_EXIT_CODE_UNSUPPORTED_PROJECTS {
 			t.Errorf("expected exit code %d, got %d", constants.SNYK_EXIT_CODE_UNSUPPORTED_PROJECTS, exitCode)
+		}
+	})
+
+	t.Run("supply chain configuration drift error returns VULNERABILITIES_FOUND", func(t *testing.T) {
+		exitCode := mapErrorToExitCode(supplychain.NewConfigurationDriftError("npm is not pointed at the registry proxy."))
+		if exitCode != constants.SNYK_EXIT_CODE_VULNERABILITIES_FOUND {
+			t.Errorf("expected exit code %d, got %d", constants.SNYK_EXIT_CODE_VULNERABILITIES_FOUND, exitCode)
+		}
+	})
+
+	t.Run("supply chain registry credential rejected error returns EX_NOPERM", func(t *testing.T) {
+		exitCode := mapErrorToExitCode(supplychain.NewRegistryCredentialRejectedError("The registry proxy rejected the stored credential."))
+		if exitCode != constants.SNYK_EXIT_CODE_EX_NOPERM {
+			t.Errorf("expected exit code %d, got %d", constants.SNYK_EXIT_CODE_EX_NOPERM, exitCode)
+		}
+	})
+
+	t.Run("supply chain conflicting configuration error returns EX_CONFIG", func(t *testing.T) {
+		exitCode := mapErrorToExitCode(supplychain.NewConflictingConfigurationError("npm's registry is set by the project."))
+		if exitCode != constants.SNYK_EXIT_CODE_EX_CONFIG {
+			t.Errorf("expected exit code %d, got %d", constants.SNYK_EXIT_CODE_EX_CONFIG, exitCode)
 		}
 	})
 
