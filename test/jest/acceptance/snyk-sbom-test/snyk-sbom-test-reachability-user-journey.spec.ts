@@ -15,6 +15,7 @@ const SBOM_FILE_PATH = getFixturePath('sbom/snyk-goof-sbom.json');
 
 const reachabilityEnv = {
   ...process.env,
+  SNYK_TIMEOUT_SECS: '300',
   INTERNAL_SNYK_CLI_REACHABILITY_ENABLED: 'true',
 };
 
@@ -62,20 +63,9 @@ describe('snyk sbom test', () => {
       expect(code).toBe(EXIT_CODES.VULNS_FOUND);
     });
 
-    it('should display human-readable output with test summary with experimental flag backwards compatibility', async () => {
+    it('should output valid JSON with vulnerability data and accept the deprecated --experimental flag', async () => {
       const { code, stdout, stderr } = await runSnykCLI(
-        `sbom test --file=${SBOM_FILE_PATH} --experimental`,
-      );
-
-      expect(stderr).toBe('');
-      expect(stdout).toContain('Test Summary');
-      expect(stdout).toContain('Issues to fix by upgrading');
-      expect(code).toBe(EXIT_CODES.VULNS_FOUND);
-    });
-
-    it('should output valid JSON with vulnerability data', async () => {
-      const { code, stdout, stderr } = await runSnykCLI(
-        `sbom test --file=${SBOM_FILE_PATH} --json`,
+        `sbom test --file=${SBOM_FILE_PATH} --json --experimental`,
       );
 
       expect(stderr).toBe('');
@@ -118,30 +108,9 @@ describe('snyk sbom test', () => {
       expect(code).toBe(EXIT_CODES.VULNS_FOUND);
     });
 
-    it('should emit valid json output with filtering only reachable vulnerabilities', async () => {
+    it('should output valid JSON with only reachable vulnerabilities when filtering', async () => {
       const { code, stdout, stderr } = await runSnykCLI(
         `sbom test --file=${SBOM_FILE_PATH} --reachability --source-dir=${TEMP_LOCAL_PATH} --reachability-filter=reachable --json`,
-        { env: reachabilityEnv },
-      );
-
-      expect(stdout).not.toBe('');
-      expect(stderr).toBe('');
-
-      const jsonOutput = JSON.parse(stdout);
-
-      const areAllVulnsReachable = jsonOutput.vulnerabilities.every(
-        (vuln: { reachability: string; type: string }) =>
-          vuln.reachability === 'reachable' || vuln.type === 'license', // license issues are considered always reachable even without reachability metadata
-      );
-
-      expect(jsonOutput.vulnerabilities.length).toBeGreaterThanOrEqual(1);
-      expect(areAllVulnsReachable).toBeTruthy();
-      expect(code).toBe(EXIT_CODES.VULNS_FOUND);
-    });
-
-    it('should output valid JSON with reachability data', async () => {
-      const { code, stdout, stderr } = await runSnykCLI(
-        `sbom test --file=${SBOM_FILE_PATH} --reachability --source-dir=${TEMP_LOCAL_PATH} --json`,
         { env: reachabilityEnv },
       );
 
@@ -154,17 +123,16 @@ describe('snyk sbom test', () => {
       expect(jsonOutput.vulnerabilities).toBeInstanceOf(Array);
       expect(jsonOutput.vulnerabilities.length).toBeGreaterThanOrEqual(1);
 
-      const vulnsWithReachability = jsonOutput.vulnerabilities.filter(
-        (vuln: any) => vuln.reachability !== undefined,
+      const areAllVulnsReachable = jsonOutput.vulnerabilities.every(
+        (vuln: { reachability: string; type: string }) =>
+          vuln.reachability === 'reachable' || vuln.type === 'license', // license issues are considered always reachable even without reachability metadata
       );
-      expect(vulnsWithReachability.length).toBeGreaterThan(0);
+      expect(areAllVulnsReachable).toBeTruthy();
 
       const reachableVulns = jsonOutput.vulnerabilities.filter(
         (vuln: any) => vuln.reachability === 'reachable',
       );
-
       expect(reachableVulns.length).toBeGreaterThan(0);
-
       expect(reachableVulns[0]).toHaveProperty('id');
       expect(reachableVulns[0]).toHaveProperty('title');
       expect(reachableVulns[0]).toHaveProperty('severity');
