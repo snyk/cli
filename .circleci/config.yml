@@ -1574,12 +1574,52 @@ jobs:
             # The build variants compile with different toolchains, cgo and C compilers, so each job gets its own cache.
             - &go-build-cache-key go-build-v1-{{ .Environment.CIRCLE_JOB }}-{{ checksum "cliv2/go.sum" }}-{{ checksum "cliv2-private/go.sum" }}
             - go-build-v1-{{ .Environment.CIRCLE_JOB }}-
+      - run:
+          name: 'temp: Go module cache size after restore'
+          shell: bash
+          command: |
+            date -u
+            /usr/bin/du -sh .go-cache/mod .go-cache/build 2>/dev/null || echo "no .go-cache yet"
+            echo "module zips: $(/usr/bin/find .go-cache/mod/cache/download -name '*.zip' 2>/dev/null | wc -l)"
+      - run:
+          name: 'temp: timed go mod download'
+          shell: bash
+          command: |
+            if [ -f "/c/tools-cache/<< pipeline.parameters.windows_bash_env_script >>" ]; then source "/c/tools-cache/<< pipeline.parameters.windows_bash_env_script >>"; fi
+            for dir in cliv2 cliv2-private; do
+              echo "=== go mod download in $dir"
+              ( cd "$dir" && time go mod download -x 2> ~/go-mod-download-$dir.log ) || echo "go mod download failed in $dir"
+              # git errors can echo the token-rewritten URL; redact before the log is printed or stored.
+              sed -i -E 's#https://[^/@[:space:]]+@#https://REDACTED@#g' ~/go-mod-download-$dir.log
+              echo "fetches: $(grep -c '^# get' ~/go-mod-download-$dir.log) HTTP, $(grep -c 'git .*fetch' ~/go-mod-download-$dir.log) git fetch"
+            done
+            touch ~/go-before-make
+      - store_artifacts:
+          path: ~/go-mod-download-cliv2.log
+      - store_artifacts:
+          path: ~/go-mod-download-cliv2-private.log
       - make-binary:
           static: << parameters.static_binary >>
           go_arch: << parameters.go_arch >>
           go_target_os: << parameters.go_target_os >>
           make_target: << parameters.make_target >>
           c_compiler: << parameters.c_compiler >>
+      - run:
+          name: 'temp: Go module cache writes during make'
+          shell: bash
+          command: |
+            /usr/bin/find .go-cache/mod/cache -type f -newer ~/go-before-make > ~/go-fetched-during-make.txt 2>/dev/null || true
+            echo "module cache files written during make: $(wc -l < ~/go-fetched-during-make.txt)"
+            echo "  zips: $(grep -c '\.zip$' ~/go-fetched-during-make.txt)"
+            echo "  sumdb: $(grep -c '/cache/download/sumdb/' ~/go-fetched-during-make.txt)"
+            echo "  vcs: $(grep -c '/cache/vcs/' ~/go-fetched-during-make.txt)"
+      - run:
+          name: 'temp: Go module cache size before save'
+          shell: bash
+          command: |
+            date -u
+            /usr/bin/du -sh .go-cache/mod .go-cache/build 2>/dev/null || echo "no .go-cache yet"
+            echo "module zips: $(/usr/bin/find .go-cache/mod/cache/download -name '*.zip' 2>/dev/null | wc -l)"
       - save_cache:
           name: Save Go module cache
           key: *go-mod-cache-key
