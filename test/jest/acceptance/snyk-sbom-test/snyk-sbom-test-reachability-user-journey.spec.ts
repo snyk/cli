@@ -13,9 +13,13 @@ const TEST_REPO_URL = 'https://github.com/snyk/snyk-goof.git';
 const TEMP_LOCAL_PATH = '/tmp/snyk-goof-reachability-test';
 const SBOM_FILE_PATH = getFixturePath('sbom/snyk-goof-sbom.json');
 
-const reachabilityEnv = {
+const env = {
   ...process.env,
   SNYK_TIMEOUT_SECS: '300',
+};
+
+const reachabilityEnv = {
+  ...env,
   INTERNAL_SNYK_CLI_REACHABILITY_ENABLED: 'true',
 };
 
@@ -55,6 +59,9 @@ describe('snyk sbom test', () => {
     it('should display human-readable output with test summary', async () => {
       const { code, stdout, stderr } = await runSnykCLI(
         `sbom test --file=${SBOM_FILE_PATH}`,
+        {
+          env,
+        },
       );
 
       expect(stderr).toBe('');
@@ -66,6 +73,7 @@ describe('snyk sbom test', () => {
     it('should output valid JSON with vulnerability data and accept the deprecated --experimental flag', async () => {
       const { code, stdout, stderr } = await runSnykCLI(
         `sbom test --file=${SBOM_FILE_PATH} --json --experimental`,
+        { env },
       );
 
       expect(stderr).toBe('');
