@@ -1,7 +1,7 @@
 import * as depcheck from 'depcheck';
 import * as fs from 'fs';
 import * as path from 'path';
-import * as glob from 'glob';
+import { globSync } from 'glob';
 import { config } from '../check-dependencies.config';
 import { icon } from '../src/lib/theme';
 
@@ -19,7 +19,7 @@ const checkDependencies = async () => {
   console.log();
 
   for (const workspaceGlob of workspaceGlobs) {
-    const workspacePaths = glob.sync(workspaceGlob).map((p) => path.resolve(p));
+    const workspacePaths = globSync(workspaceGlob).map((p) => path.resolve(p));
     for (const workspacePath of workspacePaths) {
       console.log(`Checking ${workspacePath}`);
       const workspaceResults = await depcheck(workspacePath, config);

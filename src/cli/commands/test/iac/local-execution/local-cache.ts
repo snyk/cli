@@ -1,7 +1,7 @@
 import * as path from 'path';
 import * as fs from 'fs';
 import { EngineType, IaCErrorCodes } from './types';
-import * as rimraf from 'rimraf';
+import { rimrafSync } from 'rimraf';
 import { createIacDir, extractBundle, isValidBundle } from './file-utils';
 import * as Debug from 'debug';
 import { CustomError } from '../../../../../lib/errors';
@@ -162,7 +162,7 @@ export function cleanLocalCache() {
   try {
     // when we support Node version >= 12.10.0 , we can replace rimraf
     // with the native fs.rmdirSync(path, {recursive: true})
-    rimraf.sync(iacPath);
+    rimrafSync(iacPath.toString());
   } catch (e) {
     const err = new FailedToCleanLocalCacheError();
     analytics.add('error-code', err.code);
