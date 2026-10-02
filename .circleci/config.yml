@@ -1564,11 +1564,6 @@ jobs:
       - setup-go-private-modules
       - setup-go-build-cache
       - restore_cache:
-          name: Restore Go module cache
-          keys:
-            - &go-mod-cache-key go-mod-v1-<< parameters.go_os >>-<< parameters.go_arch >>-{{ checksum "~/go_mod_period.txt" }}-{{ checksum "cliv2/go.sum" }}-{{ checksum "cliv2-private/go.sum" }}
-            - go-mod-v1-<< parameters.go_os >>-<< parameters.go_arch >>-{{ checksum "~/go_mod_period.txt" }}-
-      - restore_cache:
           name: Restore Go compile cache
           keys:
             # The build variants compile with different toolchains, cgo and C compilers, so each job gets its own cache.
@@ -1591,7 +1586,7 @@ jobs:
               ( cd "$dir" && time go mod download -x 2> ~/go-mod-download-$dir.log ) || echo "go mod download failed in $dir"
               # git errors can echo the token-rewritten URL; redact before the log is printed or stored.
               sed -i -E 's#https://[^/@[:space:]]+@#https://REDACTED@#g' ~/go-mod-download-$dir.log
-              echo "fetches: $(grep -c '^# get' ~/go-mod-download-$dir.log) HTTP, $(grep -c 'git .*fetch' ~/go-mod-download-$dir.log) git fetch"
+              echo "fetches: $(grep -c '^# get' ~/go-mod-download-$dir.log) HTTP, $(grep -c 'git .*fetch' ~/go-mod-download-$dir.log) git fetch, $(grep -c '^# get .*sumdb/sum.golang.org' ~/go-mod-download-$dir.log) sumdb"
             done
             touch ~/go-before-make
       - store_artifacts:
@@ -1620,10 +1615,6 @@ jobs:
             date -u
             /usr/bin/du -sh .go-cache/mod .go-cache/build 2>/dev/null || echo "no .go-cache yet"
             echo "module zips: $(/usr/bin/find .go-cache/mod/cache/download -name '*.zip' 2>/dev/null | wc -l)"
-      - save_cache:
-          name: Save Go module cache
-          key: *go-mod-cache-key
-          paths: [.go-cache/mod]
       - save_cache:
           name: Save Go compile cache
           key: *go-build-cache-key
