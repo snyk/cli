@@ -253,8 +253,10 @@ pre-build: pre-build-binary-wrapper $(BINARY_RELEASES_FOLDER_TS_CLI) $(BINARY_RE
 
 .PHONY: build-fips
 build-fips: pre-build $(BINARY_OUTPUT_FOLDER)/fips/version
+	@echo "=== [$$(date +%H:%M:%S)] build-fips: start"
 	@cd $(EXTENSIBLE_CLI_DIR); $(MAKE) fips build-full install bindir=$(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER)/fips USE_LEGACY_EXECUTABLE_NAME=1 BUILD_MODE=$(BUILD_MODE)
 	@$(MAKE) clean-package-files
+	@echo "=== [$$(date +%H:%M:%S)] build-fips: done"
 
 .PHONY: build-experimental
 build-experimental: pre-build $(BINARY_OUTPUT_FOLDER)/experimental/version
@@ -263,8 +265,10 @@ build-experimental: pre-build $(BINARY_OUTPUT_FOLDER)/experimental/version
 
 .PHONY: build
 build: pre-build
+	@echo "=== [$$(date +%H:%M:%S)] build: start"
 	@cd $(EXTENSIBLE_CLI_DIR); $(MAKE) build-full install bindir=$(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER) USE_LEGACY_EXECUTABLE_NAME=1 BUILD_MODE=$(BUILD_MODE)
 	@$(MAKE) clean-package-files
+	@echo "=== [$$(date +%H:%M:%S)] build: done"
 
 .PHONY: build-debug
 build-debug: pre-build
@@ -286,7 +290,9 @@ clean:
 
 .PHONY: clean-golang
 clean-golang:
+	@echo "=== [$$(date +%H:%M:%S)] clean-golang: start"
 	@cd $(EXTENSIBLE_CLI_DIR); $(MAKE) clean USE_LEGACY_EXECUTABLE_NAME=1
+	@echo "=== [$$(date +%H:%M:%S)] clean-golang: done"
 
 # targets responsible for the testing of CLI build
 .PHONY: acceptance-test-with-proxy

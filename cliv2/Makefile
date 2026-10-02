@@ -138,7 +138,7 @@ ifeq ($(GOHOSTOS), windows)
 endif
 
 # some make file variables
-LOG_PREFIX = --
+LOG_PREFIX = -- [$$(date +%H:%M:%S)]
 
 $(BUILD_DIR):
 	@mkdir $@
