@@ -94,7 +94,7 @@ var helpProvided bool
 
 var noopLogger zerolog.Logger = zerolog.New(io.Discard)
 var globalLogger *zerolog.Logger = &noopLogger
-var scrubbedLogger logging.ScrubbingLogWriter
+var scrubbedLogger *refreshableScrubbingWriter
 var interactionId = instrumentation.AssembleUrnFromUUID(uuid.NewString())
 
 const (
@@ -690,9 +690,11 @@ func mainWithErrorCode(additionalExts []workflow.ExtensionInit) int {
 
 	// We want to scrub the debug log of sensitive information. Since we have a list of commands we know can occur, we can intersect that with arguments we don't recognize, and automatically scrub all those from the logs.
 	if debugEnabled {
-		termsToRedact := populateRedactionTerms(globalConfiguration, globalEngine)
+		populateRedactionTerms(globalConfiguration, globalEngine)
+	}
+	scrubbedLogger.Refresh(globalConfiguration)
+	if debugEnabled {
 		writeLogHeader(globalConfiguration, networkAccess)
-		scrubbedLogger.AddTermsToReplace(termsToRedact)
 	}
 
 	if err != nil {
@@ -767,7 +769,7 @@ func mainWithErrorCode(additionalExts []workflow.ExtensionInit) int {
 // arguments and environment variables) and records them on config under
 // logging.REDACTION_TERMS, so the analytics scrub chokepoint can redact
 // them regardless of whether debug logging is enabled.
-func populateRedactionTerms(config configuration.Configuration, engine workflow.Engine) []string {
+func populateRedactionTerms(config configuration.Configuration, engine workflow.Engine) {
 	knownTerms, _ := instrumentation.GetKnownCommandsAndFlags(engine)
 	knownTerms = append(knownTerms, config.GetString(configuration.API_URL), config.GetString(configuration.ORGANIZATION), config.GetString(configuration.ORGANIZATION_SLUG), config.GetString(clientMachineIdConfigKey))
 	// AI_AGENT is trusted verbatim by agent.DetectAgent, and persona.Report
@@ -781,8 +783,7 @@ func populateRedactionTerms(config configuration.Configuration, engine workflow.
 		knownTerms = append(knownTerms, strings.Fields(detectedAgent)...)
 	}
 	termsToRedact := cliv2utils.GetUnknownParameters(os.Args[1:], os.Environ(), knownTerms)
-	config.Set(logging.REDACTION_TERMS, termsToRedact)
-	return termsToRedact
+	config.Set(logging.REDACTION_TERMS, append(config.GetStringSlice(logging.REDACTION_TERMS), termsToRedact...))
 }
 
 func processError(err error, errorList []error) ([]error, error) {
