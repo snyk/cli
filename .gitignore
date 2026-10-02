@@ -56,3 +56,6 @@ test/fixtures/**/go.sum
 .cursor
 .windsurf
 .claude
+
+# Go module and compile caches in CI (GOMODCACHE, GOCACHE)
+.go-cache/
