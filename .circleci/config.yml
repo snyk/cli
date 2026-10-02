@@ -406,7 +406,7 @@ commands:
             fi
             git config --global url."https://${GITHUB_PRIVATE_TOKEN}:x-oauth-basic@github.com/snyk".insteadOf "https://github.com/snyk"
             # Propagate GOPRIVATE to subsequent bash steps.
-            echo 'export GOPRIVATE=github.com/snyk' >> "$BASH_ENV"
+            echo 'export GOPRIVATE=github.com/snyk/cli-extension-axi,github.com/snyk/cli-extension-cos,github.com/snyk/cli-extension-studio,github.com/snyk/remy-cli-extension,github.com/snyk/rift-cli-extension' >> "$BASH_ENV"
 
   setup-go-build-cache:
     description: >-
