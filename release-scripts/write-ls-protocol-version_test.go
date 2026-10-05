@@ -1,6 +1,7 @@
 package main
 
 import (
+	"archive/zip"
 	"bytes"
 	"os"
 	"os/exec"
@@ -199,17 +200,17 @@ require github.com/snyk/snyk-ls v0.0.0-20260414093345-abcdef123456
 		t.Fatal(err)
 	}
 
-	originalResolver := resolveLSProtocolVersionFromCommit
+	originalResolver := resolveLSProtocolVersionFromModuleVersion
 	t.Cleanup(func() {
-		resolveLSProtocolVersionFromCommit = originalResolver
+		resolveLSProtocolVersionFromModuleVersion = originalResolver
 	})
 
-	var resolvedCommit string
-	resolveLSProtocolVersionFromCommit = func(commit string) (lsProtocolVersion, error) {
-		resolvedCommit = commit
+	var resolvedVersion string
+	resolveLSProtocolVersionFromModuleVersion = func(version string) (lsProtocolVersion, error) {
+		resolvedVersion = version
 		return lsProtocolVersion{
 			version: 789,
-			source:  "commit-hash-based resolution from test",
+			source:  "module download from test",
 		}, nil
 	}
 
@@ -224,8 +225,8 @@ require github.com/snyk/snyk-ls v0.0.0-20260414093345-abcdef123456
 	if protocolVersion != 789 {
 		t.Fatalf("expected protocol version 789, got %d", protocolVersion)
 	}
-	if resolvedCommit != "abcdef123456" {
-		t.Fatalf("expected commit resolver to use commit hash, got %q", resolvedCommit)
+	if resolvedVersion != "v0.0.0-20260414093345-abcdef123456" {
+		t.Fatalf("expected resolver to use the full module version, got %q", resolvedVersion)
 	}
 	commitHash, err := os.ReadFile(commitHashFile)
 	if err != nil {
@@ -244,8 +245,39 @@ require github.com/snyk/snyk-ls v0.0.0-20260414093345-abcdef123456
 		t.Fatalf("expected output file to contain CLI version, got %q", string(contents))
 	}
 
-	if !strings.Contains(log.String(), "commit-hash-based resolution") {
-		t.Fatalf("expected log to identify commit source, got %q", log.String())
+	if !strings.Contains(log.String(), "module download") {
+		t.Fatalf("expected log to identify module download source, got %q", log.String())
+	}
+}
+
+func TestGetLSProtocolVersionFromModuleVersionReadsGoreleaserFromModuleSource(t *testing.T) {
+	// Arrange
+	version := "v0.0.0-20260414093345-abcdef123456"
+	proxyDir := writeSnykLSModuleProxy(t, version, "env:\n  - LS_PROTOCOL_VERSION=42\n")
+	proxyPath := filepath.ToSlash(proxyDir)
+	if !strings.HasPrefix(proxyPath, "/") {
+		proxyPath = "/" + proxyPath // Windows drive paths need file:///C:/...
+	}
+	t.Setenv("GOPROXY", "file://"+proxyPath)
+	t.Setenv("GOPRIVATE", "")
+	t.Setenv("GONOSUMDB", "")
+	t.Setenv("GOSUMDB", "off")
+	t.Setenv("GOFLAGS", "-modcacherw")
+	t.Setenv("GOMODCACHE", filepath.Join(t.TempDir(), "mod"))
+	t.Chdir(t.TempDir())
+
+	// Act
+	resolved, err := getLSProtocolVersionFromModuleVersion(version)
+
+	// Assert
+	if err != nil {
+		t.Fatalf("expected protocol version from module source: %v", err)
+	}
+	if resolved.version != 42 {
+		t.Fatalf("expected protocol version 42, got %d", resolved.version)
+	}
+	if !strings.Contains(resolved.source, "module download of github.com/snyk/snyk-ls@"+version) {
+		t.Fatalf("expected source to name the module version, got %q", resolved.source)
 	}
 }
 
@@ -649,4 +681,47 @@ func repoPath(t *testing.T, elements ...string) string {
 	repoRoot := filepath.Dir(filepath.Dir(currentFile))
 	pathElements := append([]string{repoRoot}, elements...)
 	return filepath.Join(pathElements...)
+}
+
+// writeSnykLSModuleProxy lays out a GOPROXY directory serving one snyk-ls version whose source holds goreleaserYAML.
+func writeSnykLSModuleProxy(t *testing.T, version string, goreleaserYAML string) string {
+	t.Helper()
+
+	proxyDir := t.TempDir()
+	versionDir := filepath.Join(proxyDir, "github.com", "snyk", "snyk-ls", "@v")
+	if err := os.MkdirAll(versionDir, 0755); err != nil {
+		t.Fatal(err)
+	}
+	goMod := "module " + snykLSModulePath + "\n"
+	files := map[string]string{
+		"list":            version + "\n",
+		version + ".info": `{"Version":"` + version + `"}`,
+		version + ".mod":  goMod,
+	}
+	for name, contents := range files {
+		if err := os.WriteFile(filepath.Join(versionDir, name), []byte(contents), 0644); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	zipFile, err := os.Create(filepath.Join(versionDir, version+".zip"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer zipFile.Close()
+	zipWriter := zip.NewWriter(zipFile)
+	prefix := snykLSModulePath + "@" + version + "/"
+	for name, contents := range map[string]string{"go.mod": goMod, ".goreleaser.yaml": goreleaserYAML} {
+		w, err := zipWriter.Create(prefix + name)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if _, err := w.Write([]byte(contents)); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if err := zipWriter.Close(); err != nil {
+		t.Fatal(err)
+	}
+	return proxyDir
 }

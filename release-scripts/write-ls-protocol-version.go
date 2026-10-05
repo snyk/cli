@@ -20,7 +20,7 @@ type lsProtocolVersion struct {
 	source     string
 }
 
-var resolveLSProtocolVersionFromCommit = getLSProtocolVersionFromCommit
+var resolveLSProtocolVersionFromModuleVersion = getLSProtocolVersionFromModuleVersion
 var resolveCommitHashFromDir = gitCommitHashFromDir
 
 func getGoreleaserYAML(commit string) (int, error) {
@@ -79,7 +79,7 @@ func getLSProtocolVersionWithGoMod(goModPath string) (lsProtocolVersion, error) 
 		return lsProtocolVersion{version: -3}, err
 	}
 
-	resolved, err := resolveLSProtocolVersionFromCommit(commitHash)
+	resolved, err := resolveLSProtocolVersionFromModuleVersion(dependency.version)
 	if err != nil {
 		return lsProtocolVersion{version: -3}, err
 	}
@@ -89,39 +89,24 @@ func getLSProtocolVersionWithGoMod(goModPath string) (lsProtocolVersion, error) 
 	return resolved, nil
 }
 
-func getGoreleaserYAMLFromCommit(commit string) (int, error) {
-	resolved, err := getLSProtocolVersionFromCommit(commit)
+// getLSProtocolVersionFromModuleVersion reads .goreleaser.yaml from the snyk-ls module source, downloading it into the module cache if needed.
+func getLSProtocolVersionFromModuleVersion(version string) (lsProtocolVersion, error) {
+	output, err := exec.Command("go", "mod", "download", "-json", snykLSModulePath+"@"+version).Output()
 	if err != nil {
-		return -3, err
+		return lsProtocolVersion{version: -3}, fmt.Errorf("go mod download failed: %w: %q", err, string(output))
 	}
-	return resolved.version, nil
-}
-
-func getLSProtocolVersionFromCommit(commit string) (lsProtocolVersion, error) {
-	installOutput, err := exec.Command("go", "install", snykLSModulePath+"@"+commit).CombinedOutput()
-	if err != nil {
-		return lsProtocolVersion{version: -3}, fmt.Errorf("go install failed: %w: %q", err, string(installOutput))
+	var downloaded struct{ Dir string }
+	if err := json.Unmarshal(output, &downloaded); err != nil {
+		return lsProtocolVersion{version: -3}, fmt.Errorf("failed to parse go mod download output: %w", err)
 	}
-	modCacheDir, err := goModCache()
-	if err != nil {
-		return lsProtocolVersion{version: -3}, fmt.Errorf("failed to locate go module cache: %w", err)
-	}
-	snykLsPkgPaths, err := filepath.Glob(filepath.Join(modCacheDir, "github.com", "snyk", "snyk-ls@v*-"+commit[:12]))
-	if err != nil {
-		return lsProtocolVersion{version: -3}, fmt.Errorf("failed to match snyk-ls: %w", err)
-	}
-	if len(snykLsPkgPaths) == 0 {
-		return lsProtocolVersion{version: -3}, fmt.Errorf("snyk-ls @ %s not found in module cache; try `go get`?", commit)
-	}
-	goreleaserPath := filepath.Join(snykLsPkgPaths[0], ".goreleaser.yaml")
+	goreleaserPath := filepath.Join(downloaded.Dir, ".goreleaser.yaml")
 	protocolVersion, err := readLSProtocolVersion(goreleaserPath)
 	if err != nil {
 		return lsProtocolVersion{version: -3}, err
 	}
 	return lsProtocolVersion{
-		version:    protocolVersion,
-		commitHash: commit,
-		source:     fmt.Sprintf("commit-hash-based resolution from %s@%s", snykLSModulePath, commit),
+		version: protocolVersion,
+		source:  fmt.Sprintf("module download of %s@%s", snykLSModulePath, version),
 	}, nil
 }
 
@@ -264,14 +249,6 @@ func snykLSReplacementDir(goModPath string) (string, bool, error) {
 		return "", false, nil
 	}
 	return dependency.replacementDir, true, nil
-}
-
-func goModCache() (string, error) {
-	stdout, err := exec.Command("go", "env", "GOMODCACHE").Output()
-	if err != nil {
-		return "", err
-	}
-	return strings.TrimSpace(string(stdout)), nil
 }
 
 func extractLSProtocolVersion(yamlContent []byte) string {
