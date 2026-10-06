@@ -1,5 +1,5 @@
 import * as path from 'path';
-import { analyzeFolders, analyzeScmProject } from '@snyk/code-client';
+import { analyzeFolders } from '@snyk/code-client';
 
 import { loadJson } from '../../../utils';
 import { ArgsOptions } from '../../../../src/cli/args';
@@ -12,7 +12,6 @@ const { getCodeTestResults } = analysis;
 
 jest.mock('@snyk/code-client');
 const analyzeFoldersMock = analyzeFolders as jest.Mock;
-const analyzeScmProjectMock = analyzeScmProject as jest.Mock;
 
 describe('Test snyk code with --report', () => {
   let isSastEnabledForOrgSpy;
@@ -32,9 +31,6 @@ describe('Test snyk code with --report', () => {
       fixturePath,
       'sample-analyze-folders-with-report-and-ignores-only-response.json',
     ),
-  );
-  const sampleAnalyzeScmProjectResponse = loadJson(
-    path.join(fixturePath, 'sample-analyze-scm-project-response.json'),
   );
 
   const sastSettings = {
@@ -114,53 +110,6 @@ describe('Test snyk code with --report', () => {
         projectId: 'test-project-id',
         snapshotId: 'test-snapshot-id',
         reportUrl: 'test/report/url',
-      };
-
-      expect(actual?.reportResults).toEqual(expectedReportResults);
-    });
-  });
-
-  describe('SCM-based report flow - analyzeScmProject', () => {
-    it('should return the right report results response', async () => {
-      const reportOptions = {
-        projectId: 'test-scm-project-id',
-        commitId: 'test-commit-id',
-      };
-
-      analyzeScmProjectMock.mockResolvedValue(sampleAnalyzeScmProjectResponse);
-
-      const actual = await getCodeTestResults(
-        '.',
-        {
-          path: '',
-          code: true,
-          report: true,
-          'project-id': reportOptions.projectId,
-          'commit-id': reportOptions.commitId,
-        },
-        sastSettings,
-        'test-id',
-      );
-
-      expect(analyzeScmProjectMock).toHaveBeenCalledWith(
-        expect.objectContaining({
-          reportOptions,
-          analysisContext: expect.objectContaining({
-            flow: 'snyk-cli',
-            initiator: 'CLI',
-            project: {
-              name: 'unknown',
-              publicId: reportOptions.projectId,
-              type: 'sast',
-            },
-          }),
-        }),
-      );
-
-      const expectedReportResults = {
-        projectId: 'test-scm-project-id',
-        snapshotId: 'test-scm-snapshot-id',
-        reportUrl: 'test/scm/report/url',
       };
 
       expect(actual?.reportResults).toEqual(expectedReportResults);

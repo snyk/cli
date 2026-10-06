@@ -1,0 +1,11 @@
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+# The ignore metadata below is under-indented: reason/expires/created are
+# siblings of the path key instead of children of it (OSF-495).
+version: v1.25.0
+ignore:
+  SNYK-JS-LODASH-590103:
+    - '*':
+      reason: None Given
+      expires: 2021-11-21T21:55:08.466Z
+      created: 2021-10-22T21:55:08.469Z
+patch: {}

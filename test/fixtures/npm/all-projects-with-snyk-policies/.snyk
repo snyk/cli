@@ -1,0 +1,12 @@
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+#
+# The scan root is not a project. Under `--all-projects` no project is tested
+# against this file, so its reason must never appear in any result document.
+version: v1.24.0
+ignore:
+  SNYK-JS-LODASH-1040724:
+    - '*':
+        reason: policy at the scan root
+        expires: 2099-01-01T00:00:00.000Z
+        created: 2021-10-22T21:55:08.469Z
+patch: {}
