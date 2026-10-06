@@ -156,6 +156,29 @@ describe('uv monitor', () => {
   );
 
   testIf(hasBinary)(
+    'sends a relative target file when --file is an absolute path',
+    async () => {
+      server.setFeatureFlag('enableUvCLI', true);
+
+      const project = await createProjectFromFixture('uv-project');
+      const { code } = await runSnykCLI(
+        `monitor --file=${path.join(project.path(), 'uv.lock')}`,
+        {
+          env: { ...env, XDG_CONFIG_HOME: project.path() },
+          cwd: project.path(),
+        },
+      );
+
+      expect(code).toEqual(0);
+      const monitorRequests = server
+        .getRequests()
+        .filter((request) => /\/monitor\/[^/]+\/graph/.test(request.url));
+      expect(monitorRequests).toHaveLength(1);
+      expect(monitorRequests[0].body.targetFile).toBe('pyproject.toml');
+    },
+  );
+
+  testIf(hasBinary)(
     'fails by default when uv.lock is out of sync',
     async () => {
       server.setFeatureFlag('enableUvCLI', true);

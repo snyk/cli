@@ -58,7 +58,7 @@ export async function inspect(
     throw createDepgraphError(extractErrorDetail(result));
   }
 
-  const resolvedTargetFile = getResolvedTargetFile(targetFile);
+  const resolvedTargetFile = getResolvedTargetFile(root, targetFile);
 
   let scannedProjects: ScannedProjectCustom[];
   try {
@@ -138,11 +138,32 @@ function extractErrorDetail(result: GoCommandResult): string {
   return result.stderr || 'Unable to process dependency information';
 }
 
-function getResolvedTargetFile(targetFile: string): string {
-  if (path.basename(targetFile) !== UV_LOCKFILE_NAME) {
-    return targetFile;
+// Project identity must not depend on where the repo is checked out, so an
+// absolute --file (the CI default, e.g. /builds/<group>/<repo>/uv.lock) is
+// made relative to root. Otherwise monitor registers <root>:/abs/pyproject.toml
+// while test looks up <root>:pyproject.toml, and UI ignores never apply.
+function getResolvedTargetFile(root: string, targetFile: string): string {
+  const relativeTargetFile = relativeToRoot(root, targetFile);
+  if (path.basename(relativeTargetFile) !== UV_LOCKFILE_NAME) {
+    return relativeTargetFile;
   }
 
-  const targetFileDir = path.dirname(targetFile);
+  const targetFileDir = path.dirname(relativeTargetFile);
   return path.join(targetFileDir, PYPROJECT_MANIFEST_NAME);
+}
+
+function relativeToRoot(root: string, targetFile: string): string {
+  if (!path.isAbsolute(targetFile)) {
+    return targetFile;
+  }
+  const relative = path.relative(path.resolve(root), targetFile);
+  // Leave a file outside root untouched rather than emit a ../ identity.
+  if (
+    relative === '' ||
+    relative.startsWith('..') ||
+    path.isAbsolute(relative)
+  ) {
+    return targetFile;
+  }
+  return relative;
 }

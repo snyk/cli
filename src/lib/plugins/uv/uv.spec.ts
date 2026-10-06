@@ -1,3 +1,4 @@
+import * as path from 'path';
 import { DepGraphData } from '@snyk/dep-graph';
 import { CLI, ProblemError } from '@snyk/error-catalog-nodejs-public';
 import { CustomError } from '../../errors';
@@ -112,6 +113,44 @@ describe('uv plugin', () => {
       { cwd: '.' },
     );
     expect(result.scannedProjects[0].targetFile).toBe('path/to/pyproject.toml');
+  });
+
+  it('makes an absolute uv.lock path relative to root', async () => {
+    const root = path.resolve('/builds/group/repo');
+    const result = await inspect(root, path.join(root, 'uv.lock'));
+
+    expect(result.plugin.targetFile).toBe('pyproject.toml');
+    expect(result.scannedProjects[0].targetFile).toBe('pyproject.toml');
+  });
+
+  it('makes an absolute nested uv.lock path relative to root', async () => {
+    const root = path.resolve('/builds/group/repo');
+    const result = await inspect(
+      root,
+      path.join(root, 'services', 'api', 'uv.lock'),
+    );
+
+    expect(result.scannedProjects[0].targetFile).toBe(
+      path.join('services', 'api', 'pyproject.toml'),
+    );
+  });
+
+  it('resolves a relative root before relativising', async () => {
+    const result = await inspect('.', path.resolve('sub', 'uv.lock'));
+
+    expect(result.scannedProjects[0].targetFile).toBe(
+      path.join('sub', 'pyproject.toml'),
+    );
+  });
+
+  it('leaves an absolute path outside root unchanged', async () => {
+    const root = path.resolve('/builds/group/repo');
+    const outside = path.resolve('/elsewhere/uv.lock');
+    const result = await inspect(root, outside);
+
+    expect(result.scannedProjects[0].targetFile).toBe(
+      path.join(path.dirname(outside), 'pyproject.toml'),
+    );
   });
 
   it('passes through org when provided in options', async () => {
