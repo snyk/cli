@@ -52,11 +52,11 @@ The `snyk code test` command finds security issues using Static Code Analysis.
 
 The `snyk secrets test` command scans text files in a repository for hardcoded secrets.
 
-### [`snyk sbom`](../../snyk-api/reference/sbom.md)
+### [`snyk sbom`](sbom.md)
 
 Generate or test an SBOM document in ecosystems supported by Snyk.
 
-### [`snyk aibom`](../../snyk-api/reference/aibom.md)
+### [`snyk aibom`](aibom.md)
 
 Generates an AIBOM for a local software project written in Python, Java, JavaScript, or Go, to understand what AI models, datasets, tools, and so on are used in that project.
 
