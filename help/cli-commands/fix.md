@@ -1,3 +1,9 @@
+---
+description: >-
+  The snyk fix --agentic command, which applies and verifies vulnerability
+  fixes
+---
+
 # Fix (`snyk fix --agentic`)
 
 {% hint style="info" %}
@@ -8,9 +14,9 @@
 
 To use the `snyk fix --agentic` command:
 
-- Install the latest version of the [Snyk CLI](../install-or-update-the-snyk-cli/)
+- Install the latest version of the [Snyk CLI](../install-the-snyk-cli/)
 - [Authenticate](auth.md) your machine with the Snyk CLI using `snyk auth`
-- Configure an LLM provider API key. See [Remediation Agent](../../../agent-security/remediation-agent.md) for supported providers and setup instructions.
+- Configure an LLM provider API key. See [Remediation Agent](https://docs.snyk.io/scan-fix-and-prevent/fix/remediation-agent) for supported providers and setup instructions.
 
 ## Usage
 
@@ -27,7 +33,7 @@ Choose what to remediate with a product flag:
 
 You must pass exactly one of `--sca` or `--sast`. The `--experimental` flag is required alongside `--agentic`.
 
-For conceptual documentation about the Remediation Agent, including setup instructions and supported IDEs, see [Remediation Agent](../../../agent-security/remediation-agent.md).
+For conceptual documentation about the Remediation Agent, including setup instructions and supported IDEs, see [Remediation Agent](https://docs.snyk.io/scan-fix-and-prevent/fix/remediation-agent).
 
 ## Exit codes
 
