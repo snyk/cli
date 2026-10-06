@@ -14,9 +14,13 @@ import { runSnykCLI } from '../../util/runSnykCLI';
 import { EXIT_CODES } from '../../../../src/cli/exit-codes';
 import { join, resolve } from 'path';
 import { makeTmpDirectory } from '../../../utils';
+import {
+  USER_JOURNEY_CLI_TIMEOUT_SECS,
+  USER_JOURNEY_JEST_TIMEOUT_MS,
+} from '../../util/constants';
 
 expect.extend(matchers);
-jest.setTimeout(1000 * 300);
+jest.setTimeout(USER_JOURNEY_JEST_TIMEOUT_MS);
 
 const projectRoot = resolve(__dirname, '../../../..');
 
@@ -33,6 +37,7 @@ let TEMP_LOCAL_PATH: string;
 const env = {
   ...process.env,
   INTERNAL_SNYK_FEATURE_FLAG_IS_SECRETS_ENABLED: 'true',
+  SNYK_TIMEOUT_SECS: USER_JOURNEY_CLI_TIMEOUT_SECS,
 };
 
 beforeAll(async () => {
