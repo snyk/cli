@@ -5,9 +5,13 @@ import { matchers } from 'jest-json-schema';
 import { runSnykCLI } from '../../util/runSnykCLI';
 import { EXIT_CODES } from '../../../../src/cli/exit-codes';
 import { getFixturePath } from '../../util/getFixturePath';
+import {
+  USER_JOURNEY_JEST_TIMEOUT_MS,
+  USER_JOURNEY_CLI_TIMEOUT_SECS,
+} from '../../util/constants';
 
 expect.extend(matchers);
-jest.setTimeout(1000 * 300);
+jest.setTimeout(USER_JOURNEY_JEST_TIMEOUT_MS);
 
 const TEST_REPO_URL = 'https://github.com/snyk/snyk-goof.git';
 const TEMP_LOCAL_PATH = '/tmp/snyk-goof-reachability-test';
@@ -15,7 +19,7 @@ const SBOM_FILE_PATH = getFixturePath('sbom/snyk-goof-sbom.json');
 
 const env = {
   ...process.env,
-  SNYK_TIMEOUT_SECS: '300',
+  SNYK_TIMEOUT_SECS: USER_JOURNEY_CLI_TIMEOUT_SECS,
 };
 
 const reachabilityEnv = {

@@ -5,8 +5,12 @@ import { tmpdir } from 'os';
 import { runSnykCLI } from '../../util/runSnykCLI';
 import { EXIT_CODES } from '../../../../src/cli/exit-codes';
 import { join } from 'path';
+import {
+  USER_JOURNEY_CLI_TIMEOUT_SECS,
+  USER_JOURNEY_JEST_TIMEOUT_MS,
+} from '../../util/constants';
 
-jest.setTimeout(1000 * 300);
+jest.setTimeout(USER_JOURNEY_JEST_TIMEOUT_MS);
 
 const TEST_REPO_URL = 'https://github.com/snyk/snyk-goof.git';
 const TEMP_LOCAL_PATH = '/tmp/snyk-goof';
@@ -46,6 +50,7 @@ const ReachabilityIntegrationEnv: IntegrationEnv = {
     INTERNAL_SNYK_CLI_REACHABILITY_ENABLED: 'true',
     INTERNAL_SNYK_CLI_EXPERIMENTAL_RISK_SCORE: 'true',
     INTERNAL_SNYK_CLI_EXPERIMENTAL_RISK_SCORE_IN_CLI: 'true',
+    SNYK_TIMEOUT_SECS: USER_JOURNEY_CLI_TIMEOUT_SECS,
   },
 };
 

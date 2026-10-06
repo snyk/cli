@@ -2,7 +2,11 @@ import { join } from 'path';
 import { runSnykCLI } from '../util/runSnykCLI';
 import { getSarifSchema } from '../util/getSarifSchema';
 import Ajv from 'ajv-draft-04';
-jest.setTimeout(1000 * 300);
+import {
+  USER_JOURNEY_CLI_TIMEOUT_SECS,
+  USER_JOURNEY_JEST_TIMEOUT_MS,
+} from '../util/constants';
+jest.setTimeout(USER_JOURNEY_JEST_TIMEOUT_MS);
 
 const SARIF_SCHEMA_URL =
   'https://docs.oasis-open.org/sarif/sarif/v2.1.0/errata01/os/schemas/sarif-schema-2.1.0.json';
@@ -80,7 +84,9 @@ describe('SARIF output is schema compliant', () => {
   });
 
   it.each(TEST_CASES)('for $name', async ({ cmd, env, target }: TestCase) => {
-    const { stdout, code } = await runSnykCLI(`${cmd} ${target}`, { env });
+    const { stdout, code } = await runSnykCLI(`${cmd} ${target}`, {
+      env: { ...env, SNYK_TIMEOUT_SECS: USER_JOURNEY_CLI_TIMEOUT_SECS },
+    });
     expect(code).toBe(1);
 
     const result = JSON.parse(stdout);
@@ -98,7 +104,9 @@ describe('SARIF output is GitHub Actions compliant', () => {
   it.each(TEST_CASES)(
     'has runAutomationDetails.id for $name',
     async ({ cmd, env, target }: TestCase) => {
-      const { stdout, code } = await runSnykCLI(`${cmd} ${target}`, { env });
+      const { stdout, code } = await runSnykCLI(`${cmd} ${target}`, {
+        env: { ...env, SNYK_TIMEOUT_SECS: USER_JOURNEY_CLI_TIMEOUT_SECS },
+      });
       expect(code).toBe(1);
 
       const result = JSON.parse(stdout);
