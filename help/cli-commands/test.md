@@ -220,6 +220,18 @@ This is especially useful if you want to display the human-readable test output 
 
 When running multiple scans, such as SCA and Code scans, the SARIF output includes data only from the most recently completed scan. If you run multiple scans sequentially and specify the same `--sarif-file-output` file path, each subsequent scan overwrites the previous SARIF file. To keep results separate, save each scan to a different SARIF output file.
 
+### `--html`
+
+Return results in HTML format. Requires Snyk CLI v1.1308.0 or later.
+
+Example: `$ snyk test --html`
+
+### `--html-file-output=<OUTPUT_FILE_PATH>`
+
+Save test output in HTML format directly to the specified file, regardless of whether you use the `--html` option. Requires Snyk CLI v1.1308.0 or later.
+
+Example: `$ snyk test --html-file-output=results.html`
+
 ### `--severity-threshold=<low|medium|high|critical>`
 
 Report only vulnerabilities at the specified level or higher.

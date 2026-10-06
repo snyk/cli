@@ -1,3 +1,9 @@
+---
+description: >-
+  The snyk secrets test command, which scans for hard-coded secrets and
+  credentials
+---
+
 # Secrets test
 
 ## Prerequisites
@@ -66,19 +72,19 @@ Example of setting to the latest Git tag:
 
 ### `--project-environment=<ENVIRONMENT>[,<ENVIRONMENT>]...`
 
-Set the project environment attribute to one or more comma-separated values. To clear the project environment, set `--project-environment=`. Allowed values: `frontend`, `backend`, `internal`, `external`, `mobile`, `saas`, `onprem`, `hosted`, `distributed`. For more information, visit [Project attributes](https://app.gitbook.com/s/BJO0IZx7zB6bOkotxQP2/scan-with-snyk/snyk-projects/project-attributes).
+Set the project environment attribute to one or more comma-separated values. To clear the project environment, set `--project-environment=`. Allowed values: `frontend`, `backend`, `internal`, `external`, `mobile`, `saas`, `onprem`, `hosted`, `distributed`. For more information, visit [Project attributes](https://docs.snyk.io/scan-fix-and-prevent/scan-with-snyk/snyk-projects/project-attributes).
 
 ### `--project-lifecycle=<LIFECYCLE>[,<LIFECYCLE>]...`
 
-Set the project lifecycle attribute to one or more comma-separated values. To clear the project lifecycle, set `--project-lifecycle=`. Allowed values: `production`, `development`, `sandbox`. For more information, visit [Project attributes](https://app.gitbook.com/s/BJO0IZx7zB6bOkotxQP2/scan-with-snyk/snyk-projects/project-attributes).
+Set the project lifecycle attribute to one or more comma-separated values. To clear the project lifecycle, set `--project-lifecycle=`. Allowed values: `production`, `development`, `sandbox`. For more information, visit [Project attributes](https://docs.snyk.io/scan-fix-and-prevent/scan-with-snyk/snyk-projects/project-attributes).
 
 ### `--project-business-criticality=<BUSINESS_CRITICALITY>[,<BUSINESS_CRITICALITY>]...`
 
-Set the project business-criticality attribute to one or more comma-separated values. To clear the project business criticality, set `--project-business-criticality=`. Allowed values: `critical`, `high`, `medium`, `low`. For more information, visit [Project attributes](https://app.gitbook.com/s/BJO0IZx7zB6bOkotxQP2/scan-with-snyk/snyk-projects/project-attributes).
+Set the project business-criticality attribute to one or more comma-separated values. To clear the project business criticality, set `--project-business-criticality=`. Allowed values: `critical`, `high`, `medium`, `low`. For more information, visit [Project attributes](https://docs.snyk.io/scan-fix-and-prevent/scan-with-snyk/snyk-projects/project-attributes).
 
 ### `--project-tags=<TAG>[,<TAG>]...`
 
-Set the project tags to one or more comma-separated key-value pairs with an `=` separator. Example: `snyk secrets test --project-tags=department=finance,team=alpha`. To clear the project tags, set `--project-tags=`. For more information, including allowable characters, visit [Project tags](https://app.gitbook.com/s/BJO0IZx7zB6bOkotxQP2/scan-with-snyk/snyk-projects/project-tags).
+Set the project tags to one or more comma-separated key-value pairs with an `=` separator. Example: `snyk secrets test --project-tags=department=finance,team=alpha`. To clear the project tags, set `--project-tags=`. For more information, including allowable characters, visit [Project tags](https://docs.snyk.io/scan-fix-and-prevent/scan-with-snyk/snyk-projects/project-tags).
 
 ### `--json`
 
@@ -95,3 +101,11 @@ Return results in SARIF format. Example: `snyk secrets test --sarif`
 ### `--sarif-file-output=<OUTPUT_FILE_PATH>`
 
 Save test output in SARIF format directly to the `<OUTPUT_FILE_PATH>` file, regardless of whether you use the `--sarif` option. Use this option to display human-readable output in `stdout` while saving the SARIF output to a file. If you run multiple scans, such as Secrets and Code scans, the SARIF output includes data only from the most recently completed scan. If you run multiple scans sequentially and specify the same `--sarif-file-output` file path, each subsequent scan overwrites the previous SARIF file. To keep results separate, save each scan to a different SARIF output file.
+
+### `--html`
+
+Return results in HTML format. Requires Snyk CLI v1.1308.0 or later. Example: `snyk secrets test --html`
+
+### `--html-file-output=<OUTPUT_FILE_PATH>`
+
+Save test output in HTML format directly to the specified file, regardless of whether you use the `--html` option. Requires Snyk CLI v1.1308.0 or later. Example: `snyk secrets test --html-file-output=detected-secrets.html`
