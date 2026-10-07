@@ -596,6 +596,7 @@ workflows:
           go_download_base_url: << pipeline.parameters.go_download_base_url >>
           context:
             - devex_cli
+            - endpoint-experience
             - devex_cli_docker_hub
             - team-cli-go-private-modules
             - prodsec-orb-runtime
