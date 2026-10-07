@@ -12,3 +12,11 @@ The Snyk CLI is being deployed to different deployment channels, users can selec
 * **sbom**: Maven and Gradle SBOMs, and `--print-graph`, no longer stall on large multi-module builds. They now finish seconds after the build tool exits. On projects with dependency cycles, the output may contain extra `pruned: cyclic` placeholder nodes. No packages or dependency edges are dropped. ([73f038c](https://github.com/snyk/snyk/commit/73f038c6eaa546213f785824be42b4376b51215c))
 * **test**: Gradle projects with very deep inter-module dependency chains no longer fail with a stack overflow. ([fc4f8ec](https://github.com/snyk/snyk/commit/fc4f8ec07f76e2bb5aecf290335af2f44c5658e8), [ce4e5d6](https://github.com/snyk/snyk/commit/ce4e5d6b0732e7e01c62f00aab5afc8f780c4baa))
 * **test**: .NET scans fall back to legacy scanning when the .NET SDK isn't installed. They also handle projects restored in a different build directory, and work when global NuGet source-mapping rules are configured. ([b8461c8](https://github.com/snyk/snyk/commit/b8461c8c7198315b78f8feda23fd8ba3a4fd74aa))
+* **test**: .NET scans no longer fail with `NU1101` on SDK installs that lack the app host pack, such as distro-packaged SDKs. ([1fd1fa4](https://github.com/snyk/snyk/commit/1fd1fa4894f6714b9693a382e4d0f89d6dfce092))
+* **test**: .NET projects whose `PackageReference` uses a lowercase `version` attribute are now parsed correctly. ([108f8ca](https://github.com/snyk/snyk/commit/108f8caee97f87b112cf80d3b636d14d0a4648a9))
+* **test**: Projects built with Gradle 4.0 to 4.6 no longer fail to scan. ([1070653](https://github.com/snyk/snyk/commit/107065335e6eec93d3c28f5c544ee435856d06a4))
+* **deps**: Updates dependencies to fix vulnerabilities:
+  - CVE-2026-102276 ([8cfe5c7](https://github.com/snyk/snyk/commit/8cfe5c773b70ea4b9413bb31b37ca64ddccfdd19))
+  - CVE-2026-102278 ([8cfe5c7](https://github.com/snyk/snyk/commit/8cfe5c773b70ea4b9413bb31b37ca64ddccfdd19))
+  - CVE-2026-93748 ([c7378bc](https://github.com/snyk/snyk/commit/c7378bc227b08541adf9cfed990674db908021c5))
+  - CVE-2026-93750 ([c7378bc](https://github.com/snyk/snyk/commit/c7378bc227b08541adf9cfed990674db908021c5))
