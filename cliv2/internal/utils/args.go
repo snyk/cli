@@ -35,7 +35,10 @@ var allowedWords = map[string]bool{
 	"staging":     true,
 	"development": true,
 
-	"https": true,
+	"https":    true,
+	"request":  true,
+	"response": true,
+	"header":   true,
 
 	// Common architectures/platforms
 	"linux":   true,
