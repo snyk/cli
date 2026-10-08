@@ -106,7 +106,7 @@ $(BINARY_OUTPUT_FOLDER)/release.json:
 
 # This target must not have any dependency to support checked in Release Notes that don't get overridden.
 $(BINARY_OUTPUT_FOLDER)/RELEASE_NOTES.md:
-	npx conventional-changelog-cli -l -r 1 -n ./release-scripts/conventional-changelog-cli-config.js > $(BINARY_OUTPUT_FOLDER)/RELEASE_NOTES.md
+	npx conventional-changelog-cli -l -r 1 --skip-unstable -n ./release-scripts/conventional-changelog-cli-config.js > $(BINARY_OUTPUT_FOLDER)/RELEASE_NOTES.md
 
 $(BINARY_OUTPUT_FOLDER)/fips/RELEASE_NOTES.md: $(BINARY_OUTPUT_FOLDER)/RELEASE_NOTES.md $(BINARY_OUTPUT_FOLDER)/fips
 	@cp $(BINARY_OUTPUT_FOLDER)/RELEASE_NOTES.md $(BINARY_OUTPUT_FOLDER)/fips/RELEASE_NOTES.md
