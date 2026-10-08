@@ -44,7 +44,7 @@ echo "Current version: $CURRENT_VERSION"
 # Check whether a new major, minor, or patch version has been created
 echo "Checking for new versions..."
 
-latest_version_full=$(git describe --tags `git rev-list --tags --max-count=1`)
+latest_version_full=$(./release-scripts/latest-stable-tag.sh)
 LATEST_VERSION=${latest_version_full:1}
 echo "LATEST_VERSION: $LATEST_VERSION"
 

@@ -23,9 +23,8 @@ fi
 echo "| [PASS] The commit looks good!"
 
 
-git tag | grep v${VERSION_TAG}
-retVal=$?
-if [ $retVal -ne 1 ]; then
+EXISTING_TAG="$(git tag --list "v${VERSION_TAG}")"
+if [ -n "$EXISTING_TAG" ]; then
     echo "| [FAIL] The version has already been released to github. If there are any changes available, they might not have notable value, use feat: and fix: commit prefix to indicate important change."
     exit 1
 fi
