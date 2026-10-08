@@ -153,6 +153,24 @@ func Test_populateRedactionTerms_excludesClientMachineId(t *testing.T) {
 	assert.NotContains(t, terms, machineId, "client machine id must never be swept into REDACTION_TERMS, or the analytics scrub chokepoint strips it right back out of its own extension")
 }
 
+func Test_populateRedactionTerms_excludesIntegrationDetails(t *testing.T) {
+	mockController := gomock.NewController(t)
+	mockEngine := mocks.NewMockEngine(mockController)
+	mockEngine.EXPECT().GetWorkflows().Return(nil)
+
+	config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
+	t.Setenv("SNYK_INTEGRATION_NAME", "custom-integration")
+	t.Setenv("SNYK_INTEGRATION_VERSION", "custom-version")
+	t.Setenv("SNYK_INTEGRATION_ENVIRONMENT", "custom-environment")
+	t.Setenv("SNYK_INTEGRATION_ENVIRONMENT_VERSION", "custom-environment-version")
+
+	terms := populateRedactionTerms(config, mockEngine)
+
+	for _, term := range []string{"custom-integration", "custom-version", "custom-environment", "custom-environment-version"} {
+		assert.NotContains(t, terms, term)
+	}
+}
+
 func Test_populateRedactionTerms_excludesDetectedAgent(t *testing.T) {
 	// Not on agent.canonicalAgent's short-circuit list, so AI_AGENT is trusted
 	// verbatim into the persona.agent extension. GetUnknownParameters
