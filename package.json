@@ -116,14 +116,14 @@
     "semver": "^6.0.0",
     "snyk-config": "^5.0.0",
     "snyk-cpp-plugin": "^2.24.3",
-    "snyk-docker-plugin": "9.20.0",
+    "snyk-docker-plugin": "9.20.2",
     "snyk-go-plugin": "2.2.1",
-    "snyk-gradle-plugin": "7.1.5",
+    "snyk-gradle-plugin": "7.1.6",
     "snyk-module": "3.1.0",
     "snyk-mvn-plugin": "4.9.4",
-    "snyk-nodejs-lockfile-parser": "2.10.0",
+    "snyk-nodejs-lockfile-parser": "2.10.4",
     "snyk-nodejs-plugin": "^2.2.1",
-    "snyk-nuget-plugin": "^4.5.3",
+    "snyk-nuget-plugin": "^4.5.5",
     "snyk-php-plugin": "1.12.1",
     "snyk-policy": "^4.1.6",
     "snyk-python-plugin": "^3.3.1",
@@ -208,9 +208,6 @@
       "adm-zip": "$adm-zip"
     },
     "@snyk/error-catalog-nodejs-public@4.0.4": {
-      "uuid": "$uuid"
-    },
-    "snyk-nodejs-lockfile-parser@2.10.0": {
       "uuid": "$uuid"
     },
     "shescape@<2.1.14": "2.1.14",
