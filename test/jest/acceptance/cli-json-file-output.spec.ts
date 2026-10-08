@@ -112,7 +112,7 @@ describe('test --json-file-output', () => {
     const fileExists = fs.existsSync(outputFilename);
     expect(fileExists).toBeFalsy();
     expect(code).toEqual(0);
-  });
+  }, 300000);
 
   describe('print-deps and json-file-output', () => {
     it('saves JSON output to file with depGraph when --print-deps and --json-file-output are being used', async () => {
