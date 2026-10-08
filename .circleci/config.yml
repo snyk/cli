@@ -23,14 +23,16 @@ parameters:
   fips_go_version:
     type: string
     default: '1.26.8'
-  aws_version:
-    type: string
-    # https://github.com/aws/aws-cli/blob/v2/CHANGELOG.rst
-    default: '2.4.12'
   gh_version:
     type: string
     # https://github.com/cli/cli/releases
     default: '2.7.0'
+  snyk_assets_role_arn:
+    type: string
+    default: 'arn:aws:iam::198361731867:role/snyk-assets-cli-writer'
+  snyk_assets_e2e_role_arn:
+    type: string
+    default: 'arn:aws:iam::198361731867:role/snyk-assets-cli-e2e-writer'
   windows_cache_dir:
     type: string
     default: 'C:\tools-cache'
@@ -44,7 +46,7 @@ parameters:
 orbs:
   prodsec: snyk/prodsec-orb@1
   snyk: snyk/snyk@2.0.3
-  aws-cli: circleci/aws-cli@2.0.3
+  aws-cli: circleci/aws-cli@5.4.1
   gh: circleci/github-cli@2.1.0
 
 executors:
@@ -1137,7 +1139,8 @@ workflows:
             branches:
               only:
                 - main
-                - '/release.*/'
+                - '/release\/.*/'
+                - release-candidate
                 - '/.*e2e.*/'
 
       - npm-validation:
@@ -1303,7 +1306,8 @@ workflows:
             branches:
               only:
                 - main
-                - '/release.*/'
+                - '/release\/.*/'
+                - release-candidate
 
       - release-s3:
           name: upload release candidate
@@ -1317,7 +1321,8 @@ workflows:
             branches:
               only:
                 - main
-                - '/release.*/'
+                - '/release\/.*/'
+                - release-candidate
 
       - release-s3:
           name: upload latest/stable
@@ -1331,7 +1336,8 @@ workflows:
             branches:
               only:
                 - main
-                - '/release.*/'
+                - '/release\/.*/'
+                - release-candidate
 
       - release-github:
           name: upload github
@@ -1961,13 +1967,37 @@ jobs:
 
   pre-release:
     executor: docker-amd64
+    environment:
+      AWS_REGION: us-east-1
+      PUBLIC_S3_BUCKET: snyk-assets
     steps:
       - prepare-workspace
       - gh/setup:
           token: HAMMERHEAD_GITHUB_PAT
           version: << pipeline.parameters.gh_version >>
-      - aws-cli/install:
-          version: << pipeline.parameters.aws_version >>
+      # Exchanges the CircleCI OIDC token for temporary STS credentials.
+      # e2e branches get a narrower-scoped role
+      - when:
+          condition:
+            matches:
+              pattern: '.*e2e.*'
+              value: << pipeline.git.branch >>
+          steps:
+            - aws-cli/setup:
+                role_arn: << pipeline.parameters.snyk_assets_e2e_role_arn >>
+                region: ${AWS_REGION}
+      - unless:
+          condition:
+            matches:
+              pattern: '.*e2e.*'
+              value: << pipeline.git.branch >>
+          steps:
+            - aws-cli/setup:
+                role_arn: << pipeline.parameters.snyk_assets_role_arn >>
+                region: ${AWS_REGION}
+      - run:
+          name: Confirm the assumed identity
+          command: aws sts get-caller-identity
       - run:
           name: Pre-Publishing
           command: |
@@ -2069,12 +2099,20 @@ jobs:
         type: string
         default: stable
     executor: docker-amd64
+    environment:
+      AWS_REGION: us-east-1
+      PUBLIC_S3_BUCKET: snyk-assets
     steps:
       - prepare-workspace
       - shall-deploy:
           deployment: << parameters.deployment >>
-      - aws-cli/install:
-          version: << pipeline.parameters.aws_version >>
+      # Exchanges the CircleCI OIDC token for temporary STS credentials
+      - aws-cli/setup:
+          role_arn: << pipeline.parameters.snyk_assets_role_arn >>
+          region: ${AWS_REGION}
+      - run:
+          name: Confirm the assumed identity
+          command: aws sts get-caller-identity
       - run:
           name: Publish to S3 ( << parameters.deployment >> )
           command: ./release-scripts/upload-artifacts.sh << parameters.deployment >>
