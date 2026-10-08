@@ -24,6 +24,8 @@ dario.cat/mergo v1.0.2 h1:85+piFYR1tMbRrLcDwR18y4UKJ3aH1Tbzi24VRW1TK8=
 dario.cat/mergo v1.0.2/go.mod h1:E/hbnu0NxMFBjpMIE34DRGLWqDy0g5FuKDhCb31ngxA=
 github.com/BurntSushi/toml v1.6.0 h1:dRaEfpa2VI55EwlIW72hMRHdWouJeRF7TPYhI+AUQjk=
 github.com/BurntSushi/toml v1.6.0/go.mod h1:ukJfTF/6rtPPRCnwkur4qwRxa8vTRFBF0uk2lLoLwho=
+github.com/CycloneDX/cyclonedx-go v0.9.3 h1:Pyk/lwavPz7AaZNvugKFkdWOm93MzaIyWmBwmBo3aUI=
+github.com/CycloneDX/cyclonedx-go v0.9.3/go.mod h1:vcK6pKgO1WanCdd61qx4bFnSsDJQ6SbM2ZuMIgq86Jg=
 github.com/GoogleCloudPlatform/opentelemetry-operations-go/detectors/gcp v1.33.0 h1:l7+6kwRMJNwdCvYdDl7Eax+wzEYHSnNY7zrrfbhDdTA=
 github.com/GoogleCloudPlatform/opentelemetry-operations-go/detectors/gcp v1.33.0/go.mod h1:pJTkW8hEUIIi3Pf65lPZOnn4Y81yCllX6IWk2jNXdkM=
 github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric v0.57.0 h1:jLdiS1vO+XJFyDSWRHBx56r4s/NNtcl5J6KyCcWUX/w=
@@ -599,6 +601,8 @@ github.com/snyk/cli-extension-secrets v0.0.0-20260811115637-ee872c26b0cd h1:sSVk
 github.com/snyk/cli-extension-secrets v0.0.0-20260811115637-ee872c26b0cd/go.mod h1:PrKXTT4fwEJPIzphT4n1tH5mwt2D1/qadP5HNCvub9Y=
 github.com/snyk/cli-extension-studio v1.0.3 h1:8aByGT6siJa3J6h3duEhh5EI0ivB9/2/FiARb8fbOJE=
 github.com/snyk/cli-extension-studio v1.0.3/go.mod h1:UnWH0jNP5Tg/bad+J15ui29y3iZA8HC1MlxLNHCmTfY=
+github.com/snyk/cli-extension-supply-chain v0.0.0-20261006161726-11dea125d9b7 h1:ikylCr8ggpsk+7ihiY/MN4rWXXIIEdu4UzHWagiYPA8=
+github.com/snyk/cli-extension-supply-chain v0.0.0-20261006161726-11dea125d9b7/go.mod h1:DgYQuhAHLaJzht6UpBehtknNJ16p0TvqRabPRrvRmr8=
 github.com/snyk/code-client-go v1.31.9 h1:nq6jDXNe61IKrzsGYGVRkGK4jyU03/AMOxgyqsFs8BM=
 github.com/snyk/code-client-go v1.31.9/go.mod h1:pbQB6jbO//hAmYIcOvnO++R6RSYnGTb3FQm8ZmGBCEo=
 github.com/snyk/container-cli v0.0.0-20260213211631-cd2b2cf8f3ea h1:/v48hCMPiZVjplylgE2FX1ib8Qd8LN/vf8ZIKfA+wkI=
@@ -661,6 +665,8 @@ github.com/subosito/gotenv v1.6.0 h1:9NlTDc1FTs4qu0DDq7AEtTPNw6SVm7uBMsUCUjABIf8
 github.com/subosito/gotenv v1.6.0/go.mod h1:Dk4QP5c2W3ibzajGcXpNraDfq2IrhjMIvMSWPKKo0FU=
 github.com/tchap/go-patricia/v2 v2.3.1 h1:6rQp39lgIYZ+MHmdEq4xzuk1t7OdC35z/xm0BGhTkes=
 github.com/tchap/go-patricia/v2 v2.3.1/go.mod h1:VZRHKAb53DLaG+nA9EaYYiaEx6YztwDlLElMsnSHD4k=
+github.com/terminalstatic/go-xsd-validate v0.1.6 h1:TenYeQ3eY631qNi1/cTmLH/s2slHPRKTTHT+XSHkepo=
+github.com/terminalstatic/go-xsd-validate v0.1.6/go.mod h1:18lsvYFofBflqCrvo1umpABZ99+GneNTw2kEEc8UPJw=
 github.com/tidwall/gjson v1.14.2/go.mod h1:/wbyibRr2FHMks5tjHJ5F8dMZh3AcwJEMf5vlfC0lxk=
 github.com/tidwall/gjson v1.18.0 h1:FIDeeyB800efLX89e5a8Y0BNH+LOngJyGrIWxG2FKQY=
 github.com/tidwall/gjson v1.18.0/go.mod h1:/wbyibRr2FHMks5tjHJ5F8dMZh3AcwJEMf5vlfC0lxk=
