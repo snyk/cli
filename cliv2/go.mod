@@ -21,7 +21,7 @@ require (
 	github.com/snyk/cli-extension-secrets v0.0.0-20260811115637-ee872c26b0cd
 	github.com/snyk/code-client-go v1.31.9
 	github.com/snyk/container-cli v0.0.0-20260213211631-cd2b2cf8f3ea
-	github.com/snyk/error-catalog-golang-public v0.0.0-20260930150215-d822bd122137
+	github.com/snyk/error-catalog-golang-public v0.0.0-20261008134609-7130ebfe6e01
 	github.com/snyk/go-application-framework v0.30.2
 	github.com/snyk/go-httpauth v0.0.0-20260810142636-0f6182aaccbc
 	github.com/snyk/snyk-iac-capture v0.6.5
