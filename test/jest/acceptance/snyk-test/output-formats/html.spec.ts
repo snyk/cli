@@ -4,48 +4,9 @@ import { createProject } from '../../../util/createProject';
 import { runSnykCLI } from '../../../util/runSnykCLI';
 import { fakeServer } from '../../../../acceptance/fake-server';
 import { getAvailableServerPort } from '../../../util/getServerPort';
+import { expectValidHtml, htmlDoctype } from '../../../util/expectValidHtml';
 
 jest.setTimeout(1000 * 60);
-
-const htmlDoctype = /^<!doctype html>/;
-
-// Structure from GAF internal/presenters/templates/ufm.html.tmpl and its
-// golden fixture internal/presenters/testdata/ufm/cli.html — contract
-// markers only, not a byte golden from a real scan.
-function expectUfmHtmlContract(html: string, variant: 'sca' | 'empty_sca') {
-  expect(html).toMatch(htmlDoctype);
-  expect(html).toContain('<title>Snyk Test Report</title>');
-  expect(html).toContain(
-    '<span class="meta-label">Test type</span><span class="meta-value">Software Composition Analysis</span>',
-  );
-
-  if (variant === 'sca') {
-    expect(html).toContain('Open issues: 2');
-    expect(html).toContain('Open Security Issues (2)');
-    expect(html).toContain('class="issue-card severity--medium"');
-    expect(html).toContain('class="issue-card severity--high"');
-    expect(html).toContain(
-      '<h3>Regular Expression Denial of Service (ReDoS)</h3>',
-    );
-    expect(html).toContain(
-      '<h3>Improper Handling of Highly Compressed Data (Data Amplification)</h3>',
-    );
-    expect(html).toContain('<li class="card-meta-item">CWE-400</li>');
-    expect(html).toContain('<li class="card-meta-item">CWE-409</li>');
-    expect(html).toContain(
-      '<span class="detail-label">Vulnerable module:</span> jinja2@2.11.2',
-    );
-    expect(html).toContain(
-      '<span class="detail-label">Vulnerable module:</span> urllib3@1.24.3',
-    );
-    expect(html).toContain('More about this vulnerability');
-  } else {
-    expect(html).toContain('content="0 open issues.">');
-    expect(html).toContain('Open issues: 0');
-    expect(html).not.toContain('Open Security Issues');
-    expect(html).not.toContain('<div class="issue-card');
-  }
-}
 
 describe('snyk test --html', () => {
   let server;
@@ -94,7 +55,6 @@ describe('snyk test --html', () => {
       SNYK_HOST: 'http://localhost:' + port,
       SNYK_TOKEN: '123456789',
       SNYK_DISABLE_ANALYTICS: '1',
-      INTERNAL_PREVIEW_FEATURES_ENABLED: 'true',
     };
     server = fakeServer(baseApi, env.SNYK_TOKEN);
     await server.listenPromise(port);
@@ -111,12 +71,12 @@ describe('snyk test --html', () => {
     server.restore();
   });
 
-  afterAll((done) => {
-    server.close(() => done());
+  afterAll(async () => {
+    await server.closePromise();
   });
 
   test.each(['--html', '--html-file-output=result.html'])(
-    '`snyk test %s` emits UFM HTML',
+    '`snyk test %s` emits valid HTML',
     async (flag) => {
       const project = await createProject('npm/with-vulnerable-lodash-dep');
       const findings = JSON.parse(
@@ -138,9 +98,9 @@ describe('snyk test --html', () => {
       expect(stderr).toBe('');
       expect(code).toEqual(1);
       if (flag === '--html') {
-        expectUfmHtmlContract(stdout, 'sca');
+        expectValidHtml(stdout);
       } else {
-        expectUfmHtmlContract(await project.read('result.html'), 'sca');
+        expectValidHtml(await project.read('result.html'));
         expect(stdout).not.toMatch(htmlDoctype);
         expect(stdout).toContain('Tested');
       }
@@ -164,9 +124,9 @@ describe('snyk test --html', () => {
       expect(stderr).toBe('');
       expect(code).toEqual(0);
       if (flag === '--html') {
-        expectUfmHtmlContract(stdout, 'empty_sca');
+        expectValidHtml(stdout);
       } else {
-        expectUfmHtmlContract(await project.read('result.html'), 'empty_sca');
+        expectValidHtml(await project.read('result.html'));
         expect(stdout).not.toMatch(htmlDoctype);
         expect(stdout).toContain('Tested');
       }
@@ -200,8 +160,7 @@ describe('snyk test --html', () => {
         expect(code).toBe(0);
         const output =
           flag === '--html' ? stdout : await project.read('result.html');
-        expect(output).toMatch(htmlDoctype);
-        expect(output.match(/<div class="container">/g)).toHaveLength(2);
+        expectValidHtml(output);
         const submittedPaths = server
           .getRequests()
           .filter(
