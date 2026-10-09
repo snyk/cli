@@ -80,8 +80,13 @@ describe('SARIF output is schema compliant', () => {
   });
 
   it.each(TEST_CASES)('for $name', async ({ cmd, env, target }: TestCase) => {
-    const { stdout, code } = await runSnykCLI(`${cmd} ${target}`, { env });
-    expect(code).toBe(1);
+    const { stdout, stderr, code } = await runSnykCLI(`${cmd} ${target}`, {
+      env,
+    });
+    // real API call: keep output
+    expect({ code, stdout, stderr }).toEqual(
+      expect.objectContaining({ code: 1 }),
+    );
 
     const result = JSON.parse(stdout);
     expect(result.$schema).toEqual(SARIF_SCHEMA_URL);
@@ -91,18 +96,8 @@ describe('SARIF output is schema compliant', () => {
 
     const jsonValidator = new Ajv({ validateFormats: false });
     expect(jsonValidator.validate(schema, result)).toBe(true);
+
+    // GitHub Actions compliance
+    expect(result.runs[0].automationDetails.id).toMatch(/Snyk\/[A-Z][a-z]+/);
   });
-});
-
-describe('SARIF output is GitHub Actions compliant', () => {
-  it.each(TEST_CASES)(
-    'has runAutomationDetails.id for $name',
-    async ({ cmd, env, target }: TestCase) => {
-      const { stdout, code } = await runSnykCLI(`${cmd} ${target}`, { env });
-      expect(code).toBe(1);
-
-      const result = JSON.parse(stdout);
-      expect(result.runs[0].automationDetails.id).toMatch(/Snyk\/[A-Z][a-z]+/);
-    },
-  );
 });
