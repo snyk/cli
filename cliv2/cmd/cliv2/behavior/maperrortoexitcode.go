@@ -16,13 +16,14 @@ var MapErrorCatalogToExitCode func(err *snyk_errors.Error, defaultValue int) int
 // mapErrorToExitCode maps error catalog errors to exit codes. Please extend the switch statement if new error codes need to be mapped.
 func mapErrorToExitCode(err *snyk_errors.Error, defaultValue int) int {
 	var errorCatalogToExitCodeMap = map[string]int{
-		code.NewUnsupportedProjectError("").ErrorCode:                constants.SNYK_EXIT_CODE_UNSUPPORTED_PROJECTS,
-		aibom.NewNoSupportedFilesError("").ErrorCode:                 constants.SNYK_EXIT_CODE_UNSUPPORTED_PROJECTS,
-		snyk.NewMaintenanceWindowError("").ErrorCode:                 constants.SNYK_EXIT_CODE_EX_TEMPFAIL,
-		snyk_cli_errors.NewNoSupportedFilesFoundError("").ErrorCode:  constants.SNYK_EXIT_CODE_UNSUPPORTED_PROJECTS,
-		supplychain.NewConfigurationDriftError("").ErrorCode:         constants.SNYK_EXIT_CODE_VULNERABILITIES_FOUND,
-		supplychain.NewRegistryCredentialRejectedError("").ErrorCode: constants.SNYK_EXIT_CODE_EX_NOPERM,
-		supplychain.NewConflictingConfigurationError("").ErrorCode:   constants.SNYK_EXIT_CODE_EX_CONFIG,
+		code.NewUnsupportedProjectError("").ErrorCode:                 constants.SNYK_EXIT_CODE_UNSUPPORTED_PROJECTS,
+		aibom.NewNoSupportedFilesError("").ErrorCode:                  constants.SNYK_EXIT_CODE_UNSUPPORTED_PROJECTS,
+		snyk.NewMaintenanceWindowError("").ErrorCode:                  constants.SNYK_EXIT_CODE_EX_TEMPFAIL,
+		snyk_cli_errors.NewNoSupportedFilesFoundError("").ErrorCode:   constants.SNYK_EXIT_CODE_UNSUPPORTED_PROJECTS,
+		supplychain.NewConfigurationDriftError("").ErrorCode:          constants.SNYK_EXIT_CODE_VULNERABILITIES_FOUND,
+		supplychain.NewRegistryProxySecretRejectedError("").ErrorCode: constants.SNYK_EXIT_CODE_EX_NOPERM,
+		supplychain.NewConflictingConfigurationError("").ErrorCode:    constants.SNYK_EXIT_CODE_EX_CONFIG,
+		supplychain.NewRegistryProxyUnreachableError("").ErrorCode:    constants.SNYK_EXIT_CODE_EX_UNAVAILABLE,
 		// Add new mappings here
 	}
 
