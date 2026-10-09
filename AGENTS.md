@@ -201,6 +201,11 @@ The CLI follows a layered testing pyramid. Each layer has a different goal, syst
 - **Changing CLI behavior** (command output, flag handling, API interaction) → **integration test** in `test/jest/acceptance/` using fake-server.
 - **E2E and system tests** are managed by the CI pipeline and are not typically written by feature contributors.
 
+### Tests must see what customers see
+
+When an acceptance test fails, find out why before changing anything. Users often hit the same thing: a feature that is off by default, a flag they would have to set, a code path the shipped binary never takes. Report it. Don't hide it by adding env vars or feature flags, stubbing the thing under test, loosening assertions, or skipping the test. If you think the setup is legitimate, ask first and leave a comment explaining it.
+CI builds carry a `-dev` or `-preview` version, and GAF turns preview features on for those. Do not set `INTERNAL_PREVIEW_FEATURES_ENABLED: 'true'` when testing customer-facing behaviour.
+
 ## Running Tests
 
 ```sh
