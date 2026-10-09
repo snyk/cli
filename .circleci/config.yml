@@ -655,6 +655,16 @@ workflows:
                 - main
                 - '/release.*/'
 
+      - test-release-scripts:
+          context:
+            - devex_cli_docker_hub
+          requires:
+            - prepare-build
+          filters:
+            branches:
+              ignore:
+                - '/^docs\/.*/'
+
       - build-public:
           name: build public (open source)
           go_target_os: linux
@@ -1370,6 +1380,19 @@ workflows:
                 - main
                 - '/release.*/'
 
+      - release-github:
+          name: upload github (preview)
+          deployment: preview
+          context:
+            - team-hammerhead-common-deploy-tokens
+            - devex_cli_docker_hub
+          requires:
+            - upload preview
+          filters:
+            branches:
+              only:
+                - main
+
       - release-npm:
           name: upload npm (preview)
           deployment: preview
@@ -1641,6 +1664,14 @@ jobs:
           name: Running Go unit tests
           working_directory: ./cliv2
           command: make openboxtest
+
+  test-release-scripts:
+    executor: docker-amd64
+    steps:
+      - prepare-workspace
+      - run:
+          name: Running release-scripts unit tests
+          command: make test-release-scripts
 
   build-public:
     description: Verify the open source (public) CLI build compiles from scratch
@@ -2152,20 +2183,28 @@ jobs:
       - failed-release-notification
 
   release-github:
+    parameters:
+      deployment:
+        type: string
+        default: stable
     executor: docker-amd64
     steps:
       - prepare-workspace
       - shall-deploy:
-          deployment: stable
+          deployment: << parameters.deployment >>
       - gh/setup:
           token: HAMMERHEAD_GITHUB_PAT
           version: << pipeline.parameters.gh_version >>
       - run:
-          name: Publish to GitHub
+          name: Publish to GitHub ( << parameters.deployment >> )
           command: ./release-scripts/upload-artifacts.sh github
-      - run:
-          name: Create Jira Release
-          command: ./release-scripts/create-jira-release.sh
+      - when:
+          condition:
+            equal: [stable, << parameters.deployment >>]
+          steps:
+            - run:
+                name: Create Jira Release
+                command: ./release-scripts/create-jira-release.sh
       - failed-release-notification
 
   release-npm:

@@ -33,7 +33,7 @@ if [ "${1:-}" = "--verify" ]; then
 fi
 
 NEXT_VERSION="$(convco version --bump)"
-CURRENT_TAG="$(git describe --tags `git rev-list --tags --max-count=1`)"
+CURRENT_TAG="$($(dirname "$0")/latest-stable-tag.sh)"
 RELEASE_CHANNEL="$($(dirname "$0")/determine-release-channel.sh)"
 
 valid_version_postfixes=("preview" "rc" "dev")
