@@ -411,6 +411,23 @@ commands:
             # Propagate GOPRIVATE to subsequent bash steps.
             echo 'export GOPRIVATE=github.com/snyk' >> "$BASH_ENV"
 
+  setup-go-build-cache:
+    description: >-
+      Point GOMODCACHE and GOCACHE into the checkout, where the cache steps' relative paths
+      find them on every executor. Plus write a weekly time period file that the module cache key uses.
+    steps:
+      - run:
+          name: Configure Go module and compile cache paths
+          shell: bash
+          command: |
+            # On Windows Go needs the C:/... path that Git Bash's `pwd -W` gives.
+            ROOT="$(pwd -W 2>/dev/null || pwd)"
+            echo "export GOMODCACHE=\"$ROOT/.go-cache/mod\"" >> "$BASH_ENV"
+            echo "export GOCACHE=\"$ROOT/.go-cache/build\"" >> "$BASH_ENV"
+            # Go never prunes its module cache, so we create a new cache every week to prevent it growing forever.
+            date -u +%U%Y > ~/go_mod_period.txt
+            cat ~/go_mod_period.txt
+
   install-deps-python:
     parameters:
       os:
@@ -1742,8 +1759,18 @@ jobs:
           go_version: << parameters.go_version >>
           extraction_path: << parameters.install_path >>
       - setup-go-private-modules
+      - setup-go-build-cache
       - restore_cache:
-          key: go-build-{{ arch }}-{{ checksum "cliv2/go.sum" }}
+          name: Restore Go module cache
+          keys:
+            - &go-mod-cache-key go-mod-v1-<< parameters.go_os >>-<< parameters.go_arch >>-{{ checksum "~/go_mod_period.txt" }}-{{ checksum "cliv2/go.sum" }}-{{ checksum "cliv2-private/go.sum" }}
+            - go-mod-v1-<< parameters.go_os >>-<< parameters.go_arch >>-{{ checksum "~/go_mod_period.txt" }}-
+      - restore_cache:
+          name: Restore Go compile cache
+          keys:
+            # The build variants compile with different toolchains, cgo and C compilers, so each job gets its own cache.
+            - &go-build-cache-key go-build-v1-{{ .Environment.CIRCLE_JOB }}-{{ checksum "cliv2/go.sum" }}-{{ checksum "cliv2-private/go.sum" }}
+            - go-build-v1-{{ .Environment.CIRCLE_JOB }}-
       - make-binary:
           static: << parameters.static_binary >>
           go_arch: << parameters.go_arch >>
@@ -1751,8 +1778,13 @@ jobs:
           make_target: << parameters.make_target >>
           c_compiler: << parameters.c_compiler >>
       - save_cache:
-          key: go-build-{{ arch }}-{{ checksum "cliv2/go.sum" }}
-          paths: [/home/circleci/go/pkg/mod]
+          name: Save Go module cache
+          key: *go-mod-cache-key
+          paths: [.go-cache/mod]
+      - save_cache:
+          name: Save Go compile cache
+          key: *go-build-cache-key
+          paths: [.go-cache/build]
       - store_artifacts:
           path: binary-releases
       - persist_to_workspace:
