@@ -1763,8 +1763,8 @@ jobs:
       - restore_cache:
           name: Restore Go module cache
           keys:
-            - &go-mod-cache-key go-mod-v1-<< parameters.go_os >>-<< parameters.go_arch >>-{{ checksum "~/go_mod_period.txt" }}-{{ checksum "cliv2/go.sum" }}-{{ checksum "cliv2-private/go.sum" }}
-            - go-mod-v1-<< parameters.go_os >>-<< parameters.go_arch >>-{{ checksum "~/go_mod_period.txt" }}-
+            - &go-mod-cache-key go-mod-v2-<< parameters.go_os >>-<< parameters.go_arch >>-{{ checksum "~/go_mod_period.txt" }}-{{ checksum "cliv2/go.sum" }}-{{ checksum "cliv2-private/go.sum" }}-{{ checksum "cliv2/scripts/prepare_licenses.go" }}
+            - go-mod-v2-<< parameters.go_os >>-<< parameters.go_arch >>-{{ checksum "~/go_mod_period.txt" }}-
       - restore_cache:
           name: Restore Go compile cache
           keys:
@@ -1780,7 +1780,11 @@ jobs:
       - save_cache:
           name: Save Go module cache
           key: *go-mod-cache-key
-          paths: [.go-cache/mod]
+          paths:
+            - .go-cache/mod
+            - .go-cache/licenses
+            - .go-cache/prepare-3rd-party-licenses.go.sum
+            - .go-cache/prepare_licenses.go
       - save_cache:
           name: Save Go compile cache
           key: *go-build-cache-key

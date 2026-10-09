@@ -58,6 +58,10 @@ bindir = $(exec_prefix)/bin
 WORKING_DIR = $(CURDIR)
 BUILD_DIR = $(WORKING_DIR)/_bin
 CACHE_DIR = $(WORKING_DIR)/_cache
+LICENSES_CACHE_DIR = $(V1_WORKING_DIR)/.go-cache/licenses
+LICENSES_CACHE_GO_SUM = $(V1_WORKING_DIR)/.go-cache/prepare-3rd-party-licenses.go.sum
+LICENSES_CACHE_GENERATOR = $(V1_WORKING_DIR)/.go-cache/prepare_licenses.go
+LICENSES_EMBEDDED_DIR = $(WORKING_DIR)/internal/embedded/_data/licenses
 LS_PROTOCOL_VERSION_FILE = $(CACHE_DIR)/ls-protocol-version
 LS_COMMIT_HASH_FILE = $(CACHE_DIR)/ls-commit-hash
 LS_COMMIT_HASH = $(if $(wildcard $(LS_COMMIT_HASH_FILE)),$(shell cat $(LS_COMMIT_HASH_FILE)),determined during LS metadata generation)
@@ -189,7 +193,7 @@ summary:
 
 # prepare the workspace and cache global parameters
 .PHONY: configure
-configure: _validate-build-mode _verify-private-build summary $(CACHE_DIR) $(CACHE_DIR)/variables.mk $(V1_DIRECTORY)/$(V1_EMBEDDED_FILE_OUTPUT) dependencies $(CACHE_DIR)/prepare-3rd-party-licenses
+configure: _validate-build-mode _verify-private-build summary $(CACHE_DIR) $(CACHE_DIR)/variables.mk $(V1_DIRECTORY)/$(V1_EMBEDDED_FILE_OUTPUT) dependencies prepare-3rd-party-licenses
 
 .PHONY: _helpdocs-prepare
 _helpdocs-prepare:
@@ -255,10 +259,25 @@ $(WORKING_DIR)/internal/httpauth/generated/spnego_generated_mock.go:
 	@$(GOCMD) generate ./internal/httpauth/
 
 
-$(CACHE_DIR)/prepare-3rd-party-licenses:
-	@echo "$(LOG_PREFIX) Preparing 3rd Party Licenses"
-	@GOOS=$(GOHOSTOS) GOARCH=$(GOHOSTARCH) $(GOCMD) run scripts/prepare_licenses.go > $(CACHE_DIR)/prepare-3rd-party-licenses 2> $(CACHE_DIR)/prepare-3rd-party-licenses.log \
-		|| (cat $(CACHE_DIR)/prepare-3rd-party-licenses.log && exit 1)
+.PHONY: prepare-3rd-party-licenses
+prepare-3rd-party-licenses:
+	@if [ -d "$(LICENSES_CACHE_DIR)" ] && cmp -s go.sum "$(LICENSES_CACHE_GO_SUM)" && cmp -s scripts/prepare_licenses.go "$(LICENSES_CACHE_GENERATOR)"; then \
+		if [ ! -d "$(LICENSES_EMBEDDED_DIR)" ]; then \
+			echo "$(LOG_PREFIX) Restoring 3rd Party Licenses"; \
+			mkdir -p "$(dir $(LICENSES_EMBEDDED_DIR))"; \
+			cp -R "$(LICENSES_CACHE_DIR)" "$(LICENSES_EMBEDDED_DIR)"; \
+		fi; \
+	else \
+		echo "$(LOG_PREFIX) Preparing 3rd Party Licenses"; \
+		rm -rf "$(LICENSES_EMBEDDED_DIR)"; \
+		GOOS=$(GOHOSTOS) GOARCH=$(GOHOSTARCH) $(GOCMD) run scripts/prepare_licenses.go > $(CACHE_DIR)/prepare-3rd-party-licenses 2> $(CACHE_DIR)/prepare-3rd-party-licenses.log \
+			|| { cat $(CACHE_DIR)/prepare-3rd-party-licenses.log; exit 1; }; \
+		rm -rf "$(LICENSES_CACHE_DIR)"; \
+		mkdir -p "$(LICENSES_CACHE_DIR)"; \
+		cp -R "$(LICENSES_EMBEDDED_DIR)/." "$(LICENSES_CACHE_DIR)"; \
+		cp go.sum "$(LICENSES_CACHE_GO_SUM)"; \
+		cp scripts/prepare_licenses.go "$(LICENSES_CACHE_GENERATOR)"; \
+	fi
 	@echo "$(LOG_PREFIX) 3rd party licenses: ok"
 
 .PHONY: generate
