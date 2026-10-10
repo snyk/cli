@@ -2,8 +2,12 @@ import { resolve } from 'path';
 import { createProjectFromFixture } from '../../util/createProject';
 import { runSnykCLI } from '../../util/runSnykCLI';
 import { EXIT_CODES } from '../../../../src/cli/exit-codes';
+import {
+  USER_JOURNEY_CLI_TIMEOUT_SECS,
+  USER_JOURNEY_JEST_TIMEOUT_MS,
+} from '../../util/constants';
 
-jest.setTimeout(1000 * 60 * 5);
+jest.setTimeout(USER_JOURNEY_JEST_TIMEOUT_MS);
 
 const EXIT_CODE_SUCCESS = 0;
 const EXIT_CODE_ACTION_NEEDED = 1;
@@ -19,6 +23,7 @@ describe('snyk agent scanner selection (real server)', () => {
     env = {
       ...process.env,
       SNYK_DISABLE_ANALYTICS: '1',
+      SNYK_TIMEOUT_SECS: USER_JOURNEY_CLI_TIMEOUT_SECS,
     };
   });
 
