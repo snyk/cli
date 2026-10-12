@@ -138,7 +138,9 @@ ifeq ($(GOHOSTOS), windows)
 endif
 
 # some make file variables
-LOG_PREFIX = --
+# Timing spike: LOG_PREFIX is a recursive variable, so $(shell date) is evaluated each time
+# a recipe line expands it, giving every "-- ..." log line the time it was printed.
+LOG_PREFIX = -- [$(shell date +%H:%M:%S)]
 
 $(BUILD_DIR):
 	@mkdir $@
@@ -257,8 +259,10 @@ $(WORKING_DIR)/internal/httpauth/generated/spnego_generated_mock.go:
 
 $(CACHE_DIR)/prepare-3rd-party-licenses:
 	@echo "$(LOG_PREFIX) Preparing 3rd Party Licenses"
+	@date +%s > $(CACHE_DIR)/prepare-3rd-party-licenses.start
 	@GOOS=$(GOHOSTOS) GOARCH=$(GOHOSTARCH) $(GOCMD) run scripts/prepare_licenses.go > $(CACHE_DIR)/prepare-3rd-party-licenses 2> $(CACHE_DIR)/prepare-3rd-party-licenses.log \
 		|| (cat $(CACHE_DIR)/prepare-3rd-party-licenses.log && exit 1)
+	@echo "$(LOG_PREFIX) prepare_licenses: done in $$(( $$(date +%s) - $$(cat $(CACHE_DIR)/prepare-3rd-party-licenses.start) ))s"
 	@echo "$(LOG_PREFIX) 3rd party licenses: ok"
 
 .PHONY: generate
@@ -322,7 +326,11 @@ test-signature: ISSIGNED_SCRIPT
 # Typescript CLI targets
 $(V1_WORKING_DIR)/$(V1_BINARY_FOLDER)/$(V1_BINARY_SUBFOLDER)$(V1_EXECUTABLE_NAME):
 	@echo "$(LOG_PREFIX) Building legacy CLI"
-	@cd $(V1_WORKING_DIR) && npm i && npm run $(V1_BUILD_TYPE)
+	@echo "$(LOG_PREFIX) legacy CLI: npm i"
+	@cd $(V1_WORKING_DIR) && npm i
+	@echo "$(LOG_PREFIX) legacy CLI: npm run $(V1_BUILD_TYPE)"
+	@cd $(V1_WORKING_DIR) && npm run $(V1_BUILD_TYPE)
+	@echo "$(LOG_PREFIX) legacy CLI: packaging $(V1_BINARY_FOLDER)/$(V1_BINARY_SUBFOLDER)$(V1_EXECUTABLE_NAME)"
 	@$(MAKE) -C $(V1_WORKING_DIR) $(V1_BINARY_FOLDER)/$(V1_BINARY_SUBFOLDER)$(V1_EXECUTABLE_NAME) BINARY_RELEASES_FOLDER_TS_CLI=$(V1_BINARY_FOLDER)
 
 .PHONY: build-ts-cli

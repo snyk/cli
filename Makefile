@@ -139,7 +139,9 @@ $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-alpine-arm64: prepack | $(BINARY_RELEASES_
 	$(MAKE) $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-alpine-arm64.sha256
 
 $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-linux: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
+	$(call log-time,pkg snyk-linux: start)
 	$(PKG) -t node$(PKG_NODE_VERSION)-linux-x64 -o $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-linux
+	$(call log-time,pkg snyk-linux: done)
 	$(MAKE) $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-linux.sha256
 
 $(BINARY_RELEASES_FOLDER_TS_CLI)/experimental/snyk-linux: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
@@ -169,8 +171,11 @@ $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-macos-arm64: prepack | $(BINARY_RELEASES_F
 	$(MAKE) $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-macos-arm64.sha256
 
 $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-win.exe: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
+	$(call log-time,pkg snyk-win.exe: start)
 	$(PKG) -t node$(PKG_NODE_VERSION)-win-x64 -o $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-win.exe
+	$(call log-time,pkg snyk-win.exe: done / sign: start)
 	powershell $(WORKING_DIR)/cliv2/scripts/sign_windows.ps1 $(BINARY_RELEASES_FOLDER_TS_CLI) snyk-win.exe
+	$(call log-time,sign snyk-win.exe: done)
 	$(MAKE) $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-win.exe.sha256
 
 $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-for-docker-desktop-darwin-x64.tar.gz: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
@@ -251,10 +256,17 @@ test-release-scripts:
 .PHONY: pre-build
 pre-build: pre-build-binary-wrapper $(BINARY_RELEASES_FOLDER_TS_CLI) $(BINARY_RELEASES_FOLDER_TS_CLI)/version
 
+# Timing spike: start/done markers around the build targets (pre-build runs before "start").
+define log-time
+	@echo "=== [$(shell date +%H:%M:%S)] $(1)"
+endef
+
 .PHONY: build-fips
 build-fips: pre-build $(BINARY_OUTPUT_FOLDER)/fips/version
+	$(call log-time,build-fips: start)
 	@cd $(EXTENSIBLE_CLI_DIR); $(MAKE) fips build-full install bindir=$(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER)/fips USE_LEGACY_EXECUTABLE_NAME=1 BUILD_MODE=$(BUILD_MODE)
 	@$(MAKE) clean-package-files
+	$(call log-time,build-fips: done)
 
 .PHONY: build-experimental
 build-experimental: pre-build $(BINARY_OUTPUT_FOLDER)/experimental/version
@@ -263,8 +275,10 @@ build-experimental: pre-build $(BINARY_OUTPUT_FOLDER)/experimental/version
 
 .PHONY: build
 build: pre-build
+	$(call log-time,build: start)
 	@cd $(EXTENSIBLE_CLI_DIR); $(MAKE) build-full install bindir=$(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER) USE_LEGACY_EXECUTABLE_NAME=1 BUILD_MODE=$(BUILD_MODE)
 	@$(MAKE) clean-package-files
+	$(call log-time,build: done)
 
 .PHONY: build-debug
 build-debug: pre-build
@@ -286,7 +300,9 @@ clean:
 
 .PHONY: clean-golang
 clean-golang:
+	$(call log-time,clean-golang: start)
 	@cd $(EXTENSIBLE_CLI_DIR); $(MAKE) clean USE_LEGACY_EXECUTABLE_NAME=1
+	$(call log-time,clean-golang: done)
 
 # targets responsible for the testing of CLI build
 .PHONY: acceptance-test-with-proxy
