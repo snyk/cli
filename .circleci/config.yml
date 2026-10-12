@@ -272,7 +272,7 @@ commands:
                   $bashLine = 'export PATH="' + $bashPath + ':$PATH"'
                   [System.IO.File]::AppendAllText($bashEnvScript, $bashLine + "`n", (New-Object System.Text.UTF8Encoding $false))
 
-  install-deps-windows-native-build:
+  create-windows-tools-cache-dir:
     steps:
       - run:
           name: Ensure tools cache directory
@@ -282,15 +282,49 @@ commands:
             if (-not (Test-Path $cacheDir)) {
               New-Item -ItemType Directory -Path $cacheDir | Out-Null
             }
-      - restore_cache:
-          name: Restoring Windows tools cache
-          keys:
-            - windows-tools-cache-v5-{{ arch }}-{{ checksum ".nvmrc" }}
+
+  install-windows-build-tools:
+    steps:
       - run:
           name: Install Node.js (native)
           shell: powershell
           command: |
             .\scripts\windows\install-node.ps1
+      - run:
+          name: Install Python 3.12.8 (native)
+          shell: powershell
+          command: |
+            .\scripts\windows\install-python3.ps1
+      - run:
+          name: Install GNU Make 4.4.1 (native)
+          shell: powershell
+          command: |
+            .\scripts\windows\install-make.ps1
+
+  install-deps-windows-build:
+    steps:
+      - create-windows-tools-cache-dir
+      - restore_cache:
+          name: Restoring Windows build tools cache
+          keys:
+            - &windows-build-tools-cache-key windows-build-tools-cache-v1-{{ arch }}-{{ checksum ".nvmrc" }}-{{ checksum "scripts/windows/install-node.ps1" }}-{{ checksum "scripts/windows/install-python3.ps1" }}-{{ checksum "scripts/windows/install-make.ps1" }}
+      - install-windows-build-tools
+      - save_cache:
+          name: Saving Windows build tools cache
+          key: *windows-build-tools-cache-key
+          paths:
+            - << pipeline.parameters.windows_cache_dir >>
+            - C:\ProgramData\nvm
+
+  install-deps-windows-full:
+    steps:
+      - create-windows-tools-cache-dir
+      - restore_cache:
+          name: Restoring Windows tools cache
+          keys:
+            - &windows-build-and-test-tools-cache-key windows-build-and-test-tools-cache-v1-{{ arch }}-{{ checksum ".nvmrc" }}-{{ checksum "scripts/windows/install-node.ps1" }}-{{ checksum "scripts/windows/install-python3.ps1" }}-{{ checksum "scripts/windows/install-make.ps1" }}-{{ checksum "scripts/windows/install-maven.ps1" }}-{{ checksum "scripts/windows/install-gradle.ps1" }}-{{ checksum "scripts/windows/install-dotnet-sdk.ps1" }}-{{ checksum "scripts/windows/ensure-python-uv.ps1" }}
+            - *windows-build-tools-cache-key
+      - install-windows-build-tools
       - run:
           name: Install Apache Maven 3.8.2 (native)
           shell: powershell
@@ -307,16 +341,6 @@ commands:
           command: |
             .\scripts\windows\install-dotnet-sdk.ps1
       - run:
-          name: Install Python 3.12.8 (native)
-          shell: powershell
-          command: |
-            .\scripts\windows\install-python3.ps1
-      - run:
-          name: Install GNU Make 4.4.1 (native)
-          shell: powershell
-          command: |
-            .\scripts\windows\install-make.ps1
-      - run:
           name: Ensure Python and uv
           shell: powershell
           command: |
@@ -324,15 +348,15 @@ commands:
             .\scripts\windows\ensure-python-uv.ps1
       - save_cache:
           name: Saving Windows tools cache
-          key: windows-tools-cache-v5-{{ arch }}-{{ checksum ".nvmrc" }}
+          key: *windows-build-and-test-tools-cache-key
           paths:
             - << pipeline.parameters.windows_cache_dir >>
             - C:\ProgramData\nvm
 
-  install-deps-windows-native-full-signing:
+  install-deps-windows-build-signing:
     steps:
       - install-deps-windows-signing
-      - install-deps-windows-native-build
+      - install-deps-windows-build
 
   install-deps-windows-signing:
     steps:
@@ -377,10 +401,6 @@ commands:
           key: digicert-cache-v3-{{ arch }}-{{ checksum "~/cache_key.txt" }}
           paths:
             - ~\smtools-windows-x64.msi
-
-  install-deps-windows-full-signing:
-    steps:
-      - install-deps-windows-signing
 
   install-deps-noop:
     steps:
@@ -853,7 +873,7 @@ workflows:
           go_download_base_url: << pipeline.parameters.fips_go_download_base_url >>
           go_version: << pipeline.parameters.fips_go_version >>
           make_target: build clean-golang build-fips BUILD_MODE=private
-          install_deps_extension: windows-native-full-signing
+          install_deps_extension: windows-build-signing
           install_path: 'C:\'
           executor: win-server2022-amd64
           context:
@@ -1046,7 +1066,7 @@ workflows:
             - build windows amd64
           executor: win-server2022-amd64
           test_snyk_command: binary-releases\\snyk-win.exe
-          install_deps_extension: windows-native-build
+          install_deps_extension: windows-full
           dont_skip_tests: 0
           shards: 8
           pre_test_cmds: |
@@ -1065,7 +1085,7 @@ workflows:
           go_arch: amd64
           make_target: sign sign-fips
           executor: win-server2022-amd64
-          install_deps_extension: windows-native-full-signing
+          install_deps_extension: windows-build-signing
           filters:
             branches:
               only:
