@@ -98,10 +98,17 @@ func TestMapErrorToExitCode(t *testing.T) {
 		}
 	})
 
-	t.Run("supply chain registry credential rejected error returns EX_NOPERM", func(t *testing.T) {
-		exitCode := mapErrorToExitCode(supplychain.NewRegistryCredentialRejectedError("The registry proxy rejected the stored credential."))
+	t.Run("supply chain registry proxy secret rejected error returns EX_NOPERM", func(t *testing.T) {
+		exitCode := mapErrorToExitCode(supplychain.NewRegistryProxySecretRejectedError("The registry proxy rejected the stored Registry Proxy Secret."))
 		if exitCode != constants.SNYK_EXIT_CODE_EX_NOPERM {
 			t.Errorf("expected exit code %d, got %d", constants.SNYK_EXIT_CODE_EX_NOPERM, exitCode)
+		}
+	})
+
+	t.Run("supply chain registry proxy unreachable error returns EX_UNAVAILABLE", func(t *testing.T) {
+		exitCode := mapErrorToExitCode(supplychain.NewRegistryProxyUnreachableError("The registry proxy could not be reached."))
+		if exitCode != constants.SNYK_EXIT_CODE_EX_UNAVAILABLE {
+			t.Errorf("expected exit code %d, got %d", constants.SNYK_EXIT_CODE_EX_UNAVAILABLE, exitCode)
 		}
 	})
 
