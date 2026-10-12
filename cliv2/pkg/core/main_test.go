@@ -13,7 +13,6 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/rs/zerolog"
-	"github.com/snyk/cli-extension-dep-graph/v2/pkg/ecosystems/orchestrator"
 	"github.com/snyk/error-catalog-golang-public/code"
 	"github.com/snyk/error-catalog-golang-public/snyk_errors"
 	"github.com/snyk/go-application-framework/pkg/analytics"
@@ -62,7 +61,7 @@ func Test_configureSarifEqualJSON_IncludesHTMLFileWriter(t *testing.T) {
 	assert.Empty(t, writers[2].TemplateFiles)
 }
 
-func Test_enableUfmForHtmlOutput(t *testing.T) {
+func Test_isHtmlOutput(t *testing.T) {
 	testCases := []struct {
 		name     string
 		args     []string
@@ -77,21 +76,13 @@ func Test_enableUfmForHtmlOutput(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			config := configuration.NewWithOpts()
 			flags := pflag.NewFlagSet("test", pflag.ContinueOnError)
 			flags.Bool(output_workflow.OUTPUT_CONFIG_KEY_HTML, false, "")
 			flags.String(output_workflow.OUTPUT_CONFIG_KEY_HTML_FILE, "", "")
 			flags.Bool(output_workflow.OUTPUT_CONFIG_KEY_JSON, false, "")
 			require.NoError(t, flags.Parse(tc.args))
 
-			enableUfmForHtmlOutput(config, flags)
-
-			assert.Equal(t, tc.expected, config.IsSet(orchestrator.FlagUnifiedTestAPIOsCLI.Key))
-			assert.Equal(t, tc.expected, config.IsSet(codeUseUfmConfigKey))
-			if tc.expected {
-				assert.True(t, config.GetBool(orchestrator.FlagUnifiedTestAPIOsCLI.Key))
-				assert.True(t, config.GetBool(codeUseUfmConfigKey))
-			}
+			assert.Equal(t, tc.expected, isHtmlOutput(flags))
 		})
 	}
 }
