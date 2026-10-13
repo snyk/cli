@@ -17,12 +17,16 @@ import {
   deleteFilepaths,
 } from '../../../jest/util/fileIgnoreRulesFixture';
 import * as sarifSchema from '../../../schemas/sarif-schema-2.1.0.json';
+import {
+  USER_JOURNEY_CLI_TIMEOUT_SECS,
+  USER_JOURNEY_JEST_TIMEOUT_MS,
+} from '../../util/constants';
 
 const readJson = (filePath: string): any =>
   JSON.parse(readFileSync(filePath, 'utf8'));
 
 expect.extend(matchers);
-jest.setTimeout(1000 * 300);
+jest.setTimeout(USER_JOURNEY_JEST_TIMEOUT_MS);
 
 interface Workflow {
   type: string;
@@ -123,6 +127,7 @@ const userJourneyWorkflows: Workflow[] = [
       INTERNAL_SNYK_CODE_NATIVE_IMPLEMENTATION: 'false',
       SNYK_CFG_ORG: process.env.TEST_SNYK_ORG_SLUGNAME,
       PROJECT_ID: 'this_should_be_ignored',
+      SNYK_TIMEOUT_SECS: USER_JOURNEY_CLI_TIMEOUT_SECS,
     },
   },
   {
@@ -131,6 +136,7 @@ const userJourneyWorkflows: Workflow[] = [
       INTERNAL_SNYK_CODE_NATIVE_IMPLEMENTATION: 'true',
       SNYK_CFG_ORG: process.env.TEST_SNYK_ORG_SLUGNAME,
       PROJECT_ID: 'this_should_be_ignored',
+      SNYK_TIMEOUT_SECS: USER_JOURNEY_CLI_TIMEOUT_SECS,
     },
   },
 ];
