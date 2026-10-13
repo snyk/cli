@@ -21,7 +21,6 @@ import (
 	"github.com/snyk/go-application-framework/pkg/networking/middleware"
 	"github.com/snyk/go-application-framework/pkg/utils"
 	"github.com/snyk/go-application-framework/pkg/utils/git"
-	"github.com/snyk/go-application-framework/pkg/utils/target"
 	"github.com/snyk/go-application-framework/pkg/workflow"
 )
 
@@ -94,30 +93,6 @@ func addGitProvenance(instrumentor analytics.InstrumentationCollector, config co
 	if tHash, err := git.TreeHashFromDir(path); err == nil {
 		instrumentor.AddExtension("git.tree_hash", tHash)
 	}
-
-	if targetId, err := target.GetTargetId(path, target.AutoDetectedTargetId, target.WithConfiguredRepository(config)); err == nil {
-		if gitTarget, ok := target.ParseGitTargetId(targetId); ok {
-			scm, owner := splitGitNamespace(gitTarget.Namespace)
-			instrumentor.AddExtension("git.scm", scm)
-			instrumentor.AddExtension("git.repository_owner", owner)
-			instrumentor.AddExtension("git.repository_name", gitTarget.Repository)
-			instrumentor.AddExtension("git.current_commit", gitTarget.Commit)
-			instrumentor.AddExtension("git.current_branch", gitTarget.Branch)
-		}
-	}
-}
-
-// splitGitNamespace decomposes a git target namespace ("<host>/<owner...>/<repo>")
-// into its SCM host and owner path. The owner is everything between the host and
-// the repository name, collapsing a GitLab-style nested namespace to
-// "group/subgroup". Either value may be empty. gitTarget.Repository already
-// carries the final segment, so it is not returned here.
-func splitGitNamespace(namespace string) (scm, owner string) {
-	segments := strings.Split(namespace, "/")
-	if len(segments) < 2 {
-		return "", ""
-	}
-	return segments[0], strings.Join(segments[1:len(segments)-1], "/")
 }
 
 func updateInstrumentationDataBeforeSending(cliAnalytics analytics.Analytics, startTime time.Time, ua networking.UserAgentInfo, exitCode int) {

@@ -167,7 +167,7 @@ func Test_addAgentSessionId(t *testing.T) {
 }
 
 // gitProvenanceKeys are the extension keys addGitProvenance may emit.
-var gitProvenanceKeys = []string{"git.tree_hash", "git.scm", "git.repository_owner", "git.repository_name", "git.current_commit", "git.current_branch"}
+var gitProvenanceKeys = []string{"git.tree_hash"}
 
 func Test_addGitProvenance(t *testing.T) {
 	t.Run("omits git provenance when INPUT_DIRECTORY is empty", func(t *testing.T) {
@@ -191,7 +191,10 @@ func Test_addGitProvenance(t *testing.T) {
 		assertNoGitProvenance(t, instrumentor)
 	})
 
-	t.Run("emits git provenance for a git repository", func(t *testing.T) {
+	t.Run("emits git.tree_hash for a git repository", func(t *testing.T) {
+		// Only the tree hash is emitted here: scm/owner/repo/commit/branch are
+		// already carried by the top-level target.id, so addGitProvenance no
+		// longer duplicates them under the git.* extension.
 		dir := initGitRepo(t, "https://github.com/snyk/my-repo.git", "main")
 
 		config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
@@ -205,11 +208,6 @@ func Test_addGitProvenance(t *testing.T) {
 		ext := obj.Data.Attributes.Interaction.Extension
 		require.NotNil(t, ext)
 		assert.NotEmpty(t, (*ext)["git.tree_hash"])
-		assert.Equal(t, "github.com", (*ext)["git.scm"])
-		assert.Equal(t, "snyk", (*ext)["git.repository_owner"])
-		assert.Equal(t, "my-repo", (*ext)["git.repository_name"])
-		assert.NotEmpty(t, (*ext)["git.current_commit"])
-		assert.Equal(t, "main", (*ext)["git.current_branch"])
 	})
 }
 
