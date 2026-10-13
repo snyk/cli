@@ -5,7 +5,11 @@ import * as path from 'path';
 
 import { createProjectFromFixture } from '../../util/createProject';
 import { runSnykCLI } from '../../util/runSnykCLI';
-import { fakeServer } from '../../../acceptance/fake-server';
+import {
+  FakeServer,
+  fakeServer,
+  getFirstIPv4Address,
+} from '../../../acceptance/fake-server';
 import { getAvailableServerPort } from '../../util/getServerPort';
 import { isWindowsOperatingSystem } from '../../../utils';
 
@@ -19,16 +23,18 @@ jest.setTimeout(1000 * 60 * 5);
 // repository first (via `mvn`), otherwise there are no companion files to
 // read.
 describe('`snyk test --include-component-metadata` (maven)', () => {
-  let server;
+  let server: FakeServer;
   let env: Record<string, string>;
 
   beforeAll(async () => {
     const port = await getAvailableServerPort(process);
+    const ipAddress = getFirstIPv4Address();
     const baseApi = '/api/v1';
     env = {
       ...process.env,
-      SNYK_API: 'http://localhost:' + port + baseApi,
-      SNYK_HOST: 'http://localhost:' + port,
+      SNYK_API: `http://${ipAddress}:${port}${baseApi}`,
+      SNYK_HOST: `http://${ipAddress}:${port}`,
+      SNYK_HTTP_PROTOCOL_UPGRADE: '0',
       SNYK_TOKEN: '123456789',
       SNYK_DISABLE_ANALYTICS: '1',
     };
