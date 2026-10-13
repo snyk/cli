@@ -18,6 +18,7 @@ import (
 	"github.com/snyk/error-catalog-golang-public/snyk_errors"
 	"github.com/snyk/go-application-framework/pkg/analytics"
 	"github.com/snyk/go-application-framework/pkg/apiclients/testapi"
+	"github.com/snyk/go-application-framework/pkg/app"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/content_type"
@@ -151,6 +152,34 @@ func Test_populateRedactionTerms_excludesClientMachineId(t *testing.T) {
 	terms := populateRedactionTerms(config, mockEngine)
 
 	assert.NotContains(t, terms, machineId, "client machine id must never be swept into REDACTION_TERMS, or the analytics scrub chokepoint strips it right back out of its own extension")
+}
+
+func populateRedactionTermsWithSuppliedMachineID(t *testing.T, machineID string) []string {
+	t.Helper()
+	t.Setenv("HOME", t.TempDir())
+	t.Setenv("INTERNAL_SNYK_MACHINE_ID", machineID)
+	config := configuration.NewWithOpts(configuration.WithSupportedEnvVarPrefixes("snyk_", "internal_", "test_"))
+	engine := app.CreateAppEngineWithOptions(app.WithConfiguration(config))
+	// Replaces the application defaults, which look the organization up over the network.
+	config.AddDefaultValue(configuration.ORGANIZATION, configuration.StandardDefaultValueFunction(""))
+	config.AddDefaultValue(configuration.ORGANIZATION_SLUG, configuration.StandardDefaultValueFunction(""))
+	return populateRedactionTerms(config, engine)
+}
+
+func Test_populateRedactionTerms_excludesValidSuppliedMachineId(t *testing.T) {
+	machineID := "3f2504e0-4f89-41d3-9a0c-0305e82c3301"
+
+	terms := populateRedactionTermsWithSuppliedMachineID(t, machineID)
+
+	assert.NotContains(t, terms, machineID, "a machine id the application accepted must not be redacted, or the debug log header shows it as ***")
+}
+
+func Test_populateRedactionTerms_redactsInvalidSuppliedMachineId(t *testing.T) {
+	invalid := "sk_live/Secret+Token"
+
+	terms := populateRedactionTermsWithSuppliedMachineID(t, invalid)
+
+	assert.Contains(t, terms, invalid, "a value the application rejected as a machine id is not shown as one, so it must stay redacted")
 }
 
 func Test_populateRedactionTerms_excludesIntegrationDetails(t *testing.T) {

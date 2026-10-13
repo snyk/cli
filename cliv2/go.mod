@@ -289,3 +289,7 @@ replace github.com/mattn/go-localereader v0.0.1 => github.com/mattn/go-localerea
 // replace github.com/snyk/cli-extension-sbom => ../../cli-extension-sbom
 
 // replace github.com/snyk/cli-extension-secrets => ../../cli-extension-secrets
+
+replace github.com/snyk/go-application-framework => ../../go-application-framework_feat_IDE-2615-machine-id-error-catalog
+
+replace github.com/snyk/error-catalog-golang-public => /tmp/ecgp-machineid-on-main

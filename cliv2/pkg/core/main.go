@@ -589,7 +589,7 @@ func tearDown(err error, errorList []error, startTime time.Time, ua networking.U
 	}
 
 	if globalConfiguration.GetBool(configuration.DEBUG) {
-		writeLogFooter(exitCode, allErrors, globalConfiguration, networkAccess)
+		writeLogFooter(exitCode, allErrors, globalConfiguration, networkAccess, globalEngine.GetRuntimeInfo())
 	}
 
 	return exitCode
@@ -692,7 +692,7 @@ func mainWithErrorCode(additionalExts []workflow.ExtensionInit) int {
 	if debugEnabled {
 		termsToRedact := populateRedactionTerms(globalConfiguration, globalEngine)
 		scrubbedLogger.AddTermsToReplace(termsToRedact)
-		writeLogHeader(globalConfiguration, networkAccess)
+		writeLogHeader(globalConfiguration, networkAccess, globalEngine.GetRuntimeInfo())
 	}
 
 	if err != nil {
@@ -779,6 +779,12 @@ func populateRedactionTerms(config configuration.Configuration, engine workflow.
 	if detectedAgent, ok := agent.DetectAgent(); ok {
 		knownTerms = append(knownTerms, detectedAgent)
 		knownTerms = append(knownTerms, strings.Fields(detectedAgent)...)
+	}
+	// The IsSet guard keeps runs without an override from resolving the machine id
+	// file here, and the configuration only returns a supplied value once it has
+	// passed validation, so an arbitrary value placed in the variable stays redacted.
+	if config.IsSet(configuration.MACHINE_ID) {
+		knownTerms = append(knownTerms, config.GetString(configuration.MACHINE_ID))
 	}
 	termsToRedact := cliv2utils.GetUnknownParameters(os.Args[1:], os.Environ(), knownTerms)
 	config.Set(logging.REDACTION_TERMS, termsToRedact)

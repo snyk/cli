@@ -15,6 +15,7 @@ import (
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/config_utils"
 	"github.com/snyk/go-application-framework/pkg/networking/middleware"
+	"github.com/snyk/go-application-framework/pkg/runtimeinfo"
 
 	"github.com/snyk/cli/cliv2/internal/cliv2"
 	"github.com/snyk/cli/cliv2/internal/utils"
@@ -99,7 +100,7 @@ func tablePrint(name string, value string) {
 	globalLogger.Printf("%-22s %s", title, value)
 }
 
-func writeLogHeader(config configuration.Configuration, networkAccess networking.NetworkAccess) {
+func writeLogHeader(config configuration.Configuration, networkAccess networking.NetworkAccess, runtimeInfo runtimeinfo.RuntimeInfo) {
 	authorization, _, userAgent := logHeaderAuthorizationInfo(config, networkAccess)
 
 	org := config.GetString(configuration.ORGANIZATION)
@@ -145,6 +146,14 @@ func writeLogHeader(config configuration.Configuration, networkAccess networking
 	tablePrint("Analytics", analytics)
 	tablePrint("Authorization", authorization)
 	tablePrint("Interaction", interactionId)
+	machineID, machineIDErr := runtimeInfo.GetMachineID()
+	if machineID == "" {
+		machineID = "unavailable"
+	}
+	tablePrint("Machine ID", machineID)
+	for _, line := range machineIDErrorLines(machineIDErr) {
+		tablePrint("  Error", strings.ReplaceAll(line, "\n", "; "))
+	}
 	tablePrint("Features", "")
 	tablePrint("  preview", previewFeaturesEnabled)
 	tablePrint("  fips", fipsEnabled)
@@ -162,12 +171,31 @@ func writeLogHeader(config configuration.Configuration, networkAccess networking
 	}
 }
 
-func writeLogFooter(exitCode int, errs []error, globalConfiguration configuration.Configuration, networkAccess networking.NetworkAccess) {
+// machineIDErrorLines skips runtimeinfo.ErrNoMachineID because the "unavailable" marker already reports it.
+func machineIDErrorLines(err error) []string {
+	if joined, ok := err.(interface{ Unwrap() []error }); ok {
+		var lines []string
+		for _, e := range joined.Unwrap() {
+			lines = append(lines, machineIDErrorLines(e)...)
+		}
+		return lines
+	}
+	if err == nil || errors.Is(err, runtimeinfo.ErrNoMachineID) {
+		return nil
+	}
+	var catalogErr snyk_errors.Error
+	if errors.As(err, &catalogErr) {
+		return []string{fmt.Sprintf("%s %s: %s", catalogErr.ErrorCode, catalogErr.Title, catalogErr.Detail)}
+	}
+	return []string{err.Error()}
+}
+
+func writeLogFooter(exitCode int, errs []error, globalConfiguration configuration.Configuration, networkAccess networking.NetworkAccess, runtimeInfo runtimeinfo.RuntimeInfo) {
 	const maxLength = 100
 	globalLogger.Print("")
 	globalLogger.Printf("------------ Summary ------------")
 	// to make things easier to find, let's repeat the header before the footer
-	writeLogHeader(globalConfiguration, networkAccess)
+	writeLogHeader(globalConfiguration, networkAccess, runtimeInfo)
 
 	// output error details
 	ecErrs := formatErrorCatalogErrors(errs)
