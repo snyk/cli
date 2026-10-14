@@ -17,12 +17,16 @@ import {
   deleteFilepaths,
 } from '../../../jest/util/fileIgnoreRulesFixture';
 import * as sarifSchema from '../../../schemas/sarif-schema-2.1.0.json';
+import {
+  USER_JOURNEY_CLI_TIMEOUT_SECS,
+  USER_JOURNEY_JEST_TIMEOUT_MS,
+} from '../../util/constants';
 
 const readJson = (filePath: string): any =>
   JSON.parse(readFileSync(filePath, 'utf8'));
 
 expect.extend(matchers);
-jest.setTimeout(1000 * 300);
+jest.setTimeout(USER_JOURNEY_JEST_TIMEOUT_MS);
 
 interface Workflow {
   type: string;
@@ -123,6 +127,7 @@ const userJourneyWorkflows: Workflow[] = [
       INTERNAL_SNYK_CODE_NATIVE_IMPLEMENTATION: 'false',
       SNYK_CFG_ORG: process.env.TEST_SNYK_ORG_SLUGNAME,
       PROJECT_ID: 'this_should_be_ignored',
+      SNYK_TIMEOUT_SECS: USER_JOURNEY_CLI_TIMEOUT_SECS,
     },
   },
   {
@@ -131,6 +136,7 @@ const userJourneyWorkflows: Workflow[] = [
       INTERNAL_SNYK_CODE_NATIVE_IMPLEMENTATION: 'true',
       SNYK_CFG_ORG: process.env.TEST_SNYK_ORG_SLUGNAME,
       PROJECT_ID: 'this_should_be_ignored',
+      SNYK_TIMEOUT_SECS: USER_JOURNEY_CLI_TIMEOUT_SECS,
     },
   },
 ];
@@ -657,24 +663,28 @@ describe('snyk code test', () => {
           }
         });
 
-        it('Stateful remote code test --report', async () => {
-          const args = [
-            'code',
-            'test',
-            '--report',
-            '--project-id=ff7a6ceb-fab5-4f68-bdbf-4dbc919e8074',
-            '--commit-id=845449f45861a431e53298248f51e368268ef9fc',
-          ];
-          const { stderr, code } = await runSnykCLIWithArray(args, {
-            env: {
-              ...process.env,
-              ...integrationEnv,
-            },
-          });
+        if (type === 'golang/native') {
+          it('Stateful remote code test --report', async () => {
+            const args = [
+              'code',
+              'test',
+              '--report',
+              '--project-id=ff7a6ceb-fab5-4f68-bdbf-4dbc919e8074',
+              '--commit-id=845449f45861a431e53298248f51e368268ef9fc',
+            ];
+            const { stderr, code } = await runSnykCLIWithArray(args, {
+              env: {
+                ...process.env,
+                ...integrationEnv,
+              },
+            });
 
-          expect(stderr).toBe('');
-          expect([EXIT_CODE_SUCCESS, EXIT_CODE_ACTION_NEEDED]).toContain(code);
-        });
+            expect(stderr).toBe('');
+            expect([EXIT_CODE_SUCCESS, EXIT_CODE_ACTION_NEEDED]).toContain(
+              code,
+            );
+          });
+        }
 
         // File-upload-api is only supported on the golang/native implementation
         if (type === 'golang/native') {

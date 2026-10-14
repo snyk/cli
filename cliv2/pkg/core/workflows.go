@@ -47,8 +47,6 @@ func initExtensions(engine workflow.Engine, config configuration.Configuration, 
 	}
 
 	if config.GetBool(configuration.PREVIEW_FEATURES_ENABLED) {
-		config.Set("INTERNAL_USE_UFM_PRESENTER", true)
-
 		// TODO: remove once CLI-1733 is solved
 		if !config.IsSet(utils.FF_FILE_FILTER_METACHARACTER_FIX) {
 			config.Set(utils.FF_FILE_FILTER_METACHARACTER_FIX, true)

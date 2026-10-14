@@ -104,8 +104,9 @@ const (
 	integrationNameFlag       string = "integration-name"
 	maxNetworkRequestAttempts string = "max-attempts"
 	teardownTimeout                  = 5 * time.Second
-	// codeUseUfmConfigKey mirrors code_workflow.ConfigurationUseUFM, which code-client-go keeps in an internal package
-	codeUseUfmConfigKey string = "internal_code_use_ufm"
+
+	codeUseUfmConfigKey   string = "internal_code_use_ufm"
+	ufmPresenterConfigKey string = "internal_use_ufm_presenter"
 )
 
 type JsonErrorStruct struct {
@@ -302,36 +303,33 @@ func configureSarifEqualJSON(config configuration.Configuration) {
 	config.Set(output_workflow.OUTPUT_CONFIG_KEY_DEFAULT_WRITER_LUT, defaultWriterLookup)
 }
 
-// enableUfmForHtmlOutput routes test commands through their UFM producing flows when HTML output is requested,
-// since HTML is only rendered from the unified findings model.
-func enableUfmForHtmlOutput(config configuration.Configuration, flags *pflag.FlagSet) {
+func isHtmlOutput(flags *pflag.FlagSet) bool {
 	html, _ := flags.GetBool(output_workflow.OUTPUT_CONFIG_KEY_HTML)
 	htmlFile, _ := flags.GetString(output_workflow.OUTPUT_CONFIG_KEY_HTML_FILE)
-	if !html && htmlFile == "" {
-		return
-	}
-
-	if !config.IsSet(orchestrator.FlagUnifiedTestAPIOsCLI.Key) {
-		config.Set(orchestrator.FlagUnifiedTestAPIOsCLI.Key, true)
-	}
-
-	if !config.IsSet(codeUseUfmConfigKey) {
-		config.Set(codeUseUfmConfigKey, true)
-	}
+	return html || htmlFile != ""
 }
 
-func runOsTestCommand(cmd *cobra.Command, args []string) error {
-	enableUfmForHtmlOutput(globalConfiguration, cmd.Flags())
+func runOSTestCommand(cmd *cobra.Command, args []string) error {
+	if !globalConfiguration.IsSet(ufmPresenterConfigKey) {
+		globalConfiguration.Set(ufmPresenterConfigKey, true)
+	}
+
+	if isHtmlOutput(cmd.Flags()) {
+		globalConfiguration.Set(ufmPresenterConfigKey, true)
+		globalConfiguration.Set(orchestrator.FlagUnifiedTestAPIOsCLI.Key, true)
+	}
+
 	return runCommand(cmd, args)
 }
 
 func runCodeTestCommand(cmd *cobra.Command, args []string) error {
-	enableUfmForHtmlOutput(globalConfiguration, cmd.Flags())
+	if isHtmlOutput(cmd.Flags()) {
+		globalConfiguration.Set(codeUseUfmConfigKey, true)
+	}
 	return runTestCommandWithSarifEqualJson(cmd, args)
 }
 
 func runSecretsTestCommand(cmd *cobra.Command, args []string) error {
-	enableUfmForHtmlOutput(globalConfiguration, cmd.Flags())
 	return runTestCommandWithSarifEqualJson(cmd, args)
 }
 
@@ -416,7 +414,7 @@ func createCommandsForWorkflows(rootCommand *cobra.Command, engine workflow.Engi
 			parentCommand.RunE = runSecretsTestCommand
 		case "test":
 			legacy.SetupTestMonitorCommand(parentCommand)
-			parentCommand.RunE = runOsTestCommand
+			parentCommand.RunE = runOSTestCommand
 		case "monitor":
 			legacy.SetupTestMonitorCommand(parentCommand)
 		case "auth":
@@ -691,8 +689,8 @@ func mainWithErrorCode(additionalExts []workflow.ExtensionInit) int {
 	// We want to scrub the debug log of sensitive information. Since we have a list of commands we know can occur, we can intersect that with arguments we don't recognize, and automatically scrub all those from the logs.
 	if debugEnabled {
 		termsToRedact := populateRedactionTerms(globalConfiguration, globalEngine)
-		writeLogHeader(globalConfiguration, networkAccess)
 		scrubbedLogger.AddTermsToReplace(termsToRedact)
+		writeLogHeader(globalConfiguration, networkAccess)
 	}
 
 	if err != nil {
@@ -769,7 +767,7 @@ func mainWithErrorCode(additionalExts []workflow.ExtensionInit) int {
 // them regardless of whether debug logging is enabled.
 func populateRedactionTerms(config configuration.Configuration, engine workflow.Engine) []string {
 	knownTerms, _ := instrumentation.GetKnownCommandsAndFlags(engine)
-	knownTerms = append(knownTerms, config.GetString(configuration.API_URL), config.GetString(configuration.ORGANIZATION), config.GetString(configuration.ORGANIZATION_SLUG), config.GetString(clientMachineIdConfigKey))
+	knownTerms = append(knownTerms, config.GetString(configuration.API_URL), config.GetString(configuration.ORGANIZATION), config.GetString(configuration.ORGANIZATION_SLUG), config.GetString(configuration.INTEGRATION_NAME), config.GetString(configuration.INTEGRATION_VERSION), config.GetString(configuration.INTEGRATION_ENVIRONMENT), config.GetString(configuration.INTEGRATION_ENVIRONMENT_VERSION), config.GetString(clientMachineIdConfigKey))
 	// AI_AGENT is trusted verbatim by agent.DetectAgent, and persona.Report
 	// falls back to that same raw value whenever the Harness name/version split
 	// or canonicalisation does not apply, so its raw value needs the same
