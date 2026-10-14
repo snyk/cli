@@ -19,10 +19,10 @@ parameters:
   go_version:
     type: string
     # https://go.dev/doc/devel/release
-    default: '1.26.8'
+    default: '1.26.9'
   fips_go_version:
     type: string
-    default: '1.26.8'
+    default: '1.26.9'
   gh_version:
     type: string
     # https://github.com/cli/cli/releases
@@ -272,7 +272,7 @@ commands:
                   $bashLine = 'export PATH="' + $bashPath + ':$PATH"'
                   [System.IO.File]::AppendAllText($bashEnvScript, $bashLine + "`n", (New-Object System.Text.UTF8Encoding $false))
 
-  install-deps-windows-native-build:
+  create-windows-tools-cache-dir:
     steps:
       - run:
           name: Ensure tools cache directory
@@ -282,15 +282,49 @@ commands:
             if (-not (Test-Path $cacheDir)) {
               New-Item -ItemType Directory -Path $cacheDir | Out-Null
             }
-      - restore_cache:
-          name: Restoring Windows tools cache
-          keys:
-            - windows-tools-cache-v5-{{ arch }}-{{ checksum ".nvmrc" }}
+
+  install-windows-build-tools:
+    steps:
       - run:
           name: Install Node.js (native)
           shell: powershell
           command: |
             .\scripts\windows\install-node.ps1
+      - run:
+          name: Install Python 3.12.8 (native)
+          shell: powershell
+          command: |
+            .\scripts\windows\install-python3.ps1
+      - run:
+          name: Install GNU Make 4.4.1 (native)
+          shell: powershell
+          command: |
+            .\scripts\windows\install-make.ps1
+
+  install-deps-windows-build:
+    steps:
+      - create-windows-tools-cache-dir
+      - restore_cache:
+          name: Restoring Windows build tools cache
+          keys:
+            - &windows-build-tools-cache-key windows-build-tools-cache-v1-{{ arch }}-{{ checksum ".nvmrc" }}-{{ checksum "scripts/windows/install-node.ps1" }}-{{ checksum "scripts/windows/install-python3.ps1" }}-{{ checksum "scripts/windows/install-make.ps1" }}
+      - install-windows-build-tools
+      - save_cache:
+          name: Saving Windows build tools cache
+          key: *windows-build-tools-cache-key
+          paths:
+            - << pipeline.parameters.windows_cache_dir >>
+            - C:\ProgramData\nvm
+
+  install-deps-windows-full:
+    steps:
+      - create-windows-tools-cache-dir
+      - restore_cache:
+          name: Restoring Windows tools cache
+          keys:
+            - &windows-build-and-test-tools-cache-key windows-build-and-test-tools-cache-v1-{{ arch }}-{{ checksum ".nvmrc" }}-{{ checksum "scripts/windows/install-node.ps1" }}-{{ checksum "scripts/windows/install-python3.ps1" }}-{{ checksum "scripts/windows/install-make.ps1" }}-{{ checksum "scripts/windows/install-maven.ps1" }}-{{ checksum "scripts/windows/install-gradle.ps1" }}-{{ checksum "scripts/windows/install-dotnet-sdk.ps1" }}-{{ checksum "scripts/windows/ensure-python-uv.ps1" }}
+            - *windows-build-tools-cache-key
+      - install-windows-build-tools
       - run:
           name: Install Apache Maven 3.8.2 (native)
           shell: powershell
@@ -307,16 +341,6 @@ commands:
           command: |
             .\scripts\windows\install-dotnet-sdk.ps1
       - run:
-          name: Install Python 3.12.8 (native)
-          shell: powershell
-          command: |
-            .\scripts\windows\install-python3.ps1
-      - run:
-          name: Install GNU Make 4.4.1 (native)
-          shell: powershell
-          command: |
-            .\scripts\windows\install-make.ps1
-      - run:
           name: Ensure Python and uv
           shell: powershell
           command: |
@@ -324,15 +348,15 @@ commands:
             .\scripts\windows\ensure-python-uv.ps1
       - save_cache:
           name: Saving Windows tools cache
-          key: windows-tools-cache-v5-{{ arch }}-{{ checksum ".nvmrc" }}
+          key: *windows-build-and-test-tools-cache-key
           paths:
             - << pipeline.parameters.windows_cache_dir >>
             - C:\ProgramData\nvm
 
-  install-deps-windows-native-full-signing:
+  install-deps-windows-build-signing:
     steps:
       - install-deps-windows-signing
-      - install-deps-windows-native-build
+      - install-deps-windows-build
 
   install-deps-windows-signing:
     steps:
@@ -378,10 +402,6 @@ commands:
           paths:
             - ~\smtools-windows-x64.msi
 
-  install-deps-windows-full-signing:
-    steps:
-      - install-deps-windows-signing
-
   install-deps-noop:
     steps:
       - run:
@@ -410,6 +430,23 @@ commands:
             git config --global url."https://${GITHUB_PRIVATE_TOKEN}:x-oauth-basic@github.com/snyk".insteadOf "https://github.com/snyk"
             # Propagate GOPRIVATE to subsequent bash steps.
             echo 'export GOPRIVATE=github.com/snyk' >> "$BASH_ENV"
+
+  setup-go-build-cache:
+    description: >-
+      Point GOMODCACHE and GOCACHE into the checkout, where the cache steps' relative paths
+      find them on every executor. Plus write a weekly time period file that the module cache key uses.
+    steps:
+      - run:
+          name: Configure Go module and compile cache paths
+          shell: bash
+          command: |
+            # On Windows Go needs the C:/... path that Git Bash's `pwd -W` gives.
+            ROOT="$(pwd -W 2>/dev/null || pwd)"
+            echo "export GOMODCACHE=\"$ROOT/.go-cache/mod\"" >> "$BASH_ENV"
+            echo "export GOCACHE=\"$ROOT/.go-cache/build\"" >> "$BASH_ENV"
+            # Go never prunes its module cache, so we create a new cache every week to prevent it growing forever.
+            date -u +%U%Y > ~/go_mod_period.txt
+            cat ~/go_mod_period.txt
 
   install-deps-python:
     parameters:
@@ -596,6 +633,7 @@ workflows:
           go_download_base_url: << pipeline.parameters.go_download_base_url >>
           context:
             - devex_cli
+            - endpoint-experience
             - devex_cli_docker_hub
             - team-cli-go-private-modules
             - prodsec-orb-runtime
@@ -636,6 +674,16 @@ workflows:
               ignore:
                 - main
                 - '/release.*/'
+
+      - test-release-scripts:
+          context:
+            - devex_cli_docker_hub
+          requires:
+            - prepare-build
+          filters:
+            branches:
+              ignore:
+                - '/^docs\/.*/'
 
       - build-public:
           name: build public (open source)
@@ -835,7 +883,7 @@ workflows:
           go_download_base_url: << pipeline.parameters.fips_go_download_base_url >>
           go_version: << pipeline.parameters.fips_go_version >>
           make_target: build clean-golang build-fips BUILD_MODE=private
-          install_deps_extension: windows-native-full-signing
+          install_deps_extension: windows-build-signing
           install_path: 'C:\'
           executor: win-server2022-amd64
           context:
@@ -1028,7 +1076,7 @@ workflows:
             - build windows amd64
           executor: win-server2022-amd64
           test_snyk_command: binary-releases\\snyk-win.exe
-          install_deps_extension: windows-native-build
+          install_deps_extension: windows-full
           dont_skip_tests: 0
           shards: 8
           pre_test_cmds: |
@@ -1047,7 +1095,7 @@ workflows:
           go_arch: amd64
           make_target: sign sign-fips
           executor: win-server2022-amd64
-          install_deps_extension: windows-native-full-signing
+          install_deps_extension: windows-build-signing
           filters:
             branches:
               only:
@@ -1352,6 +1400,19 @@ workflows:
                 - main
                 - '/release.*/'
 
+      - release-github:
+          name: upload github (preview)
+          deployment: preview
+          context:
+            - team-hammerhead-common-deploy-tokens
+            - devex_cli_docker_hub
+          requires:
+            - upload preview
+          filters:
+            branches:
+              only:
+                - main
+
       - release-npm:
           name: upload npm (preview)
           deployment: preview
@@ -1399,6 +1460,7 @@ workflows:
           deployment: preview
           requires:
             - upload npm (preview)
+            - upload github (preview)
           filters:
             branches:
               only:
@@ -1624,6 +1686,20 @@ jobs:
           working_directory: ./cliv2
           command: make openboxtest
 
+  test-release-scripts:
+    executor: docker-amd64
+    steps:
+      - prepare-workspace
+      - install-go:
+          go_os: linux
+          go_target_os: linux
+          go_arch: amd64
+          base_url: << pipeline.parameters.go_download_base_url >>
+          extraction_path: '.'
+      - run:
+          name: Running release-scripts unit tests
+          command: make test-release-scripts
+
   build-public:
     description: Verify the open source (public) CLI build compiles from scratch
     executor: docker-amd64
@@ -1741,8 +1817,18 @@ jobs:
           go_version: << parameters.go_version >>
           extraction_path: << parameters.install_path >>
       - setup-go-private-modules
+      - setup-go-build-cache
       - restore_cache:
-          key: go-build-{{ arch }}-{{ checksum "cliv2/go.sum" }}
+          name: Restore Go module cache
+          keys:
+            - &go-mod-cache-key go-mod-v1-<< parameters.go_os >>-<< parameters.go_arch >>-{{ checksum "~/go_mod_period.txt" }}-{{ checksum "cliv2/go.sum" }}-{{ checksum "cliv2-private/go.sum" }}
+            - go-mod-v1-<< parameters.go_os >>-<< parameters.go_arch >>-{{ checksum "~/go_mod_period.txt" }}-
+      - restore_cache:
+          name: Restore Go compile cache
+          keys:
+            # The build variants compile with different toolchains, cgo and C compilers, so each job gets its own cache.
+            - &go-build-cache-key go-build-v1-{{ .Environment.CIRCLE_JOB }}-{{ checksum "cliv2/go.sum" }}-{{ checksum "cliv2-private/go.sum" }}
+            - go-build-v1-{{ .Environment.CIRCLE_JOB }}-
       - make-binary:
           static: << parameters.static_binary >>
           go_arch: << parameters.go_arch >>
@@ -1750,8 +1836,13 @@ jobs:
           make_target: << parameters.make_target >>
           c_compiler: << parameters.c_compiler >>
       - save_cache:
-          key: go-build-{{ arch }}-{{ checksum "cliv2/go.sum" }}
-          paths: [/home/circleci/go/pkg/mod]
+          name: Save Go module cache
+          key: *go-mod-cache-key
+          paths: [.go-cache/mod]
+      - save_cache:
+          name: Save Go compile cache
+          key: *go-build-cache-key
+          paths: [.go-cache/build]
       - store_artifacts:
           path: binary-releases
       - persist_to_workspace:
@@ -2119,20 +2210,28 @@ jobs:
       - failed-release-notification
 
   release-github:
+    parameters:
+      deployment:
+        type: string
+        default: stable
     executor: docker-amd64
     steps:
       - prepare-workspace
       - shall-deploy:
-          deployment: stable
+          deployment: << parameters.deployment >>
       - gh/setup:
           token: HAMMERHEAD_GITHUB_PAT
           version: << pipeline.parameters.gh_version >>
       - run:
-          name: Publish to GitHub
+          name: Publish to GitHub ( << parameters.deployment >> )
           command: ./release-scripts/upload-artifacts.sh github
-      - run:
-          name: Create Jira Release
-          command: ./release-scripts/create-jira-release.sh
+      - when:
+          condition:
+            equal: [stable, << parameters.deployment >>]
+          steps:
+            - run:
+                name: Create Jira Release
+                command: ./release-scripts/create-jira-release.sh
       - failed-release-notification
 
   release-npm:
