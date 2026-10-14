@@ -25,7 +25,7 @@ require (
 	github.com/snyk/go-application-framework v0.31.1-0.20261013124144-13ee9e71765c
 	github.com/snyk/go-httpauth v0.0.0-20260810142636-0f6182aaccbc
 	github.com/snyk/snyk-iac-capture v0.6.5
-	github.com/snyk/snyk-ls v0.0.0-20260929164017-50496b3f2696
+	github.com/snyk/snyk-ls v0.0.0-20261014173353-6ed3290ddc95
 	github.com/snyk/studio-mcp v1.15.5
 	github.com/spf13/cobra v1.9.1
 	github.com/spf13/pflag v1.0.10
