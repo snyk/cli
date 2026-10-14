@@ -535,6 +535,8 @@ func TestBuildRecipeUsesGeneratedLSMetadataInLdflags(t *testing.T) {
 	rootDir := filepath.Join(tempDir, "cli")
 	moduleDir := filepath.Join(rootDir, "cliv2")
 	releaseScriptsDir := filepath.Join(rootDir, "release-scripts")
+	helpDocsSourceDir := filepath.Join(rootDir, "help", "cli-commands")
+	helpDocsEmbedDir := filepath.Join(moduleDir, "internal", "helpdocs", "cli-commands")
 	binDir := filepath.Join(tempDir, "bin")
 	replacedDir := filepath.Join(rootDir, "snyk-ls")
 	fakeGoPath := filepath.Join(tempDir, "fake-go")
@@ -546,6 +548,12 @@ func TestBuildRecipeUsesGeneratedLSMetadataInLdflags(t *testing.T) {
 	if err := os.MkdirAll(releaseScriptsDir, 0755); err != nil {
 		t.Fatal(err)
 	}
+	if err := os.MkdirAll(helpDocsSourceDir, 0755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.MkdirAll(helpDocsEmbedDir, 0755); err != nil {
+		t.Fatal(err)
+	}
 	if err := os.MkdirAll(binDir, 0755); err != nil {
 		t.Fatal(err)
 	}
@@ -553,6 +561,9 @@ func TestBuildRecipeUsesGeneratedLSMetadataInLdflags(t *testing.T) {
 		t.Fatal(err)
 	}
 	if err := os.WriteFile(filepath.Join(binDir, "version"), []byte("9.9.9"), 0644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(helpDocsSourceDir, "snyk.md"), []byte("# snyk"), 0644); err != nil {
 		t.Fatal(err)
 	}
 

@@ -15,7 +15,9 @@ echo "| Running sanity checks on the repository before releasing"
 echo "| Checking Version: ${VERSION_TAG} $(if [ "$IS_STABLE_RELEASE" = true ]; then echo "(stable)"; fi)"
 echo "| "
 
-TAG_FOUND=$(git -P tag --list --contains)
+# Only stable tags on HEAD block a release. Preview/rc tags are expected on a commit that a
+# release branch is cut from; a prerelease version's own tag is caught by the exact-tag check below.
+TAG_FOUND=$(git -P tag --points-at HEAD | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' || true)
 if [ "${TAG_FOUND}" != "" ]; then
     echo "| [FAIL] The current commit has already been tagged and released!"
     exit 1
@@ -23,9 +25,8 @@ fi
 echo "| [PASS] The commit looks good!"
 
 
-git tag | grep v${VERSION_TAG}
-retVal=$?
-if [ $retVal -ne 1 ]; then
+EXISTING_TAG="$(git tag --list "v${VERSION_TAG}")"
+if [ -n "$EXISTING_TAG" ]; then
     echo "| [FAIL] The version has already been released to github. If there are any changes available, they might not have notable value, use feat: and fix: commit prefix to indicate important change."
     exit 1
 fi

@@ -83,10 +83,19 @@ show_help() {
 }
 
 upload_github() {
+  # Non-stable channels (preview, rc) are published as GitHub prereleases so that
+  # the "latest release" pointer consumed by homebrew-tap, scoop-snyk, and install
+  # scripts keeps resolving to stable only.
+  local prerelease_arg=""
+  if [ -n "${RELEASE_CHANNEL}" ] && [ "${RELEASE_CHANNEL}" != "stable" ]; then
+    prerelease_arg="--prerelease"
+  fi
+
   if [ "${DRY_RUN}" == true ]; then
     echo "DRY RUN: uploading draft to GitHub..."
     gh release create "${VERSION_TAG}" "${StaticFiles[@]}" \
       --draft \
+      ${prerelease_arg} \
       --target "${CIRCLE_SHA1}" \
       --title "${VERSION_TAG}" \
       --notes-file binary-releases/RELEASE_NOTES.md
@@ -97,6 +106,7 @@ upload_github() {
   else
     echo "Uploading to GitHub..."
     gh release create "${VERSION_TAG}" "${StaticFiles[@]}" \
+      ${prerelease_arg} \
       --target "${CIRCLE_SHA1}" \
       --title "${VERSION_TAG}" \
       --notes-file binary-releases/RELEASE_NOTES.md
