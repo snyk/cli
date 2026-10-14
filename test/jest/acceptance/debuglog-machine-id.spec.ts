@@ -4,12 +4,11 @@ import * as path from 'path';
 import { fakeServer, getFirstIPv4Address } from '../../acceptance/fake-server';
 import { runSnykCLI } from '../util/runSnykCLI';
 import { getAvailableServerPort } from '../util/getServerPort';
-import { describeIf, isWindowsOperatingSystem, testIf } from '../../utils';
+import { isWindowsOperatingSystem, testIf } from '../../utils';
 
 jest.setTimeout(1000 * 60);
 
-// The per-user machine id file lives under HOME only on macOS and Linux.
-describeIf(!isWindowsOperatingSystem())('debug log machine id', () => {
+describe('debug log machine id', () => {
   let server;
   let env: Record<string, string>;
   let home: string;
@@ -45,10 +44,22 @@ describeIf(!isWindowsOperatingSystem())('debug log machine id', () => {
 
   const runWhoamiWithDebugLog = async (extraEnv = {}) => {
     const { stderr } = await runSnykCLI('whoami --experimental -d', {
-      env: { ...env, HOME: home, ...extraEnv },
+      env: {
+        ...env,
+        HOME: home,
+        LOCALAPPDATA: home,
+        // Left uncreated so the machine-wide write fails and falls back to per-user.
+        ProgramData: path.join(home, 'ProgramData'),
+        ...extraEnv,
+      },
     });
     return stderr;
   };
+
+  const perUserMachineIdFile = () =>
+    isWindowsOperatingSystem()
+      ? path.join(home, 'Snyk', 'machine-id.json')
+      : path.join(home, '.snyk', 'machine-id.json');
 
   it('shows the machine id supplied by the caller', async () => {
     const supplied = '3f2504e0-4f89-41d3-9a0c-0305e82c3301';
@@ -64,20 +75,17 @@ describeIf(!isWindowsOperatingSystem())('debug log machine id', () => {
     const stderr = await runWhoamiWithDebugLog();
 
     const logged = stderr.match(/Machine ID:\s+(\S+)/)?.[1];
-    const stored = JSON.parse(
-      fs.readFileSync(path.join(home, '.snyk', 'machine-id.json'), 'utf8'),
-    );
+    const stored = JSON.parse(fs.readFileSync(perUserMachineIdFile(), 'utf8'));
     expect(logged).toEqual(stored.machine_id);
   });
 
-  // Root reads files regardless of their permissions.
-  testIf(process.getuid?.() !== 0)(
+  // Root reads files regardless of their permissions, and Windows ignores chmod.
+  testIf(!isWindowsOperatingSystem() && process.getuid?.() !== 0)(
     'explains why the machine id file could not be read',
     async () => {
       const firstRun = await runWhoamiWithDebugLog();
       expect(firstRun).toMatch(/Machine ID:\s+\S+/);
-      const machineIdFile = path.join(home, '.snyk', 'machine-id.json');
-      fs.chmodSync(machineIdFile, 0o000);
+      fs.chmodSync(perUserMachineIdFile(), 0o000);
 
       const stderr = await runWhoamiWithDebugLog();
 

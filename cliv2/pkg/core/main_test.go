@@ -5,8 +5,10 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/fs"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 	"testing"
 	"time"
@@ -145,16 +147,43 @@ func Test_populateRedactionTerms_excludesClientMachineId(t *testing.T) {
 	assert.NotContains(t, terms, machineId, "client machine id must never be swept into REDACTION_TERMS, or the analytics scrub chokepoint strips it right back out of its own extension")
 }
 
-func populateRedactionTermsWithSuppliedMachineID(t *testing.T, machineID string) []string {
+func newAppEngineForRedactionTerms(t *testing.T) (configuration.Configuration, workflow.Engine) {
 	t.Helper()
-	t.Setenv("HOME", t.TempDir())
-	t.Setenv("INTERNAL_SNYK_MACHINE_ID", machineID)
 	config := configuration.NewWithOpts(configuration.WithSupportedEnvVarPrefixes("snyk_", "internal_", "test_"))
 	engine := app.CreateAppEngineWithOptions(app.WithConfiguration(config))
 	// Replaces the application defaults, which look the organization up over the network.
 	config.AddDefaultValue(configuration.ORGANIZATION, configuration.StandardDefaultValueFunction(""))
 	config.AddDefaultValue(configuration.ORGANIZATION_SLUG, configuration.StandardDefaultValueFunction(""))
+	return config, engine
+}
+
+func populateRedactionTermsWithSuppliedMachineID(t *testing.T, machineID string) []string {
+	t.Helper()
+	t.Setenv("HOME", t.TempDir())
+	t.Setenv("INTERNAL_SNYK_MACHINE_ID", machineID)
+	config, engine := newAppEngineForRedactionTerms(t)
 	return populateRedactionTerms(config, engine)
+}
+
+func Test_populateRedactionTerms_doesNotCreateMachineIdFileWithoutSuppliedMachineId(t *testing.T) {
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	t.Setenv("LOCALAPPDATA", home)
+	t.Setenv("ProgramData", home)
+	t.Setenv("INTERNAL_SNYK_MACHINE_ID", "")
+	require.NoError(t, os.Unsetenv("INTERNAL_SNYK_MACHINE_ID"))
+	config, engine := newAppEngineForRedactionTerms(t)
+
+	populateRedactionTerms(config, engine)
+
+	var machineIDFiles []string
+	require.NoError(t, filepath.WalkDir(home, func(path string, d fs.DirEntry, err error) error {
+		if err == nil && d.Name() == "machine-id.json" {
+			machineIDFiles = append(machineIDFiles, path)
+		}
+		return err
+	}))
+	assert.Empty(t, machineIDFiles, "building redaction terms must not resolve the machine id, which creates a machine id file when none exists")
 }
 
 func Test_populateRedactionTerms_excludesValidSuppliedMachineId(t *testing.T) {

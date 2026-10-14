@@ -778,9 +778,7 @@ func populateRedactionTerms(config configuration.Configuration, engine workflow.
 		knownTerms = append(knownTerms, detectedAgent)
 		knownTerms = append(knownTerms, strings.Fields(detectedAgent)...)
 	}
-	// The IsSet guard keeps runs without an override from resolving the machine id
-	// file here, and the configuration only returns a supplied value once it has
-	// passed validation, so an arbitrary value placed in the variable stays redacted.
+	// Without an override, resolving the machine id here could create the machine id file just to build redaction terms.
 	if config.IsSet(configuration.MACHINE_ID) {
 		knownTerms = append(knownTerms, config.GetString(configuration.MACHINE_ID))
 	}
