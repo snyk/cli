@@ -1,7 +1,19 @@
-import pick = require('lodash.pick');
 import { CustomError } from '../errors';
 import { BasicResultData, SEVERITY, TestDepGraphMeta } from './legacy';
 import * as debugLib from 'debug';
+
+function pick<T extends object, K extends keyof T>(
+  obj: T,
+  ...keys: K[]
+): Pick<T, K> {
+  return keys.reduce(
+    (acc, key) => {
+      if (key in obj) acc[key] = obj[key];
+      return acc;
+    },
+    {} as Pick<T, K>,
+  );
+}
 
 const debug = debugLib('snyk-iac');
 
