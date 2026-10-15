@@ -13,7 +13,7 @@ require (
 	github.com/rs/zerolog v1.35.1
 	github.com/snyk/cli-extension-agent-scan v0.0.0-20260821092236-dc228259a004
 	github.com/snyk/cli-extension-ai-bom v0.0.0-20260817214817-d0a81ac40172
-	github.com/snyk/cli-extension-dep-graph/v2 v2.19.1
+	github.com/snyk/cli-extension-dep-graph/v2 v2.19.2
 	github.com/snyk/cli-extension-iac v0.0.0-20260515092252-505c498f1077
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20260818142329-df932cc1794f
 	github.com/snyk/cli-extension-os-flows v0.0.0-20261012164012-769a5b74a7d8
@@ -25,7 +25,7 @@ require (
 	github.com/snyk/go-application-framework v0.31.1-0.20261013124144-13ee9e71765c
 	github.com/snyk/go-httpauth v0.0.0-20260810142636-0f6182aaccbc
 	github.com/snyk/snyk-iac-capture v0.6.5
-	github.com/snyk/snyk-ls v0.0.0-20260929164017-50496b3f2696
+	github.com/snyk/snyk-ls v0.0.0-20261014173353-6ed3290ddc95
 	github.com/snyk/studio-mcp v1.15.5
 	github.com/spf13/cobra v1.9.1
 	github.com/spf13/pflag v1.0.10

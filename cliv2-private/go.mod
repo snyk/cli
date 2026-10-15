@@ -213,7 +213,7 @@ require (
 	github.com/skeema/knownhosts v1.3.2 // indirect
 	github.com/snyk/cli-extension-agent-scan v0.0.0-20260821092236-dc228259a004 // indirect
 	github.com/snyk/cli-extension-ai-bom v0.0.0-20260817214817-d0a81ac40172 // indirect
-	github.com/snyk/cli-extension-dep-graph/v2 v2.19.1 // indirect
+	github.com/snyk/cli-extension-dep-graph/v2 v2.19.2 // indirect
 	github.com/snyk/cli-extension-iac v0.0.0-20260515092252-505c498f1077 // indirect
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20260818142329-df932cc1794f // indirect
 	github.com/snyk/cli-extension-os-flows v0.0.0-20261012164012-769a5b74a7d8 // indirect
@@ -227,7 +227,7 @@ require (
 	github.com/snyk/go-httpauth v0.0.0-20260810142636-0f6182aaccbc // indirect
 	github.com/snyk/policy-engine v1.1.4 // indirect
 	github.com/snyk/snyk-iac-capture v0.6.5 // indirect
-	github.com/snyk/snyk-ls v0.0.0-20260929164017-50496b3f2696 // indirect
+	github.com/snyk/snyk-ls v0.0.0-20261014173353-6ed3290ddc95 // indirect
 	github.com/snyk/studio-mcp v1.15.5 // indirect
 	github.com/sourcegraph/go-lsp v0.0.0-20240223163137-f80c5dd31dfd // indirect
 	github.com/spf13/afero v1.15.0 // indirect
