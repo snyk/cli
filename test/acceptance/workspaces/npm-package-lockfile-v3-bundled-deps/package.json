@@ -1,6 +1,6 @@
 {
   "name": "bundled-deps",
   "dependencies": {
-    "@snyk/sweater-comb": "^1.24.0"
+    "@snyk/sweater-comb": "^2.1.1"
   }
 }
