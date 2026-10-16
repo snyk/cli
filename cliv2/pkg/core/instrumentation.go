@@ -20,6 +20,7 @@ import (
 	"github.com/snyk/go-application-framework/pkg/networking"
 	"github.com/snyk/go-application-framework/pkg/networking/middleware"
 	"github.com/snyk/go-application-framework/pkg/utils"
+	"github.com/snyk/go-application-framework/pkg/utils/git"
 	"github.com/snyk/go-application-framework/pkg/workflow"
 )
 
@@ -69,6 +70,31 @@ func addClientMachineId(instrumentor analytics.InstrumentationCollector, config 
 	}
 }
 
+// agentSessionIdConfigKey is the config key Studio sets before exec'ing the snyk
+// binary (see Test_addAgentSessionId). populateRedactionTerms in main.go must
+// exclude this value from its sweep, or the scrub chokepoint redacts it right back
+// out of the studio::client_session_id extension it's meant to carry.
+const AgentSessionIdConfigKey = "internal_snyk_agent_session_id"
+
+func addAgentSessionId(instrumentor analytics.InstrumentationCollector, config configuration.Configuration) {
+	if id := config.GetString(AgentSessionIdConfigKey); id != "" {
+		instrumentor.AddExtension("studio::client_session_id", id)
+	}
+}
+
+// empty-path guard is required: an empty path resolves to the process working
+// directory and would attach an unrelated repository's provenance.
+func addGitProvenance(instrumentor analytics.InstrumentationCollector, config configuration.Configuration) {
+	path := config.GetString(configuration.INPUT_DIRECTORY)
+	if len(path) == 0 {
+		return
+	}
+
+	if tHash, err := git.TreeHashFromDir(path); err == nil {
+		instrumentor.AddExtension("git.tree_hash", tHash)
+	}
+}
+
 func updateInstrumentationDataBeforeSending(cliAnalytics analytics.Analytics, startTime time.Time, ua networking.UserAgentInfo, exitCode int) {
 	targetId, targetIdError := instrumentation.GetTargetId(globalConfiguration.GetString(configuration.INPUT_DIRECTORY), instrumentation.AutoDetectedTargetId, instrumentation.WithConfiguredRepository(globalConfiguration))
 	if targetIdError != nil {
@@ -83,6 +109,8 @@ func updateInstrumentationDataBeforeSending(cliAnalytics analytics.Analytics, st
 	addRuntimeDetails(cliAnalytics.GetInstrumentation(), ua)
 	addNetworkingDetails(cliAnalytics.GetInstrumentation(), globalConfiguration)
 	addClientMachineId(cliAnalytics.GetInstrumentation(), globalConfiguration)
+	addAgentSessionId(cliAnalytics.GetInstrumentation(), globalConfiguration)
+	addGitProvenance(cliAnalytics.GetInstrumentation(), globalConfiguration)
 
 	cliAnalytics.GetInstrumentation().AddExtension("exitcode", exitCode)
 	if exitCode == 2 {
