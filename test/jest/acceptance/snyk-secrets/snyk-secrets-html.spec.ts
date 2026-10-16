@@ -31,11 +31,11 @@ describe('snyk secrets test HTML output', () => {
       SNYK_HOST: `http://localhost:${port}`,
       SNYK_TOKEN: '123456789',
       SNYK_DISABLE_ANALYTICS: '1',
-      INTERNAL_SNYK_FEATURE_FLAG_IS_SECRETS_ENABLED: 'true',
     };
   });
 
   beforeEach(async () => {
+    server.setOrgSetting('secrets', true);
     directory = await makeTmpDirectory();
     await fs.writeFile(join(directory, 'config.txt'), 'synthetic scan input');
   });
@@ -46,6 +46,22 @@ describe('snyk secrets test HTML output', () => {
   });
 
   afterAll(() => server.closePromise());
+
+  test('fails closed before scanning when the org Secrets setting is off', async () => {
+    server.setOrgSetting('secrets', false);
+
+    const { code } = await runSnykCLI(`secrets test --org=${orgId} --html`, {
+      cwd: directory,
+      env,
+    });
+
+    expect(code).not.toBe(0);
+    const paths = server.getRequests().map((r) => r.path);
+    expect(paths).toContainEqual(
+      expect.stringContaining(`/rest/orgs/${orgId}/settings/secrets`),
+    );
+    expect(paths).not.toContain(`/rest/orgs/${orgId}/tests`);
+  });
 
   // The fixtures are named after the finding count: test-<count>-findings.json
   // and findings-<count>.json.
