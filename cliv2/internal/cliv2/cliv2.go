@@ -364,6 +364,7 @@ func PrepareV1EnvironmentVariables(
 			constants.SNYK_INTERNAL_PREVIEW_FEATURES_ENABLED,
 			constants.SNYK_INTERNAL_REQUEST_CONCURRENCY_ENV,
 			constants.DEBUG_CONST,
+			constants.SNYK_OAUTH_ACCESS_TOKEN_ENV,
 		}
 
 		for _, key := range blackList {
