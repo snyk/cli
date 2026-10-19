@@ -116,12 +116,8 @@ func legacycliWorkflow(
 
 	// In general all authentication if handled through the Extensible CLI now. But there is some legacy logic
 	// that checks for an API token to be available. Until this logic is safely removed, we will be injecting a
-	// fake/random API token to bypass this logic.
-	apiToken := config.GetString(configuration.AUTHENTICATION_TOKEN)
-	if len(apiToken) == 0 {
-		apiToken = "random"
-	}
-	cli.AppendEnvironmentVariables([]string{constants.SNYK_API_TOKEN_ENV + "=" + apiToken, "DEBUG_HIDE_DATE=true"})
+	// fake/random API token to bypass this logic. The real token is never passed on.
+	cli.AppendEnvironmentVariables([]string{constants.SNYK_API_TOKEN_ENV + "=random", "DEBUG_HIDE_DATE=true"})
 
 	err = cli.Init()
 	if err != nil {
