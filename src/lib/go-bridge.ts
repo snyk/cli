@@ -157,12 +157,12 @@ export function execGoCommand(
 }
 
 function restoreSystemEnvironment(env: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
-  // The parent Go process injects a fake SNYK_TOKEN as "random" into the
+  // The parent Go process injects a fake SNYK_TOKEN as "redacted" into the
   // TypeScript CLI environment to bypass legacy auth checks. When re-invoking
   // the Go binary, this token tricks the child cli call into disabling OAuth and
   // attempting API-token auth, which fails. Removing it lets the child cli to
   // authenticate via config/keyring like a normal CLI invocation.
-  if (env.SNYK_TOKEN === 'random') {
+  if (env.SNYK_TOKEN === 'redacted') {
     delete env.SNYK_TOKEN;
   }
 

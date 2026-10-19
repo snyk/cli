@@ -12,6 +12,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"sort"
+	"strings"
 	"testing"
 	"time"
 
@@ -95,6 +96,20 @@ func Test_NewCLIv2_SubprocessEnv_OverridesIfSet_AndDefaultsToOsEnv(t *testing.T)
 	})
 }
 
+// extractV1Token removes SNYK_TOKEN from env and returns it.
+func extractV1Token(t *testing.T, env []string) (rest []string, token string) {
+	t.Helper()
+	for _, e := range env {
+		if value, found := strings.CutPrefix(e, constants.SNYK_API_TOKEN_ENV+"="); found {
+			token = value
+			continue
+		}
+		rest = append(rest, e)
+	}
+	assert.NotEmpty(t, token)
+	return rest, token
+}
+
 func Test_PrepareV1EnvironmentVariables_Fill_and_Filter(t *testing.T) {
 	orgid := "orgid"
 	testapi := "https://api.snyky.io"
@@ -144,6 +159,7 @@ func Test_PrepareV1EnvironmentVariables_Fill_and_Filter(t *testing.T) {
 
 	actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation", config, []string{})
 
+	actual, _ = extractV1Token(t, actual)
 	sort.Strings(expected)
 	sort.Strings(actual)
 	assert.Equal(t, expected, actual)
@@ -185,6 +201,7 @@ func Test_PrepareV1EnvironmentVariables_DontOverrideExistingIntegration(t *testi
 
 	actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation", config, []string{})
 
+	actual, _ = extractV1Token(t, actual)
 	sort.Strings(expected)
 	sort.Strings(actual)
 	assert.Equal(t, expected, actual)
@@ -226,10 +243,35 @@ func Test_PrepareV1EnvironmentVariables_OverrideProxyAndCerts(t *testing.T) {
 
 	actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation", config, []string{})
 
+	actual, _ = extractV1Token(t, actual)
 	sort.Strings(expected)
 	sort.Strings(actual)
 	assert.Equal(t, expected, actual)
 	assert.Nil(t, err)
+}
+
+func Test_PrepareV1EnvironmentVariables_ReplacesCredentials(t *testing.T) {
+	config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
+	input := []string{
+		"SNYK_TOKEN=secret",
+		"SNYK_OAUTH_TOKEN=oauth",
+		"SNYK_CFG_API=cfg",
+	}
+
+	first, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation", config, []string{})
+	assert.Nil(t, err)
+	second, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation", config, []string{})
+	assert.Nil(t, err)
+
+	rest, firstToken := extractV1Token(t, first)
+	_, secondToken := extractV1Token(t, second)
+	assert.Equal(t, "redacted", firstToken)
+	assert.Equal(t, firstToken, secondToken)
+	for _, e := range rest {
+		for _, name := range []string{"SNYK_OAUTH_TOKEN=", "SNYK_CFG_API="} {
+			assert.NotContains(t, e, name)
+		}
+	}
 }
 
 func Test_PrepareV1EnvironmentVariables_OnlyExplicitlySetValues(t *testing.T) {

@@ -139,7 +139,7 @@ describe('go-bridge', () => {
 
     it('strips SNYK_TOKEN from the child process environment', async () => {
       process.env.SNYK_INTERNAL_CLI_EXECUTABLE_PATH = '/usr/local/bin/snyk';
-      process.env.SNYK_TOKEN = 'random';
+      process.env.SNYK_TOKEN = 'redacted';
 
       const mockProc = createMockProcess();
       const spawnSpy = jest
@@ -158,7 +158,7 @@ describe('go-bridge', () => {
       jest.restoreAllMocks();
     });
 
-    it('preserves SNYK_TOKEN when its value is not "random"', async () => {
+    it('preserves SNYK_TOKEN when its value is not "redacted"', async () => {
       process.env.SNYK_INTERNAL_CLI_EXECUTABLE_PATH = '/usr/local/bin/snyk';
       process.env.SNYK_TOKEN = 'real-api-token-value';
 
