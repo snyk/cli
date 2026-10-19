@@ -9,6 +9,7 @@ import (
 	"os/exec"
 	"runtime"
 	"strconv"
+	"strings"
 
 	"github.com/snyk/cli/cliv2/internal/proxy/interceptor"
 	"github.com/snyk/cli/cliv2/internal/utils"
@@ -68,6 +69,19 @@ func finalizeArguments(args []string, unknownArgs []string) []string {
 	return filteredArgs
 }
 
+// iacTestCredentialEnv returns the snyk-iac-test credential overrides the user set. Like all credentials they are
+// detached from the process environment at startup, so the legacy CLI needs them explicitly. It detaches them again
+// before running any plugin.
+func iacTestCredentialEnv(config configuration.Configuration) []string {
+	env := []string{}
+	for _, name := range constants.SNYK_IAC_TEST_CREDENTIAL_ENVS {
+		if value := config.GetString(strings.ToLower(name)); len(value) > 0 {
+			env = append(env, name+"="+value)
+		}
+	}
+	return env
+}
+
 func legacycliWorkflow(
 	invocation workflow.InvocationContext,
 	_ []workflow.Data,
@@ -122,6 +136,13 @@ func legacycliWorkflow(
 		apiToken = "random"
 	}
 	cli.AppendEnvironmentVariables([]string{constants.SNYK_API_TOKEN_ENV + "=" + apiToken, "DEBUG_HIDE_DATE=true"})
+
+	// Bearer tokens are only ever set via env var. These are detached from the process environment at startup, so the
+	// legacy CLI needs them explicitly. It detaches them again before running any plugin.
+	if bearerToken := config.GetString(configuration.AUTHENTICATION_BEARER_TOKEN); len(bearerToken) > 0 {
+		cli.AppendEnvironmentVariables([]string{constants.SNYK_OAUTH_ACCESS_TOKEN_ENV + "=" + bearerToken})
+	}
+	cli.AppendEnvironmentVariables(iacTestCredentialEnv(config))
 
 	err = cli.Init()
 	if err != nil {

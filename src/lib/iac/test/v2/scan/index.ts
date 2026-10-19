@@ -11,6 +11,7 @@ import * as path from 'path';
 import * as rimraf from 'rimraf';
 import config from '../../../../config';
 import { api, getOAuthToken } from '../../../../api-token';
+import { getCredentialEnv } from '../../../../child-process-env';
 import envPaths from 'env-paths';
 import * as analytics from '../../../../analytics';
 import { CLI } from '@snyk/error-catalog-nodejs-public';
@@ -73,15 +74,15 @@ async function scanWithConfig(
   env['SNYK_IAC_TEST_API_REST_URL'] =
     process.env['SNYK_IAC_TEST_API_REST_URL'] || apiUrl;
   env['SNYK_IAC_TEST_API_REST_TOKEN'] =
-    process.env['SNYK_IAC_TEST_API_REST_TOKEN'] || getApiToken();
+    getCredentialEnv('SNYK_IAC_TEST_API_REST_TOKEN') || getApiToken();
   env['SNYK_IAC_TEST_API_REST_OAUTH_TOKEN'] =
-    process.env['SNYK_IAC_TEST_API_REST_OAUTH_TOKEN'] || getOAuthToken();
+    getCredentialEnv('SNYK_IAC_TEST_API_REST_OAUTH_TOKEN') || getOAuthToken();
   env['SNYK_IAC_TEST_API_V1_URL'] =
     process.env['SNYK_IAC_TEST_API_V1_URL'] || apiUrl;
   env['SNYK_IAC_TEST_API_V1_TOKEN'] =
-    process.env['SNYK_IAC_TEST_API_V1_TOKEN'] || getApiToken();
+    getCredentialEnv('SNYK_IAC_TEST_API_V1_TOKEN') || getApiToken();
   env['SNYK_IAC_TEST_API_V1_OAUTH_TOKEN'] =
-    process.env['SNYK_IAC_TEST_API_V1_OAUTH_TOKEN'] || getOAuthToken();
+    getCredentialEnv('SNYK_IAC_TEST_API_V1_OAUTH_TOKEN') || getOAuthToken();
 
   const args = processFlags(
     options,

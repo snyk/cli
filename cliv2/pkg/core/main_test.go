@@ -116,6 +116,28 @@ func Test_mainWithErrorCode(t *testing.T) {
 	})
 }
 
+func Test_mainWithErrorCode_detachesCredentialEnvVars(t *testing.T) {
+	defer cleanup()
+	t.Setenv("SNYK_TOKEN", "detachedToken")
+	oldArgs := append([]string{}, os.Args...)
+	os.Args = []string{"snyk", "--version"}
+	defer func() { os.Args = oldArgs }()
+
+	mainWithErrorCode(nil)
+
+	_, tokenInEnv := os.LookupEnv("SNYK_TOKEN")
+	assert.False(t, tokenInEnv)
+	assert.Equal(t, "detachedToken", globalConfiguration.GetString(configuration.AUTHENTICATION_TOKEN))
+}
+
+func Test_credentialEnvVarsToDetach(t *testing.T) {
+	assert.Equal(t, constants.SNYK_CREDENTIAL_ENVS, credentialEnvVarsToDetach([]string{"test", "--all-projects"}))
+	assert.Equal(t, constants.SNYK_CREDENTIAL_ENVS, credentialEnvVarsToDetach([]string{"-d", "monitor"}))
+	assert.Equal(t, constants.SNYK_CREDENTIAL_ENVS, credentialEnvVarsToDetach([]string{"test", "mcp"}))
+	assert.Nil(t, credentialEnvVarsToDetach([]string{"mcp", "-t", "stdio"}))
+	assert.Nil(t, credentialEnvVarsToDetach([]string{"-d", "language-server"}))
+}
+
 func Test_populateRedactionTerms(t *testing.T) {
 	mockController := gomock.NewController(t)
 	mockEngine := mocks.NewMockEngine(mockController)

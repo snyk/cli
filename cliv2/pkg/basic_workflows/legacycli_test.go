@@ -17,6 +17,7 @@ import (
 	"github.com/snyk/go-application-framework/pkg/mocks"
 	"github.com/snyk/go-application-framework/pkg/networking"
 
+	"github.com/snyk/cli/cliv2/internal/constants"
 	"github.com/snyk/cli/cliv2/internal/proxy"
 
 	"github.com/stretchr/testify/assert"
@@ -249,4 +250,19 @@ func Test_ValidateGlibcVersion_validation(t *testing.T) {
 			})
 		}
 	})
+}
+
+func Test_iacTestCredentialEnv(t *testing.T) {
+	t.Setenv("SNYK_IAC_TEST_API_REST_TOKEN", "rest-token")
+	t.Setenv("SNYK_IAC_TEST_API_V1_OAUTH_TOKEN", "v1-oauth-token")
+	t.Setenv("SNYK_IAC_TEST_API_V1_TOKEN", "")
+	config := configuration.NewWithOpts(
+		configuration.WithSupportedEnvVarPrefixes("snyk_"),
+		configuration.WithDetachedEnvVars(constants.SNYK_CREDENTIAL_ENVS...),
+	)
+
+	assert.ElementsMatch(t, []string{
+		"SNYK_IAC_TEST_API_REST_TOKEN=rest-token",
+		"SNYK_IAC_TEST_API_V1_OAUTH_TOKEN=v1-oauth-token",
+	}, iacTestCredentialEnv(config))
 }
