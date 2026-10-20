@@ -42,7 +42,6 @@ import {
   getProjectName,
   getTargetFile,
 } from './utils';
-import { countPathsToGraphRoot } from '../utils';
 import { PackageExpanded } from 'snyk-resolve-deps/dist/types';
 import { headerSnykTsCliTerminate } from '../request/constants';
 import { EXIT_CODES } from '../../cli/exit-codes';
@@ -439,8 +438,6 @@ async function monitorDepGraphFromDepTree(
   let prePruneDepCount;
   if (meta.prune) {
     debug('Trying to prune the graph');
-    prePruneDepCount = countPathsToGraphRoot(depGraph);
-    debug('pre prunedPathsCount: ' + prePruneDepCount);
     prunedGraph = await pruneGraph(depGraph, packageManager, meta.prune);
   }
 
