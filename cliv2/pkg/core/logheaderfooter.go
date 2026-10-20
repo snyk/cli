@@ -146,7 +146,8 @@ func writeLogHeader(config configuration.Configuration, networkAccess networking
 	tablePrint("Analytics", analytics)
 	tablePrint("Authorization", authorization)
 	tablePrint("Interaction", interactionId)
-	machineID, machineIDErr := runtimeInfo.GetMachineID()
+	machine, machineIDErr := runtimeInfo.GetMachineID()
+	machineID := machine.ID
 	// Any errors are printed below rather than checked here. It is valid to have both a machine ID and an error (e.g., if a machine ID cannot be stored).
 	if machineID == "" {
 		machineID = "unavailable"
