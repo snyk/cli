@@ -50,6 +50,9 @@ import { InvalidDetectionDepthValue } from '../lib/errors/invalid-detection-dept
 import { obfuscateArgs } from '../lib/utils';
 import { EXIT_CODES } from './exit-codes';
 import { sendError } from './ipc';
+// lib/config reads SNYK_TOKEN when it loads, so it must load before the scrub
+import '../lib/config';
+import { captureAndScrubCredentialEnv } from '../lib/child-process-env';
 
 const isEmpty = require('lodash/isEmpty');
 
@@ -285,6 +288,9 @@ type AllSupportedCliOptions = Options & MonitorOptions & TestOptions;
 
 export async function main(): Promise<void> {
   checkRuntime();
+  // Plugins spawn build tools that run code from the scanned project, so
+  // those processes must not see our credentials.
+  captureAndScrubCredentialEnv();
 
   let res;
   let failed = false;

@@ -1,4 +1,5 @@
 const Configstore = require('configstore');
+import { getCredentialEnv } from './child-process-env';
 
 export class ConfigStoreWithEnvironmentVariables extends Configstore {
   constructor(id, defaults = undefined, options = {}) {
@@ -7,7 +8,7 @@ export class ConfigStoreWithEnvironmentVariables extends Configstore {
 
   public get(key: string): string | undefined {
     const envKey = `SNYK_CFG_${key.replace(/-/g, '_').toUpperCase()}`;
-    const envValue = process.env[envKey];
+    const envValue = getCredentialEnv(envKey);
     return super.has(key) && !envValue ? String(super.get(key)) : envValue;
   }
 }

@@ -1,6 +1,7 @@
 import { MissingApiTokenError } from '../lib/errors';
 
 import config from './config';
+import { getCredentialEnv } from './child-process-env';
 import { config as userConfig } from './user-config';
 
 export function api() {
@@ -9,11 +10,11 @@ export function api() {
 }
 
 export function getOAuthToken(): string | undefined {
-  return process.env.SNYK_OAUTH_TOKEN;
+  return getCredentialEnv('SNYK_OAUTH_TOKEN');
 }
 
 export function getDockerToken(): string | undefined {
-  return process.env.SNYK_DOCKER_TOKEN;
+  return getCredentialEnv('SNYK_DOCKER_TOKEN');
 }
 
 export function apiTokenExists() {

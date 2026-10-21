@@ -5,6 +5,10 @@ import { Readable } from 'stream';
 import * as errorFormat from '../../../../src/lib/error-format';
 
 import { execGoCommand, GoCommandResult } from '../../../../src/lib/go-bridge';
+import {
+  captureAndScrubCredentialEnv,
+  resetCapturedCredentialEnv,
+} from '../../../../src/lib/child-process-env';
 
 interface MockProcess extends childProcess.ChildProcess {
   stdout: Readable;
@@ -176,6 +180,51 @@ describe('go-bridge', () => {
       expect(spawnEnv).toBeDefined();
       expect(spawnEnv.SNYK_TOKEN).toBe('real-api-token-value');
 
+      jest.restoreAllMocks();
+    });
+
+    it('passes scrubbed credentials back to the Go binary', async () => {
+      process.env.SNYK_INTERNAL_CLI_EXECUTABLE_PATH = '/usr/local/bin/snyk';
+      process.env.SNYK_TOKEN = 'real-api-token-value';
+      captureAndScrubCredentialEnv();
+
+      const mockProc = createMockProcess();
+      const spawnSpy = jest
+        .spyOn(childProcess, 'spawn')
+        .mockReturnValue(mockProc);
+
+      const promise = execGoCommand(['depgraph']);
+
+      mockProc.emit('close', 0);
+      await promise;
+
+      const spawnEnv = spawnSpy.mock.calls[0][2]?.env as NodeJS.ProcessEnv;
+      expect(process.env.SNYK_TOKEN).toBeUndefined();
+      expect(spawnEnv.SNYK_TOKEN).toBe('real-api-token-value');
+
+      resetCapturedCredentialEnv();
+      jest.restoreAllMocks();
+    });
+
+    it('drops the "random" placeholder token even after the scrub', async () => {
+      process.env.SNYK_INTERNAL_CLI_EXECUTABLE_PATH = '/usr/local/bin/snyk';
+      process.env.SNYK_TOKEN = 'random';
+      captureAndScrubCredentialEnv();
+
+      const mockProc = createMockProcess();
+      const spawnSpy = jest
+        .spyOn(childProcess, 'spawn')
+        .mockReturnValue(mockProc);
+
+      const promise = execGoCommand(['depgraph']);
+
+      mockProc.emit('close', 0);
+      await promise;
+
+      const spawnEnv = spawnSpy.mock.calls[0][2]?.env as NodeJS.ProcessEnv;
+      expect(spawnEnv.SNYK_TOKEN).toBeUndefined();
+
+      resetCapturedCredentialEnv();
       jest.restoreAllMocks();
     });
 

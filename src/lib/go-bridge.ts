@@ -3,6 +3,7 @@ import * as childProcess from 'child_process';
 import { debug as Debug } from 'debug';
 import { StringDecoder } from 'string_decoder';
 import { abridgeErrorMessage } from './error-format';
+import { withCredentialEnv } from './child-process-env';
 
 const debug = Debug('snyk:go-bridge');
 
@@ -62,9 +63,11 @@ export function execGoCommand(
 
   debug('executing Go command: %s %s', execPath, args.join(' '));
   const shouldStreamStderr = args.includes('--debug');
-  const commandEnv = restoreSystemEnvironment({
-    ...process.env,
-  });
+  // The Go binary is ours, so it gets back the credentials that were scrubbed
+  // from process.env at startup.
+  const commandEnv = restoreSystemEnvironment(
+    withCredentialEnv(process.env),
+  );
 
   return new Promise((resolve, reject) => {
     let stdout = '';

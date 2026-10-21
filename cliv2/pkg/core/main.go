@@ -593,6 +593,22 @@ func tearDown(err error, errorList []error, startTime time.Time, ua networking.U
 	return exitCode
 }
 
+// credentialEnvVarsToDetach returns the credential env vars to remove from the process environment, so that child
+// processes like build tools, which run code from the scanned project, don't inherit them. The language server and the
+// MCP server are exempt: they start snyk subprocesses that need the credentials, and each of those detaches them again.
+func credentialEnvVarsToDetach(args []string) []string {
+	for _, arg := range args {
+		if strings.HasPrefix(arg, "-") {
+			continue
+		}
+		if arg == "language-server" || arg == "mcp" {
+			return nil
+		}
+		break
+	}
+	return constants.SNYK_CREDENTIAL_ENVS
+}
+
 func mainWithErrorCode(additionalExts []workflow.ExtensionInit) int {
 	initDebugBuild()
 
@@ -628,6 +644,7 @@ func mainWithErrorCode(additionalExts []workflow.ExtensionInit) int {
 		configuration.WithSupportedEnvVars("NODE_EXTRA_CA_CERTS"),
 		configuration.WithSupportedEnvVarPrefixes("snyk_", "internal_", "test_"),
 		configuration.WithCachingEnabled(configuration.NoCacheExpiration),
+		configuration.WithDetachedEnvVars(credentialEnvVarsToDetach(os.Args[1:])...),
 	)
 	err = globalConfiguration.AddFlagSet(rootCommand.LocalFlags())
 	if err != nil {
