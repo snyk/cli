@@ -19,10 +19,10 @@ parameters:
   go_version:
     type: string
     # https://go.dev/doc/devel/release
-    default: '1.26.9'
+    default: '1.26.10'
   fips_go_version:
     type: string
-    default: '1.26.9'
+    default: '1.26.10'
   gh_version:
     type: string
     # https://github.com/cli/cli/releases
