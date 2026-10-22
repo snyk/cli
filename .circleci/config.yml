@@ -19,10 +19,10 @@ parameters:
   go_version:
     type: string
     # https://go.dev/doc/devel/release
-    default: '1.26.9'
+    default: '1.26.10'
   fips_go_version:
     type: string
-    default: '1.26.9'
+    default: '1.26.10'
   gh_version:
     type: string
     # https://github.com/cli/cli/releases
@@ -1821,8 +1821,8 @@ jobs:
       - restore_cache:
           name: Restore Go module cache
           keys:
-            - &go-mod-cache-key go-mod-v1-<< parameters.go_os >>-<< parameters.go_arch >>-{{ checksum "~/go_mod_period.txt" }}-{{ checksum "cliv2/go.sum" }}-{{ checksum "cliv2-private/go.sum" }}
-            - go-mod-v1-<< parameters.go_os >>-<< parameters.go_arch >>-{{ checksum "~/go_mod_period.txt" }}-
+            - &go-mod-cache-key go-mod-v2-<< parameters.go_os >>-<< parameters.go_arch >>-{{ checksum "~/go_mod_period.txt" }}-{{ checksum "cliv2/go.sum" }}-{{ checksum "cliv2-private/go.sum" }}-{{ checksum "cliv2/scripts/prepare_licenses.go" }}
+            - go-mod-v2-<< parameters.go_os >>-<< parameters.go_arch >>-{{ checksum "~/go_mod_period.txt" }}-
       - restore_cache:
           name: Restore Go compile cache
           keys:
@@ -1838,7 +1838,11 @@ jobs:
       - save_cache:
           name: Save Go module cache
           key: *go-mod-cache-key
-          paths: [.go-cache/mod]
+          paths:
+            - .go-cache/mod
+            - .go-cache/licenses
+            - .go-cache/prepare-3rd-party-licenses.go.sum
+            - .go-cache/prepare_licenses.go
       - save_cache:
           name: Save Go compile cache
           key: *go-build-cache-key

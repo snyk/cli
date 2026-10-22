@@ -1,14 +1,17 @@
-## [1.1308.1](https://github.com/snyk/snyk/compare/v1.1308.0...v1.1308.1) (2026-10-14)
+## [1.1308.2](https://github.com/snyk/snyk/compare/v1.1308.1...v1.1308.2) (2026-10-21)
 
 The Snyk CLI is being deployed to different deployment channels, users can select the stability level according to their needs. For details please see [this documentation](https://docs.snyk.io/snyk-cli/releases-and-channels-for-the-snyk-cli)
 
-### Features
-
-* **test**: `snyk test --html` and `--html-file-output` no longer require preview features to be enabled. ([3bc664655](https://github.com/snyk/snyk/commit/3bc664655bf81383ee198b62966023f959b105fd))
-
 ### Bug Fixes
 
-* **test**: Ensure the project name is consistently displayed in the test summary when available. ([ca8744853](https://github.com/snyk/snyk/commit/ca874485305818fbb944d193dd7f248d92544b6c))
+* **test**: .NET scans no longer fail with NETSDK1067 when `SelfContained=true` is set in the build environment. ([28e90c6ea](https://github.com/snyk/snyk/commit/28e90c6ea72eed11bcf8a290135531bf226ee502))
+* **test**: `snyk test --source-dir` now returns a clear validation error when used without `--reachability=true`, instead of ignoring the flag or treating the path as the project directory. ([3af559571](https://github.com/snyk/snyk/commit/3af5595711f9a6b2399faeee9d9375eac33e3850))
+* **test**: `snyk test --fail-on=patchable` no longer fails with "Unsupported value 'patchable' for --fail-on flag". ([3af559571](https://github.com/snyk/snyk/commit/3af5595711f9a6b2399faeee9d9375eac33e3850))
+* **language-server**: Various Snyk Language Server fixes: an expired token now shows one re-authenticate prompt instead of several; signing in from one IDE window now signs in your other open windows; and when you only show net new issues, the IDE finds the base branch from `origin/HEAD` and asks you to pick one if none is found, instead of reporting a failed scan. ([97ef9474f](https://github.com/snyk/snyk/commit/97ef9474f20e6b16099b2816fad9c2f2e08de232))
 * **deps**: Updates dependencies to fix vulnerabilities:
-  - CVE-2022-21681 ([334f8735c](https://github.com/snyk/snyk/commit/334f8735cea9d2d77125aab80e40ad246a95ec07))
-  - Updates the Go runtime to 1.26.9 to address CVE-2026-56857, CVE-2026-56866, CVE-2026-78659, CVE-2026-78667, CVE-2026-94439, CVE-2026-94440, CVE-2026-97031, and CVE-2026-97032 ([8d515f75c](https://github.com/snyk/snyk/commit/8d515f75c67364d7a26f8ba1db4e95e3bdee4277))
+  - SNYK-JS-TAR-18319500 ([05319827c](https://github.com/snyk/snyk/commit/05319827c30022eecf21a2ac45bda4be7508fa15))
+  - CVE-2026-33532 ([48f87b8ab](https://github.com/snyk/snyk/commit/48f87b8ab1d97d80eec261f9387c87ea963d6fc2))
+  - CVE-2026-73055 ([14a844fed](https://github.com/snyk/snyk/commit/14a844feda8c48409c005d25880717792ed235a3))
+  - Updates the Go runtime to 1.26.10 to address CVE-2026-78663, CVE-2026-78669, and CVE-2026-111943 ([6a8f882fc](https://github.com/snyk/snyk/commit/6a8f882fc8de67fbd8ce3297362b83f8100c2403))
+  - CVE-2026-78659, CVE-2026-78660, and CVE-2026-97032 ([50da69a7c](https://github.com/snyk/snyk/commit/50da69a7cbb12a2c8295be69626fc175356dcd80))
+  - CVE-2026-102941 ([b6f592124](https://github.com/snyk/snyk/commit/b6f592124df5cc8699251b919681b88c7531170e))
