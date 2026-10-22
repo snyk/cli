@@ -105,6 +105,13 @@ func TestMapErrorToExitCode(t *testing.T) {
 		}
 	})
 
+	t.Run("supply chain not enabled error returns EX_NOPERM", func(t *testing.T) {
+		exitCode := mapErrorToExitCode(supplychain.NewSupplyChainNotEnabledError("Application Supply Chain is not enabled for the tenant."))
+		if exitCode != constants.SNYK_EXIT_CODE_EX_NOPERM {
+			t.Errorf("expected exit code %d, got %d", constants.SNYK_EXIT_CODE_EX_NOPERM, exitCode)
+		}
+	})
+
 	t.Run("supply chain registry proxy unreachable error returns EX_UNAVAILABLE", func(t *testing.T) {
 		exitCode := mapErrorToExitCode(supplychain.NewRegistryProxyUnreachableError("The registry proxy could not be reached."))
 		if exitCode != constants.SNYK_EXIT_CODE_EX_UNAVAILABLE {
