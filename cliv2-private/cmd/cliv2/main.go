@@ -6,6 +6,7 @@ import (
 	"github.com/snyk/cli-extension-axi/pkg/agent"
 	"github.com/snyk/cli-extension-cos/pkg/cos"
 	"github.com/snyk/cli-extension-studio/pkg/studio"
+	"github.com/snyk/cli-extension-supply-chain/pkg/sc"
 	"github.com/snyk/remy-cli-extension/pkg/remy"
 	"github.com/snyk/rift-cli-extension/pkg/rift"
 
@@ -19,5 +20,6 @@ func main() {
 		core.WithAdditionalExtensions(cos.Init),
 		core.WithAdditionalExtensions(rift.Init),
 		core.WithAdditionalExtensions(studio.Init),
+		core.WithAdditionalExtensions(sc.Init),
 	))
 }

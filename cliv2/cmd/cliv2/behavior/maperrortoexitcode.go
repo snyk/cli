@@ -24,6 +24,7 @@ func mapErrorToExitCode(err *snyk_errors.Error, defaultValue int) int {
 		supplychain.NewRegistryProxySecretRejectedError("").ErrorCode: constants.SNYK_EXIT_CODE_EX_NOPERM,
 		supplychain.NewConflictingConfigurationError("").ErrorCode:    constants.SNYK_EXIT_CODE_EX_CONFIG,
 		supplychain.NewRegistryProxyUnreachableError("").ErrorCode:    constants.SNYK_EXIT_CODE_EX_UNAVAILABLE,
+		supplychain.NewSupplyChainNotEnabledError("").ErrorCode:       constants.SNYK_EXIT_CODE_EX_NOPERM,
 		// Add new mappings here
 	}
 
