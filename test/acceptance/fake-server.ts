@@ -897,6 +897,30 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     },
   );
 
+  // Org-level Secrets setting, read by `snyk secrets test` before scanning.
+  // Disabled unless a test opts in via setOrgSetting('secrets', true).
+  // Registered with and without the /api prefix, since the REST base URL
+  // follows the API base path the server was created with.
+  app.get(
+    [
+      `/rest/orgs/:orgId/settings/secrets`,
+      `/api/rest/orgs/:orgId/settings/secrets`,
+    ],
+    (req, res) => {
+      res.setHeader('Content-Type', 'application/vnd.api+json');
+      res.send({
+        jsonapi: { version: '1.0' },
+        data: {
+          type: 'secrets_settings',
+          id: req.params.orgId,
+          attributes: {
+            secrets_enabled: availableSettings.get('secrets') === true,
+          },
+        },
+      });
+    },
+  );
+
   // Unified Test API endpoints for uv acceptance tests
   const testJobId = 'aaaaaaaa-bbbb-cccc-dddd-000000000001';
   const testId = 'aaaaaaaa-bbbb-cccc-dddd-000000000002';

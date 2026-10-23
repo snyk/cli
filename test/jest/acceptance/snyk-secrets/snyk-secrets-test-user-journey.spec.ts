@@ -36,7 +36,6 @@ let TEMP_LOCAL_PATH: string;
 
 const env = {
   ...process.env,
-  INTERNAL_SNYK_FEATURE_FLAG_IS_SECRETS_ENABLED: 'true',
   SNYK_TIMEOUT_SECS: USER_JOURNEY_CLI_TIMEOUT_SECS,
 };
 

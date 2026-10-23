@@ -303,8 +303,11 @@ describe('Resilience - Consistent CLI Behavior', () => {
     };
 
     server = fakeServer(baseApi, baseEnv.SNYK_TOKEN);
-    server.setFeatureFlag('isSecretsEnabled', true);
     await server.listenPromise(port);
+  });
+
+  beforeEach(() => {
+    server.setOrgSetting('secrets', true);
   });
 
   afterEach(() => {
