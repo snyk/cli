@@ -1,16 +1,8 @@
 ---
-description: >-
-  The snyk cos target add command that creates a target from a configuration
-  file.
+description: Use snyk cos target add to create a target from a configuration file.
 ---
 
 # COS target add
-
-{% hint style="info" %}
-**Release status**
-
-The `snyk cos` command set is in Closed Beta and is available only for Enterprise plans. If you want to set it up in your Group or Organization, contact your Snyk account team.
-{% endhint %}
 
 ## Usage
 
@@ -20,9 +12,9 @@ The `snyk cos` command set is in Closed Beta and is available only for Enterpris
 
 The `snyk cos target add` command creates a target from a YAML configuration file.
 
-For a sample configuration file you can copy and adapt, see [COS target template](cos-target-template.md)
+For a sample configuration file you can copy and adapt, visit [COS target template](cos-target-template.md)
 
-For a list of related commands see the [snyk cos](cos.md) help, `snyk cos --help`.
+For a list of related commands, visit the [Snyk COS](cos.md) help, `snyk cos --help`.
 
 ## Exit codes
 
@@ -34,7 +26,7 @@ Possible exit codes and their meaning:
 
 ## Configure the Snyk CLI
 
-You can use environment variables to configure the Snyk CLI and set variables for connecting with the Snyk API. For more information see [Configure the Snyk CLI](https://docs.snyk.io/snyk-cli/configure-the-snyk-cli).
+You can use environment variables to configure the Snyk CLI and set variables to connect to the Snyk API. For more information, visit [Configure the Snyk CLI](https://docs.snyk.io/snyk-cli/configure-the-snyk-cli).
 
 ## Debug
 
