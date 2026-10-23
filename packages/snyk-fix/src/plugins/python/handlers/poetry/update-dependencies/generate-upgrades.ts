@@ -34,7 +34,9 @@ export async function generateUpgrades(
   const pyProjectTomlRaw = await entity.workspace.readFile(
     pathLib.resolve(dir, 'pyproject.toml'),
   );
-  const pyProjectToml: PyProjectToml = toml.parse(pyProjectTomlRaw);
+  const pyProjectToml: PyProjectToml = toml.parse(pyProjectTomlRaw, {
+    bigint: true,
+  });
 
   const prodTopLevelDeps = Object.keys(
     pyProjectToml.tool.poetry.dependencies ?? {},
