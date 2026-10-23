@@ -242,4 +242,44 @@ describe('generateUpgrades', () => {
     expect(devUpgrades).toEqual(['json-api==0.1.22']);
     expect(upgrades).toEqual(['transitive==1.3.4', 'django==1.3.4']);
   });
+
+  it('parses a manifest containing an integer beyond the safe JS range', async () => {
+    const manifestContents = `[tool.poetry]
+    name = "my-package"
+    version = "0.1.0"
+    description = ""
+    authors = ["ghe <email@email.io>"]
+
+    [tool.poetry.dependencies]
+    python = "*"
+    django = "1.1.1"
+
+    [tool.other]
+    id = 771752188537605140
+    `;
+
+    const entityToFix = generateEntityToFix(
+      'poetry',
+      'pyproject.toml',
+      manifestContents,
+    );
+
+    (entityToFix.testResult as any).remediation = {
+      ignore: {},
+      patch: {},
+      pin: {
+        'django@1.1.1': {
+          upgradeTo: 'django@1.3.4',
+          upgrades: ['django@1.1.1'],
+          vulns: ['pip:django:20170213'],
+          isTransitive: false,
+        },
+      },
+      unresolved: [],
+      upgrade: {},
+    };
+
+    const { upgrades } = await generateUpgrades(entityToFix);
+    expect(upgrades).toEqual(['django==1.3.4']);
+  });
 });
