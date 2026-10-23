@@ -1,4 +1,4 @@
-import { fakeServer } from '../../acceptance/fake-server';
+import { fakeServer, getFirstIPv4Address } from '../../acceptance/fake-server';
 import { createProjectFromWorkspace } from '../util/createProject';
 import { runSnykCLI } from '../util/runSnykCLI';
 import { getServerPort } from '../util/getServerPort';
@@ -12,9 +12,10 @@ describe('OAuth Token', () => {
   beforeAll((done) => {
     const apiPath = '/api/v1';
     const apiPort = getServerPort(process);
+    const fakeServerIp = getFirstIPv4Address();
     env = {
       ...process.env,
-      SNYK_API: 'http://localhost:' + apiPort + apiPath,
+      SNYK_API: `http://${fakeServerIp}:` + apiPort + apiPath,
       SNYK_OAUTH_TOKEN: 'oauth-jwt-token',
       SNYK_DISABLE_ANALYTICS: '1',
     };

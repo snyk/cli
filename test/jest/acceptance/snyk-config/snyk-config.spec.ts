@@ -1,5 +1,9 @@
 import { runSnykCLI } from '../../util/runSnykCLI';
-import { FakeServer, fakeServer } from '../../../acceptance/fake-server';
+import {
+  FakeServer,
+  fakeServer,
+  getFirstIPv4Address,
+} from '../../../acceptance/fake-server';
 import { createProjectFromWorkspace } from '../../util/createProject';
 import { getServerPort } from '../../util/getServerPort';
 
@@ -56,7 +60,7 @@ describe('snyk config set endpoint', () => {
     expect(requestCount0).toEqual(0);
 
     // set endpoint
-    const endpoint = 'http://127.0.0.1:' + server.getPort() + baseApi;
+    const endpoint = `http://${getFirstIPv4Address()}:` + server.getPort() + baseApi;
     const resultconfigSet = await runSnykCLI(
       'config set endpoint=' + endpoint + ' -d',
       {

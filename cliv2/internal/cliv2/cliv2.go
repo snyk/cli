@@ -364,6 +364,8 @@ func PrepareV1EnvironmentVariables(
 			constants.SNYK_INTERNAL_PREVIEW_FEATURES_ENABLED,
 			constants.SNYK_INTERNAL_REQUEST_CONCURRENCY_ENV,
 			constants.DEBUG_CONST,
+			constants.SNYK_OAUTH_ACCESS_TOKEN_ENV,
+			constants.SNYK_CFG_API_ENV,
 		}
 
 		for _, key := range blackList {
@@ -374,6 +376,7 @@ func PrepareV1EnvironmentVariables(
 		inputAsMap[constants.SNYK_HTTPS_PROXY_ENV] = proxyAddress
 		inputAsMap[constants.SNYK_HTTP_PROXY_ENV] = proxyAddress
 		inputAsMap[constants.SNYK_CA_CERTIFICATE_LOCATION_ENV] = caCertificateLocation
+		inputAsMap[constants.SNYK_API_TOKEN_ENV] = "redacted"
 
 		fillEnvironmentFromConfig(inputAsMap, config, args)
 
