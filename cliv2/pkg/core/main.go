@@ -86,16 +86,21 @@ func Run(opts ...Option) int {
 	return mainWithErrorCode(cfg.additionalExtensions)
 }
 
+// internalOS is build-scoped: it is injected at build time (see the Makefile) and never changes at runtime.
 var internalOS string
-var globalEngine workflow.Engine
-var globalConfiguration configuration.Configuration
-var globalContext context.Context
-var helpProvided bool
 
-var noopLogger zerolog.Logger = zerolog.New(io.Discard)
-var globalLogger *zerolog.Logger = &noopLogger
-var scrubbedLogger logging.ScrubbingLogWriter
-var interactionId = instrumentation.AssembleUrnFromUUID(uuid.NewString())
+// cliRun is what one run of the CLI works on. It is created once per run and handed to the commands and to the
+// teardown, so every function says what it uses. Only what is injected at build time (internalOS) is kept
+// outside of it.
+type cliRun struct {
+	engine       workflow.Engine
+	config       configuration.Configuration
+	logger       *zerolog.Logger
+	helpProvided bool
+
+	// interactionId identifies this run. It is sent as a URN, see instrumentation.AssembleUrnFromUUID.
+	interactionId string
+}
 
 const (
 	unknownCommandMessage     string = "unknown command"
@@ -184,40 +189,40 @@ func updateConfigFromParameter(config configuration.Configuration, args []string
 }
 
 // main workflow
-func runCommand(cmd *cobra.Command, args []string) error {
+func (r *cliRun) runCommand(cmd *cobra.Command, args []string) error {
 	// since cobra doesn't tell us if -- was found, os.Args is required in addition
-	return runMainWorkflow(globalConfiguration, cmd, args, os.Args)
+	return r.runMainWorkflow(cmd, args, os.Args)
 }
 
-func runMainWorkflow(config configuration.Configuration, cmd *cobra.Command, args []string, rawArgs []string) error {
-	err := config.AddFlagSet(cmd.Flags())
+func (r *cliRun) runMainWorkflow(cmd *cobra.Command, args []string, rawArgs []string) error {
+	err := r.config.AddFlagSet(cmd.Flags())
 	if err != nil {
-		globalLogger.Print("Failed to add flags", err)
+		r.logger.Print("Failed to add flags", err)
 		return err
 	}
 
 	// init UI
 	errorUI := consoleui.WithErrorOutput(os.Stdout)
-	if output_workflow.DefaultOutputIsStructured(config) {
+	if output_workflow.DefaultOutputIsStructured(r.config) {
 		errorUI = consoleui.WithErrorOutput(os.Stderr)
 	}
 	mainUI := consoleui.New(consoleui.WithInput(os.Stdin), consoleui.WithOutput(os.Stdout), consoleui.WithProgressWriter(os.Stderr), errorUI)
-	globalEngine.SetUserInterface(mainUI)
+	r.engine.SetUserInterface(mainUI)
 
 	// global handling of experimental commands
 	if config_utils.IsExperimental(cmd.Flags()) {
-		if !globalConfiguration.GetBool(configuration.FLAG_EXPERIMENTAL) {
+		if !r.config.GetBool(configuration.FLAG_EXPERIMENTAL) {
 			return cli.NewCommandIsExperimentalError(getFullCommandString(cmd))
 		}
 	}
 
-	updateConfigFromParameter(config, args, rawArgs)
+	updateConfigFromParameter(r.config, args, rawArgs)
 
 	name := getFullCommandString(cmd)
-	globalLogger.Print("Running ", name)
-	globalEngine.GetAnalytics().SetCommand(name)
+	r.logger.Print("Running ", name)
+	r.engine.GetAnalytics().SetCommand(name)
 
-	err = runWorkflowAndProcessData(globalContext, globalEngine, globalLogger, name)
+	err = runWorkflowAndProcessData(cmd.Context(), r.engine, r.logger, name)
 
 	return err
 }
@@ -244,29 +249,29 @@ func runWorkflowAndProcessData(ctx context.Context, engine workflow.Engine, logg
 	return err
 }
 
-func defaultCmd(args []string) error {
+func (r *cliRun) defaultCmd(args []string) error {
 	inputDirectory := cliv2.DetermineInputDirectory(args)
 	if len(inputDirectory) > 0 {
-		globalConfiguration.Set(configuration.INPUT_DIRECTORY, inputDirectory)
+		r.config.Set(configuration.INPUT_DIRECTORY, inputDirectory)
 	}
 
 	// prepare the invocation of the legacy CLI by
 	// * enabling stdio
 	// * by specifying the raw cmd args for it
-	globalConfiguration.Set(configuration.WORKFLOW_USE_STDIO, true)
-	globalConfiguration.Set(configuration.RAW_CMD_ARGS, args)
-	_, err := globalEngine.Invoke(basic_workflows.WORKFLOWID_LEGACY_CLI)
+	r.config.Set(configuration.WORKFLOW_USE_STDIO, true)
+	r.config.Set(configuration.RAW_CMD_ARGS, args)
+	_, err := r.engine.Invoke(basic_workflows.WORKFLOWID_LEGACY_CLI)
 	return err
 }
 
-func runLegacyHelp() error {
+func (r *cliRun) runLegacyHelp() error {
 	filteredArgs := utils.RemoveSimilar(os.Args[1:], "--")
-	return defaultCmd(append(filteredArgs, "--help"))
+	return r.defaultCmd(append(filteredArgs, "--help"))
 }
 
-func runTestCommandWithSarifEqualJson(cmd *cobra.Command, args []string) error {
-	configureSarifEqualJSON(globalConfiguration)
-	return runCommand(cmd, args)
+func (r *cliRun) runTestCommandWithSarifEqualJson(cmd *cobra.Command, args []string) error {
+	configureSarifEqualJSON(r.config)
+	return r.runCommand(cmd, args)
 }
 
 func configureSarifEqualJSON(config configuration.Configuration) {
@@ -309,36 +314,36 @@ func isHtmlOutput(flags *pflag.FlagSet) bool {
 	return html || htmlFile != ""
 }
 
-func runOSTestCommand(cmd *cobra.Command, args []string) error {
-	if !globalConfiguration.IsSet(ufmPresenterConfigKey) {
-		globalConfiguration.Set(ufmPresenterConfigKey, true)
+func (r *cliRun) runOSTestCommand(cmd *cobra.Command, args []string) error {
+	if !r.config.IsSet(ufmPresenterConfigKey) {
+		r.config.Set(ufmPresenterConfigKey, true)
 	}
 
 	if isHtmlOutput(cmd.Flags()) {
-		globalConfiguration.Set(ufmPresenterConfigKey, true)
-		globalConfiguration.Set(orchestrator.FlagUnifiedTestAPIOsCLI.Key, true)
+		r.config.Set(ufmPresenterConfigKey, true)
+		r.config.Set(orchestrator.FlagUnifiedTestAPIOsCLI.Key, true)
 	}
 
-	return runCommand(cmd, args)
+	return r.runCommand(cmd, args)
 }
 
-func runCodeTestCommand(cmd *cobra.Command, args []string) error {
+func (r *cliRun) runCodeTestCommand(cmd *cobra.Command, args []string) error {
 	if isHtmlOutput(cmd.Flags()) {
-		globalConfiguration.Set(codeUseUfmConfigKey, true)
+		r.config.Set(codeUseUfmConfigKey, true)
 	}
-	return runTestCommandWithSarifEqualJson(cmd, args)
+	return r.runTestCommandWithSarifEqualJson(cmd, args)
 }
 
-func runSecretsTestCommand(cmd *cobra.Command, args []string) error {
-	return runTestCommandWithSarifEqualJson(cmd, args)
+func (r *cliRun) runSecretsTestCommand(cmd *cobra.Command, args []string) error {
+	return r.runTestCommandWithSarifEqualJson(cmd, args)
 }
 
-func runAuthCommand(cmd *cobra.Command, args []string) error {
-	err := runCommand(cmd, args)
+func (r *cliRun) runAuthCommand(cmd *cobra.Command, args []string) error {
+	err := r.runCommand(cmd, args)
 
-	reloadError := globalConfiguration.ReloadConfig()
+	reloadError := r.config.ReloadConfig()
 	if reloadError != nil {
-		globalLogger.Err(reloadError).Msg("Failed to reload the configuration after authentication.")
+		r.logger.Err(reloadError).Msg("Failed to reload the configuration after authentication.")
 	}
 
 	return err
@@ -359,14 +364,14 @@ func emptyCommandFunction(_ *cobra.Command, _ []string) error {
 	return fmt.Errorf("%s", unknownCommandMessage)
 }
 
-func createCommandsForWorkflows(rootCommand *cobra.Command, engine workflow.Engine) {
-	workflowIdList := engine.GetWorkflows()
+func (r *cliRun) createCommandsForWorkflows(rootCommand *cobra.Command) {
+	workflowIdList := r.engine.GetWorkflows()
 	commandMap := make(map[string]*cobra.Command)
 	for i := range workflowIdList {
 		currentId := workflowIdList[i]
 		currentCommandString := workflow.GetCommandFromWorkflowIdentifier(currentId)
 
-		workflowEntry, _ := engine.GetWorkflow(currentId)
+		workflowEntry, _ := r.engine.GetWorkflow(currentId)
 
 		workflowOptions := workflowEntry.GetConfigurationOptions()
 		flagset := workflow.FlagsetFromConfigurationOptions(workflowOptions)
@@ -397,7 +402,7 @@ func createCommandsForWorkflows(rootCommand *cobra.Command, engine workflow.Engi
 		if flagset != nil {
 			parentCommand.Flags().AddFlagSet(flagset)
 		}
-		parentCommand.RunE = runCommand
+		parentCommand.RunE = r.runCommand
 		parentCommand.Hidden = !workflowEntry.IsVisible()
 		parentCommand.DisableFlagParsing = false
 
@@ -408,17 +413,17 @@ func createCommandsForWorkflows(rootCommand *cobra.Command, engine workflow.Engi
 			parentCommand.FParseErrWhitelist.UnknownFlags = true
 
 			// use the special run command to ensure that the non-standard behavior of the command can be kept
-			parentCommand.RunE = runCodeTestCommand
+			parentCommand.RunE = r.runCodeTestCommand
 		case "secrets test":
 			// use the special run command to ensure that the non-standard behavior of the command can be kept
-			parentCommand.RunE = runSecretsTestCommand
+			parentCommand.RunE = r.runSecretsTestCommand
 		case "test":
 			legacy.SetupTestMonitorCommand(parentCommand)
-			parentCommand.RunE = runOSTestCommand
+			parentCommand.RunE = r.runOSTestCommand
 		case "monitor":
 			legacy.SetupTestMonitorCommand(parentCommand)
 		case "auth":
-			parentCommand.RunE = runAuthCommand
+			parentCommand.RunE = r.runAuthCommand
 		case "agent-scan":
 			// to preserve backwards compatibility we will need to relax flag validation
 			parentCommand.FParseErrWhitelist.UnknownFlags = true
@@ -430,11 +435,11 @@ func createCommandsForWorkflows(rootCommand *cobra.Command, engine workflow.Engi
 	}
 }
 
-func prepareRootCommand(router *helprouting.Router) *cobra.Command {
+func (r *cliRun) prepareRootCommand(router *helprouting.Router) *cobra.Command {
 	rootCommand := cobra.Command{
 		Use: "snyk",
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			return defaultCmd(os.Args[1:])
+			return r.defaultCmd(os.Args[1:])
 		},
 	}
 
@@ -460,9 +465,9 @@ func prepareRootCommand(router *helprouting.Router) *cobra.Command {
 	return &rootCommand
 }
 
-func handleError(err error) HandleError {
+func (r *cliRun) handleError(err error) HandleError {
 	resultError := handleErrorUnhandled
-	preCondition := err != nil && !helpProvided
+	preCondition := err != nil && !r.helpProvided
 
 	// Cases:
 	// - error from extension -> ignore
@@ -495,7 +500,7 @@ func doctorTip(isCI bool) string {
 	return "Try snyk doctor: `snyk <command> -d 2>&1 | snyk doctor --stdin`"
 }
 
-func displayError(err error, userInterface ui.UserInterface, config configuration.Configuration, ctx context.Context, isCI bool) {
+func (r *cliRun) displayError(ctx context.Context, err error, userInterface ui.UserInterface, isCI bool) {
 	if err != nil {
 		_, isExitError := err.(*exec.ExitError)
 		_, isErrorWithCode := err.(*cli_errors.ErrorWithExitCode)
@@ -503,13 +508,13 @@ func displayError(err error, userInterface ui.UserInterface, config configuratio
 			return
 		}
 
-		if config.GetBool(output_workflow.OUTPUT_CONFIG_KEY_JSON) {
+		if r.config.GetBool(output_workflow.OUTPUT_CONFIG_KEY_JSON) {
 			message := getErrorMessage(err)
 
 			jsonError := JsonErrorStruct{
 				Ok:       false,
 				ErrorMsg: message,
-				Path:     globalConfiguration.GetString(configuration.INPUT_DIRECTORY),
+				Path:     r.config.GetString(configuration.INPUT_DIRECTORY),
 			}
 
 			jsonErrorBuffer, _ := json.MarshalIndent(jsonError, "", "  ")
@@ -520,7 +525,7 @@ func displayError(err error, userInterface ui.UserInterface, config configuratio
 			ctx = context.WithValue(ctx, uitypes.ErrorTipKey, doctorTip(isCI))
 			uiError := userInterface.OutputError(err, ui.WithContext(ctx))
 			if uiError != nil {
-				globalLogger.Err(uiError).Msg("ui failed to show error")
+				r.logger.Err(uiError).Msg("ui failed to show error")
 			}
 		}
 	}
@@ -544,16 +549,16 @@ func handleRetryNotification(engine workflow.Engine, logger *zerolog.Logger, err
 
 // tearDown handles sending analytics and instrumentation
 // It is used both for normal exit and signal-triggered exit
-func tearDown(err error, errorList []error, startTime time.Time, ua networking.UserAgentInfo, cliAnalytics analytics.Analytics, networkAccess networking.NetworkAccess) int {
+func (r *cliRun) tearDown(ctx context.Context, err error, errorList []error, startTime time.Time, ua networking.UserAgentInfo, cliAnalytics analytics.Analytics) int {
 	// Create a context with timeout for teardown operations to ensure we don't hang indefinitely
-	teardownCtx, cancel := context.WithTimeout(context.Background(), teardownTimeout)
+	teardownCtx, cancel := context.WithTimeout(ctx, teardownTimeout)
 	defer cancel()
 
 	// Populated here (post-command) rather than at startup so the analytics scrub chokepoint
 	// (which reads logging.REDACTION_TERMS off of config) sees these terms on every run, not
 	// just under --debug, without forcing an ORGANIZATION/ORGANIZATION_SLUG network lookup
 	// before the command's own requests run.
-	populateRedactionTerms(globalConfiguration, globalEngine)
+	populateRedactionTerms(r.config, r.engine)
 
 	outputError := err
 	allErrors := errorList
@@ -569,32 +574,41 @@ func tearDown(err error, errorList []error, startTime time.Time, ua networking.U
 	}
 
 	exitCode := cliv2.DeriveExitCode(outputError)
-	globalLogger.Printf("Deriving Exit Code %d (cause: %v)", exitCode, outputError)
+	r.logger.Printf("Deriving Exit Code %d (cause: %v)", exitCode, outputError)
 
-	displayError(outputError, globalEngine.GetUserInterface(), globalConfiguration, globalContext, cliAnalytics.IsCiEnvironment())
+	r.displayError(ctx, outputError, r.engine.GetUserInterface(), cliAnalytics.IsCiEnvironment())
 
-	updateInstrumentationDataBeforeSending(cliAnalytics, startTime, ua, exitCode)
+	r.updateInstrumentationDataBeforeSending(cliAnalytics, startTime, ua, exitCode)
 
-	if !globalConfiguration.GetBool(configuration.ANALYTICS_DISABLED) {
-		sendAnalytics(teardownCtx, cliAnalytics, globalLogger)
+	if !r.config.GetBool(configuration.ANALYTICS_DISABLED) {
+		r.sendAnalytics(teardownCtx, cliAnalytics)
 	}
-	sendInstrumentation(teardownCtx, globalEngine, cliAnalytics.GetInstrumentation(), globalLogger)
+	r.sendInstrumentation(teardownCtx, cliAnalytics.GetInstrumentation())
 
 	// cleanup resources in use
 	// WARNING: deferred actions will execute AFTER cleanup; only defer if not impacted by this
-	if _, cleanupErr := globalEngine.Invoke(basic_workflows.WORKFLOWID_GLOBAL_CLEANUP, workflow.WithContext(teardownCtx)); cleanupErr != nil {
-		globalLogger.Printf("Failed to cleanup %v", cleanupErr)
+	if _, cleanupErr := r.engine.Invoke(basic_workflows.WORKFLOWID_GLOBAL_CLEANUP, workflow.WithContext(teardownCtx)); cleanupErr != nil {
+		r.logger.Printf("Failed to cleanup %v", cleanupErr)
 	}
 
-	if globalConfiguration.GetBool(configuration.DEBUG) {
-		writeLogFooter(exitCode, allErrors, globalConfiguration, networkAccess, globalEngine.GetRuntimeInfo())
+	if r.config.GetBool(configuration.DEBUG) {
+		r.writeLogFooter(exitCode, allErrors)
 	}
 
 	return exitCode
 }
 
 func mainWithErrorCode(additionalExts []workflow.ExtensionInit) int {
+	_, exitCode := execute(additionalExts)
+	return exitCode
+}
+
+// execute runs the CLI and returns what the run worked on together with the exit code.
+func execute(additionalExts []workflow.ExtensionInit) (*cliRun, int) {
 	initDebugBuild()
+
+	noopLogger := zerolog.New(io.Discard)
+	r := &cliRun{logger: &noopLogger, interactionId: instrumentation.AssembleUrnFromUUID(uuid.NewString())}
 
 	errorList := []error{}
 	errorListMutex := sync.Mutex{}
@@ -605,8 +619,7 @@ func mainWithErrorCode(additionalExts []workflow.ExtensionInit) int {
 
 	// init context
 	ctx := context.Background()
-	ctx = context.WithValue(ctx, networking.InteractionIdKey, instrumentation.AssembleUrnFromUUID(interactionId))
-	globalContext = ctx
+	ctx = context.WithValue(ctx, networking.InteractionIdKey, instrumentation.AssembleUrnFromUUID(r.interactionId))
 
 	startTime := time.Now()
 	var err error
@@ -614,45 +627,46 @@ func mainWithErrorCode(additionalExts []workflow.ExtensionInit) int {
 
 	helpDocs := helpdocs.DefaultCommandHelp()
 	helpRouter := &helprouting.Router{
-		LegacyHelp:   runLegacyHelp,
-		OnHelpCalled: func() { helpProvided = true },
+		LegacyHelp:   r.runLegacyHelp,
+		OnHelpCalled: func() { r.helpProvided = true },
 		HasUserDoc:   helpDocs.HasUserDoc,
 	}
-	rootCommand := prepareRootCommand(helpRouter)
+	rootCommand := r.prepareRootCommand(helpRouter)
 	// omit the first arg which is always `snyk`
 	_ = rootCommand.ParseFlags(os.Args[1:])
 
 	// create engine
-	globalConfiguration = configuration.NewWithOpts(
+	r.config = configuration.NewWithOpts(
 		configuration.WithFiles("snyk"),
 		configuration.WithSupportedEnvVars("NODE_EXTRA_CA_CERTS"),
 		configuration.WithSupportedEnvVarPrefixes("snyk_", "internal_", "test_"),
 		configuration.WithCachingEnabled(configuration.NoCacheExpiration),
 	)
-	err = globalConfiguration.AddFlagSet(rootCommand.LocalFlags())
+	err = r.config.AddFlagSet(rootCommand.LocalFlags())
 	if err != nil {
 		_, _ = fmt.Fprintln(os.Stderr, "Failed to add flags to root command", err)
 	}
 
 	// ensure to init configuration before using it
-	initApplicationConfiguration(globalConfiguration)
+	initApplicationConfiguration(r.config)
 
-	debugEnabled := globalConfiguration.GetBool(configuration.DEBUG)
+	debugEnabled := r.config.GetBool(configuration.DEBUG)
 
-	globalLogger, scrubbedLogger = initDebugLogger(globalConfiguration)
-	globalEngine = app.CreateAppEngineWithOptions(app.WithZeroLogger(globalLogger), app.WithConfiguration(globalConfiguration), app.WithRuntimeInfo(rInfo))
+	var scrubbedLogger logging.ScrubbingLogWriter
+	r.logger, scrubbedLogger = initDebugLogger(r.config)
+	r.engine = app.CreateAppEngineWithOptions(app.WithZeroLogger(r.logger), app.WithConfiguration(r.config), app.WithRuntimeInfo(rInfo))
 
-	globalConfiguration.AddDefaultValue(configuration.FF_OAUTH_AUTH_FLOW_ENABLED, defaultOAuthFF(globalConfiguration))
-	globalConfiguration.AddDefaultValue(configuration.FF_TRANSFORMATION_WORKFLOW, configuration.StandardDefaultValueFunction(true))
-	globalConfiguration.AddDefaultValue(configuration.NETWORK_REQUEST_RETRY_ALLOWED_PATHS, defaultNetworkRequestRetryAllowedPaths())
+	r.config.AddDefaultValue(configuration.FF_OAUTH_AUTH_FLOW_ENABLED, defaultOAuthFF(r.config))
+	r.config.AddDefaultValue(configuration.FF_TRANSFORMATION_WORKFLOW, configuration.StandardDefaultValueFunction(true))
+	r.config.AddDefaultValue(configuration.NETWORK_REQUEST_RETRY_ALLOWED_PATHS, defaultNetworkRequestRetryAllowedPaths())
 
-	if noProxyAuth := globalConfiguration.GetBool(basic_workflows.PROXY_NOAUTH); noProxyAuth {
-		globalConfiguration.Set(configuration.PROXY_AUTHENTICATION_MECHANISM, httpauth.StringFromAuthenticationMechanism(httpauth.NoAuth))
+	if noProxyAuth := r.config.GetBool(basic_workflows.PROXY_NOAUTH); noProxyAuth {
+		r.config.Set(configuration.PROXY_AUTHENTICATION_MECHANISM, httpauth.StringFromAuthenticationMechanism(httpauth.NoAuth))
 	}
 
 	// init NetworkAccess
-	ua := networking.UserAgent(networking.UaWithConfig(globalConfiguration), networking.UaWithRuntimeInfo(rInfo), networking.UaWithOS(internalOS))
-	networkAccess := globalEngine.GetNetworkAccess()
+	ua := networking.UserAgent(networking.UaWithConfig(r.config), networking.UaWithRuntimeInfo(rInfo), networking.UaWithOS(internalOS))
+	networkAccess := r.engine.GetNetworkAccess()
 	networkAccess.AddErrorHandler(func(err error, ctx context.Context) error {
 		if err == nil {
 			return nil
@@ -662,7 +676,7 @@ func mainWithErrorCode(additionalExts []workflow.ExtensionInit) int {
 		// Show UI warning, record in analytics, but don't collect as a command error.
 		var retryErr *middleware.RetryAttemptError
 		if errors.As(err, &retryErr) {
-			handleRetryNotification(globalEngine, globalLogger, err)
+			handleRetryNotification(r.engine, r.logger, err)
 			return nil
 		}
 
@@ -673,7 +687,7 @@ func mainWithErrorCode(additionalExts []workflow.ExtensionInit) int {
 		return err
 	})
 	networkAccess.AddHeaderField("x-snyk-cli-version", cliv2.GetFullVersion())
-	networkAccess.AddHeaderField("snyk-interaction-id", instrumentation.AssembleUrnFromUUID(interactionId))
+	networkAccess.AddHeaderField("snyk-interaction-id", instrumentation.AssembleUrnFromUUID(r.interactionId))
 	networkAccess.AddHeaderField(
 		"User-Agent",
 		ua.String(),
@@ -681,69 +695,69 @@ func mainWithErrorCode(additionalExts []workflow.ExtensionInit) int {
 	network_utils.AddSnykRequestId(networkAccess)
 
 	// initialize the extensions -> they register themselves at the engine
-	initExtensions(globalEngine, globalConfiguration, additionalExts)
+	initExtensions(r.engine, r.config, additionalExts)
 
 	// init engine
-	err = globalEngine.Init()
+	err = r.engine.Init()
 
 	// We want to scrub the debug log of sensitive information. Since we have a list of commands we know can occur, we can intersect that with arguments we don't recognize, and automatically scrub all those from the logs.
 	if debugEnabled {
-		termsToRedact := populateRedactionTerms(globalConfiguration, globalEngine)
+		termsToRedact := populateRedactionTerms(r.config, r.engine)
 		scrubbedLogger.AddTermsToReplace(termsToRedact)
-		writeLogHeader(globalConfiguration, networkAccess, globalEngine.GetRuntimeInfo())
+		r.writeLogHeader()
 	}
 
 	if err != nil {
-		globalLogger.Print("Failed to init Workflow Engine!", err)
-		return constants.SNYK_EXIT_CODE_ERROR
+		r.logger.Print("Failed to init Workflow Engine!", err)
+		return r, constants.SNYK_EXIT_CODE_ERROR
 	}
 
 	// add output flags as persistent flags
-	outputWorkflow, _ := globalEngine.GetWorkflow(localworkflows.WORKFLOWID_OUTPUT_WORKFLOW)
+	outputWorkflow, _ := r.engine.GetWorkflow(localworkflows.WORKFLOWID_OUTPUT_WORKFLOW)
 	outputFlags := workflow.FlagsetFromConfigurationOptions(outputWorkflow.GetConfigurationOptions())
 	rootCommand.PersistentFlags().AddFlagSet(outputFlags)
 
 	// add workflows as commands
-	createCommandsForWorkflows(rootCommand, globalEngine)
+	r.createCommandsForWorkflows(rootCommand)
 
 	// init Analytics
-	cliAnalytics := globalEngine.GetAnalytics()
+	cliAnalytics := r.engine.GetAnalytics()
 	cliAnalytics.SetVersion(cliv2.GetFullVersion())
 	cliAnalytics.SetCmdArguments(os.Args)
 	cliAnalytics.SetOperatingSystem(internalOS)
 	cliAnalytics.GetInstrumentation().SetUserAgent(ua)
-	cliAnalytics.GetInstrumentation().SetInteractionId(instrumentation.AssembleUrnFromUUID(interactionId))
-	cliAnalytics.GetInstrumentation().SetCategory(instrumentation.DetermineCategory(os.Args, globalEngine))
+	cliAnalytics.GetInstrumentation().SetInteractionId(instrumentation.AssembleUrnFromUUID(r.interactionId))
+	cliAnalytics.GetInstrumentation().SetCategory(instrumentation.DetermineCategory(os.Args, r.engine))
 	cliAnalytics.GetInstrumentation().SetStage(instrumentation.DetermineStage(cliAnalytics.IsCiEnvironment()))
 	cliAnalytics.GetInstrumentation().SetStatus(analytics.Success)
 	persona.Report(cliAnalytics)
 
-	setTimeout(globalConfiguration, func() {
+	r.setTimeout(func() {
 		tearDownOnce.Do(func() {
 			errorListMutex.Lock()
 			errorListCopy := append([]error{}, errorList...)
 			errorListMutex.Unlock()
 
-			exitCode := tearDown(context.DeadlineExceeded, errorListCopy, startTime, ua, cliAnalytics, networkAccess)
+			exitCode := r.tearDown(ctx, context.DeadlineExceeded, errorListCopy, startTime, ua, cliAnalytics)
 			os.Exit(exitCode)
 		})
 	})
 
 	// run the extensible cli
-	err = rootCommand.Execute()
+	err = rootCommand.ExecuteContext(ctx)
 
 	// fallback to the legacy cli or show help
-	handleErrorResult := handleError(err)
+	handleErrorResult := r.handleError(err)
 	switch handleErrorResult {
 	case handleErrorFallbackToLegacyCLI:
 		// when falling back to TS cli, make sure the
 		_ = rootCommand.ParseFlags(os.Args)
-		if err := globalConfiguration.AddFlagSet(rootCommand.LocalFlags()); err != nil {
-			globalLogger.Printf("failed to add flagset: %v", err)
+		if err := r.config.AddFlagSet(rootCommand.LocalFlags()); err != nil {
+			r.logger.Printf("failed to add flagset: %v", err)
 		}
 
-		globalLogger.Printf("Using Legacy CLI to serve the command. (reason: %v)", err)
-		err = defaultCmd(os.Args[1:])
+		r.logger.Printf("Using Legacy CLI to serve the command. (reason: %v)", err)
+		err = r.defaultCmd(os.Args[1:])
 	case handleErrorShowHelp:
 		err = helpRouter.Help(nil, rootCommand, os.Args[1:])
 	case handleErrorUnhandled:
@@ -755,10 +769,10 @@ func mainWithErrorCode(additionalExts []workflow.ExtensionInit) int {
 		errorListCopy := append([]error{}, errorList...)
 		errorListMutex.Unlock()
 
-		finalExitCode = tearDown(err, errorListCopy, startTime, ua, cliAnalytics, networkAccess)
+		finalExitCode = r.tearDown(ctx, err, errorListCopy, startTime, ua, cliAnalytics)
 	})
 
-	return finalExitCode
+	return r, finalExitCode
 }
 
 // populateRedactionTerms computes likely-secret literal values (unrecognized CLI
@@ -812,12 +826,12 @@ func processError(err error, errorList []error) ([]error, error) {
 	return resultErrorList, resultError
 }
 
-func setTimeout(config configuration.Configuration, onTimeout func()) {
-	timeout := config.GetInt(configuration.TIMEOUT)
+func (r *cliRun) setTimeout(onTimeout func()) {
+	timeout := r.config.GetInt(configuration.TIMEOUT)
 	if timeout == 0 {
 		return
 	}
-	globalLogger.Printf("Command timeout set for %d seconds", timeout)
+	r.logger.Printf("Command timeout set for %d seconds", timeout)
 	go func() {
 		const gracePeriodForSubProcesses = 3
 		<-time.After(time.Duration(timeout+gracePeriodForSubProcesses) * time.Second)

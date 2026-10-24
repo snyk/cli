@@ -21,7 +21,6 @@ import (
 	"github.com/snyk/cli/cliv2/internal/utils"
 
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
-	"github.com/snyk/go-application-framework/pkg/networking"
 	"github.com/snyk/go-application-framework/pkg/networking/fips"
 )
 
@@ -31,10 +30,9 @@ func redactAuthorizationTokens(token string) string {
 	return tokenShaSum
 }
 
-func logHeaderAuthorizationInfo(
-	config configuration.Configuration,
-	networkAccess networking.NetworkAccess,
-) (string, string, string) {
+func (r *cliRun) logHeaderAuthorizationInfo() (string, string, string) {
+	config := r.config
+	networkAccess := r.engine.GetNetworkAccess()
 	oauthEnabled := "Disabled"
 	var authorization, tokenShaSum, tokenDetails, userAgent string
 
@@ -45,7 +43,7 @@ func logHeaderAuthorizationInfo(
 
 	err := networkAccess.AddHeaders(apiRequest)
 	if err != nil {
-		globalLogger.Print(err)
+		r.logger.Print(err)
 	}
 
 	authHeader := apiRequest.Header.Get("Authorization")
@@ -92,16 +90,17 @@ func getFipsStatus(config configuration.Configuration) string {
 	return fipsEnabled
 }
 
-func tablePrint(name string, value string) {
+func (r *cliRun) tablePrint(name string, value string) {
 	title := name
 	if len(name) > 0 {
 		title = title + ":"
 	}
-	globalLogger.Printf("%-22s %s", title, value)
+	r.logger.Printf("%-22s %s", title, value)
 }
 
-func writeLogHeader(config configuration.Configuration, networkAccess networking.NetworkAccess, runtimeInfo runtimeinfo.RuntimeInfo) {
-	authorization, _, userAgent := logHeaderAuthorizationInfo(config, networkAccess)
+func (r *cliRun) writeLogHeader() {
+	config := r.config
+	authorization, _, userAgent := r.logHeaderAuthorizationInfo()
 
 	org := config.GetString(configuration.ORGANIZATION)
 	insecureHTTPS := "false"
@@ -131,44 +130,44 @@ func writeLogHeader(config configuration.Configuration, networkAccess networking
 
 	fipsEnabled := getFipsStatus(config)
 
-	tablePrint("Version", cliv2.GetFullVersion()+" "+buildType)
-	tablePrint("Platform", userAgent)
-	tablePrint("API", config.GetString(configuration.API_URL))
+	r.tablePrint("Version", cliv2.GetFullVersion()+" "+buildType)
+	r.tablePrint("Platform", userAgent)
+	r.tablePrint("API", config.GetString(configuration.API_URL))
 
 	region, err := localworkflows.DetermineRegionFromUrl(config.GetString(configuration.API_URL))
 	if err == nil {
-		tablePrint("Region", region)
+		r.tablePrint("Region", region)
 	}
 
-	tablePrint("Cache", config.GetString(configuration.CACHE_PATH))
-	tablePrint("Organization", org)
-	tablePrint("Insecure HTTPS", insecureHTTPS)
-	tablePrint("Analytics", analytics)
-	tablePrint("Authorization", authorization)
-	tablePrint("Interaction", interactionId)
-	machineID, machineIDErr := runtimeInfo.GetMachineID()
+	r.tablePrint("Cache", config.GetString(configuration.CACHE_PATH))
+	r.tablePrint("Organization", org)
+	r.tablePrint("Insecure HTTPS", insecureHTTPS)
+	r.tablePrint("Analytics", analytics)
+	r.tablePrint("Authorization", authorization)
+	r.tablePrint("Interaction", r.interactionId)
+	machineID, machineIDErr := r.engine.GetRuntimeInfo().GetMachineID()
 	// Any errors are printed below rather than checked here. It is valid to have both a machine ID and an error (e.g., if a machine ID cannot be stored).
 	if machineID == "" {
 		machineID = "unavailable"
 	}
-	tablePrint("Machine ID", machineID)
+	r.tablePrint("Machine ID", machineID)
 	for _, line := range machineIDErrorLines(machineIDErr) {
-		tablePrint("  Error", strings.ReplaceAll(line, "\n", "; "))
+		r.tablePrint("  Error", strings.ReplaceAll(line, "\n", "; "))
 	}
-	tablePrint("Features", "")
-	tablePrint("  preview", previewFeaturesEnabled)
-	tablePrint("  fips", fipsEnabled)
-	tablePrint("  request attempts", fmt.Sprintf("%d", config.GetInt(middleware.ConfigurationKeyRequestAttempts)))
-	tablePrint("  config cache", cacheEnabled)
-	tablePrint("Checks", "")
+	r.tablePrint("Features", "")
+	r.tablePrint("  preview", previewFeaturesEnabled)
+	r.tablePrint("  fips", fipsEnabled)
+	r.tablePrint("  request attempts", fmt.Sprintf("%d", config.GetInt(middleware.ConfigurationKeyRequestAttempts)))
+	r.tablePrint("  config cache", cacheEnabled)
+	r.tablePrint("Checks", "")
 
 	sanityCheckResults := config_utils.CheckSanity(config)
 	for _, result := range sanityCheckResults {
-		tablePrint("  Configuration", result.Description)
+		r.tablePrint("  Configuration", result.Description)
 	}
 
 	if len(sanityCheckResults) == 0 {
-		tablePrint("  Configuration", "all good")
+		r.tablePrint("  Configuration", "all good")
 	}
 }
 
@@ -191,21 +190,21 @@ func machineIDErrorLines(err error) []string {
 	return []string{err.Error()}
 }
 
-func writeLogFooter(exitCode int, errs []error, globalConfiguration configuration.Configuration, networkAccess networking.NetworkAccess, runtimeInfo runtimeinfo.RuntimeInfo) {
+func (r *cliRun) writeLogFooter(exitCode int, errs []error) {
 	const maxLength = 100
-	globalLogger.Print("")
-	globalLogger.Printf("------------ Summary ------------")
+	r.logger.Print("")
+	r.logger.Printf("------------ Summary ------------")
 	// to make things easier to find, let's repeat the header before the footer
-	writeLogHeader(globalConfiguration, networkAccess, runtimeInfo)
+	r.writeLogHeader()
 
 	// output error details
 	ecErrs := formatErrorCatalogErrors(errs)
 	if len(ecErrs) > 0 {
-		globalLogger.Print("")
-		globalLogger.Printf("------------ Errors ------------")
+		r.logger.Print("")
+		r.logger.Printf("------------ Errors ------------")
 
 		for _, err := range ecErrs {
-			tablePrint(strings.ToUpper(err.Level), fmt.Sprintf("%s (%s)", err.Title, err.ErrorCode))
+			r.tablePrint(strings.ToUpper(err.Level), fmt.Sprintf("%s (%s)", err.Title, err.ErrorCode))
 
 			description := err.Description
 			// description
@@ -217,49 +216,49 @@ func writeLogFooter(exitCode int, errs []error, globalConfiguration configuratio
 			}
 
 			if len(description) > 0 {
-				globalLogger.Print("  Description:")
-				tablePrintMaxLength("", description, maxLength)
+				r.logger.Print("  Description:")
+				r.tablePrintMaxLength("", description, maxLength)
 			}
 
 			// links
 			err.Links = append(err.Links, err.Type)
 			if len(err.Links) > 0 {
-				tablePrint("  Links", "")
+				r.tablePrint("  Links", "")
 				for _, link := range err.Links {
-					tablePrint("", link)
+					r.tablePrint("", link)
 				}
 			}
 
-			globalLogger.Print("")
+			r.logger.Print("")
 
 			// details
 			_, hasDetails := err.Meta["details"]
 			if hasDetails && len(err.Meta["details"].([]string)) > 0 {
 				for i, details := range utils.Dedupe(err.Meta["details"].([]string)) {
-					globalLogger.Printf("  Instance %d:", i+1)
-					tablePrintMaxLength("", details, maxLength)
-					globalLogger.Print("")
+					r.logger.Printf("  Instance %d:", i+1)
+					r.tablePrintMaxLength("", details, maxLength)
+					r.logger.Print("")
 				}
 			}
 
 			// requests
 			_, hasRequestDetails := err.Meta["requests"]
 			if hasRequestDetails && len(err.Meta["requests"].([]string)) > 0 {
-				tablePrint("  Requests", "")
+				r.tablePrint("  Requests", "")
 				for i, request := range err.Meta["requests"].([]string) {
-					tablePrint(fmt.Sprintf("    %d", i), request)
+					r.tablePrint(fmt.Sprintf("    %d", i), request)
 				}
-				globalLogger.Print("")
+				r.logger.Print("")
 			}
 		}
 	} else {
-		globalLogger.Print("")
+		r.logger.Print("")
 	}
 
-	tablePrint("Exit Code", strconv.Itoa(exitCode))
+	r.tablePrint("Exit Code", strconv.Itoa(exitCode))
 }
 
-func tablePrintMaxLength(name string, value string, maxLength int) {
+func (r *cliRun) tablePrintMaxLength(name string, value string, maxLength int) {
 	for _, inputLine := range strings.Split(value, "\n") {
 		tmp := inputLine
 		for {
@@ -268,7 +267,7 @@ func tablePrintMaxLength(name string, value string, maxLength int) {
 				line = tmp[:maxLength]
 			}
 			tmp = tmp[len(line):]
-			tablePrint("", strings.TrimSpace(line))
+			r.tablePrint("", strings.TrimSpace(line))
 
 			if len(tmp) == 0 {
 				break

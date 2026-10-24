@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
-	"github.com/rs/zerolog"
 	"github.com/snyk/go-application-framework/pkg/analytics"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
@@ -34,10 +33,12 @@ func Test_shallSendInstrumentation(t *testing.T) {
 }
 
 func Test_sendInstrumentation_passesEngineConfigurationToInstrumentationObject(t *testing.T) {
-	globalConfiguration = configuration.NewWithOpts(configuration.WithAutomaticEnv())
+	r := newTestRun()
+	r.config = configuration.NewWithOpts(configuration.WithAutomaticEnv())
 
 	mockController := gomock.NewController(t)
 	mockEngine := mocks.NewMockEngine(mockController)
+	r.engine = mockEngine
 
 	// Mirrors production: populateRedactionTerms runs at startup and sweeps up any
 	// os.Environ() value it doesn't recognize. The client machine id is real Studio
@@ -56,9 +57,8 @@ func Test_sendInstrumentation_passesEngineConfigurationToInstrumentationObject(t
 
 	instrumentor := analytics.NewInstrumentationCollector()
 	addClientMachineId(instrumentor, engineConfig)
-	logger := zerolog.Nop()
 
-	sendInstrumentation(context.Background(), mockEngine, instrumentor, &logger)
+	r.sendInstrumentation(context.Background(), instrumentor)
 
 	// sendInstrumentation just ran the extension through the same scrub chokepoint;
 	// re-deriving the object (a pure read, doesn't mutate the collector) proves the

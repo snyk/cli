@@ -24,12 +24,29 @@ func writeLogHeaderWithMachineID(t *testing.T, id string, err error) string {
 
 	var out bytes.Buffer
 	logger := zerolog.New(&out)
-	previous := globalLogger
-	globalLogger = &logger
-	t.Cleanup(func() { globalLogger = previous })
+	r := newTestRun()
+	r.logger = &logger
+	r.config = config
+	r.engine = engine
 
-	writeLogHeader(config, engine.GetNetworkAccess(), engine.GetRuntimeInfo())
+	r.writeLogHeader()
 	return out.String()
+}
+
+func Test_writeLogHeader_showsInteractionIdOfTheRun(t *testing.T) {
+	config := configuration.NewWithOpts()
+	engine := workflow.NewWorkFlowEngine(config)
+	engine.SetRuntimeInfo(runtimeinfo.New())
+
+	var out bytes.Buffer
+	logger := zerolog.New(&out)
+	r := newTestRun()
+	r.logger, r.config, r.engine = &logger, config, engine
+	r.interactionId = "run-1234"
+
+	r.writeLogHeader()
+
+	assert.Contains(t, out.String(), "Interaction:           run-1234")
 }
 
 func Test_writeLogHeader_showsMachineID(t *testing.T) {

@@ -8,7 +8,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/rs/zerolog"
 	"github.com/snyk/go-application-framework/pkg/analytics"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	"github.com/snyk/go-application-framework/pkg/instrumentation"
@@ -69,10 +68,10 @@ func addClientMachineId(instrumentor analytics.InstrumentationCollector, config 
 	}
 }
 
-func updateInstrumentationDataBeforeSending(cliAnalytics analytics.Analytics, startTime time.Time, ua networking.UserAgentInfo, exitCode int) {
-	targetId, targetIdError := instrumentation.GetTargetId(globalConfiguration.GetString(configuration.INPUT_DIRECTORY), instrumentation.AutoDetectedTargetId, instrumentation.WithConfiguredRepository(globalConfiguration))
+func (r *cliRun) updateInstrumentationDataBeforeSending(cliAnalytics analytics.Analytics, startTime time.Time, ua networking.UserAgentInfo, exitCode int) {
+	targetId, targetIdError := instrumentation.GetTargetId(r.config.GetString(configuration.INPUT_DIRECTORY), instrumentation.AutoDetectedTargetId, instrumentation.WithConfiguredRepository(r.config))
 	if targetIdError != nil {
-		globalLogger.Printf("Failed to derive target id, %v", targetIdError)
+		r.logger.Printf("Failed to derive target id, %v", targetIdError)
 	}
 	cliAnalytics.GetInstrumentation().SetTargetId(targetId)
 
@@ -81,8 +80,8 @@ func updateInstrumentationDataBeforeSending(cliAnalytics analytics.Analytics, st
 	}
 
 	addRuntimeDetails(cliAnalytics.GetInstrumentation(), ua)
-	addNetworkingDetails(cliAnalytics.GetInstrumentation(), globalConfiguration)
-	addClientMachineId(cliAnalytics.GetInstrumentation(), globalConfiguration)
+	addNetworkingDetails(cliAnalytics.GetInstrumentation(), r.config)
+	addClientMachineId(cliAnalytics.GetInstrumentation(), r.config)
 
 	cliAnalytics.GetInstrumentation().AddExtension("exitcode", exitCode)
 	if exitCode == 2 {
@@ -90,10 +89,11 @@ func updateInstrumentationDataBeforeSending(cliAnalytics analytics.Analytics, st
 	}
 }
 
-func sendAnalytics(ctx context.Context, a analytics.Analytics, debugLogger *zerolog.Logger) {
+func (r *cliRun) sendAnalytics(ctx context.Context, a analytics.Analytics) {
+	debugLogger := r.logger
 	debugLogger.Print("Sending Analytics")
 
-	a.SetApiUrl(globalConfiguration.GetString(configuration.API_URL))
+	a.SetApiUrl(r.config.GetString(configuration.API_URL))
 
 	request, err := a.GetRequest()
 	if err != nil {
@@ -104,7 +104,7 @@ func sendAnalytics(ctx context.Context, a analytics.Analytics, debugLogger *zero
 	// Use context to respect teardown timeout
 	request = request.WithContext(ctx)
 
-	client := globalEngine.GetNetworkAccess().GetHttpClient()
+	client := r.engine.GetNetworkAccess().GetHttpClient()
 	res, err := client.Do(request)
 	if err != nil {
 		debugLogger.Err(err).Msg("Failed to send Analytics")
@@ -122,7 +122,8 @@ func sendAnalytics(ctx context.Context, a analytics.Analytics, debugLogger *zero
 	}
 }
 
-func sendInstrumentation(ctx context.Context, eng workflow.Engine, instrumentor analytics.InstrumentationCollector, logger *zerolog.Logger) {
+func (r *cliRun) sendInstrumentation(ctx context.Context, instrumentor analytics.InstrumentationCollector) {
+	eng, logger := r.engine, r.logger
 	// Avoid duplicate data to be sent for IDE integrations that use the CLI
 	if !shallSendInstrumentation(eng.GetConfiguration(), instrumentor) {
 		logger.Print("This CLI call is not instrumented!")
@@ -145,7 +146,7 @@ func sendInstrumentation(ctx context.Context, eng workflow.Engine, instrumentor 
 	}
 
 	v2InstrumentationData := utils.ValueOf(json.Marshal(data))
-	localConfiguration := globalConfiguration.Clone()
+	localConfiguration := r.config.Clone()
 	// the report analytics workflow needs --experimental to run
 	// we pass the flag here so that we report at every interaction
 	localConfiguration.Set(configuration.FLAG_EXPERIMENTAL, true)
