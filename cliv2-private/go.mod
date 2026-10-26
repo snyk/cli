@@ -8,7 +8,7 @@ require (
 	github.com/snyk/cli-extension-studio v1.0.4
 	github.com/snyk/cli-extension-supply-chain v0.0.0-20261022102644-f30aa74bf19b
 	github.com/snyk/cli/cliv2 v0.0.0
-	github.com/snyk/remy-cli-extension v1.53.0
+	github.com/snyk/remy-cli-extension v1.53.2
 	github.com/snyk/rift-cli-extension v1.4.2
 )
 
