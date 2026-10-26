@@ -45,10 +45,11 @@ import (
 	"github.com/snyk/cli/cliv2/pkg/basic_workflows"
 )
 
-func cleanup() {
-	helpProvided = false
-	globalConfiguration = nil
-	globalEngine = nil
+// newTestRun returns what a run of the CLI works on, with a quiet logger. Tests set the configuration and the
+// engine they need.
+func newTestRun() *cliRun {
+	logger := zerolog.New(io.Discard)
+	return &cliRun{logger: &logger}
 }
 
 func Test_configureSarifEqualJSON_IncludesHTMLFileWriter(t *testing.T) {
@@ -91,20 +92,18 @@ func Test_isHtmlOutput(t *testing.T) {
 }
 
 func Test_mainWithErrorCode(t *testing.T) {
-	defer cleanup()
 	oldArgs := append([]string{}, os.Args...)
 	os.Args = []string{"snyk", "--version"}
 	defer func() { os.Args = oldArgs }()
 
-	errCode := mainWithErrorCode(nil)
-	assert.False(t, globalConfiguration.GetBool(configuration.CONFIG_CACHE_DISABLED))
-	assert.Equal(t, configuration.NoCacheExpiration, globalConfiguration.GetDuration(configuration.CONFIG_CACHE_TTL))
+	r, errCode := execute(nil)
+	assert.False(t, r.config.GetBool(configuration.CONFIG_CACHE_DISABLED))
+	assert.Equal(t, configuration.NoCacheExpiration, r.config.GetDuration(configuration.CONFIG_CACHE_TTL))
 
 	assert.Equal(t, 0, errCode)
 
 	t.Run("outputs an error list", func(t *testing.T) {
 		t.Setenv("SNYK_TOKEN", "invalidToken")
-		defer cleanup()
 		oldArgs := append([]string{}, os.Args...)
 		os.Args = []string{"snyk", "whoami", "--experimental"}
 		defer func() {
@@ -319,11 +318,11 @@ func Test_initApplicationConfiguration_DisablesAnalytics(t *testing.T) {
 }
 
 func Test_CreateCommandsForWorkflowWithSubcommands(t *testing.T) {
-	defer cleanup()
+	r := newTestRun()
 
-	globalConfiguration = configuration.New()
-	globalConfiguration.Set(configuration.DEBUG, true)
-	globalEngine = workflow.NewWorkFlowEngine(globalConfiguration)
+	r.config = configuration.New()
+	r.config.Set(configuration.DEBUG, true)
+	r.engine = workflow.NewWorkFlowEngine(r.config)
 
 	fn := func(invocation workflow.InvocationContext, input []workflow.Data) ([]workflow.Data, error) {
 		return []workflow.Data{}, nil
@@ -334,15 +333,15 @@ func Test_CreateCommandsForWorkflowWithSubcommands(t *testing.T) {
 	for _, v := range commandList {
 		workflowConfig := workflow.ConfigurationOptionsFromFlagset(pflag.NewFlagSet("pla", pflag.ContinueOnError))
 		workflowId1 := workflow.NewWorkflowIdentifier(v)
-		_, err := globalEngine.Register(workflowId1, workflowConfig, fn)
+		_, err := r.engine.Register(workflowId1, workflowConfig, fn)
 		assert.NoError(t, err)
 	}
 
-	_ = globalEngine.Init()
-	rootCommand := prepareRootCommand(testHelpRouter())
+	_ = r.engine.Init()
+	rootCommand := r.prepareRootCommand(testHelpRouter())
 
 	// invoke method under test
-	createCommandsForWorkflows(rootCommand, globalEngine)
+	r.createCommandsForWorkflows(rootCommand)
 
 	// test that root subcmd2 has expected subcommands
 	cmd, _, _ := rootCommand.Find([]string{"cmd"})
@@ -354,13 +353,13 @@ func Test_CreateCommandsForWorkflowWithSubcommands(t *testing.T) {
 	parseError := cmd.ParseFlags([]string{"cmd", "--unknown"})
 
 	// test which command triggers a handleError() and which not
-	assert.Equal(t, handleErrorUnhandled, handleError(cmd.RunE(cmd, []string{})))
-	assert.Equal(t, handleErrorUnhandled, handleError(subcmd2.RunE(subcmd2, []string{})))
-	assert.Equal(t, handleErrorUnhandled, handleError(subcmd3.RunE(subcmd3, []string{})))
-	assert.Equal(t, handleErrorUnhandled, handleError(something.RunE(something, []string{})))
-	assert.Equal(t, handleErrorFallbackToLegacyCLI, handleError(subcmd1.RunE(subcmd1, []string{})))
-	assert.Equal(t, handleErrorFallbackToLegacyCLI, handleError(cmd2.RunE(cmd2, []string{})))
-	assert.Equal(t, handleErrorShowHelp, handleError(parseError))
+	assert.Equal(t, handleErrorUnhandled, r.handleError(cmd.RunE(cmd, []string{})))
+	assert.Equal(t, handleErrorUnhandled, r.handleError(subcmd2.RunE(subcmd2, []string{})))
+	assert.Equal(t, handleErrorUnhandled, r.handleError(subcmd3.RunE(subcmd3, []string{})))
+	assert.Equal(t, handleErrorUnhandled, r.handleError(something.RunE(something, []string{})))
+	assert.Equal(t, handleErrorFallbackToLegacyCLI, r.handleError(subcmd1.RunE(subcmd1, []string{})))
+	assert.Equal(t, handleErrorFallbackToLegacyCLI, r.handleError(cmd2.RunE(cmd2, []string{})))
+	assert.Equal(t, handleErrorShowHelp, r.handleError(parseError))
 
 	assert.True(t, subcmd1.DisableFlagParsing)
 	assert.False(t, subcmd2.DisableFlagParsing)
@@ -378,28 +377,32 @@ func Test_CreateCommandsForWorkflowWithSubcommands(t *testing.T) {
 	assert.True(t, cmd2.Hidden)
 }
 
-// setupMainWorkflowTestEnv wires up the global engine/config that runMainWorkflow needs and
-// returns a fresh per-invocation config plus a command. Callers should `defer cleanup()`.
-func setupMainWorkflowTestEnv(t *testing.T) (configuration.Configuration, *cobra.Command) {
+// setupMainWorkflowTestEnv wires up the engine and configuration that runMainWorkflow needs and
+// returns the run and a command.
+func setupMainWorkflowTestEnv(t *testing.T) (*cliRun, *cobra.Command) {
 	t.Helper()
 
-	globalConfiguration = configuration.New()
-	globalConfiguration.Set(configuration.DEBUG, true)
-	globalEngine = workflow.NewWorkFlowEngine(globalConfiguration)
+	r := newTestRun()
+
+	r.config = configuration.New()
+	r.config.Set(configuration.DEBUG, true)
+	r.engine = workflow.NewWorkFlowEngine(r.config)
 
 	noopWorkflow := func(workflow.InvocationContext, []workflow.Data) ([]workflow.Data, error) {
 		return []workflow.Data{}, nil
 	}
 	for _, name := range []string{"command", localworkflows.WORKFLOWID_OUTPUT_WORKFLOW.Host} {
 		opts := workflow.ConfigurationOptionsFromFlagset(pflag.NewFlagSet("pla", pflag.ContinueOnError))
-		_, err := globalEngine.Register(workflow.NewWorkflowIdentifier(name), opts, noopWorkflow)
+		_, err := r.engine.Register(workflow.NewWorkflowIdentifier(name), opts, noopWorkflow)
 		require.NoError(t, err)
 	}
-	require.NoError(t, localworkflows.InitDataTransformationWorkflow(globalEngine))
-	_ = globalEngine.Init()
-	require.NoError(t, localworkflows.InitFilterFindingsWorkflow(globalEngine))
+	require.NoError(t, localworkflows.InitDataTransformationWorkflow(r.engine))
+	_ = r.engine.Init()
+	require.NoError(t, localworkflows.InitFilterFindingsWorkflow(r.engine))
 
-	return configuration.NewWithOpts(configuration.WithAutomaticEnv()), &cobra.Command{Use: "command"}
+	cmd := &cobra.Command{Use: "command"}
+	cmd.SetContext(t.Context())
+	return r, cmd
 }
 
 // Test_runMainWorkflow_inputDirectoryParsing is the CLI-1631 regression coverage. It asserts how
@@ -458,10 +461,11 @@ func Test_runMainWorkflow_inputDirectoryParsing(t *testing.T) {
 
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
-			defer cleanup()
-			config, cmd := setupMainWorkflowTestEnv(t)
+			r, cmd := setupMainWorkflowTestEnv(t)
 
-			require.NoError(t, runMainWorkflow(config, cmd, tc.positionalArgs, tc.rawArgs))
+			require.NoError(t, r.runMainWorkflow(cmd, tc.positionalArgs, tc.rawArgs))
+
+			config := r.config
 
 			if tc.wantInputDirs == nil {
 				assert.Nil(t, config.Get(configuration.INPUT_DIRECTORY),
@@ -616,10 +620,10 @@ func Test_getErrorFromWorkFlowData(t *testing.T) {
 }
 
 func Test_runWorkflowAndProcessData(t *testing.T) {
-	defer cleanup()
-	globalConfiguration = configuration.New()
-	globalConfiguration.Set(configuration.DEBUG, true)
-	globalEngine = workflow.NewWorkFlowEngine(globalConfiguration)
+	r := newTestRun()
+	r.config = configuration.New()
+	r.config.Set(configuration.DEBUG, true)
+	r.engine = workflow.NewWorkFlowEngine(r.config)
 
 	testCmnd := "subcmd1"
 	workflowId1 := workflow.NewWorkflowIdentifier("output")
@@ -647,10 +651,10 @@ func Test_runWorkflowAndProcessData(t *testing.T) {
 
 	workflowConfig := workflow.ConfigurationOptionsFromFlagset(pflag.NewFlagSet("pla", pflag.ContinueOnError))
 
-	_, err := globalEngine.Register(workflowId1, workflowConfig, outputFn)
+	_, err := r.engine.Register(workflowId1, workflowConfig, outputFn)
 	assert.NoError(t, err)
 	// Register our data filter workflow
-	err = localworkflows.InitFilterFindingsWorkflow(globalEngine)
+	err = localworkflows.InitFilterFindingsWorkflow(r.engine)
 	assert.NoError(t, err)
 
 	fn := func(invocation workflow.InvocationContext, input []workflow.Data) ([]workflow.Data, error) {
@@ -680,20 +684,20 @@ func Test_runWorkflowAndProcessData(t *testing.T) {
 	// setup workflow engine to contain a workflow with subcommands
 	wrkflowId := workflow.NewWorkflowIdentifier(testCmnd)
 
-	entry, err := globalEngine.Register(wrkflowId, workflowConfig, fn)
+	entry, err := r.engine.Register(wrkflowId, workflowConfig, fn)
 	assert.Nil(t, err)
 	assert.NotNil(t, entry)
 
 	// Register our data transformation workflow
-	err = localworkflows.InitDataTransformationWorkflow(globalEngine)
+	err = localworkflows.InitDataTransformationWorkflow(r.engine)
 	assert.NoError(t, err)
 
-	err = globalEngine.Init()
+	err = r.engine.Init()
 	assert.NoError(t, err)
 
 	// invoke method under test
 	logger := zerolog.New(os.Stderr)
-	err = runWorkflowAndProcessData(t.Context(), globalEngine, &logger, testCmnd)
+	err = runWorkflowAndProcessData(t.Context(), r.engine, &logger, testCmnd)
 
 	var expectedError *clierrors.ErrorWithExitCode
 	assert.ErrorAs(t, err, &expectedError)
@@ -704,14 +708,14 @@ func Test_runWorkflowAndProcessData(t *testing.T) {
 }
 
 func Test_runWorkflowAndProcessData_with_Filtering(t *testing.T) {
-	defer cleanup()
-	globalConfiguration = configuration.New()
-	globalConfiguration.Set(configuration.DEBUG, true)
-	globalConfiguration.Set(configuration.IN_MEMORY_THRESHOLD_BYTES, -1)
-	globalConfiguration.Set(configuration.FLAG_SEVERITY_THRESHOLD, "high")
-	globalConfiguration.Set(configuration.FF_TRANSFORMATION_WORKFLOW, true)
+	r := newTestRun()
+	r.config = configuration.New()
+	r.config.Set(configuration.DEBUG, true)
+	r.config.Set(configuration.IN_MEMORY_THRESHOLD_BYTES, -1)
+	r.config.Set(configuration.FLAG_SEVERITY_THRESHOLD, "high")
+	r.config.Set(configuration.FF_TRANSFORMATION_WORKFLOW, true)
 
-	globalEngine = workflow.NewWorkFlowEngine(globalConfiguration)
+	r.engine = workflow.NewWorkFlowEngine(r.config)
 
 	testCmnd := "subcmd1"
 	workflowId1 := workflow.NewWorkflowIdentifier("output")
@@ -736,11 +740,11 @@ func Test_runWorkflowAndProcessData_with_Filtering(t *testing.T) {
 
 	workflowConfig := workflow.ConfigurationOptionsFromFlagset(pflag.NewFlagSet("pla", pflag.ContinueOnError))
 
-	_, err := globalEngine.Register(workflowId1, workflowConfig, outputFn)
+	_, err := r.engine.Register(workflowId1, workflowConfig, outputFn)
 	assert.NoError(t, err)
 
 	// Register our data filter workflow
-	err = localworkflows.InitFilterFindingsWorkflow(globalEngine)
+	err = localworkflows.InitFilterFindingsWorkflow(r.engine)
 	assert.NoError(t, err)
 
 	// Invoke a custom command that returns input
@@ -779,25 +783,26 @@ func Test_runWorkflowAndProcessData_with_Filtering(t *testing.T) {
 		}, nil
 	}
 	wrkflowId := workflow.NewWorkflowIdentifier(testCmnd)
-	entry, err := globalEngine.Register(wrkflowId, workflowConfig, fn)
+	entry, err := r.engine.Register(wrkflowId, workflowConfig, fn)
 	assert.NoError(t, err)
 	assert.NotNil(t, entry)
 
-	err = globalEngine.Init()
+	err = r.engine.Init()
 	assert.NoError(t, err)
 
 	logger := zerolog.New(os.Stderr)
-	err = runWorkflowAndProcessData(t.Context(), globalEngine, &logger, testCmnd)
+	err = runWorkflowAndProcessData(t.Context(), r.engine, &logger, testCmnd)
 }
 
 func Test_setTimeout(t *testing.T) {
+	r := newTestRun()
 	exitedCh := make(chan struct{})
 	fakeExit := func() {
 		close(exitedCh)
 	}
-	config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
-	config.Set(configuration.TIMEOUT, 1)
-	setTimeout(config, fakeExit)
+	r.config = configuration.NewWithOpts(configuration.WithAutomaticEnv())
+	r.config.Set(configuration.TIMEOUT, 1)
+	r.setTimeout(fakeExit)
 	select {
 	case <-exitedCh:
 		break
@@ -807,6 +812,8 @@ func Test_setTimeout(t *testing.T) {
 }
 
 func Test_displayError(t *testing.T) {
+	r := newTestRun()
+	r.config = configuration.NewWithOpts(configuration.WithAutomaticEnv())
 	mockController := gomock.NewController(t)
 	userInterface := mocks.NewMockUserInterface(mockController)
 
@@ -814,8 +821,7 @@ func Test_displayError(t *testing.T) {
 		err := errors.New("test error")
 		userInterface.EXPECT().OutputError(err, gomock.Any()).Times(1)
 
-		config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
-		displayError(err, userInterface, config, t.Context(), false)
+		r.displayError(t.Context(), err, userInterface, false)
 	})
 
 	scenarios := []struct {
@@ -834,9 +840,8 @@ func Test_displayError(t *testing.T) {
 
 	for _, scenario := range scenarios {
 		t.Run(fmt.Sprintf("%s does not display anything", scenario.name), func(t *testing.T) {
-			config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
 			err := scenario.err
-			displayError(err, userInterface, config, t.Context(), false)
+			r.displayError(t.Context(), err, userInterface, false)
 		})
 	}
 
@@ -844,9 +849,24 @@ func Test_displayError(t *testing.T) {
 		err := &wrErr{wraps: &exec.ExitError{}}
 		userInterface.EXPECT().OutputError(err, gomock.Any()).Times(1)
 
-		config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
-		displayError(err, userInterface, config, t.Context(), false)
+		r.displayError(t.Context(), err, userInterface, false)
 	})
+}
+
+func Test_displayError_jsonOutputUsesInputDirectoryOfTheRun(t *testing.T) {
+	r := newTestRun()
+	r.config = configuration.NewWithOpts()
+	r.config.Set(output_workflow.OUTPUT_CONFIG_KEY_JSON, true)
+	r.config.Set(configuration.INPUT_DIRECTORY, "/some/dir")
+
+	userInterface := mocks.NewMockUserInterface(gomock.NewController(t))
+	userInterface.EXPECT().Output(gomock.Any()).DoAndReturn(func(out string) error {
+		assert.Contains(t, out, `"path": "/some/dir"`)
+		assert.Contains(t, out, "test error")
+		return nil
+	})
+
+	r.displayError(t.Context(), errors.New("test error"), userInterface, false)
 }
 
 func Test_doctorTip(t *testing.T) {
@@ -1003,33 +1023,33 @@ func Test_processError(t *testing.T) {
 // prints the auxiliary network error after valid command output — breaking JSON
 // output and showing misleading errors.
 func Test_tearDown_exitCode1WithNetworkErrors(t *testing.T) {
-	setupTearDownGlobals := func(t *testing.T, ctrl *gomock.Controller) (*mocks.MockUserInterface, analytics.Analytics) {
+	setupTearDownRun := func(t *testing.T, ctrl *gomock.Controller) (*cliRun, *mocks.MockUserInterface, analytics.Analytics) {
 		t.Helper()
 
-		globalConfiguration = configuration.NewWithOpts()
-		globalConfiguration.Set(configuration.ANALYTICS_DISABLED, true)
-		globalEngine = workflow.NewWorkFlowEngine(globalConfiguration)
+		r := newTestRun()
 
-		err := basic_workflows.Init(globalEngine)
+		r.config = configuration.NewWithOpts()
+		r.config.Set(configuration.ANALYTICS_DISABLED, true)
+		r.engine = workflow.NewWorkFlowEngine(r.config)
+
+		err := basic_workflows.Init(r.engine)
 		assert.NoError(t, err)
-		err = globalEngine.Init()
+		err = r.engine.Init()
 		assert.NoError(t, err)
 
 		mockUI := mocks.NewMockUserInterface(ctrl)
-		globalEngine.SetUserInterface(mockUI)
+		r.engine.SetUserInterface(mockUI)
 
-		globalContext = t.Context()
 		noopLog := zerolog.New(io.Discard)
-		globalLogger = &noopLog
+		r.logger = &noopLog
 
-		cliAnalytics := globalEngine.GetAnalytics()
-		return mockUI, cliAnalytics
+		cliAnalytics := r.engine.GetAnalytics()
+		return r, mockUI, cliAnalytics
 	}
 
 	t.Run("legacycli exit code 1 with collected network error", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
-		mockUI, cliAnalytics := setupTearDownGlobals(t, ctrl)
-		defer cleanup()
+		r, mockUI, cliAnalytics := setupTearDownRun(t, ctrl)
 
 		commandErr := exec.Command("sh", "-c", "exit 1").Run()
 		require.Error(t, commandErr)
@@ -1041,15 +1061,13 @@ func Test_tearDown_exitCode1WithNetworkErrors(t *testing.T) {
 		mockUI.EXPECT().OutputError(gomock.Any(), gomock.Any()).MaxTimes(0)
 		mockUI.EXPECT().Output(gomock.Any()).MaxTimes(0)
 
-		na := globalEngine.GetNetworkAccess()
-		exitCode := tearDown(commandErr, errorList, time.Now(), networking.UserAgentInfo{}, cliAnalytics, na)
+		exitCode := r.tearDown(t.Context(), commandErr, errorList, time.Now(), networking.UserAgentInfo{}, cliAnalytics)
 		assert.Equal(t, constants.SNYK_EXIT_CODE_VULNERABILITIES_FOUND, exitCode)
 	})
 
 	t.Run("ErrorWithExitCode 1 with collected network error", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
-		mockUI, cliAnalytics := setupTearDownGlobals(t, ctrl)
-		defer cleanup()
+		r, mockUI, cliAnalytics := setupTearDownRun(t, ctrl)
 
 		commandErr := &clierrors.ErrorWithExitCode{
 			ExitCode: constants.SNYK_EXIT_CODE_VULNERABILITIES_FOUND,
@@ -1060,15 +1078,13 @@ func Test_tearDown_exitCode1WithNetworkErrors(t *testing.T) {
 		mockUI.EXPECT().OutputError(gomock.Any(), gomock.Any()).MaxTimes(0)
 		mockUI.EXPECT().Output(gomock.Any()).MaxTimes(0)
 
-		na := globalEngine.GetNetworkAccess()
-		exitCode := tearDown(commandErr, errorList, time.Now(), networking.UserAgentInfo{}, cliAnalytics, na)
+		exitCode := r.tearDown(t.Context(), commandErr, errorList, time.Now(), networking.UserAgentInfo{}, cliAnalytics)
 		assert.Equal(t, constants.SNYK_EXIT_CODE_VULNERABILITIES_FOUND, exitCode)
 	})
 
 	t.Run("exit code 2 with network errors still displays the error", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
-		mockUI, cliAnalytics := setupTearDownGlobals(t, ctrl)
-		defer cleanup()
+		r, mockUI, cliAnalytics := setupTearDownRun(t, ctrl)
 
 		commandErr := exec.Command("sh", "-c", "exit 2").Run()
 		require.Error(t, commandErr)
@@ -1079,15 +1095,13 @@ func Test_tearDown_exitCode1WithNetworkErrors(t *testing.T) {
 		// displayError SHOULD show this error — the command genuinely failed.
 		mockUI.EXPECT().OutputError(gomock.Any(), gomock.Any()).MinTimes(1)
 
-		na := globalEngine.GetNetworkAccess()
-		exitCode := tearDown(commandErr, errorList, time.Now(), networking.UserAgentInfo{}, cliAnalytics, na)
+		exitCode := r.tearDown(t.Context(), commandErr, errorList, time.Now(), networking.UserAgentInfo{}, cliAnalytics)
 		assert.Equal(t, constants.SNYK_EXIT_CODE_ERROR, exitCode)
 	})
 
 	t.Run("arbitrary error with network errors still displays the error", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
-		mockUI, cliAnalytics := setupTearDownGlobals(t, ctrl)
-		defer cleanup()
+		r, mockUI, cliAnalytics := setupTearDownRun(t, ctrl)
 
 		commandErr := fmt.Errorf("this is a failure")
 		auxiliaryNetworkError := fmt.Errorf("network error")
@@ -1096,8 +1110,7 @@ func Test_tearDown_exitCode1WithNetworkErrors(t *testing.T) {
 		// displayError SHOULD show this error — the command genuinely failed.
 		mockUI.EXPECT().OutputError(gomock.Any(), gomock.Any()).MinTimes(1)
 
-		na := globalEngine.GetNetworkAccess()
-		exitCode := tearDown(commandErr, errorList, time.Now(), networking.UserAgentInfo{}, cliAnalytics, na)
+		exitCode := r.tearDown(t.Context(), commandErr, errorList, time.Now(), networking.UserAgentInfo{}, cliAnalytics)
 		assert.Equal(t, constants.SNYK_EXIT_CODE_ERROR, exitCode)
 	})
 }
@@ -1153,14 +1166,13 @@ func Test_defaultNetworkRequestRetryAllowedPaths(t *testing.T) {
 }
 
 func Test_NetworkRequestRetryAllowedPaths_Integration(t *testing.T) {
-	defer cleanup()
 	oldArgs := append([]string{}, os.Args...)
 	os.Args = []string{"snyk", "--version"}
 	defer func() { os.Args = oldArgs }()
 
-	_ = mainWithErrorCode(nil)
+	r, _ := execute(nil)
 
-	paths := globalConfiguration.GetStringSlice(configuration.NETWORK_REQUEST_RETRY_ALLOWED_PATHS)
+	paths := r.config.GetStringSlice(configuration.NETWORK_REQUEST_RETRY_ALLOWED_PATHS)
 	assert.Contains(t, paths, "oauth2/token")
 	assert.Contains(t, paths, "test-dep-graph")
 	assert.Contains(t, paths, "verify/token")
