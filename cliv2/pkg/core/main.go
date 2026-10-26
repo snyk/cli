@@ -628,6 +628,7 @@ func mainWithErrorCode(additionalExts []workflow.ExtensionInit) int {
 		configuration.WithSupportedEnvVars("NODE_EXTRA_CA_CERTS"),
 		configuration.WithSupportedEnvVarPrefixes("snyk_", "internal_", "test_"),
 		configuration.WithCachingEnabled(configuration.NoCacheExpiration),
+		configuration.WithProtectedEnvVars("SNYK_TOKEN"),
 	)
 	err = globalConfiguration.AddFlagSet(rootCommand.LocalFlags())
 	if err != nil {
