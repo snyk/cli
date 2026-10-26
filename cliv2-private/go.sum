@@ -603,10 +603,12 @@ github.com/snyk/dep-graph/go v0.0.0-20260127160647-c836da762c62 h1:kgZNQ5ztI4+n3
 github.com/snyk/dep-graph/go v0.0.0-20260127160647-c836da762c62/go.mod h1:hTr91da/4ze2nk9q6ZW1BmfM2Z8rLUZSEZ3kK+6WGpc=
 github.com/snyk/error-catalog-golang-public v0.0.0-20261020120644-f6bd6fc4dac6 h1:gWzibm0WKHfa/Y41aQMzvfIu5NBovxVe+TTmXquhmFA=
 github.com/snyk/error-catalog-golang-public v0.0.0-20261020120644-f6bd6fc4dac6/go.mod h1:0dz+HUR/r7VLlQpLfF0a/F1tdHH84NLTZzCxjZ+Q1nk=
-github.com/snyk/go-application-framework v0.34.1 h1:WFNxX4qxeQ5wTGhlp5sROlNgCaxcHcQvLvu4mlS2Lys=
-github.com/snyk/go-application-framework v0.34.1/go.mod h1:pZxNU4+Qf03Em1yxOLCOGhvu6X5/rbb+tBK82Mhagyo=
+github.com/snyk/go-application-framework v0.34.3-0.20261027105438-3e62808e94bf h1:XRn+Ahq7UDy91ietWNNvMFQ7s+auMtNTL/rBspZCgnA=
+github.com/snyk/go-application-framework v0.34.3-0.20261027105438-3e62808e94bf/go.mod h1:KaxXLZGNrqHa9RXTeotD8EtRH84ye8JzCWB7PCpb1As=
 github.com/snyk/go-httpauth v0.0.0-20260810142636-0f6182aaccbc h1:tuZVhmJFxS4qJlwYIIIw8xgw3VaVqIR3IAV0WaaFVnI=
 github.com/snyk/go-httpauth v0.0.0-20260810142636-0f6182aaccbc/go.mod h1:f42qLL7WXOS0od7dXJV/hK3myjms/r6HsXgLrg1HRRY=
+github.com/snyk/go-ripgrep-gitignore/v2 v2.0.2 h1:LyUY9nrHQmQPKwPN3yIqSalRR+sFaY/ynRbdwgjoulg=
+github.com/snyk/go-ripgrep-gitignore/v2 v2.0.2/go.mod h1:0I1NHdnls3qS2YpEU0O+UYWFEsc3AGTP/QO5Exjb19s=
 github.com/snyk/policy-engine v1.1.6 h1:W53ZTvlt9JxfXHnmEucG34sKDpBn3R8p54M41jsSSTM=
 github.com/snyk/policy-engine v1.1.6/go.mod h1:I2xw1aQ/85kRZMY/I+YiwlYSLJO9zS4AXmrvg6+m6Ps=
 github.com/snyk/remy-cli-extension v1.53.2 h1:mLfNmh8VnVNvOm8os1LrEg+fJWAdECTeFkPJdchYvcA=
@@ -659,6 +661,8 @@ github.com/tchap/go-patricia/v2 v2.3.2 h1:xTHFutuitO2zqKAQ5rCROYgUb7Or/+IC3fts9/
 github.com/tchap/go-patricia/v2 v2.3.2/go.mod h1:VZRHKAb53DLaG+nA9EaYYiaEx6YztwDlLElMsnSHD4k=
 github.com/terminalstatic/go-xsd-validate v0.1.6 h1:TenYeQ3eY631qNi1/cTmLH/s2slHPRKTTHT+XSHkepo=
 github.com/terminalstatic/go-xsd-validate v0.1.6/go.mod h1:18lsvYFofBflqCrvo1umpABZ99+GneNTw2kEEc8UPJw=
+github.com/tetratelabs/wazero v1.11.0 h1:+gKemEuKCTevU4d7ZTzlsvgd1uaToIDtlQlmNbwqYhA=
+github.com/tetratelabs/wazero v1.11.0/go.mod h1:eV28rsN8Q+xwjogd7f4/Pp4xFxO7uOGbLcD/LzB1wiU=
 github.com/tidwall/gjson v1.14.2/go.mod h1:/wbyibRr2FHMks5tjHJ5F8dMZh3AcwJEMf5vlfC0lxk=
 github.com/tidwall/gjson v1.18.0 h1:FIDeeyB800efLX89e5a8Y0BNH+LOngJyGrIWxG2FKQY=
 github.com/tidwall/gjson v1.18.0/go.mod h1:/wbyibRr2FHMks5tjHJ5F8dMZh3AcwJEMf5vlfC0lxk=
