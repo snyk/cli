@@ -787,9 +787,14 @@ func populateRedactionTerms(config configuration.Configuration, engine workflow.
 	// or canonicalisation does not apply, so its raw value needs the same
 	// exclusion as the client machine id above. GetUnknownParameters tokenizes
 	// its input on whitespace, so a multi-word value only excludes as a whole if
-	// each of its words is excluded too.
+	// each of its words is excluded too. persona.Report reports the canonical
+	// name and version from SplitVersion, which can differ from the raw value
+	// (e.g. "claude-code_2-1-310_agent" -> "claude_code" / "2.1.310"), so those
+	// are excluded as well, or any env var or argument that happens to equal
+	// them gets the reported values redacted to ***.
 	if detectedAgent, ok := agent.DetectAgent(); ok {
-		knownTerms = append(knownTerms, detectedAgent)
+		name, version := agent.SplitVersion(detectedAgent)
+		knownTerms = append(knownTerms, detectedAgent, name, version)
 		knownTerms = append(knownTerms, strings.Fields(detectedAgent)...)
 	}
 	// Without an override, resolving the machine id here could create the machine id file just to build redaction terms.

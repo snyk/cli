@@ -260,6 +260,25 @@ func Test_populateRedactionTerms_excludesDetectedAgent(t *testing.T) {
 	}
 }
 
+func Test_populateRedactionTerms_excludesCanonicalAgentNameAndVersion(t *testing.T) {
+	mockController := gomock.NewController(t)
+	mockEngine := mocks.NewMockEngine(mockController)
+	mockEngine.EXPECT().GetWorkflows().Return(nil)
+
+	config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
+	// The raw value splits into the canonical "claude_code" and "2.1.310", which is what
+	// persona.Report puts into the extension. Another variable carrying either value must
+	// not turn it into a redaction term.
+	t.Setenv("AI_AGENT", "claude-code_2-1-310_agent")
+	t.Setenv("TEST_WRAPPER_AGENT", "claude_code")
+	t.Setenv("TEST_WRAPPER_AGENT_VERSION", "2.1.310")
+
+	terms := populateRedactionTerms(config, mockEngine)
+
+	assert.NotContains(t, terms, "claude_code", "the canonical agent name reported in persona.agent must not be redacted")
+	assert.NotContains(t, terms, "2.1.310", "the agent version reported in persona.agent_version must not be redacted")
+}
+
 func Test_initApplicationConfiguration_DisablesAnalytics(t *testing.T) {
 	t.Run("via SNYK_DISABLE_ANALYTICS (true)", func(t *testing.T) {
 		c := configuration.NewWithOpts(configuration.WithAutomaticEnv())
