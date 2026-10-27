@@ -780,11 +780,28 @@ func populateRedactionTerms(config configuration.Configuration, engine workflow.
 	}
 	// Without an override, resolving the machine id here could create the machine id file just to build redaction terms.
 	if config.IsSet(configuration.MACHINE_ID) {
-		knownTerms = append(knownTerms, config.GetString(configuration.MACHINE_ID))
+		if machineID := machineIDFromConfigValue(config.Get(configuration.MACHINE_ID)); machineID != "" {
+			knownTerms = append(knownTerms, machineID)
+		}
 	}
 	termsToRedact := cliv2utils.GetUnknownParameters(os.Args[1:], os.Environ(), knownTerms)
 	config.Set(logging.REDACTION_TERMS, termsToRedact)
 	return termsToRedact
+}
+
+// A host may still set a plain string on MACHINE_ID; the application default turns it into a runtimeinfo.Machine.
+func machineIDFromConfigValue(value any) string {
+	switch v := value.(type) {
+	case runtimeinfo.Machine:
+		return v.ID
+	case *runtimeinfo.Machine:
+		if v != nil {
+			return v.ID
+		}
+	case string:
+		return v
+	}
+	return ""
 }
 
 func processError(err error, errorList []error) ([]error, error) {

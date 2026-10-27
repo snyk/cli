@@ -29,6 +29,7 @@ import (
 	"github.com/snyk/go-application-framework/pkg/logging"
 	"github.com/snyk/go-application-framework/pkg/mocks"
 	"github.com/snyk/go-application-framework/pkg/networking"
+	"github.com/snyk/go-application-framework/pkg/runtimeinfo"
 	"github.com/snyk/go-application-framework/pkg/utils/ufm"
 	"github.com/snyk/go-application-framework/pkg/workflow"
 	"github.com/spf13/cobra"
@@ -192,6 +193,27 @@ func Test_populateRedactionTerms_excludesValidSuppliedMachineId(t *testing.T) {
 	terms := populateRedactionTermsWithSuppliedMachineID(t, machineID)
 
 	assert.NotContains(t, terms, machineID, "a machine id the application accepted must not be redacted, or the debug log header shows it as ***")
+}
+
+func Test_populateRedactionTerms_excludesSuppliedMachineValueId(t *testing.T) {
+	machineID := "3f2504e0-4f89-41d3-9a0c-0305e82c3301"
+	testCases := map[string]any{
+		"machine":         runtimeinfo.Machine{ID: machineID},
+		"machine pointer": &runtimeinfo.Machine{ID: machineID},
+	}
+
+	for name, value := range testCases {
+		t.Run(name, func(t *testing.T) {
+			t.Setenv("HOME", t.TempDir())
+			t.Setenv("SNYK_TEST_REDACTION_MARKER", machineID)
+			config, engine := newAppEngineForRedactionTerms(t)
+			config.Set(configuration.MACHINE_ID, value)
+
+			terms := populateRedactionTerms(config, engine)
+
+			assert.NotContains(t, terms, machineID, "a machine id supplied as a runtimeinfo.Machine must not be redacted, or the debug log header shows it as ***")
+		})
+	}
 }
 
 func Test_populateRedactionTerms_redactsInvalidSuppliedMachineId(t *testing.T) {

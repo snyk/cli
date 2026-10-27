@@ -17,7 +17,7 @@ func writeLogHeaderWithMachineID(t *testing.T, id string, err error) string {
 	t.Helper()
 	config := configuration.NewWithOpts()
 	config.AddDefaultValue(configuration.MACHINE_ID, func(configuration.Configuration, any) (any, error) {
-		return id, err
+		return runtimeinfo.Machine{ID: id}, err
 	})
 	engine := workflow.NewWorkFlowEngine(config)
 	engine.SetRuntimeInfo(runtimeinfo.New())
