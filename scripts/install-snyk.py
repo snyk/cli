@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# Downloaded from the main branch and run by the snyk-images Dockerfile
+# (snyk/snyk-images). Keep the arguments and behavior backwards compatible.
 import argparse
 import hashlib
 import os
