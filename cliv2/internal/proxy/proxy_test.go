@@ -3,9 +3,13 @@ package proxy_test
 import (
 	"crypto/tls"
 	"crypto/x509"
+	"encoding/base64"
 	"fmt"
+	"io"
 	"log"
+	"net"
 	"net/http"
+	"net/http/httptest"
 	"net/url"
 	"os"
 	"testing"
@@ -254,4 +258,72 @@ func Test_AddExtraCaCert(t *testing.T) {
 
 	// cleanup
 	_ = os.Remove(file.Name())
+}
+
+// helper_getThroughProxy requests the server through a new wrapper proxy. The client only trusts the server's own
+// certificate, so the request fails if the proxy intercepts the connection.
+func helper_getThroughProxy(t *testing.T, config configuration.Configuration, upstreamProxy string, server *httptest.Server) error {
+	t.Helper()
+
+	wp, err := proxy.NewWrapperProxy(config, "1.1.1", &debugLogger, caData)
+	assert.Nil(t, err)
+	if upstreamProxy != "" {
+		wp.SetUpstreamProxyFromUrl(upstreamProxy)
+	}
+	assert.Nil(t, wp.Start())
+	defer wp.Close()
+
+	proxyUrl, err := url.Parse(fmt.Sprintf("http://%s:%s@127.0.0.1:%d", proxy.PROXY_USERNAME, wp.ProxyInfo().Password, wp.ProxyInfo().Port))
+	assert.Nil(t, err)
+	serverCAs := x509.NewCertPool()
+	serverCAs.AddCert(server.Certificate())
+	client := &http.Client{Transport: &http.Transport{
+		Proxy:           http.ProxyURL(proxyUrl),
+		TLSClientConfig: &tls.Config{RootCAs: serverCAs},
+	}}
+
+	res, err := client.Get(server.URL)
+	if err == nil {
+		_ = res.Body.Close()
+	}
+	return err
+}
+
+func Test_HandleConnect(t *testing.T) {
+	basecache := "testcache"
+	config := setup(t, basecache, "1.1.1")
+	defer teardown(t, basecache)
+
+	config.Set(configuration.API_URL, "https://api.snyk.io")
+	server := httptest.NewTLSServer(http.HandlerFunc(func(http.ResponseWriter, *http.Request) {}))
+	defer server.Close()
+
+	t.Run("tunnels non-Snyk hosts", func(t *testing.T) {
+		assert.NoError(t, helper_getThroughProxy(t, config, "", server))
+	})
+
+	t.Run("tunnels through an upstream proxy with basic authentication", func(t *testing.T) {
+		var proxyAuth string
+		upstream := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			proxyAuth = r.Header.Get("Proxy-Authorization")
+			target, err := net.Dial("tcp", r.Host)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusBadGateway)
+				return
+			}
+			client, _, _ := w.(http.Hijacker).Hijack()
+			_, _ = client.Write([]byte("HTTP/1.1 200 Connection established\r\n\r\n"))
+			go func() { _, _ = io.Copy(target, client); _ = target.Close() }()
+			go func() { _, _ = io.Copy(client, target); _ = client.Close() }()
+		}))
+		defer upstream.Close()
+
+		assert.NoError(t, helper_getThroughProxy(t, config, "http://user:secret@"+upstream.Listener.Addr().String(), server))
+		assert.Equal(t, "Basic "+base64.StdEncoding.EncodeToString([]byte("user:secret")), proxyAuth)
+	})
+
+	t.Run("intercepts Snyk hosts", func(t *testing.T) {
+		config.Set(configuration.AUTHENTICATION_ADDITIONAL_URLS, []string{server.URL})
+		assert.ErrorContains(t, helper_getThroughProxy(t, config, "", server), "certificate")
+	})
 }

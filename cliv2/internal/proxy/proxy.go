@@ -17,6 +17,7 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	"github.com/snyk/go-application-framework/pkg/networking/certs"
+	"github.com/snyk/go-application-framework/pkg/networking/middleware"
 	pkg_utils "github.com/snyk/go-application-framework/pkg/utils"
 
 	"github.com/snyk/go-httpauth/pkg/httpauth"
@@ -187,16 +188,41 @@ func (p *WrapperProxy) HandleConnect(req string, ctx *goproxy.ProxyCtx) (*goprox
 	action, str := basic.HandleConnect(req, ctx)
 	p.DebugLogger.Print("HandleConnect - basic authentication result: ", action, str)
 
-	if action == goproxy.OkConnect {
+	// Only Snyk hosts are intercepted. Other hosts are tunneled, so clients that don't trust the proxy CA (like uv)
+	// still see the real certificate.
+	if action == goproxy.OkConnect && p.isSnykHost(req) {
 		action, str = goproxy.AlwaysMitm.HandleConnect(req, ctx)
 	}
 
 	return action, str
 }
 
+func (p *WrapperProxy) isSnykHost(host string) bool {
+	isSnyk, err := middleware.ShouldRequireAuthentication(
+		p.config.GetString(configuration.API_URL),
+		&url.URL{Scheme: "https", Host: host},
+		p.config.GetStringSlice(configuration.AUTHENTICATION_SUBDOMAINS),
+		p.config.GetStringSlice(configuration.AUTHENTICATION_ADDITIONAL_URLS),
+	)
+	return err != nil || isSnyk
+}
+
+func (p *WrapperProxy) tunnelDialer() func(req *http.Request, network, addr string) (net.Conn, error) {
+	mechanism := httpauth.AuthenticationMechanismFromString(p.config.GetString(configuration.PROXY_AUTHENTICATION_MECHANISM))
+	if !httpauth.IsSupportedMechanism(mechanism) {
+		mechanism = httpauth.AnyAuth
+	}
+	authenticator := httpauth.NewProxyAuthenticator(mechanism, p.upstreamProxy, log.New(&pkg_utils.ToZeroLogDebug{Logger: p.DebugLogger}, "", 0))
+
+	return func(req *http.Request, network, addr string) (net.Conn, error) {
+		return authenticator.DialContext(req.Context(), network, addr)
+	}
+}
+
 func (p *WrapperProxy) Start() error {
 	proxy := goproxy.NewProxyHttpServer()
 	proxy.Tr = p.transport
+	proxy.ConnectDialWithReq = p.tunnelDialer()
 	// zerolog based logger also works but it will print empty lines between logs
 	proxy.Logger = log.New(&pkg_utils.ToZeroLogDebug{Logger: p.DebugLogger}, "", 0)
 

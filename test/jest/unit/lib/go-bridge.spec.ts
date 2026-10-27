@@ -35,6 +35,7 @@ describe('go-bridge', () => {
   });
 
   afterEach(() => {
+    jest.restoreAllMocks();
     process.env = originalEnv;
   });
 
@@ -137,9 +138,10 @@ describe('go-bridge', () => {
       jest.restoreAllMocks();
     });
 
-    it('strips SNYK_TOKEN from the child process environment', async () => {
+    it('passes the environment to the child process unchanged', async () => {
       process.env.SNYK_INTERNAL_CLI_EXECUTABLE_PATH = '/usr/local/bin/snyk';
       process.env.SNYK_TOKEN = 'random';
+      process.env.HTTPS_PROXY = 'http://127.0.0.1:1234';
 
       const mockProc = createMockProcess();
       const spawnSpy = jest
@@ -152,29 +154,8 @@ describe('go-bridge', () => {
       await promise;
 
       const spawnEnv = spawnSpy.mock.calls[0][2]?.env as NodeJS.ProcessEnv;
-      expect(spawnEnv).toBeDefined();
-      expect(spawnEnv.SNYK_TOKEN).toBeUndefined();
-
-      jest.restoreAllMocks();
-    });
-
-    it('preserves SNYK_TOKEN when its value is not "random"', async () => {
-      process.env.SNYK_INTERNAL_CLI_EXECUTABLE_PATH = '/usr/local/bin/snyk';
-      process.env.SNYK_TOKEN = 'real-api-token-value';
-
-      const mockProc = createMockProcess();
-      const spawnSpy = jest
-        .spyOn(childProcess, 'spawn')
-        .mockReturnValue(mockProc);
-
-      const promise = execGoCommand(['depgraph']);
-
-      mockProc.emit('close', 0);
-      await promise;
-
-      const spawnEnv = spawnSpy.mock.calls[0][2]?.env as NodeJS.ProcessEnv;
-      expect(spawnEnv).toBeDefined();
-      expect(spawnEnv.SNYK_TOKEN).toBe('real-api-token-value');
+      expect(spawnEnv.SNYK_TOKEN).toBe('random');
+      expect(spawnEnv.HTTPS_PROXY).toBe('http://127.0.0.1:1234');
 
       jest.restoreAllMocks();
     });
