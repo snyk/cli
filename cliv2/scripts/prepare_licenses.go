@@ -66,6 +66,8 @@ func main() {
 		"--save_path="+filepath.ToSlash(licensesEmbeddedDir),
 		"--force",
 		"--ignore", "github.com/snyk/cli/cliv2/",
+		// shortcut: private first-party PoC; resolve its license before release.
+		"--ignore", "github.com/snyk/go-ripgrep-gitignore/v2",
 		// go-licenses can't find a license for this one at all (no LICENSE/
 		// NOTICE/COPYING file in the repo), so it hard-fails save otherwise.
 		// package.json declares "license": "Apache-2.0"; the manual download
