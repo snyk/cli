@@ -8,7 +8,7 @@ require (
 	github.com/snyk/cli-extension-studio v1.0.4
 	github.com/snyk/cli-extension-supply-chain v0.0.0-20261022102644-f30aa74bf19b
 	github.com/snyk/cli/cliv2 v0.0.0
-	github.com/snyk/remy-cli-extension v1.53.0
+	github.com/snyk/remy-cli-extension v1.53.2
 	github.com/snyk/rift-cli-extension v1.4.2
 )
 
@@ -219,7 +219,7 @@ require (
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20261014132251-469c582b44e7 // indirect
 	github.com/snyk/cli-extension-os-flows v0.0.0-20261019113940-6bd18a6c09b8 // indirect
 	github.com/snyk/cli-extension-sbom v0.0.0-20260818092356-16ee760085f9 // indirect
-	github.com/snyk/cli-extension-secrets v0.0.0-20261014105939-91d9028648e2 // indirect
+	github.com/snyk/cli-extension-secrets v0.0.0-20261015111838-d17ad7ec1396 // indirect
 	github.com/snyk/code-client-go v1.31.9 // indirect
 	github.com/snyk/container-cli v0.0.0-20260213211631-cd2b2cf8f3ea // indirect
 	github.com/snyk/dep-graph/go v0.0.0-20260127160647-c836da762c62 // indirect
