@@ -50,6 +50,7 @@ import { InvalidDetectionDepthValue } from '../lib/errors/invalid-detection-dept
 import { obfuscateArgs } from '../lib/utils';
 import { EXIT_CODES } from './exit-codes';
 import { sendError } from './ipc';
+import { storeSnykToken } from '../lib/go-bridge';
 
 const isEmpty = require('lodash/isEmpty');
 
@@ -285,6 +286,7 @@ type AllSupportedCliOptions = Options & MonitorOptions & TestOptions;
 
 export async function main(): Promise<void> {
   checkRuntime();
+  storeSnykToken();
 
   let res;
   let failed = false;
