@@ -11,7 +11,7 @@ require (
 	github.com/mattn/go-isatty v0.0.24
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.35.1
-	github.com/snyk/cli-extension-agent-scan v0.0.0-20260821092236-dc228259a004
+	github.com/snyk/cli-extension-agent-scan v0.0.0-20261028134456-f2d8eab5aee8
 	github.com/snyk/cli-extension-ai-bom v0.0.0-20260817214817-d0a81ac40172
 	github.com/snyk/cli-extension-dep-graph/v2 v2.19.2
 	github.com/snyk/cli-extension-iac v0.0.0-20261014132301-58dc64419156
@@ -23,15 +23,15 @@ require (
 	github.com/snyk/container-cli v0.0.0-20260213211631-cd2b2cf8f3ea
 	github.com/snyk/error-catalog-golang-public v0.0.0-20261020120644-f6bd6fc4dac6
 	github.com/snyk/go-application-framework v0.34.2
-	github.com/snyk/go-httpauth v0.0.0-20260810142636-0f6182aaccbc
+	github.com/snyk/go-httpauth v0.0.0-20261007154458-c110eb9b820f
 	github.com/snyk/snyk-iac-capture v0.6.5
 	github.com/snyk/snyk-ls v0.0.0-20261014173353-6ed3290ddc95
 	github.com/snyk/studio-mcp v1.15.5
 	github.com/spf13/cobra v1.9.1
 	github.com/spf13/pflag v1.0.10
-	github.com/stretchr/testify v1.11.1
+	github.com/stretchr/testify v1.12.1
 	github.com/vercel/detect-agent v1.2.0
-	golang.org/x/mod v0.41.0
+	golang.org/x/mod v0.42.0
 )
 
 require (
@@ -103,7 +103,6 @@ require (
 	github.com/creachadair/jrpc2 v1.3.0 // indirect
 	github.com/creachadair/mds v0.23.0 // indirect
 	github.com/cyphar/filepath-securejoin v0.7.0 // indirect
-	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/denisbrodbeck/machineid v1.0.1 // indirect
 	github.com/dlclark/regexp2 v1.12.0 // indirect
 	github.com/docker/distribution v2.8.2+incompatible // indirect
@@ -179,7 +178,7 @@ require (
 	github.com/muesli/reflow v0.3.0 // indirect
 	github.com/muesli/termenv v0.16.0 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
-	github.com/oapi-codegen/runtime v1.6.0 // indirect
+	github.com/oapi-codegen/runtime v1.7.0 // indirect
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
 	github.com/open-policy-agent/opa v1.4.2 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
@@ -192,7 +191,6 @@ require (
 	github.com/pjbgf/sha1cd v0.6.0 // indirect
 	github.com/pkg/browser v0.0.0-20240102092130-5ac0b6a4141c // indirect
 	github.com/planetscale/vtprotobuf v0.6.1-0.20240319094008-0393e58bdf10 // indirect
-	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/prometheus/client_golang v1.23.2 // indirect
 	github.com/prometheus/client_model v0.6.2 // indirect
 	github.com/prometheus/common v0.66.1 // indirect
