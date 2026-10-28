@@ -1522,7 +1522,23 @@ jobs:
             - prepare-v1-build-npm-deps
       - run:
           name: Installing dependencies
-          command: npm ci --no-audit --no-progress --cache .npm --prefer-offline
+          command: |
+            # Run the install scripts ourselves. node-gyp downloads Node headers from nodejs.org, and
+            # that download stalls for 20+ minutes. Use the headers shipped with Node when present,
+            # otherwise fetch them with timeouts and retries. The webpack build needs cpu-features'
+            # native binding. ssh2's own binding is optional and skipped.
+            npm ci --no-audit --no-progress --cache .npm --prefer-offline --ignore-scripts
+            NODE_PREFIX="$(dirname "$(dirname "$(command -v node)")")"
+            if [ -f "$NODE_PREFIX/include/node/node.h" ]; then
+              export npm_config_nodedir="$NODE_PREFIX"
+            else
+              NODE_VERSION="$(node --version)"
+              curl -fsSL --retry 5 --retry-all-errors --connect-timeout 15 --max-time 120 \
+                -o /tmp/node-headers.tar.gz \
+                "https://nodejs.org/download/release/${NODE_VERSION}/node-${NODE_VERSION}-headers.tar.gz"
+              export npm_config_tarball=/tmp/node-headers.tar.gz
+            fi
+            npm rebuild esbuild cpu-features
       - save_cache:
           name: Save npm cache
           key: prepare-v1-build-npm-deps-{{ checksum "package-lock.json" }}
@@ -1630,7 +1646,23 @@ jobs:
             - prepare-v1-build-npm-deps
       - run:
           name: Installing npm dependencies
-          command: npm ci --no-audit --no-progress --cache .npm --prefer-offline
+          command: |
+            # Run the install scripts ourselves. node-gyp downloads Node headers from nodejs.org, and
+            # that download stalls for 20+ minutes. Use the headers shipped with Node when present,
+            # otherwise fetch them with timeouts and retries. The webpack build needs cpu-features'
+            # native binding. ssh2's own binding is optional and skipped.
+            npm ci --no-audit --no-progress --cache .npm --prefer-offline --ignore-scripts
+            NODE_PREFIX="$(dirname "$(dirname "$(command -v node)")")"
+            if [ -f "$NODE_PREFIX/include/node/node.h" ]; then
+              export npm_config_nodedir="$NODE_PREFIX"
+            else
+              NODE_VERSION="$(node --version)"
+              curl -fsSL --retry 5 --retry-all-errors --connect-timeout 15 --max-time 120 \
+                -o /tmp/node-headers.tar.gz \
+                "https://nodejs.org/download/release/${NODE_VERSION}/node-${NODE_VERSION}-headers.tar.gz"
+              export npm_config_tarball=/tmp/node-headers.tar.gz
+            fi
+            npm rebuild esbuild cpu-features
       - install-go:
           go_os: linux
           go_target_os: linux
@@ -1724,7 +1756,23 @@ jobs:
             - public-build-npm-deps
       - run:
           name: Installing dependencies
-          command: npm ci --no-audit --no-progress --cache .npm --prefer-offline
+          command: |
+            # Run the install scripts ourselves. node-gyp downloads Node headers from nodejs.org, and
+            # that download stalls for 20+ minutes. Use the headers shipped with Node when present,
+            # otherwise fetch them with timeouts and retries. The webpack build needs cpu-features'
+            # native binding. ssh2's own binding is optional and skipped.
+            npm ci --no-audit --no-progress --cache .npm --prefer-offline --ignore-scripts
+            NODE_PREFIX="$(dirname "$(dirname "$(command -v node)")")"
+            if [ -f "$NODE_PREFIX/include/node/node.h" ]; then
+              export npm_config_nodedir="$NODE_PREFIX"
+            else
+              NODE_VERSION="$(node --version)"
+              curl -fsSL --retry 5 --retry-all-errors --connect-timeout 15 --max-time 120 \
+                -o /tmp/node-headers.tar.gz \
+                "https://nodejs.org/download/release/${NODE_VERSION}/node-${NODE_VERSION}-headers.tar.gz"
+              export npm_config_tarball=/tmp/node-headers.tar.gz
+            fi
+            npm rebuild esbuild cpu-features
       - save_cache:
           name: Save npm cache (public build)
           key: public-build-npm-deps-{{ checksum "package-lock.json" }}
