@@ -17,6 +17,22 @@ interface PrefixedChunkResult {
   isAtLineStart: boolean;
 }
 
+let storedSnykToken: string | undefined;
+let storedOAuthToken: string | undefined;
+
+export function storeSnykToken(): void {
+  const token = process.env.SNYK_TOKEN;
+  delete process.env.SNYK_TOKEN;
+  storedSnykToken = token && token !== 'random' ? token : undefined;
+
+  storedOAuthToken = process.env.SNYK_OAUTH_TOKEN;
+  delete process.env.SNYK_OAUTH_TOKEN;
+}
+
+export function getStoredOAuthToken(): string | undefined {
+  return storedOAuthToken;
+}
+
 export interface GoCommandResult {
   exitCode: number;
   stdout: string;
@@ -65,6 +81,12 @@ export function execGoCommand(
   const commandEnv = restoreSystemEnvironment({
     ...process.env,
   });
+  if (storedSnykToken) {
+    commandEnv.SNYK_TOKEN = storedSnykToken;
+  }
+  if (storedOAuthToken) {
+    commandEnv.SNYK_OAUTH_TOKEN = storedOAuthToken;
+  }
 
   return new Promise((resolve, reject) => {
     let stdout = '';
