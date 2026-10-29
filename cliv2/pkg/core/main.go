@@ -31,6 +31,7 @@ import (
 	"github.com/snyk/go-application-framework/pkg/analytics"
 	"github.com/snyk/go-application-framework/pkg/app"
 	"github.com/snyk/go-application-framework/pkg/configuration"
+	"github.com/snyk/go-application-framework/pkg/configuration/profile"
 	"github.com/snyk/go-application-framework/pkg/instrumentation"
 	"github.com/snyk/go-application-framework/pkg/logging"
 
@@ -97,6 +98,8 @@ type cliRun struct {
 	config       configuration.Configuration
 	logger       *zerolog.Logger
 	helpProvided bool
+	// profiles finds the configuration profiles, nil until enableProfiles is called.
+	profiles profile.Registry
 
 	// interactionId identifies this run. It is sent as a URN, see instrumentation.AssembleUrnFromUUID.
 	interactionId string
@@ -141,6 +144,8 @@ func initApplicationConfiguration(config configuration.Configuration) {
 	config.AddAlternativeKeys(configuration.INTEGRATION_NAME, []string{integrationNameFlag})
 	config.AddAlternativeKeys(middleware.ConfigurationKeyRequestAttempts, []string{"snyk_max_attempts", maxNetworkRequestAttempts})
 	config.AddAlternativeKeys(cliv2.ConfigKeyRequestConcurrency, []string{"snyk_request_concurrency"})
+	// the flag wins over the environment variable
+	config.AddAlternativeKeys(profile.ConfigKey, []string{profileFlag, profileEnvAlias})
 }
 
 func getFullCommandString(cmd *cobra.Command) string {
@@ -190,16 +195,28 @@ func updateConfigFromParameter(config configuration.Configuration, args []string
 
 // main workflow
 func (r *cliRun) runCommand(cmd *cobra.Command, args []string) error {
-	// since cobra doesn't tell us if -- was found, os.Args is required in addition
-	return r.runMainWorkflow(cmd, args, os.Args)
+	return r.runCommandWith(cmd, args)
 }
 
-func (r *cliRun) runMainWorkflow(cmd *cobra.Command, args []string, rawArgs []string) error {
+// runCommandWith runs the command after the settings are applied to the configuration of the run and of its profile.
+func (r *cliRun) runCommandWith(cmd *cobra.Command, args []string, settings ...func(configuration.Configuration)) error {
+	// since cobra doesn't tell us if -- was found, os.Args is required in addition
+	return r.runMainWorkflow(cmd, args, os.Args, settings...)
+}
+
+func (r *cliRun) runMainWorkflow(cmd *cobra.Command, args []string, rawArgs []string, settings ...func(configuration.Configuration)) error {
 	err := r.config.AddFlagSet(cmd.Flags())
 	if err != nil {
 		r.logger.Print("Failed to add flags", err)
 		return err
 	}
+
+	// a profile is derived the first time it is used, so it is resolved once the flags of the command are bound
+	profileConfig, err := r.profileConfig()
+	if err != nil {
+		return err
+	}
+	r.applyCommandSettings(profileConfig, settings...)
 
 	// init UI
 	errorUI := consoleui.WithErrorOutput(os.Stdout)
@@ -217,6 +234,10 @@ func (r *cliRun) runMainWorkflow(cmd *cobra.Command, args []string, rawArgs []st
 	}
 
 	updateConfigFromParameter(r.config, args, rawArgs)
+	if profileConfig != r.config {
+		// the engine runs the command on a copy of the profile, which has to carry what only holds for this command
+		updateConfigFromParameter(profileConfig, args, rawArgs)
+	}
 
 	name := getFullCommandString(cmd)
 	r.logger.Print("Running ", name)
@@ -250,6 +271,10 @@ func runWorkflowAndProcessData(ctx context.Context, engine workflow.Engine, logg
 }
 
 func (r *cliRun) defaultCmd(args []string) error {
+	if err := r.refuseLegacyCommandForProfile(); err != nil {
+		return err
+	}
+
 	inputDirectory := cliv2.DetermineInputDirectory(args)
 	if len(inputDirectory) > 0 {
 		r.config.Set(configuration.INPUT_DIRECTORY, inputDirectory)
@@ -270,8 +295,7 @@ func (r *cliRun) runLegacyHelp() error {
 }
 
 func (r *cliRun) runTestCommandWithSarifEqualJson(cmd *cobra.Command, args []string) error {
-	configureSarifEqualJSON(r.config)
-	return r.runCommand(cmd, args)
+	return r.runCommandWith(cmd, args, configureSarifEqualJSON)
 }
 
 func configureSarifEqualJSON(config configuration.Configuration) {
@@ -315,23 +339,24 @@ func isHtmlOutput(flags *pflag.FlagSet) bool {
 }
 
 func (r *cliRun) runOSTestCommand(cmd *cobra.Command, args []string) error {
-	if !r.config.IsSet(ufmPresenterConfigKey) {
-		r.config.Set(ufmPresenterConfigKey, true)
-	}
+	return r.runCommandWith(cmd, args, func(config configuration.Configuration) {
+		if !config.IsSet(ufmPresenterConfigKey) {
+			config.Set(ufmPresenterConfigKey, true)
+		}
 
-	if isHtmlOutput(cmd.Flags()) {
-		r.config.Set(ufmPresenterConfigKey, true)
-		r.config.Set(orchestrator.FlagUnifiedTestAPIOsCLI.Key, true)
-	}
-
-	return r.runCommand(cmd, args)
+		if isHtmlOutput(cmd.Flags()) {
+			config.Set(ufmPresenterConfigKey, true)
+			config.Set(orchestrator.FlagUnifiedTestAPIOsCLI.Key, true)
+		}
+	})
 }
 
 func (r *cliRun) runCodeTestCommand(cmd *cobra.Command, args []string) error {
-	if isHtmlOutput(cmd.Flags()) {
-		r.config.Set(codeUseUfmConfigKey, true)
-	}
-	return r.runTestCommandWithSarifEqualJson(cmd, args)
+	return r.runCommandWith(cmd, args, configureSarifEqualJSON, func(config configuration.Configuration) {
+		if isHtmlOutput(cmd.Flags()) {
+			config.Set(codeUseUfmConfigKey, true)
+		}
+	})
 }
 
 func (r *cliRun) runSecretsTestCommand(cmd *cobra.Command, args []string) error {
@@ -356,6 +381,7 @@ func getGlobalFLags() *pflag.FlagSet {
 	globalFLags.Bool(disable_analytics_flag, false, "")
 	globalFLags.String(debug_level_flag, "debug", "")
 	globalFLags.String(integrationNameFlag, "", "")
+	globalFLags.String(profileFlag, "", "Use the settings of the named configuration profile instead of the default.")
 	globalFLags.Int(maxNetworkRequestAttempts, -1, "Maximum total network attempts, including the initial request (minimum: 1)")
 	return globalFLags
 }
@@ -558,7 +584,13 @@ func (r *cliRun) tearDown(ctx context.Context, err error, errorList []error, sta
 	// (which reads logging.REDACTION_TERMS off of config) sees these terms on every run, not
 	// just under --debug, without forcing an ORGANIZATION/ORGANIZATION_SLUG network lookup
 	// before the command's own requests run.
-	populateRedactionTerms(r.config, r.engine)
+	// A profile that cannot be used must not make the report fall back to the credentials of the default profile.
+	reportConfig, profileErr := r.profileConfig()
+	if profileErr != nil {
+		r.logger.Printf("Not reporting this command, its profile cannot be used: %v", profileErr)
+	} else {
+		populateRedactionTerms(reportConfig, r.engine)
+	}
 
 	outputError := err
 	allErrors := errorList
@@ -578,21 +610,28 @@ func (r *cliRun) tearDown(ctx context.Context, err error, errorList []error, sta
 
 	r.displayError(ctx, outputError, r.engine.GetUserInterface(), cliAnalytics.IsCiEnvironment())
 
-	r.updateInstrumentationDataBeforeSending(cliAnalytics, startTime, ua, exitCode)
+	if profileErr == nil {
+		r.updateInstrumentationDataBeforeSending(reportConfig, cliAnalytics, startTime, ua, exitCode)
 
-	if !r.config.GetBool(configuration.ANALYTICS_DISABLED) {
-		r.sendAnalytics(teardownCtx, cliAnalytics)
+		if !reportConfig.GetBool(configuration.ANALYTICS_DISABLED) {
+			r.sendAnalytics(teardownCtx, reportConfig, cliAnalytics)
+		}
+		r.sendInstrumentation(teardownCtx, reportConfig, cliAnalytics.GetInstrumentation())
 	}
-	r.sendInstrumentation(teardownCtx, cliAnalytics.GetInstrumentation())
 
 	// cleanup resources in use
 	// WARNING: deferred actions will execute AFTER cleanup; only defer if not impacted by this
-	if _, cleanupErr := r.engine.Invoke(basic_workflows.WORKFLOWID_GLOBAL_CLEANUP, workflow.WithContext(teardownCtx)); cleanupErr != nil {
+	cleanupOptions := []workflow.EngineInvokeOption{workflow.WithContext(teardownCtx)}
+	if profileErr != nil {
+		// nothing ran on the profile, the cleanup only removes what the process created
+		cleanupOptions = append(cleanupOptions, workflow.WithConfig(r.config.Clone()))
+	}
+	if _, cleanupErr := r.engine.Invoke(basic_workflows.WORKFLOWID_GLOBAL_CLEANUP, cleanupOptions...); cleanupErr != nil {
 		r.logger.Printf("Failed to cleanup %v", cleanupErr)
 	}
 
-	if r.config.GetBool(configuration.DEBUG) {
-		r.writeLogFooter(exitCode, allErrors)
+	if r.config.GetBool(configuration.DEBUG) && profileErr == nil {
+		r.writeLogFooter(reportConfig, exitCode, allErrors)
 	}
 
 	return exitCode
@@ -655,6 +694,12 @@ func execute(additionalExts []workflow.ExtensionInit) (*cliRun, int) {
 	var scrubbedLogger logging.ScrubbingLogWriter
 	r.logger, scrubbedLogger = initDebugLogger(r.config)
 	r.engine = app.CreateAppEngineWithOptions(app.WithZeroLogger(r.logger), app.WithConfiguration(r.config), app.WithRuntimeInfo(rInfo))
+	// the profiles are only enabled when one is requested, so a run without one is unchanged
+	if r.config.GetString(profile.ConfigKey) != "" {
+		if err := r.enableProfiles(configuration.DefaultStorageDir()); err != nil {
+			r.logger.Printf("Failed to enable the configuration profiles: %v", err)
+		}
+	}
 
 	r.config.AddDefaultValue(configuration.FF_OAUTH_AUTH_FLOW_ENABLED, defaultOAuthFF(r.config))
 	r.config.AddDefaultValue(configuration.FF_TRANSFORMATION_WORKFLOW, configuration.StandardDefaultValueFunction(true))
@@ -704,7 +749,7 @@ func execute(additionalExts []workflow.ExtensionInit) (*cliRun, int) {
 	if debugEnabled {
 		termsToRedact := populateRedactionTerms(r.config, r.engine)
 		scrubbedLogger.AddTermsToReplace(termsToRedact)
-		r.writeLogHeader()
+		r.writeLogHeader(r.config)
 	}
 
 	if err != nil {

@@ -16,6 +16,7 @@ import (
 	"github.com/snyk/go-application-framework/pkg/local_workflows/config_utils"
 	"github.com/snyk/go-application-framework/pkg/networking/middleware"
 	"github.com/snyk/go-application-framework/pkg/runtimeinfo"
+	"github.com/snyk/go-application-framework/pkg/workflow"
 
 	"github.com/snyk/cli/cliv2/internal/cliv2"
 	"github.com/snyk/cli/cliv2/internal/utils"
@@ -30,9 +31,9 @@ func redactAuthorizationTokens(token string) string {
 	return tokenShaSum
 }
 
-func (r *cliRun) logHeaderAuthorizationInfo() (string, string, string) {
-	config := r.config
-	networkAccess := r.engine.GetNetworkAccess()
+func (r *cliRun) logHeaderAuthorizationInfo(config configuration.Configuration) (string, string, string) {
+	// the token shown is the one the configuration uses, which is the default one only for the default profile
+	networkAccess := workflow.CreateNetworkAccessFromEngine(r.engine, config)
 	oauthEnabled := "Disabled"
 	var authorization, tokenShaSum, tokenDetails, userAgent string
 
@@ -98,9 +99,8 @@ func (r *cliRun) tablePrint(name string, value string) {
 	r.logger.Printf("%-22s %s", title, value)
 }
 
-func (r *cliRun) writeLogHeader() {
-	config := r.config
-	authorization, _, userAgent := r.logHeaderAuthorizationInfo()
+func (r *cliRun) writeLogHeader(config configuration.Configuration) {
+	authorization, _, userAgent := r.logHeaderAuthorizationInfo(config)
 
 	org := config.GetString(configuration.ORGANIZATION)
 	insecureHTTPS := "false"
@@ -191,12 +191,12 @@ func machineIDErrorLines(err error) []string {
 	return []string{err.Error()}
 }
 
-func (r *cliRun) writeLogFooter(exitCode int, errs []error) {
+func (r *cliRun) writeLogFooter(config configuration.Configuration, exitCode int, errs []error) {
 	const maxLength = 100
 	r.logger.Print("")
 	r.logger.Printf("------------ Summary ------------")
 	// to make things easier to find, let's repeat the header before the footer
-	r.writeLogHeader()
+	r.writeLogHeader(config)
 
 	// output error details
 	ecErrs := formatErrorCatalogErrors(errs)
