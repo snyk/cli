@@ -54,6 +54,27 @@ export function getFirstIPv4Address(): string {
   return ipaddress;
 }
 
+const jwtIssuer = (jwt: unknown): string | undefined => {
+  if (typeof jwt !== 'string') return undefined;
+  const segments = jwt.split('.');
+  if (
+    segments.length !== 3 ||
+    !segments.every((s) => /^[A-Za-z0-9_-]+$/.test(s))
+  ) {
+    return undefined;
+  }
+  try {
+    const decode = (s: string) =>
+      // 'base64' decoding also accepts the base64url alphabet
+      JSON.parse(Buffer.from(s, 'base64').toString());
+    decode(segments[0]);
+    const { iss } = decode(segments[1]);
+    return typeof iss === 'string' ? iss : undefined;
+  } catch {
+    return undefined;
+  }
+};
+
 // An endpoint answers with either a JSON document or a raw body. The raw form
 // covers downloads that are not JSON, such as a binary report.
 type EndpointResponse = Record<string, unknown> | string;
@@ -1300,6 +1321,14 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
   });
 
   app.get(basePath + '/authorization/:action', (req, res) => {
+    const { authorization } = req.headers;
+    if (
+      authorization?.startsWith('token ') &&
+      authorization !== `token ${snykToken}`
+    ) {
+      res.status(401).send({});
+      return;
+    }
     const result = unauthorizedActions.get(req.params.action) || {
       allowed: true,
       reason: 'Default fake server response.',
@@ -1659,6 +1688,17 @@ ${componentsXml}
     }
     // authorization code grant: expect code and state
     if (req.body.grant_type === 'authorization_code' && req.body.code) {
+      res.status(200).send(fake_oauth_token);
+      return;
+    }
+    // client credentials grant with a private_key_jwt client assertion; the signature is not verified
+    if (
+      req.body.grant_type === 'client_credentials' &&
+      req.body.client_assertion_type ===
+        'urn:ietf:params:oauth:client-assertion-type:jwt-bearer' &&
+      req.body.client_id &&
+      jwtIssuer(req.body.client_assertion) === req.body.client_id
+    ) {
       res.status(200).send(fake_oauth_token);
       return;
     }
