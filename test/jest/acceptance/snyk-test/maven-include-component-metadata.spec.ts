@@ -49,7 +49,7 @@ describe('`snyk test --include-component-metadata` (maven)', () => {
 
   afterAll(
     () =>
-      new Promise((res) => {
+      new Promise<void>((res) => {
         server.close(res);
       }),
   );
