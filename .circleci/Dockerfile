@@ -6,7 +6,15 @@ ARG NODEVERSION
 ARG ARCH
 ARG GOVERSION
 
-# Install minimal dependencies for Go download
+# Debian 11 (bullseye) is EOL: its packages moved to archive.debian.org, and
+# deb.debian.org now 404s on bullseye-security pool files.
+RUN set -eux; \
+    echo 'Acquire::Check-Valid-Until "false";' > /etc/apt/apt.conf.d/99archive; \
+    echo "deb http://archive.debian.org/debian bullseye main" > /etc/apt/sources.list; \
+    echo "deb http://archive.debian.org/debian bullseye-updates main" >> /etc/apt/sources.list; \
+    echo "deb http://archive.debian.org/debian-security bullseye-security main" >> /etc/apt/sources.list
+
+# Install minimal dependencies for Go download.
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     curl \
@@ -27,8 +35,8 @@ RUN mkdir -p "$GOPATH/src" "$GOPATH/bin" && chmod -R 1777 "$GOPATH"
 RUN echo "Required Node version: $NODEVERSION"
 RUN curl -sL https://deb.nodesource.com/setup_$(echo $NODEVERSION | cut -f1 -d '.').x | bash -
 
-# Install all dependencies in a single apt-get to reduce layers and avoid duplication
-# Includes: build tools, CGO deps, Swift deps, and general utilities
+# Install all dependencies in a single apt-get to reduce layers and avoid duplication.
+# Includes: build tools, CGO deps, Swift deps, and general utilities.
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     apt-transport-https \
     binutils-gold \
