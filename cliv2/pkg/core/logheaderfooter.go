@@ -145,8 +145,9 @@ func (r *cliRun) writeLogHeader() {
 	r.tablePrint("Analytics", analytics)
 	r.tablePrint("Authorization", authorization)
 	r.tablePrint("Interaction", r.interactionId)
-	machineID, machineIDErr := r.engine.GetRuntimeInfo().GetMachineID()
+	machine, machineIDErr := r.engine.GetRuntimeInfo().GetMachineID()
 	// Any errors are printed below rather than checked here. It is valid to have both a machine ID and an error (e.g., if a machine ID cannot be stored).
+	machineID := machine.ID
 	if machineID == "" {
 		machineID = "unavailable"
 	}
