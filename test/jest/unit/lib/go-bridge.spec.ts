@@ -4,7 +4,11 @@ import { EventEmitter } from 'events';
 import { Readable } from 'stream';
 import * as errorFormat from '../../../../src/lib/error-format';
 
-import { execGoCommand, GoCommandResult } from '../../../../src/lib/go-bridge';
+import {
+  execGoCommand,
+  GoCommandResult,
+  storeSnykToken,
+} from '../../../../src/lib/go-bridge';
 
 interface MockProcess extends childProcess.ChildProcess {
   stdout: Readable;
@@ -158,9 +162,14 @@ describe('go-bridge', () => {
       jest.restoreAllMocks();
     });
 
-    it('preserves SNYK_TOKEN when its value is not "random"', async () => {
+    it('moves SNYK_TOKEN and SNYK_OAUTH_TOKEN out of process.env and passes them to the child', async () => {
       process.env.SNYK_INTERNAL_CLI_EXECUTABLE_PATH = '/usr/local/bin/snyk';
       process.env.SNYK_TOKEN = 'real-api-token-value';
+      process.env.SNYK_OAUTH_TOKEN = 'oauth-token-value';
+      storeSnykToken();
+
+      expect(process.env.SNYK_TOKEN).toBeUndefined();
+      expect(process.env.SNYK_OAUTH_TOKEN).toBeUndefined();
 
       const mockProc = createMockProcess();
       const spawnSpy = jest
@@ -175,6 +184,7 @@ describe('go-bridge', () => {
       const spawnEnv = spawnSpy.mock.calls[0][2]?.env as NodeJS.ProcessEnv;
       expect(spawnEnv).toBeDefined();
       expect(spawnEnv.SNYK_TOKEN).toBe('real-api-token-value');
+      expect(spawnEnv.SNYK_OAUTH_TOKEN).toBe('oauth-token-value');
 
       jest.restoreAllMocks();
     });
