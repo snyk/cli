@@ -12,6 +12,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"sort"
+	"strings"
 	"testing"
 	"time"
 
@@ -843,4 +844,37 @@ func Test_GetErrorFromFile(t *testing.T) {
 		assert.Equal(t, snykErr.ErrorCode, jsonAPIError.ErrorCode)
 		assert.Nil(t, err)
 	})
+}
+
+func Test_CommandVersion(t *testing.T) {
+	tests := []struct {
+		name    string
+		args    []string
+		wantOut string
+		wantErr string
+	}{
+		{name: "prints the version", args: []string{"--version"}, wantOut: cliv2.GetFullVersion() + "\n"},
+		{name: "rejects json-file-output", args: []string{"--version", "--json-file-output", "out.json"}, wantErr: "version + json-file-output"},
+		{name: "rejects json-file-output without value", args: []string{"--version", "--json-file-output"}, wantErr: "version + json-file-output"},
+		{name: "rejects json-file-output with equals", args: []string{"--version", "--json-file-output=out.json"}, wantErr: "version + json-file-output"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var out strings.Builder
+			err := cliv2.CommandVersion(tt.args, &out)
+			if tt.wantErr != "" {
+				assert.ErrorContains(t, err, tt.wantErr)
+			} else {
+				assert.NoError(t, err)
+			}
+			assert.Equal(t, tt.wantOut, out.String())
+		})
+	}
+}
+
+func Test_CommandVersion_returnsWriteError(t *testing.T) {
+	reader, writer := io.Pipe()
+	require.NoError(t, reader.Close())
+	assert.ErrorIs(t, cliv2.CommandVersion([]string{"--version"}, writer), io.ErrClosedPipe)
 }

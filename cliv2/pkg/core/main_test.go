@@ -1,15 +1,19 @@
 package core
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"io/fs"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -113,6 +117,104 @@ func Test_mainWithErrorCode(t *testing.T) {
 		errCode := mainWithErrorCode(nil)
 		assert.Equal(t, 2, errCode)
 	})
+}
+
+func Test_versionDoesNotUseNetwork(t *testing.T) {
+	if os.Getenv("TEST_VERSION_SUBPROCESS") == "1" {
+		os.Args = append([]string{"snyk"}, os.Args[3:]...)
+		os.Exit(mainWithErrorCode(nil))
+	}
+
+	for _, version := range []string{"--version", "-v", "version"} {
+		for _, debug := range []bool{false, true} {
+			for _, org := range []string{"", "test-org", "11111111-1111-4111-8111-111111111111"} {
+				t.Run(fmt.Sprintf("%s/debug=%t/org=%s", version, debug, org), func(t *testing.T) {
+					args := []string{version}
+					if debug {
+						args = append(args, "--debug")
+					}
+					if org != "" {
+						args = append(args, "--org", org)
+					}
+					testVersionProcess(t, args, false)
+				})
+			}
+		}
+		t.Run(version+"/json-file-output", func(t *testing.T) {
+			testVersionProcess(t, []string{version, "--json-file-output", filepath.Join(t.TempDir(), "output.json")}, true)
+		})
+		t.Run(version+"/json-file-output=", func(t *testing.T) {
+			testVersionProcess(t, []string{version, "--json-file-output=" + filepath.Join(t.TempDir(), "output.json")}, true)
+		})
+		t.Run(version+"/json-file-output-without-value", func(t *testing.T) {
+			testVersionProcess(t, []string{version, "--json-file-output"}, true)
+		})
+		t.Run(version+"/unknown-flag", func(t *testing.T) {
+			testVersionProcess(t, []string{version, "--all-projects"}, false)
+		})
+		t.Run(version+"/unknown-flag-with-value", func(t *testing.T) {
+			testVersionProcess(t, []string{"--unknown", "value", version}, false)
+		})
+	}
+}
+
+func testVersionProcess(t *testing.T, args []string, wantError bool) {
+	t.Helper()
+	var requests atomic.Int32
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		requests.Add(1)
+		w.Header().Set("Content-Type", "application/vnd.api+json")
+		_, _ = io.WriteString(w, `{"data":{"id":"11111111-1111-4111-8111-111111111111","type":"org","attributes":{"slug":"test-org"}}}`)
+	}))
+	defer server.Close()
+
+	ctx, cancel := context.WithTimeout(t.Context(), 15*time.Second)
+	defer cancel()
+	commandArgs := append([]string{"-test.run=^Test_versionDoesNotUseNetwork$", "--"}, args...)
+	command := exec.CommandContext(ctx, os.Args[0], commandArgs...)
+	home := t.TempDir()
+	command.Env = []string{
+		"TEST_VERSION_SUBPROCESS=1", "SNYK_API=" + server.URL, "SNYK_TOKEN=test-token",
+		"SNYK_DISABLE_ANALYTICS=false", "SNYK_CFG_DISABLE_ANALYTICS=false",
+		"HOME=" + home, "USERPROFILE=" + home, "LOCALAPPDATA=" + home, "APPDATA=" + home, "ProgramData=" + home,
+		"SNYK_CACHE_PATH=" + t.TempDir(), "PATH=" + os.Getenv("PATH"), "SYSTEMROOT=" + os.Getenv("SYSTEMROOT"),
+	}
+	output, err := command.Output()
+	require.NoError(t, ctx.Err(), "version command exceeded deadline")
+	if wantError {
+		var exitError *exec.ExitError
+		require.ErrorAs(t, err, &exitError)
+		assert.Equal(t, constants.SNYK_EXIT_CODE_ERROR, exitError.ExitCode())
+		assert.Contains(t, string(exitError.Stderr), "version + json-file-output")
+	} else {
+		if exitError, ok := err.(*exec.ExitError); ok {
+			t.Logf("stderr: %s", exitError.Stderr)
+		}
+		require.NoError(t, err, "stdout: %s", output)
+		assert.Equal(t, cliv2.GetFullVersion()+"\n", string(output))
+	}
+	assert.Zero(t, requests.Load(), "version must not query the API or send telemetry")
+}
+
+func Test_isLocalVersionCommand_preservesCommandRouting(t *testing.T) {
+	for _, args := range [][]string{
+		{"test", "--org", "version"},
+		{"test", "--", "version"},
+		{"test", "version"},
+		{"--integration-name", "version"},
+		{"--org", "version"},
+		{"--version=false"},
+		{"--version", "--help"},
+		{"help", "version"},
+		{"--", "version"},
+		{"test", "--version"},
+	} {
+		t.Run(strings.Join(args, " "), func(t *testing.T) {
+			root := (&cliRun{}).prepareRootCommand(&helprouting.Router{})
+			flagParseErr := root.ParseFlags(args)
+			assert.False(t, isLocalVersionCommand(args, root.Flags(), flagParseErr))
+		})
+	}
 }
 
 func Test_populateRedactionTerms(t *testing.T) {
