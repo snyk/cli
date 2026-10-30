@@ -15,6 +15,7 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"slices"
 	"strings"
 	"sync"
 	"time"
@@ -465,6 +466,21 @@ func (r *cliRun) prepareRootCommand(router *helprouting.Router) *cobra.Command {
 	return &rootCommand
 }
 
+func isLocalVersionCommand(args []string, flags *pflag.FlagSet, flagParseErr error) bool {
+	if flagParseErr != nil || flags.ArgsLenAtDash() >= 0 || slices.Contains(args, "-h") || slices.Contains(args, "--help") {
+		return false
+	}
+
+	switch flags.NArg() {
+	case 0:
+		return slices.Contains(args, "--version") || slices.Contains(args, "-v")
+	case 1:
+		return flags.Arg(0) == "version"
+	default:
+		return false
+	}
+}
+
 func (r *cliRun) handleError(err error) HandleError {
 	resultError := handleErrorUnhandled
 	preCondition := err != nil && !r.helpProvided
@@ -633,7 +649,7 @@ func execute(additionalExts []workflow.ExtensionInit) (*cliRun, int) {
 	}
 	rootCommand := r.prepareRootCommand(helpRouter)
 	// omit the first arg which is always `snyk`
-	_ = rootCommand.ParseFlags(os.Args[1:])
+	flagParseErr := rootCommand.ParseFlags(os.Args[1:])
 
 	// create engine
 	r.config = configuration.NewWithOpts(
@@ -659,6 +675,12 @@ func execute(additionalExts []workflow.ExtensionInit) (*cliRun, int) {
 	r.config.AddDefaultValue(configuration.FF_OAUTH_AUTH_FLOW_ENABLED, defaultOAuthFF(r.config))
 	r.config.AddDefaultValue(configuration.FF_TRANSFORMATION_WORKFLOW, configuration.StandardDefaultValueFunction(true))
 	r.config.AddDefaultValue(configuration.NETWORK_REQUEST_RETRY_ALLOWED_PATHS, defaultNetworkRequestRetryAllowedPaths())
+
+	if isLocalVersionCommand(os.Args[1:], rootCommand.Flags(), flagParseErr) {
+		err = cliv2.CommandVersion(os.Args[1:], os.Stdout)
+		r.displayError(ctx, err, consoleui.New(), false)
+		return r, cliv2.DeriveExitCode(err)
+	}
 
 	if noProxyAuth := r.config.GetBool(basic_workflows.PROXY_NOAUTH); noProxyAuth {
 		r.config.Set(configuration.PROXY_AUTHENTICATION_MECHANISM, httpauth.StringFromAuthenticationMechanism(httpauth.NoAuth))
