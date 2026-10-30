@@ -227,7 +227,7 @@ require (
 	github.com/snyk/container-cli v0.0.0-20260213211631-cd2b2cf8f3ea // indirect
 	github.com/snyk/dep-graph/go v0.0.0-20260127160647-c836da762c62 // indirect
 	github.com/snyk/error-catalog-golang-public v0.0.0-20261020120644-f6bd6fc4dac6 // indirect
-	github.com/snyk/go-application-framework v0.35.1 // indirect
+	github.com/snyk/go-application-framework v0.38.1-0.20261030215911-101ceb521511 // indirect
 	github.com/snyk/go-httpauth v0.0.0-20261007154458-c110eb9b820f // indirect
 	github.com/snyk/policy-engine v1.1.8 // indirect
 	github.com/snyk/snyk-iac-capture v0.6.5 // indirect

@@ -29,7 +29,7 @@ func writeLogHeaderWithMachineID(t *testing.T, id string, err error) string {
 	r.config = config
 	r.engine = engine
 
-	r.writeLogHeader()
+	r.writeLogHeader(r.config)
 	return out.String()
 }
 
@@ -44,7 +44,7 @@ func Test_writeLogHeader_showsInteractionIdOfTheRun(t *testing.T) {
 	r.logger, r.config, r.engine = &logger, config, engine
 	r.interactionId = "run-1234"
 
-	r.writeLogHeader()
+	r.writeLogHeader(r.config)
 
 	assert.Contains(t, out.String(), "Interaction:           run-1234")
 }

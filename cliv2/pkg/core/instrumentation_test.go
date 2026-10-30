@@ -54,15 +54,14 @@ func Test_sendInstrumentation_passesEngineConfigurationToInstrumentationObject(t
 	mockEngine.EXPECT().GetWorkflows().Return([]workflow.Identifier{})
 	populateRedactionTerms(engineConfig, mockEngine)
 
-	// One call from shallSendInstrumentation, one to derive analytics.WithConfiguration.
-	// If the call site regresses to only passing WithLogger, this expectation goes unmet.
-	mockEngine.EXPECT().GetConfiguration().Return(engineConfig).Times(2)
+	// The configuration of the run is the one the instrumentation is derived from. If the call site regresses to only
+	// passing WithLogger, the object loses the machine id and the check below fails.
 	mockEngine.EXPECT().Invoke(localworkflows.WORKFLOWID_REPORT_ANALYTICS, gomock.Any(), gomock.Any()).Return(nil, nil)
 
 	instrumentor := analytics.NewInstrumentationCollector()
 	addClientMachineId(instrumentor, engineConfig)
 
-	r.sendInstrumentation(context.Background(), instrumentor)
+	r.sendInstrumentation(context.Background(), engineConfig, instrumentor)
 
 	// sendInstrumentation just ran the extension through the same scrub chokepoint;
 	// re-deriving the object (a pure read, doesn't mutate the collector) proves the

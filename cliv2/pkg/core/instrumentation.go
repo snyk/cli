@@ -94,8 +94,8 @@ func addGitProvenance(instrumentor analytics.InstrumentationCollector, config co
 	}
 }
 
-func (r *cliRun) updateInstrumentationDataBeforeSending(cliAnalytics analytics.Analytics, startTime time.Time, ua networking.UserAgentInfo, exitCode int) {
-	targetId, targetIdError := instrumentation.GetTargetId(r.config.GetString(configuration.INPUT_DIRECTORY), instrumentation.AutoDetectedTargetId, instrumentation.WithConfiguredRepository(r.config))
+func (r *cliRun) updateInstrumentationDataBeforeSending(config configuration.Configuration, cliAnalytics analytics.Analytics, startTime time.Time, ua networking.UserAgentInfo, exitCode int) {
+	targetId, targetIdError := instrumentation.GetTargetId(config.GetString(configuration.INPUT_DIRECTORY), instrumentation.AutoDetectedTargetId, instrumentation.WithConfiguredRepository(config))
 	if targetIdError != nil {
 		r.logger.Printf("Failed to derive target id, %v", targetIdError)
 	}
@@ -106,10 +106,10 @@ func (r *cliRun) updateInstrumentationDataBeforeSending(cliAnalytics analytics.A
 	}
 
 	addRuntimeDetails(cliAnalytics.GetInstrumentation(), ua)
-	addNetworkingDetails(cliAnalytics.GetInstrumentation(), r.config)
-	addClientMachineId(cliAnalytics.GetInstrumentation(), r.config)
-	addAgentSessionId(cliAnalytics.GetInstrumentation(), r.config)
-	addGitProvenance(cliAnalytics.GetInstrumentation(), r.config)
+	addNetworkingDetails(cliAnalytics.GetInstrumentation(), config)
+	addClientMachineId(cliAnalytics.GetInstrumentation(), config)
+	addAgentSessionId(cliAnalytics.GetInstrumentation(), config)
+	addGitProvenance(cliAnalytics.GetInstrumentation(), config)
 
 	cliAnalytics.GetInstrumentation().AddExtension("exitcode", exitCode)
 	if exitCode == 2 {
@@ -117,11 +117,11 @@ func (r *cliRun) updateInstrumentationDataBeforeSending(cliAnalytics analytics.A
 	}
 }
 
-func (r *cliRun) sendAnalytics(ctx context.Context, a analytics.Analytics) {
+func (r *cliRun) sendAnalytics(ctx context.Context, config configuration.Configuration, a analytics.Analytics) {
 	debugLogger := r.logger
 	debugLogger.Print("Sending Analytics")
 
-	a.SetApiUrl(r.config.GetString(configuration.API_URL))
+	a.SetApiUrl(config.GetString(configuration.API_URL))
 
 	request, err := a.GetRequest()
 	if err != nil {
@@ -132,7 +132,8 @@ func (r *cliRun) sendAnalytics(ctx context.Context, a analytics.Analytics) {
 	// Use context to respect teardown timeout
 	request = request.WithContext(ctx)
 
-	client := r.engine.GetNetworkAccess().GetHttpClient()
+	// the credentials and the host are the ones of the configuration the report is for
+	client := workflow.CreateNetworkAccessFromEngine(r.engine, config).GetHttpClient()
 	res, err := client.Do(request)
 	if err != nil {
 		debugLogger.Err(err).Msg("Failed to send Analytics")
@@ -150,10 +151,10 @@ func (r *cliRun) sendAnalytics(ctx context.Context, a analytics.Analytics) {
 	}
 }
 
-func (r *cliRun) sendInstrumentation(ctx context.Context, instrumentor analytics.InstrumentationCollector) {
+func (r *cliRun) sendInstrumentation(ctx context.Context, config configuration.Configuration, instrumentor analytics.InstrumentationCollector) {
 	eng, logger := r.engine, r.logger
 	// Avoid duplicate data to be sent for IDE integrations that use the CLI
-	if !shallSendInstrumentation(eng.GetConfiguration(), instrumentor) {
+	if !shallSendInstrumentation(config, instrumentor) {
 		logger.Print("This CLI call is not instrumented!")
 		return
 	}
@@ -168,13 +169,13 @@ func (r *cliRun) sendInstrumentation(ctx context.Context, instrumentor analytics
 	}
 
 	logger.Print("Sending Instrumentation")
-	data, err := analytics.GetV2InstrumentationObject(instrumentor, analytics.WithLogger(logger), analytics.WithConfiguration(eng.GetConfiguration()))
+	data, err := analytics.GetV2InstrumentationObject(instrumentor, analytics.WithLogger(logger), analytics.WithConfiguration(config))
 	if err != nil {
 		logger.Err(err).Msg("Failed to derive data object")
 	}
 
 	v2InstrumentationData := utils.ValueOf(json.Marshal(data))
-	localConfiguration := r.config.Clone()
+	localConfiguration := config.Clone()
 	// the report analytics workflow needs --experimental to run
 	// we pass the flag here so that we report at every interaction
 	localConfiguration.Set(configuration.FLAG_EXPERIMENTAL, true)
