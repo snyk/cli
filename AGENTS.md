@@ -182,8 +182,8 @@ The CLI follows a layered testing pyramid. Each layer has a different goal, syst
 ### System Tests (Closed Box)
 
 - **Goal**: Verify deployment artifacts work correctly across target environments.
-- **SUT**: Deployment artifacts (downloaded binaries, not locally built).
-- **Properties**: Installs the CLI from the release download URL and runs basic smoke commands (`snyk whoami`, `snyk woof`) on the target platform.
+- **SUT**: The binaries built in the CI workspace, the same files the release uploads.
+- **Properties**: Installs the binary on each target platform, verifies its checksum, and runs `snyk whoami` and `snyk woof`. These tests run before the `release?` approval, so a failure blocks the release. They don't test the download from `downloads.snyk.io`, which `.github/workflows/deployment-monitor.yml` covers on a schedule.
 - **Locations**: The `test-release` and `test-release-static` CI jobs in `.circleci/config.yml`.
 - **Runs on**: release/deployment branches and `*e2e*` branches. Covers Docker, Alpine, macOS, Windows, Linux (multiple distros), FIPS, and scratch containers.
 

@@ -1,15 +1,6 @@
 version: 2.1
 
 parameters:
-  cli_download_base_url:
-    type: string
-    default: 'https://downloads.snyk.io/'
-  fips_cli_download_base_url:
-    type: string
-    default: 'https://downloads.snyk.io/fips/'
-  experimental_cli_download_base_url:
-    type: string
-    default: 'https://downloads.snyk.io/experimental/'
   go_download_base_url:
     type: string
     default: 'https://dl.google.com/go/'
@@ -1168,7 +1159,23 @@ workflows:
           name: release?
           type: approval
           requires:
-            - create deployment artifacts
+            - e2e tests (docker-amd64)
+            - e2e tests (docker-arm64)
+            - e2e tests (win-server2019-amd64)
+            - e2e tests (win-server2022-amd64)
+            - e2e tests (macos-arm64)
+            - e2e tests (linux-ubuntu-latest-amd64)
+            - e2e tests (linux-ubuntu-jammy-amd64)
+            - e2e tests (linux-ubuntu-focal-amd64)
+            - e2e tests (linux-ubuntu-latest-arm64)
+            - e2e tests (linux-ubuntu-jammy-arm64)
+            - e2e tests (linux-ubuntu-focal-arm64)
+            - e2e tests (alpine)
+            - e2e fips tests (suse-linux-fips)
+            - e2e fips tests (win-server2022-amd64)
+            - e2e experimental tests (linux-static-amd64)
+            - e2e experimental tests (scratch-container-amd64)
+            - e2e snyk-linux tests (scratch-container-amd64)
           filters:
             branches:
               only:
@@ -1232,7 +1239,7 @@ workflows:
                 - 'linux-ubuntu-focal-arm64'
                 - 'alpine'
           requires:
-            - upload version
+            - create deployment artifacts
           filters:
             branches:
               only:
@@ -1243,10 +1250,10 @@ workflows:
       - test-release:
           name: e2e experimental tests (linux-static-amd64)
           context: team_hammerhead-cli
-          cli_download_base_url: << pipeline.parameters.experimental_cli_download_base_url >>
+          binary_dir: binary-releases/experimental
           executor: 'linux-ubuntu-bionic-beaver-amd64'
           requires:
-            - upload version
+            - create deployment artifacts
           filters:
             branches:
               only:
@@ -1257,12 +1264,12 @@ workflows:
       - test-release:
           name: e2e fips tests (suse-linux-fips)
           context: team_hammerhead-cli
-          cli_download_base_url: << pipeline.parameters.fips_cli_download_base_url >>
+          binary_dir: binary-releases/fips
           setup_steps:
-            - run: zypper --non-interactive install python3-pip
+            - run: zypper --non-interactive install python3
           executor: 'suse-linux-fips'
           requires:
-            - upload version
+            - create deployment artifacts
           filters:
             branches:
               only:
@@ -1273,12 +1280,12 @@ workflows:
       - test-release:
           name: e2e fips tests (win-server2022-amd64)
           context: team_hammerhead-cli
-          cli_download_base_url: << pipeline.parameters.fips_cli_download_base_url >>
+          binary_dir: binary-releases/fips
           setup_steps:
             - run: Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Lsa\FipsAlgorithmPolicy' -Name 'Enabled' -Value '1'
           executor: 'win-server2022-amd64'
           requires:
-            - upload version
+            - create deployment artifacts
           filters:
             branches:
               only:
@@ -1291,7 +1298,7 @@ workflows:
           context:
             - team_hammerhead-cli
           requires:
-            - upload version
+            - create deployment artifacts
           filters:
             branches:
               only:
@@ -1304,8 +1311,8 @@ workflows:
           context:
             - team_hammerhead-cli
           requires:
-            - upload version
-          cli_download_base_url: << pipeline.parameters.cli_download_base_url >>
+            - create deployment artifacts
+          binary_dir: binary-releases
           filters:
             branches:
               only:
@@ -1319,23 +1326,6 @@ workflows:
             - Validate NPM artifacts (docker-amd64)
             - Validate NPM artifacts (win-server2019-amd64)
             - Validate NPM artifacts (macos-arm64)
-            - e2e tests (docker-amd64)
-            - e2e tests (docker-arm64)
-            - e2e tests (win-server2019-amd64)
-            - e2e tests (win-server2022-amd64)
-            - e2e tests (macos-arm64)
-            - e2e tests (linux-ubuntu-latest-amd64)
-            - e2e tests (linux-ubuntu-jammy-amd64)
-            - e2e tests (linux-ubuntu-focal-amd64)
-            - e2e tests (linux-ubuntu-latest-arm64)
-            - e2e tests (linux-ubuntu-jammy-arm64)
-            - e2e tests (linux-ubuntu-focal-arm64)
-            - e2e tests (alpine)
-            - e2e fips tests (suse-linux-fips)
-            - e2e fips tests (win-server2022-amd64)
-            - e2e experimental tests (linux-static-amd64)
-            - e2e experimental tests (scratch-container-amd64)
-            - e2e snyk-linux tests (scratch-container-amd64)
           filters:
             branches:
               only:
@@ -2116,9 +2106,9 @@ jobs:
     parameters:
       executor:
         type: string
-      cli_download_base_url:
+      binary_dir:
         type: string
-        default: << pipeline.parameters.cli_download_base_url >>
+        default: binary-releases
       setup_steps:
         type: steps
         default: []
@@ -2132,14 +2122,14 @@ jobs:
               pattern: '^macos.*'
               value: << parameters.executor >>
           steps:
-            - run: brew update && HOMEBREW_NO_ASK=1 brew install coreutils curl python3
+            - run: brew update && HOMEBREW_NO_ASK=1 brew install python3
       - when:
           condition:
             matches:
               pattern: '^alpine'
               value: << parameters.executor >>
           steps:
-            - run: apk add python3 py3-pip bash
+            - run: apk add python3 bash
       - when:
           condition:
             matches:
@@ -2149,34 +2139,32 @@ jobs:
             - run: |
                 export DEBIAN_FRONTEND=noninteractive
                 ln -fs /usr/share/zoneinfo/UTC /etc/localtime
-                apt update && apt install -y sudo curl python3 python3-pip python3-requests
+                apt update && apt install -y python3 ca-certificates
 
       - run:
           name: Checking Snyk CLI
-          shell: bash
+          shell: bash -eo pipefail
           environment:
             SNYK_DISABLE_ANALYTICS: 1
           command: |
-            PIP_BREAK_SYSTEM_PACKAGES=1 pip install --user --upgrade requests || PIP_BREAK_SYSTEM_PACKAGES=1 pip3 install --user --upgrade requests
-            python scripts/install-snyk.py --base_url=<< parameters.cli_download_base_url >>  $(cat binary-releases/version) || python3 scripts/install-snyk.py --base_url=<< parameters.cli_download_base_url >> $(cat binary-releases/version)
+            PYTHON=$(for p in python3 python; do "$p" -c '' >/dev/null 2>&1 && echo "$p" && break; done || true)
+            "${PYTHON:?no working python3 or python found}" scripts/install-workspace-snyk.py << parameters.binary_dir >>
             SNYK_TOKEN=${TEST_SNYK_TOKEN} ./snyk whoami --experimental
             SNYK_TOKEN=${TEST_SNYK_TOKEN} ./snyk woof
 
   test-release-static:
     parameters:
-      cli_download_base_url:
+      binary_dir:
         type: string
-        default: << pipeline.parameters.experimental_cli_download_base_url >>
+        default: binary-releases/experimental
     executor: linux-machine-amd64
     steps:
       - prepare-workspace
       - run:
           name: Build scratch test image
           command: |
-            VERSION=$(cat binary-releases/version)
             docker build \
-              --build-arg CLI_DOWNLOAD_BASE_URL="<< parameters.cli_download_base_url >>" \
-              --build-arg SNYK_VERSION="${VERSION}" \
+              --build-arg SNYK_BINARY="<< parameters.binary_dir >>/snyk-linux" \
               -f .circleci/Dockerfile.scratch-e2e \
               -t snyk-scratch-test .
       - run:
