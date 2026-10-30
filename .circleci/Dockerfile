@@ -1,6 +1,6 @@
 # When upgrading golang, make sure to update the docker executors that use snyklabs/cli-build-private in .circleci/config.yml
-# Using debian:bullseye instead of golang:X-bookworm to avoid glibc compatibility issues
-FROM debian:bullseye
+# Use Bookworm for compatibility with pinned OpenSSL/FIPS libraries; verify runtime compatibility before repinning.
+FROM debian:bookworm
 
 ARG NODEVERSION
 ARG ARCH
@@ -51,7 +51,6 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     libsqlite3-dev \
     libxml2-dev \
     make \
-    maven \
     musl-tools \
     nodejs=$(apt-cache policy nodejs | grep nodesource | xargs | cut -d " " -f2) \
     pipenv \
@@ -106,7 +105,7 @@ USER circleci
 # install java & scala
 RUN curl -s "https://get.sdkman.io" | bash
 RUN scripts/jvm-install.sh
-ENV PATH=/home/circleci/.sdkman/candidates/gradle/current/bin:/home/circleci/.sdkman/candidates/scala/current/bin:/home/circleci/.sdkman/candidates/sbt/current/bin:/home/circleci/.sdkman/candidates/java/current/bin:$PATH
+ENV PATH=/home/circleci/.sdkman/candidates/maven/current/bin:/home/circleci/.sdkman/candidates/gradle/current/bin:/home/circleci/.sdkman/candidates/scala/current/bin:/home/circleci/.sdkman/candidates/sbt/current/bin:/home/circleci/.sdkman/candidates/java/current/bin:$PATH
 
 # install dotnet
 RUN curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --channel 8.0
