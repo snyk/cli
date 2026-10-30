@@ -3,6 +3,7 @@
 FROM debian:bullseye
 
 ARG NODEVERSION
+ARG NPMVERSION
 ARG ARCH
 ARG GOVERSION
 
@@ -70,9 +71,8 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     && apt-get auto-remove -y && apt-get clean -y && rm -rf /var/lib/apt/lists/*
 RUN node -v
 
-# Upgrade npm to match the version required in package.json "engines"
-# (Node's bundled npm lags behind).
-RUN npm install -g npm@^11.10
+# Pin npm to the version in .npm_version (Node's bundled npm differs).
+RUN echo "Required npm version: $NPMVERSION" && npm install -g "npm@$NPMVERSION"
 RUN npm -v
 
 # install aws cli

@@ -62,12 +62,20 @@ try {
 
   Write-Host "Node.js $reportedVersion installed and active at $nodeExe"
 
-  # Node 22 bundles npm ~10.9, below package.json "engines" (>=11.10). Upgrade the
-  # active Node's npm so engine-strict (.npmrc) doesn't fail the build.
+  # Node's bundled npm can be below package.json "engines". Install the exact npm
+  # pinned in .npm_version so engine-strict (.npmrc) doesn't fail the build.
+  $npmVersionPath = Join-Path $repoRoot '.npm_version'
+  if (-not (Test-Path $npmVersionPath)) {
+    throw ".npm_version not found at $npmVersionPath"
+  }
+  $npmVersion = (Get-Content $npmVersionPath -Raw).Trim()
+  if ([string]::IsNullOrWhiteSpace($npmVersion)) {
+    throw ".npm_version is empty at $npmVersionPath"
+  }
   $npmCmd = "C:\Program Files\nodejs\npm.cmd"
-  Write-Host "Upgrading npm to npm@^11.12.1 ..."
-  & $npmCmd install -g "npm@^11.12.1"
-  if ($LASTEXITCODE -ne 0) { throw "npm upgrade failed with exit code $LASTEXITCODE" }
+  Write-Host "Installing npm@$npmVersion ..."
+  & $npmCmd install -g "npm@$npmVersion"
+  if ($LASTEXITCODE -ne 0) { throw "npm install failed with exit code $LASTEXITCODE" }
   Write-Host "npm $((& $npmCmd -v).Trim()) active"
 
 }
