@@ -606,8 +606,8 @@ github.com/snyk/cli-extension-sbom v0.0.0-20260818092356-16ee760085f9 h1:Kz/UCPa
 github.com/snyk/cli-extension-sbom v0.0.0-20260818092356-16ee760085f9/go.mod h1:YUDazoukFqA0OpYuACIoqVEsfPCAFXo9XotUk9RjmUY=
 github.com/snyk/cli-extension-secrets v0.0.0-20261102155850-7868999a9c97 h1:4DoGBqyfF+GiPxiMNiCRujlsIT6TtLSk3gFjrvCjZg0=
 github.com/snyk/cli-extension-secrets v0.0.0-20261102155850-7868999a9c97/go.mod h1:8DzZMK8deTH2KBbYC5xiiDZgLsRrHQr0Y3B+UGIv3BU=
-github.com/snyk/cli-extension-studio v1.0.5 h1:LP0lcaa2hFxV7msLbirg7ErzjM77aWLKa0nVhlBm6BA=
-github.com/snyk/cli-extension-studio v1.0.5/go.mod h1:3r2oYXot0upKnQsB5e2Gg8tYhm4Ze456/Y/qZcYtkdg=
+github.com/snyk/cli-extension-studio v1.0.6 h1:WmweRLl+VzzvZdWcH9X4siyDX40lReUfumHcoeLLuSY=
+github.com/snyk/cli-extension-studio v1.0.6/go.mod h1:3r2oYXot0upKnQsB5e2Gg8tYhm4Ze456/Y/qZcYtkdg=
 github.com/snyk/cli-extension-supply-chain v0.0.0-20261103195759-cee881cdc9da h1:/2pMOgWB0tK51vS/IIBW8x4+pTLyvmoLnJ+4T4Rz62M=
 github.com/snyk/cli-extension-supply-chain v0.0.0-20261103195759-cee881cdc9da/go.mod h1:gPwZto+NY2GntbHfBCwc0P2WHomWnKVcGWyUbjZhftw=
 github.com/snyk/code-client-go v1.31.9 h1:nq6jDXNe61IKrzsGYGVRkGK4jyU03/AMOxgyqsFs8BM=
