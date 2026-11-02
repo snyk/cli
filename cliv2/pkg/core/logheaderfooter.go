@@ -141,6 +141,7 @@ func (r *cliRun) writeLogHeader() {
 
 	r.tablePrint("Cache", config.GetString(configuration.CACHE_PATH))
 	r.tablePrint("Organization", org)
+	r.tablePrint("Tenant", config.GetString(configuration.TENANT))
 	r.tablePrint("Insecure HTTPS", insecureHTTPS)
 	r.tablePrint("Analytics", analytics)
 	r.tablePrint("Authorization", authorization)

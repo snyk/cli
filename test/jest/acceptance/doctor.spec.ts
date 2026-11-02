@@ -17,6 +17,22 @@ describe('snyk doctor', () => {
       expect(code).toBe(0);
       expect(stdout).toContain('Snyk Doctor Diagnostic Report');
     });
+
+    it('reports the tenant given with --tenant', async () => {
+      const { code, stdout } = await runSnykCLI('doctor --tenant my-tenant', {
+        env,
+      });
+      expect(code).toBe(0);
+      expect(stdout).toContain('Tenant: my-tenant');
+    });
+
+    it('reports the tenant given with SNYK_CFG_TENANT', async () => {
+      const { code, stdout } = await runSnykCLI('doctor', {
+        env: { ...env, SNYK_CFG_TENANT: 'my-env-tenant' },
+      });
+      expect(code).toBe(0);
+      expect(stdout).toContain('Tenant: my-env-tenant');
+    });
   });
 
   describe('use doctor on the debug logs of another system', () => {
