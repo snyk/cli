@@ -66,7 +66,7 @@ pushd "$SCRIPT_DIR/.."
   fi
 
   docker buildx build \
-    ${CI:+--quiet} \
+    --progress=plain \
     --build-arg NODEVERSION="$NODEVERSION" \
     --build-arg ARCH="$DOCKER_ARCH" \
     --build-arg GOVERSION="$GOVERSION" \
