@@ -6,7 +6,7 @@ require (
 	github.com/snyk/cli-extension-axi v0.0.0-20260901142946-cb915113acb7
 	github.com/snyk/cli-extension-cos v0.0.0-20260818151318-d63bb9db9484
 	github.com/snyk/cli-extension-studio v1.0.5
-	github.com/snyk/cli-extension-supply-chain v0.0.0-20261022102644-f30aa74bf19b
+	github.com/snyk/cli-extension-supply-chain v0.0.0-20261102143538-e412ab6de148
 	github.com/snyk/cli/cliv2 v0.0.0
 	github.com/snyk/remy-cli-extension v1.53.2
 	github.com/snyk/rift-cli-extension v1.4.7
@@ -217,7 +217,7 @@ require (
 	github.com/skeema/knownhosts v1.3.2 // indirect
 	github.com/snyk/cli-extension-agent-scan v0.0.0-20261028134456-f2d8eab5aee8 // indirect
 	github.com/snyk/cli-extension-ai-bom v0.0.0-20260817214817-d0a81ac40172 // indirect
-	github.com/snyk/cli-extension-dep-graph/v2 v2.19.2 // indirect
+	github.com/snyk/cli-extension-dep-graph/v2 v2.20.1 // indirect
 	github.com/snyk/cli-extension-iac v0.0.0-20261027152215-16877b8f1f4d // indirect
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20261027152158-1df61a39e801 // indirect
 	github.com/snyk/cli-extension-os-flows v0.0.0-20261019113940-6bd18a6c09b8 // indirect
