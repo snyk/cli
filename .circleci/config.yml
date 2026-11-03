@@ -136,12 +136,12 @@ executors:
   macos-arm64:
     macos:
       # https://circleci.com/developer/machine/image/xcode#image-tags
-      xcode: '26.1.0'
+      xcode: '26.4.1'
     resource_class: m4pro.medium
   macos-arm64-large:
     macos:
       # https://circleci.com/developer/machine/image/xcode#image-tags
-      xcode: '26.1.0'
+      xcode: '26.4.1'
     resource_class: m4pro.large
   win-server2022-amd64:
     machine:
