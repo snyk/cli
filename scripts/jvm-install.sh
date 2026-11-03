@@ -9,5 +9,5 @@ sdk default java "$CANDIDATE"
 yes | sdk install maven 3.6.3
 yes | sdk install gradle 9.0.0
 yes | sdk install scala
-# sbt pin needed after Docker base image upgrade to bookworm
+# sbt pin needed after Docker base image upgrade to trixie
 yes | sdk install sbt 1.12.11

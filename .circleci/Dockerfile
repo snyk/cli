@@ -1,6 +1,6 @@
 # When upgrading golang, make sure to update the docker executors that use snyklabs/cli-build-private in .circleci/config.yml
-# Use Bookworm for compatibility with pinned OpenSSL/FIPS libraries; verify runtime compatibility before repinning.
-FROM debian:bookworm
+# Use trixie for compatibility with pinned OpenSSL/FIPS libraries; verify runtime compatibility before repinning.
+FROM debian:trixie
 
 ARG NODEVERSION
 ARG ARCH
