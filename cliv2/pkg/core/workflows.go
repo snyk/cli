@@ -11,10 +11,8 @@ import (
 	"github.com/snyk/cli-extension-secrets/pkg/secrets"
 	"github.com/snyk/code-client-go/pkg/code"
 	"github.com/snyk/container-cli/pkg/container"
-	"github.com/snyk/go-application-framework/pkg/configuration"
 	workflows "github.com/snyk/go-application-framework/pkg/local_workflows/connectivity_check_extension"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/ignore_workflow"
-	"github.com/snyk/go-application-framework/pkg/utils"
 	"github.com/snyk/go-application-framework/pkg/workflow"
 	"github.com/snyk/snyk-iac-capture/pkg/capture"
 	"github.com/snyk/snyk-ls/ls_extension"
@@ -23,7 +21,7 @@ import (
 	"github.com/snyk/cli/cliv2/pkg/basic_workflows"
 )
 
-func initExtensions(engine workflow.Engine, config configuration.Configuration, additionalExts []workflow.ExtensionInit) {
+func initExtensions(engine workflow.Engine, additionalExts []workflow.ExtensionInit) {
 	engine.AddExtensionInitializer(basic_workflows.Init)
 	engine.AddExtensionInitializer(osflows.Init)
 	engine.AddExtensionInitializer(iac.Init)
@@ -44,15 +42,5 @@ func initExtensions(engine workflow.Engine, config configuration.Configuration, 
 	// Register additional extensions injected via Run(WithAdditionalExtensions(...))
 	for _, ext := range additionalExts {
 		engine.AddExtensionInitializer(ext)
-	}
-
-	if config.GetBool(configuration.PREVIEW_FEATURES_ENABLED) {
-		// TODO: remove once CLI-1733 is solved
-		if !config.IsSet(utils.FF_FILE_FILTER_METACHARACTER_FIX) {
-			config.Set(utils.FF_FILE_FILTER_METACHARACTER_FIX, true)
-		}
-		if !config.IsSet(utils.FF_GITIGNORE_RESPECT_TRACKED_FILES) {
-			config.Set(utils.FF_GITIGNORE_RESPECT_TRACKED_FILES, true)
-		}
 	}
 }

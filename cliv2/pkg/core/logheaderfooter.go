@@ -16,6 +16,7 @@ import (
 	"github.com/snyk/go-application-framework/pkg/local_workflows/config_utils"
 	"github.com/snyk/go-application-framework/pkg/networking/middleware"
 	"github.com/snyk/go-application-framework/pkg/runtimeinfo"
+	"github.com/snyk/go-application-framework/pkg/workflow"
 
 	"github.com/snyk/cli/cliv2/internal/cliv2"
 	"github.com/snyk/cli/cliv2/internal/utils"
@@ -32,7 +33,8 @@ func redactAuthorizationTokens(token string) string {
 
 func (r *cliRun) logHeaderAuthorizationInfo() (string, string, string) {
 	config := r.config
-	networkAccess := r.engine.GetNetworkAccess()
+	// the token shown is the one the configuration uses, which is the default one only for the default profile
+	networkAccess := workflow.CreateNetworkAccessFromEngine(r.engine, config)
 	oauthEnabled := "Disabled"
 	var authorization, tokenShaSum, tokenDetails, userAgent string
 
