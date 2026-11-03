@@ -257,6 +257,11 @@ func (c *CLI) GetTempDir() string {
 	return c.globalConfig.GetString(configuration.TEMP_DIR_PATH)
 }
 
+// CommandVersion prints the embedded version
+func CommandVersion(passthroughArgs []string, stdout io.Writer) error {
+	return (&CLI{stdout: stdout}).commandVersion(passthroughArgs)
+}
+
 func (c *CLI) printVersion() {
 	_, _ = fmt.Fprintln(c.stdout, GetFullVersion())
 }

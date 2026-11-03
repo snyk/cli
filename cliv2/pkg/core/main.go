@@ -465,6 +465,18 @@ func (r *cliRun) prepareRootCommand(router *helprouting.Router) *cobra.Command {
 	return &rootCommand
 }
 
+func isLocalVersionCommand(args []string) bool {
+	flags := getGlobalFLags()
+	flags.SetOutput(io.Discard)
+	version := flags.BoolP("version", "v", false, "")
+	help := flags.BoolP("help", "h", false, "")
+	flags.String("json-file-output", "", "")
+	if err := flags.Parse(args); err != nil || *help || flags.ArgsLenAtDash() >= 0 {
+		return false
+	}
+	return (flags.NArg() == 0 && *version) || (flags.NArg() == 1 && flags.Arg(0) == "version")
+}
+
 func (r *cliRun) handleError(err error) HandleError {
 	resultError := handleErrorUnhandled
 	preCondition := err != nil && !r.helpProvided
@@ -659,6 +671,13 @@ func execute(additionalExts []workflow.ExtensionInit) (*cliRun, int) {
 	r.config.AddDefaultValue(configuration.FF_OAUTH_AUTH_FLOW_ENABLED, defaultOAuthFF(r.config))
 	r.config.AddDefaultValue(configuration.FF_TRANSFORMATION_WORKFLOW, configuration.StandardDefaultValueFunction(true))
 	r.config.AddDefaultValue(configuration.NETWORK_REQUEST_RETRY_ALLOWED_PATHS, defaultNetworkRequestRetryAllowedPaths())
+
+	// Version should not do any network calls
+	if isLocalVersionCommand(os.Args[1:]) {
+		err = cliv2.CommandVersion(os.Args[1:], os.Stdout)
+		r.displayError(ctx, err, consoleui.New(), false)
+		return r, cliv2.DeriveExitCode(err)
+	}
 
 	if noProxyAuth := r.config.GetBool(basic_workflows.PROXY_NOAUTH); noProxyAuth {
 		r.config.Set(configuration.PROXY_AUTHENTICATION_MECHANISM, httpauth.StringFromAuthenticationMechanism(httpauth.NoAuth))
