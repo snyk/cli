@@ -31,6 +31,7 @@ import (
 	"github.com/snyk/go-application-framework/pkg/analytics"
 	"github.com/snyk/go-application-framework/pkg/app"
 	"github.com/snyk/go-application-framework/pkg/configuration"
+	"github.com/snyk/go-application-framework/pkg/configuration/profile"
 	"github.com/snyk/go-application-framework/pkg/instrumentation"
 	"github.com/snyk/go-application-framework/pkg/logging"
 
@@ -54,7 +55,6 @@ import (
 	"github.com/snyk/go-application-framework/pkg/ui/uitypes"
 	"github.com/snyk/go-application-framework/pkg/utils"
 	"github.com/snyk/go-application-framework/pkg/workflow"
-	"github.com/snyk/go-httpauth/pkg/httpauth"
 
 	cli_errors "github.com/snyk/cli/cliv2/internal/errors"
 	"github.com/snyk/cli/cliv2/pkg/basic_workflows"
@@ -93,7 +93,15 @@ var internalOS string
 // teardown, so every function says what it uses. Only what is injected at build time (internalOS) is kept
 // outside of it.
 type cliRun struct {
-	engine       workflow.Engine
+	engine workflow.Engine
+	// profileName is the configuration profile the run was started with. It is read once at startup, before config is
+	// replaced by the configuration of that profile, see selectProfile.
+	profileName string
+	// profileErr is the validation error of the profile, when the run could not select it. The run then keeps the default
+	// configuration, and the command fails with the error.
+	profileErr error
+	// config is assigned in execute: first the default configuration, then once by selectProfile, which runs before the
+	// timeout can fire. The teardown reads it from the goroutine of the timeout, which is started after the selection.
 	config       configuration.Configuration
 	logger       *zerolog.Logger
 	helpProvided bool
@@ -142,6 +150,9 @@ func initApplicationConfiguration(config configuration.Configuration) {
 	config.AddAlternativeKeys(configuration.INTEGRATION_NAME, []string{integrationNameFlag})
 	config.AddAlternativeKeys(middleware.ConfigurationKeyRequestAttempts, []string{"snyk_max_attempts", maxNetworkRequestAttempts})
 	config.AddAlternativeKeys(cliv2.ConfigKeyRequestConcurrency, []string{"snyk_request_concurrency"})
+	// the flag wins over the environment variable
+	config.AddAlternativeKeys(profile.ConfigKey, []string{profileFlag, profileEnvAlias})
+	config.AddAlternativeKeys(profile.DirKey, []string{profileDirEnvAlias})
 }
 
 func getFullCommandString(cmd *cobra.Command) string {
@@ -202,6 +213,10 @@ func (r *cliRun) runMainWorkflow(cmd *cobra.Command, args []string, rawArgs []st
 		return err
 	}
 
+	if r.profileErr != nil {
+		return r.profileErr
+	}
+
 	// init UI
 	errorUI := consoleui.WithErrorOutput(os.Stdout)
 	if output_workflow.DefaultOutputIsStructured(r.config) {
@@ -251,6 +266,14 @@ func runWorkflowAndProcessData(ctx context.Context, engine workflow.Engine, logg
 }
 
 func (r *cliRun) defaultCmd(args []string) error {
+	if err := r.refuseLegacyCommandForProfile(); err != nil {
+		return err
+	}
+	return r.invokeLegacyCLI(args)
+}
+
+// invokeLegacyCLI runs the legacy CLI with the given args. It does not check the profile, see defaultCmd.
+func (r *cliRun) invokeLegacyCLI(args []string) error {
 	inputDirectory := cliv2.DetermineInputDirectory(args)
 	if len(inputDirectory) > 0 {
 		r.config.Set(configuration.INPUT_DIRECTORY, inputDirectory)
@@ -265,9 +288,11 @@ func (r *cliRun) defaultCmd(args []string) error {
 	return err
 }
 
+// runLegacyHelp shows the help of the legacy CLI. Help reads no credentials, so unlike a legacy command it is not refused
+// for a profile.
 func (r *cliRun) runLegacyHelp() error {
 	filteredArgs := utils.RemoveSimilar(os.Args[1:], "--")
-	return r.defaultCmd(append(filteredArgs, "--help"))
+	return r.invokeLegacyCLI(append(filteredArgs, "--help"))
 }
 
 func (r *cliRun) runTestCommandWithSarifEqualJson(cmd *cobra.Command, args []string) error {
@@ -357,6 +382,7 @@ func getGlobalFLags() *pflag.FlagSet {
 	globalFLags.Bool(disable_analytics_flag, false, "")
 	globalFLags.String(debug_level_flag, "debug", "")
 	globalFLags.String(integrationNameFlag, "", "")
+	globalFLags.String(profileFlag, "", "Use the settings of the named configuration profile instead of the default.")
 	globalFLags.Int(maxNetworkRequestAttempts, -1, "Maximum total network attempts, including the initial request (minimum: 1)")
 	return globalFLags
 }
@@ -559,7 +585,12 @@ func (r *cliRun) tearDown(ctx context.Context, err error, errorList []error, sta
 	// (which reads logging.REDACTION_TERMS off of config) sees these terms on every run, not
 	// just under --debug, without forcing an ORGANIZATION/ORGANIZATION_SLUG network lookup
 	// before the command's own requests run.
-	populateRedactionTerms(r.config, r.engine)
+	// A profile that cannot be used must not make the report fall back to the credentials of the default profile.
+	if r.profileErr != nil {
+		r.logger.Printf("Not reporting this command, its profile cannot be used: %v", r.profileErr)
+	} else {
+		populateRedactionTerms(r.config, r.engine)
+	}
 
 	outputError := err
 	allErrors := errorList
@@ -579,20 +610,27 @@ func (r *cliRun) tearDown(ctx context.Context, err error, errorList []error, sta
 
 	r.displayError(ctx, outputError, r.engine.GetUserInterface(), cliAnalytics.IsCiEnvironment())
 
-	r.updateInstrumentationDataBeforeSending(cliAnalytics, startTime, ua, exitCode)
+	if r.profileErr == nil {
+		r.updateInstrumentationDataBeforeSending(cliAnalytics, startTime, ua, exitCode)
 
-	if !r.config.GetBool(configuration.ANALYTICS_DISABLED) {
-		r.sendAnalytics(teardownCtx, cliAnalytics)
+		if !r.config.GetBool(configuration.ANALYTICS_DISABLED) {
+			r.sendAnalytics(teardownCtx, cliAnalytics)
+		}
+		r.sendInstrumentation(teardownCtx, cliAnalytics.GetInstrumentation())
 	}
-	r.sendInstrumentation(teardownCtx, cliAnalytics.GetInstrumentation())
 
 	// cleanup resources in use
 	// WARNING: deferred actions will execute AFTER cleanup; only defer if not impacted by this
-	if _, cleanupErr := r.engine.Invoke(basic_workflows.WORKFLOWID_GLOBAL_CLEANUP, workflow.WithContext(teardownCtx)); cleanupErr != nil {
+	cleanupOptions := []workflow.EngineInvokeOption{workflow.WithContext(teardownCtx)}
+	if r.profileErr != nil {
+		// nothing ran on the profile, the cleanup only removes what the process created
+		cleanupOptions = append(cleanupOptions, workflow.WithConfig(r.config.Clone()))
+	}
+	if _, cleanupErr := r.engine.Invoke(basic_workflows.WORKFLOWID_GLOBAL_CLEANUP, cleanupOptions...); cleanupErr != nil {
 		r.logger.Printf("Failed to cleanup %v", cleanupErr)
 	}
 
-	if r.config.GetBool(configuration.DEBUG) {
+	if r.config.GetBool(configuration.DEBUG) && r.profileErr == nil {
 		r.writeLogFooter(exitCode, allErrors)
 	}
 
@@ -650,6 +688,8 @@ func execute(additionalExts []workflow.ExtensionInit) (*cliRun, int) {
 
 	// ensure to init configuration before using it
 	initApplicationConfiguration(r.config)
+	// read before the configuration of the run is replaced by the one of its profile, see selectProfile
+	r.profileName = r.config.GetString(profile.ConfigKey)
 
 	debugEnabled := r.config.GetBool(configuration.DEBUG)
 
@@ -660,10 +700,6 @@ func execute(additionalExts []workflow.ExtensionInit) (*cliRun, int) {
 	r.config.AddDefaultValue(configuration.FF_OAUTH_AUTH_FLOW_ENABLED, defaultOAuthFF(r.config))
 	r.config.AddDefaultValue(configuration.FF_TRANSFORMATION_WORKFLOW, configuration.StandardDefaultValueFunction(true))
 	r.config.AddDefaultValue(configuration.NETWORK_REQUEST_RETRY_ALLOWED_PATHS, defaultNetworkRequestRetryAllowedPaths())
-
-	if noProxyAuth := r.config.GetBool(basic_workflows.PROXY_NOAUTH); noProxyAuth {
-		r.config.Set(configuration.PROXY_AUTHENTICATION_MECHANISM, httpauth.StringFromAuthenticationMechanism(httpauth.NoAuth))
-	}
 
 	// init NetworkAccess
 	ua := networking.UserAgent(networking.UaWithConfig(r.config), networking.UaWithRuntimeInfo(rInfo), networking.UaWithOS(internalOS))
@@ -696,10 +732,22 @@ func execute(additionalExts []workflow.ExtensionInit) (*cliRun, int) {
 	network_utils.AddSnykRequestId(networkAccess)
 
 	// initialize the extensions -> they register themselves at the engine
-	initExtensions(r.engine, r.config, additionalExts)
+	initExtensions(r.engine, additionalExts)
+	applyStartupValues(r.config)
 
 	// init engine
 	err = r.engine.Init()
+
+	// The profile is selected here and not earlier: a profile is derived from the registrations of the default configuration
+	// (default functions, alternative keys, key dependencies, flag sets, env prefixes) but not from its values. The extensions
+	// register theirs in engine.Init, and the defaults above are added before it, so Init is the earliest point at which that
+	// configuration is complete. The engine's profile registry exists only once the engine does. Keep this before setTimeout,
+	// whose teardown reads the configuration. The startup values are applied again because a derived configuration has none.
+	// A failed Init selects nothing.
+	if err == nil {
+		r.selectProfile()
+		applyStartupValues(r.config)
+	}
 
 	// We want to scrub the debug log of sensitive information. Since we have a list of commands we know can occur, we can intersect that with arguments we don't recognize, and automatically scrub all those from the logs.
 	if debugEnabled {

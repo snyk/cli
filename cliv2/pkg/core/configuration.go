@@ -6,6 +6,10 @@ import (
 
 	"github.com/snyk/go-application-framework/pkg/auth"
 	"github.com/snyk/go-application-framework/pkg/configuration"
+	"github.com/snyk/go-application-framework/pkg/utils"
+	"github.com/snyk/go-httpauth/pkg/httpauth"
+
+	"github.com/snyk/cli/cliv2/pkg/basic_workflows"
 )
 
 func defaultOAuthFF(config configuration.Configuration) configuration.DefaultValueFunction {
@@ -52,4 +56,23 @@ func defaultNetworkRequestRetryAllowedPaths() configuration.DefaultValueFunction
 		return paths, nil
 	}
 	return callback
+}
+
+// applyStartupValues sets the values that the command line gives the run, and enables the preview feature flags when
+// preview features are on, unless the configuration sets them. It is applied to the default configuration before the
+// engine is initialized, and to the configuration of the selected profile after the selection, because a profile does
+// not carry the values of the default configuration.
+func applyStartupValues(config configuration.Configuration) {
+	if noProxyAuth := config.GetBool(basic_workflows.PROXY_NOAUTH); noProxyAuth {
+		config.Set(configuration.PROXY_AUTHENTICATION_MECHANISM, httpauth.StringFromAuthenticationMechanism(httpauth.NoAuth))
+	}
+	if config.GetBool(configuration.PREVIEW_FEATURES_ENABLED) {
+		// TODO: remove once CLI-1733 is solved
+		if !config.IsSet(utils.FF_FILE_FILTER_METACHARACTER_FIX) {
+			config.Set(utils.FF_FILE_FILTER_METACHARACTER_FIX, true)
+		}
+		if !config.IsSet(utils.FF_GITIGNORE_RESPECT_TRACKED_FILES) {
+			config.Set(utils.FF_GITIGNORE_RESPECT_TRACKED_FILES, true)
+		}
+	}
 }

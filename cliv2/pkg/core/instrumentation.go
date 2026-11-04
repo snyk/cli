@@ -132,7 +132,8 @@ func (r *cliRun) sendAnalytics(ctx context.Context, a analytics.Analytics) {
 	// Use context to respect teardown timeout
 	request = request.WithContext(ctx)
 
-	client := r.engine.GetNetworkAccess().GetHttpClient()
+	// the credentials and the host are the ones of the configuration the report is for
+	client := workflow.CreateNetworkAccessFromEngine(r.engine, r.config).GetHttpClient()
 	res, err := client.Do(request)
 	if err != nil {
 		debugLogger.Err(err).Msg("Failed to send Analytics")
@@ -153,7 +154,7 @@ func (r *cliRun) sendAnalytics(ctx context.Context, a analytics.Analytics) {
 func (r *cliRun) sendInstrumentation(ctx context.Context, instrumentor analytics.InstrumentationCollector) {
 	eng, logger := r.engine, r.logger
 	// Avoid duplicate data to be sent for IDE integrations that use the CLI
-	if !shallSendInstrumentation(eng.GetConfiguration(), instrumentor) {
+	if !shallSendInstrumentation(r.config, instrumentor) {
 		logger.Print("This CLI call is not instrumented!")
 		return
 	}
@@ -168,7 +169,7 @@ func (r *cliRun) sendInstrumentation(ctx context.Context, instrumentor analytics
 	}
 
 	logger.Print("Sending Instrumentation")
-	data, err := analytics.GetV2InstrumentationObject(instrumentor, analytics.WithLogger(logger), analytics.WithConfiguration(eng.GetConfiguration()))
+	data, err := analytics.GetV2InstrumentationObject(instrumentor, analytics.WithLogger(logger), analytics.WithConfiguration(r.config))
 	if err != nil {
 		logger.Err(err).Msg("Failed to derive data object")
 	}
