@@ -144,6 +144,7 @@ func initApplicationConfiguration(config configuration.Configuration) {
 	config.AddAlternativeKeys(configuration.ADD_TRUSTED_CA_FILE, []string{"NODE_EXTRA_CA_CERTS"})
 	config.AddAlternativeKeys(configuration.ANALYTICS_DISABLED, []string{strings.ToLower(constants.SNYK_ANALYTICS_DISABLED_ENV), "snyk_cfg_disable_analytics", "disable-analytics", "disable_analytics"})
 	config.AddAlternativeKeys(configuration.ORGANIZATION, []string{"snyk_cfg_org"})
+	config.AddAlternativeKeys(configuration.TENANT, []string{"snyk_cfg_tenant"})
 	config.AddAlternativeKeys(configuration.PREVIEW_FEATURES_ENABLED, []string{"snyk_preview"})
 	config.AddAlternativeKeys(configuration.LOG_LEVEL, []string{debug_level_flag})
 	config.AddAlternativeKeys(configuration.INTEGRATION_NAME, []string{integrationNameFlag})
@@ -829,7 +830,7 @@ func execute(additionalExts []workflow.ExtensionInit) (*cliRun, int) {
 // them regardless of whether debug logging is enabled.
 func populateRedactionTerms(config configuration.Configuration, engine workflow.Engine) []string {
 	knownTerms, _ := instrumentation.GetKnownCommandsAndFlags(engine)
-	knownTerms = append(knownTerms, config.GetString(configuration.API_URL), config.GetString(configuration.ORGANIZATION), config.GetString(configuration.ORGANIZATION_SLUG), config.GetString(configuration.INTEGRATION_NAME), config.GetString(configuration.INTEGRATION_VERSION), config.GetString(configuration.INTEGRATION_ENVIRONMENT), config.GetString(configuration.INTEGRATION_ENVIRONMENT_VERSION), config.GetString(clientMachineIdConfigKey), config.GetString(AgentSessionIdConfigKey))
+	knownTerms = append(knownTerms, config.GetString(configuration.API_URL), config.GetString(configuration.ORGANIZATION), config.GetString(configuration.ORGANIZATION_SLUG), config.GetString(configuration.TENANT), config.GetString(configuration.INTEGRATION_NAME), config.GetString(configuration.INTEGRATION_VERSION), config.GetString(configuration.INTEGRATION_ENVIRONMENT), config.GetString(configuration.INTEGRATION_ENVIRONMENT_VERSION), config.GetString(clientMachineIdConfigKey), config.GetString(AgentSessionIdConfigKey))
 	// AI_AGENT is trusted verbatim by agent.DetectAgent, and persona.Report
 	// falls back to that same raw value whenever the Harness name/version split
 	// or canonicalisation does not apply, so its raw value needs the same

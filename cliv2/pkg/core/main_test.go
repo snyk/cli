@@ -219,6 +219,20 @@ func Test_populateRedactionTerms_excludesIntegrationDetails(t *testing.T) {
 	}
 }
 
+func Test_populateRedactionTerms_excludesTenant(t *testing.T) {
+	mockController := gomock.NewController(t)
+	mockEngine := mocks.NewMockEngine(mockController)
+	mockEngine.EXPECT().GetWorkflows().Return(nil)
+
+	config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
+	t.Setenv("SNYK_CFG_TENANT", "custom-tenant")
+	initApplicationConfiguration(config)
+
+	terms := populateRedactionTerms(config, mockEngine)
+
+	assert.NotContains(t, terms, "custom-tenant")
+}
+
 func Test_populateRedactionTerms_excludesDetectedAgent(t *testing.T) {
 	// Not on agent.canonicalAgent's short-circuit list, so AI_AGENT is trusted
 	// verbatim into the persona.agent extension. GetUnknownParameters
@@ -334,6 +348,16 @@ func Test_initApplicationConfiguration_DisablesAnalytics(t *testing.T) {
 
 		assert.True(t, c.GetBool(configuration.ANALYTICS_DISABLED))
 	})
+}
+
+func Test_initApplicationConfiguration_ReadsTenantFromSnykCfgTenant(t *testing.T) {
+	t.Setenv("SNYK_CFG_TENANT", "my-tenant")
+	c := configuration.NewWithOpts(configuration.WithSupportedEnvVarPrefixes("snyk_", "internal_", "test_"))
+	assert.Empty(t, c.GetString(configuration.TENANT))
+
+	initApplicationConfiguration(c)
+
+	assert.Equal(t, "my-tenant", c.GetString(configuration.TENANT))
 }
 
 func Test_CreateCommandsForWorkflowWithSubcommands(t *testing.T) {

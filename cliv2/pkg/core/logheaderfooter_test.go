@@ -49,6 +49,22 @@ func Test_writeLogHeader_showsInteractionIdOfTheRun(t *testing.T) {
 	assert.Contains(t, out.String(), "Interaction:           run-1234")
 }
 
+func Test_writeLogHeader_showsTenant(t *testing.T) {
+	config := configuration.NewWithOpts()
+	config.Set(configuration.TENANT, "my-tenant")
+	engine := workflow.NewWorkFlowEngine(config)
+	engine.SetRuntimeInfo(runtimeinfo.New())
+
+	var out bytes.Buffer
+	logger := zerolog.New(&out)
+	r := newTestRun()
+	r.logger, r.config, r.engine = &logger, config, engine
+
+	r.writeLogHeader()
+
+	assert.Contains(t, out.String(), "Tenant:                my-tenant")
+}
+
 func Test_writeLogHeader_showsMachineID(t *testing.T) {
 	out := writeLogHeaderWithMachineID(t, "0b6b2f6e-7f3c-4f53-a9c4-2f0c6a2b1d10", nil)
 
