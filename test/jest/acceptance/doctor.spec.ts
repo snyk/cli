@@ -1,3 +1,5 @@
+import { fakeServer, FakeServer } from '../../acceptance/fake-server';
+import { getAvailableServerPort } from '../util/getServerPort';
 import { runSnykCLI } from '../util/runSnykCLI';
 import { startSnykCLI } from '../util/startSnykCLI';
 
@@ -33,6 +35,78 @@ describe('snyk doctor', () => {
       expect(code).toBe(0);
       expect(stdout).toContain('Tenant: my-env-tenant');
     });
+  });
+
+  describe('tenant of the org', () => {
+    let server: FakeServer;
+    let serverEnv: Record<string, string>;
+
+    beforeAll(async () => {
+      const port = await getAvailableServerPort(process);
+      const baseApi = '/v1';
+      serverEnv = {
+        ...(process.env as Record<string, string>),
+        SNYK_API: `http://localhost:${port}${baseApi}`,
+        SNYK_HOST: `http://localhost:${port}`,
+        SNYK_TOKEN: '123456789',
+        SNYK_DISABLE_ANALYTICS: '1',
+      };
+      server = fakeServer(baseApi, serverEnv.SNYK_TOKEN);
+      await new Promise<void>((resolve) => server.listen(port, resolve));
+    });
+
+    afterEach(() => {
+      server.restore();
+    });
+
+    afterAll(async () => {
+      await server.closePromise();
+    });
+
+    it("doctor reports the tenant of the user's org when no tenant is given", async () => {
+      const { code, stdout } = await runSnykCLI('doctor', { env: serverEnv });
+
+      expect(code).toBe(0);
+      expect(stdout).toContain(
+        'Tenant: tenant-of-55555555-5555-5555-5555-555555555555',
+      );
+    });
+
+    it("doctor --org <another org> reports that org's tenant", async () => {
+      const anotherOrg = '66666666-6666-6666-6666-666666666666';
+
+      const { code, stdout } = await runSnykCLI(`doctor --org=${anotherOrg}`, {
+        env: serverEnv,
+      });
+
+      expect(code).toBe(0);
+      expect(stdout).toContain(`Tenant: tenant-of-${anotherOrg}`);
+    });
+
+    it('a command run without a tenant does not look the tenant up', async () => {
+      const { code } = await runSnykCLI('whoami --experimental', {
+        env: serverEnv,
+      });
+
+      expect(code).toBe(0);
+      expect(tenantLookups()).toEqual([]);
+    });
+
+    it('doctor --tenant reports the given tenant without looking it up', async () => {
+      const { code, stdout } = await runSnykCLI('doctor --tenant my-tenant', {
+        env: serverEnv,
+      });
+
+      expect(code).toBe(0);
+      expect(stdout).toContain('Tenant: my-tenant');
+      expect(tenantLookups()).toEqual([]);
+    });
+
+    const tenantLookups = () =>
+      server
+        .getRequests()
+        .filter((req) => req.query.expand === 'tenant')
+        .map((req) => req.url);
   });
 
   describe('use doctor on the debug logs of another system', () => {
