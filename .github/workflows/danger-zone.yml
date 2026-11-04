@@ -2,7 +2,7 @@ name: 'Danger Zone'
 on:
   pull_request:
     types: [opened, synchronize, reopened, edited]
-    branches: [master, main, release-candidate]
+    branches: [master, main, release-candidate, 'release/**']
 
 permissions: {}
 
