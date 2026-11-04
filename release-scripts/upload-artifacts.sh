@@ -60,7 +60,7 @@ show_help() {
   echo "  --dry-run: perform a dry run of the upload"
   echo ""
   echo "Arguments:"
-  echo "  version       version tag to upload artifacts to"
+  echo "  version       upload the versioned S3 folders listed in the artifacts manifest"
   echo "  github        upload artifacts to GitHub"
   echo "  npm           upload artifacts to npm"
   echo "  s3            upload artifacts to S3"
@@ -249,6 +249,38 @@ upload_s3() {
   fi
 }
 
+MANIFEST="binary-releases/artifacts-manifest.json"
+
+check_artifacts() {
+  local dir=$1
+  local name sha256
+  while read -r name _; do
+    sha256="$(jq -er --arg name "${name}" '.artifacts[] | select(.name == $name) | .sha256' "${MANIFEST}")"
+    echo "${sha256}  ${dir}/${name#./}" | shasum -a 256 -c --quiet -
+  done
+}
+
+upload_versioned() {
+  local artifacts
+  artifacts="$(jq -er '.meta.version as $version
+    | .artifacts[] | .name as $name
+    | .targets[] | select(.type == "s3" and (.path | endswith("/v\($version)/")))
+    | "\($name) \(.path)"' "${MANIFEST}")"
+
+  check_artifacts binary-releases <<< "${artifacts}"
+
+  local dry_run_arg=""
+  if [ "${DRY_RUN}" == true ]; then
+    dry_run_arg="--dryrun"
+  fi
+
+  local name folder file
+  while read -r name folder; do
+    file="binary-releases/${name#./}"
+    aws s3 cp "${file}" "s3://${PUBLIC_S3_BUCKET}/${folder}$(basename "${file}")" ${dry_run_arg}
+  done <<< "${artifacts}"
+}
+
 # Capture valid flags
 while getopts ":h:-:" opt; do
   case ${opt} in
@@ -284,9 +316,6 @@ shift $((OPTIND-1))
 # Interpret arguments
 for arg in "${@}"; do
    target="${arg}"
-    if [ "${arg}" == "version" ]; then
-      target="${VERSION_TAG}"
-    fi
 
   # Upload files to the GitHub release
   if [ "${arg}" == "github" ]; then
@@ -328,6 +357,9 @@ for arg in "${@}"; do
   # Trigger building DXT in agentic-integration-wrappers repository
   elif [ "${arg}" == "trigger_build_agentic_integration" ]; then
     trigger_build_agentic_integration
+
+  elif [ "${arg}" == "version" ]; then
+    upload_versioned
 
   # Upload files to S3 bucket
   else
