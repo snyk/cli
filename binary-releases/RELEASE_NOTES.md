@@ -5,6 +5,7 @@ The Snyk CLI is being deployed to different deployment channels, users can selec
 ### Bug Fixes
 
 * **iac**: Fixes a panic in `snyk iac test` when an ARM template contains a property with a null value. ([fbae7febd](https://github.com/snyk/snyk/commit/fbae7febdc046e6bd849b0dc14d8581e4a8b1a66))
+* **maven**: Fixes `--include-component-metadata` dropping the `distribution:url` label for every Maven dependency when using Maven 3.10. ([c783feecc](https://github.com/snyk/snyk/commit/c783feecc133e677e960ab7a314875b417a55a08))
 * **language server**: Bug fixes for Snyk Language Server used by the Snyk IDE plugins. ([ef0db2c0b](https://github.com/snyk/snyk/commit/ef0db2c0b79eb15d9241fc181c1f649bf88d6ce3))
 * **deps**: Updates dependencies to fix vulnerabilities:
   - Updates the Open Policy Agent library used by `snyk iac test` to address CVE-2025-46569 ([126998855](https://github.com/snyk/snyk/commit/126998855504c507513a9e111d3fa5f260de41ee))
