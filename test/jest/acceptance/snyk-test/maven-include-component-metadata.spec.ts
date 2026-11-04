@@ -47,12 +47,7 @@ describe('`snyk test --include-component-metadata` (maven)', () => {
     server.restore();
   });
 
-  afterAll(
-    () =>
-      new Promise((res) => {
-        server.close(res);
-      }),
-  );
+  afterAll(() => server.closePromise());
 
   const parseDepGraph = (printGraphStdout: string) =>
     JSON.parse(
