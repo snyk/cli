@@ -3,7 +3,7 @@ module github.com/snyk/cli/cliv2-private
 go 1.27.3
 
 require (
-	github.com/snyk/cli-extension-axi v0.0.0-20260901142946-cb915113acb7
+	github.com/snyk/cli-extension-axi v0.0.0-20261102092111-6acf30273022
 	github.com/snyk/cli-extension-cos v0.0.0-20260818151318-d63bb9db9484
 	github.com/snyk/cli-extension-studio v1.0.5
 	github.com/snyk/cli-extension-supply-chain v0.0.0-20261102143538-e412ab6de148
@@ -227,7 +227,7 @@ require (
 	github.com/snyk/container-cli v0.0.0-20260213211631-cd2b2cf8f3ea // indirect
 	github.com/snyk/dep-graph/go v0.0.0-20260127160647-c836da762c62 // indirect
 	github.com/snyk/error-catalog-golang-public v0.0.0-20261020120644-f6bd6fc4dac6 // indirect
-	github.com/snyk/go-application-framework v0.39.0 //indirect
+	github.com/snyk/go-application-framework v0.41.0 //indirect
 	github.com/snyk/go-httpauth v0.0.0-20261007154458-c110eb9b820f // indirect
 	github.com/snyk/policy-engine v1.1.8 // indirect
 	github.com/snyk/snyk-iac-capture v0.6.5 // indirect
