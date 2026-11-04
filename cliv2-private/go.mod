@@ -222,7 +222,7 @@ require (
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20261027152158-1df61a39e801 // indirect
 	github.com/snyk/cli-extension-os-flows v0.0.0-20261019113940-6bd18a6c09b8 // indirect
 	github.com/snyk/cli-extension-sbom v0.0.0-20260818092356-16ee760085f9 // indirect
-	github.com/snyk/cli-extension-secrets v0.0.0-20261015111838-d17ad7ec1396 // indirect
+	github.com/snyk/cli-extension-secrets v0.0.0-20261102155850-7868999a9c97 // indirect
 	github.com/snyk/code-client-go v1.31.9 // indirect
 	github.com/snyk/container-cli v0.0.0-20260213211631-cd2b2cf8f3ea // indirect
 	github.com/snyk/dep-graph/go v0.0.0-20260127160647-c836da762c62 // indirect
