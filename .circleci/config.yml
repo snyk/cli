@@ -1893,10 +1893,12 @@ jobs:
         type: string
         default: |
           find test/jest/acceptance ts-binary-wrapper/test/acceptance -name '*.spec.ts' \
-            | circleci tests run \
-                --command="xargs npx jest --maxWorkers=1 --selectProjects coreCli --reporters=jest-junit --reporters=default --forceExit --" \
+            | circleci tests run --verbose \
+                --command=">tests.txt xargs echo" \
                 --split-by=timings \
                 --timings-type=file
+          [ -s tests.txt ] || circleci-agent step halt
+          xargs -r npx jest --maxWorkers=1 --selectProjects coreCli --reporters=jest-junit --reporters=default --forceExit -- < tests.txt
     executor: << parameters.executor >>
     parallelism: << parameters.shards >>
     environment:
