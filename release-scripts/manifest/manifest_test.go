@@ -70,3 +70,22 @@ func TestNonVersionedS3FoldersIsEmptyForAVersionedOnlyFile(t *testing.T) {
 		t.Fatalf("got %v", folders)
 	}
 }
+
+func TestReadRejectsS3FoldersThatCouldWriteOutsideAChannelFolder(t *testing.T) {
+	folders := []string{
+		// escaping the bucket prefix
+		"../cli/preview/", "cli/../../other/", "/cli/preview/",
+		// a key like snyk-linux at the bucket root, or cli/previewsnyk-linux
+		"", "./", "cli/preview", "cli//preview/", "cli/./preview/",
+	}
+	for _, folder := range folders {
+		file := writeManifest(t, `{"schemaVersion":1,"meta":{"version":"1.2.3","commit":"abc","releaseChannel":"preview"},
+			"artifacts":[{"name":"./snyk-linux","sha256":"x","targets":[{"type":"s3","path":"`+folder+`"}]}]}`)
+
+		_, err := Read(file)
+
+		if err == nil || !strings.Contains(err.Error(), "s3 path") {
+			t.Errorf("expected %q to be rejected as an s3 path, got %v", folder, err)
+		}
+	}
+}

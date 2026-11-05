@@ -52,7 +52,29 @@ func Read(file string) (*Manifest, error) {
 	if m.Meta.Version == "" || m.Meta.ReleaseChannel == "" {
 		return nil, fmt.Errorf("%s has no meta.version or meta.releaseChannel, is it a filled-in manifest?", file)
 	}
+	for _, a := range m.Artifacts {
+		for _, t := range a.Targets {
+			if t.Type == TargetS3 && !isBucketFolder(t.Path) {
+				return nil, fmt.Errorf("%s: s3 path %q of %s must be a relative folder ending in / without empty, . or .. segments", file, t.Path, a.Name)
+			}
+		}
+	}
 	return &m, nil
+}
+
+// isBucketFolder reports whether folder is a relative S3 folder ending in "/", like cli/preview/.
+// A mistyped manifest must not write a key at the bucket root, or glue a file name onto a folder name.
+func isBucketFolder(folder string) bool {
+	trimmed, hasSlash := strings.CutSuffix(folder, "/")
+	if !hasSlash {
+		return false
+	}
+	for _, segment := range strings.Split(trimmed, "/") {
+		if segment == "" || segment == "." || segment == ".." {
+			return false
+		}
+	}
+	return true
 }
 
 // VersionedFolder is the S3 folder every file is uploaded to before any channel, like cli/v1.2.3/.
