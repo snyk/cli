@@ -2241,7 +2241,7 @@ jobs:
           name: Dry run of the S3 channel publish from the manifest
           # Shadow mode: a failure must not fail the workflow while the current S3 jobs publish.
           command: |
-            (cd release-scripts && go run ./release-s3-v2 --dry-run ../binary-releases/artifacts-manifest.json) \
+            (cd release-scripts && go run ./release-s3-v2 --echo --dry-run ../binary-releases/artifacts-manifest.json) \
               || echo "Shadow run failed, ignored."
 
   release-github:
