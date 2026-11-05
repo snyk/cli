@@ -8,13 +8,14 @@ import (
 	"os"
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/spf13/pflag"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/snyk/go-application-framework/pkg/catalog"
 	"github.com/snyk/go-application-framework/pkg/workflow"
+	"github.com/snyk/go-application-framework/pkg/workflow/catalog"
 
 	"github.com/snyk/cli/cliv2/pkg/core"
 )
@@ -251,4 +252,61 @@ func Test_uninstall_withoutStepsSucceeds(t *testing.T) {
 	exitCode, out := runCLI(t, nil, "uninstall")
 
 	assert.Equal(t, 0, exitCode, out)
+}
+
+// lifecycleTimeout bounds a lifecycle run without a terminal. A run that hangs fails the test instead of the package.
+const lifecycleTimeout = 20 * time.Second
+
+// runCLIWithoutTerminal runs the CLI like runCLI, with stdin attached to the null device and stdout to a pipe, so no
+// step sees a terminal. It fails the test when the run does not finish within lifecycleTimeout.
+func runCLIWithoutTerminal(t *testing.T, exts []workflow.ExtensionInit, args ...string) (int, string) {
+	t.Helper()
+	stdin, err := os.Open(os.DevNull)
+	require.NoError(t, err)
+	defer func() { _ = stdin.Close() }()
+	oldStdin := os.Stdin
+	os.Stdin = stdin
+	defer func() { os.Stdin = oldStdin }()
+
+	type result struct {
+		exitCode int
+		out      string
+	}
+	done := make(chan result, 1)
+	go func() {
+		exitCode, out := runCLI(t, exts, args...)
+		done <- result{exitCode: exitCode, out: out}
+	}()
+
+	select {
+	case r := <-done:
+		return r.exitCode, r.out
+	case <-time.After(lifecycleTimeout):
+		t.Fatalf("snyk %v did not finish within %s without a terminal", args, lifecycleTimeout)
+		return 0, ""
+	}
+}
+
+func Test_install_twoStepsCompleteWithoutTerminal(t *testing.T) {
+	rec := &stepRecorder{}
+
+	exitCode, out := runCLIWithoutTerminal(t, []workflow.ExtensionInit{
+		installStep(rec, "install-step-a", succeeds),
+		installStep(rec, "install-step-b", succeeds),
+	}, "install")
+
+	assert.Equal(t, 0, exitCode, out)
+	assert.ElementsMatch(t, []string{"install-step-a", "install-step-b"}, rec.steps())
+}
+
+func Test_uninstall_twoStepsCompleteWithoutTerminal(t *testing.T) {
+	rec := &stepRecorder{}
+
+	exitCode, out := runCLIWithoutTerminal(t, []workflow.ExtensionInit{
+		uninstallStep(rec, "uninstall-step-a", succeeds),
+		uninstallStep(rec, "uninstall-step-b", succeeds),
+	}, "uninstall")
+
+	assert.Equal(t, 0, exitCode, out)
+	assert.ElementsMatch(t, []string{"uninstall-step-a", "uninstall-step-b"}, rec.steps())
 }
