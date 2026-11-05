@@ -2040,6 +2040,9 @@ jobs:
             make ls-protocol-metadata
             cp binary-releases/ls-protocol-version-* binary-releases/fips/
             cp binary-releases/ls-protocol-version-* binary-releases/experimental/
+      - run:
+          name: Creating artifacts manifest
+          command: make binary-releases/artifacts-manifest.json
       - store_artifacts:
           path: ./binary-releases
       - persist_to_workspace:
@@ -2047,6 +2050,7 @@ jobs:
           paths:
             - binary-releases/sha256sums.txt.asc
             - binary-releases/release.json
+            - binary-releases/artifacts-manifest.json
             - binary-releases/snyk-*.sha256
             - binary-releases/fips/sha256sums.txt.asc
             - binary-releases/fips/release.json
