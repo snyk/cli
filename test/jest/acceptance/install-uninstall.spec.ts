@@ -71,12 +71,14 @@ describe('install and uninstall workflows', () => {
   );
 
   it.each(LIFECYCLE_COMMANDS)(
-    'snyk %s --help says it runs post-install actions provided by extensions',
+    'snyk %s --help says it runs post-install actions provided by extensions, not package installs',
     async (command) => {
+      // TODO: the help text source is an open decision (see the open questions); this assertion is the acceptance check.
       const { code, stdout } = await runSnykCLI(`${command} --help`, { env });
 
       expect(code).toBe(0);
       expect(stdout).toContain('post-install actions provided by extensions');
+      expect(stdout).toContain('not package installs');
     },
   );
 });

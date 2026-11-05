@@ -82,6 +82,32 @@ func uninstallStep(rec *stepRecorder, id string, outcome stepOutcome) workflow.E
 	}
 }
 
+// captureOutput runs the function with stdout and stderr redirected to a pipe and returns its exit code and what it
+// printed. The streams are restored even when the function panics, so the panic cannot leave later tests without output.
+func captureOutput(t *testing.T, run func() int) (int, string) {
+	t.Helper()
+	reader, writer, err := os.Pipe()
+	require.NoError(t, err)
+	defer func() { _ = reader.Close() }()
+
+	output := make(chan string, 1)
+	go func() {
+		out, _ := io.ReadAll(reader)
+		output <- string(out)
+	}()
+
+	oldStdout, oldStderr := os.Stdout, os.Stderr
+	os.Stdout, os.Stderr = writer, writer
+	exitCode := func() int {
+		defer func() {
+			os.Stdout, os.Stderr = oldStdout, oldStderr
+			_ = writer.Close()
+		}()
+		return run()
+	}()
+	return exitCode, <-output
+}
+
 // runCLI runs the CLI in process with the extensions and the arguments. It returns the exit code and everything the run
 // printed. The run is isolated from the configuration of the developer and from analytics.
 func runCLI(t *testing.T, exts []workflow.ExtensionInit, args ...string) (int, string) {
@@ -93,21 +119,9 @@ func runCLI(t *testing.T, exts []workflow.ExtensionInit, args ...string) (int, s
 	os.Args = append([]string{"snyk"}, args...)
 	defer func() { os.Args = oldArgs }()
 
-	reader, writer, err := os.Pipe()
-	require.NoError(t, err)
-	oldStdout, oldStderr := os.Stdout, os.Stderr
-	os.Stdout, os.Stderr = writer, writer
-	output := make(chan string)
-	go func() {
-		out, _ := io.ReadAll(reader)
-		output <- string(out)
-	}()
-
-	exitCode := core.Run(core.WithAdditionalExtensions(exts...))
-
-	os.Stdout, os.Stderr = oldStdout, oldStderr
-	require.NoError(t, writer.Close())
-	return exitCode, <-output
+	return captureOutput(t, func() int {
+		return core.Run(core.WithAdditionalExtensions(exts...))
+	})
 }
 
 func Test_install_runsEveryInstallStep(t *testing.T) {
@@ -144,6 +158,7 @@ func Test_install_failingStepDoesNotStopTheOtherSteps(t *testing.T) {
 	assert.NotEqual(t, 0, exitCode)
 	assert.ElementsMatch(t, []string{"install-step-a", "install-step-b"}, rec.steps())
 	// the error lists the failed step and its message in its details
+	// TODO(CLI-2044): assert the error-catalog code and title, and one details entry per failed step, once the error is released.
 	assert.Contains(t, out, "install-step-a")
 	assert.Contains(t, out, "disk is full")
 }
@@ -159,6 +174,32 @@ func Test_install_panickingStepDoesNotStopTheOtherSteps(t *testing.T) {
 	assert.NotEqual(t, 0, exitCode)
 	assert.ElementsMatch(t, []string{"install-step-a", "install-step-b"}, rec.steps())
 	assert.Contains(t, out, "install-step-a")
+	// a stack trace is never shown to the user
+	assert.NotContains(t, out, "goroutine ")
+}
+
+// Test_install_stepThatInvokesInstallDoesNotRecurse: a step labeled lifecycle=install that invokes install again does
+// not run again. The pitch says install skips itself to prevent recursion. The re-entry semantics are not defined by
+// the pitch, see the open questions. A second run of the step returns an error, so a missing guard fails the assertion
+// instead of recursing without end.
+func Test_install_stepThatInvokesInstallDoesNotRecurse(t *testing.T) {
+	rec := &stepRecorder{}
+	reentrant := func(engine workflow.Engine) error {
+		config := workflow.ConfigurationOptionsFromFlagset(pflag.NewFlagSet("install-reentrant", pflag.ContinueOnError))
+		callback := func(workflow.InvocationContext, []workflow.Data) ([]workflow.Data, error) {
+			rec.record("install-reentrant")
+			if len(rec.steps()) > 1 {
+				return nil, errors.New("step ran again")
+			}
+			return engine.Invoke(workflow.NewWorkflowIdentifier("install"))
+		}
+		_, err := catalog.Register(engine, workflow.NewWorkflowIdentifier("install-reentrant"), config, callback, catalog.WithLifecycle(catalog.Install))
+		return err
+	}
+
+	_, _ = runCLI(t, []workflow.ExtensionInit{reentrant}, "install")
+
+	assert.Equal(t, []string{"install-reentrant"}, rec.steps())
 }
 
 func Test_install_dropsTheDataReturnedByAStep(t *testing.T) {
@@ -201,6 +242,7 @@ func Test_uninstall_failingStepIsReported(t *testing.T) {
 
 	assert.NotEqual(t, 0, exitCode)
 	assert.ElementsMatch(t, []string{"uninstall-step-a", "uninstall-step-b"}, rec.steps())
+	// TODO(CLI-2044): assert the error-catalog code and title, and one details entry per failed step, once the error is released.
 	assert.Contains(t, out, "uninstall-step-a")
 	assert.Contains(t, out, "still in use")
 }
