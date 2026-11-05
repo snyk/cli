@@ -1,0 +1,604 @@
+{
+  "schemaVersion": 1,
+  "meta": {
+    "version": "$VERSION",
+    "commit": "$COMMIT",
+    "releaseChannel": "$CHANNEL"
+  },
+  "artifacts": [
+    {
+      "name": "./snyk-alpine",
+      "sha256": "$SHASUM",
+      "targets": [
+        {
+          "type": "s3",
+          "path": "cli/v$VERSION/"
+        },
+        {
+          "type": "s3",
+          "path": "cli/$CHANNEL/"
+        },
+        {
+          "type": "github"
+        }
+      ]
+    },
+    {
+      "name": "./snyk-alpine.sha256",
+      "sha256": "$SHASUM",
+      "targets": [
+        {
+          "type": "s3",
+          "path": "cli/v$VERSION/"
+        },
+        {
+          "type": "s3",
+          "path": "cli/$CHANNEL/"
+        },
+        {
+          "type": "github"
+        }
+      ]
+    },
+    {
+      "name": "./snyk-alpine-arm64",
+      "sha256": "$SHASUM",
+      "targets": [
+        {
+          "type": "s3",
+          "path": "cli/v$VERSION/"
+        },
+        {
+          "type": "s3",
+          "path": "cli/$CHANNEL/"
+        },
+        {
+          "type": "github"
+        }
+      ]
+    },
+    {
+      "name": "./snyk-alpine-arm64.sha256",
+      "sha256": "$SHASUM",
+      "targets": [
+        {
+          "type": "s3",
+          "path": "cli/v$VERSION/"
+        },
+        {
+          "type": "s3",
+          "path": "cli/$CHANNEL/"
+        },
+        {
+          "type": "github"
+        }
+      ]
+    },
+    {
+      "name": "./snyk-linux",
+      "sha256": "$SHASUM",
+      "targets": [
+        {
+          "type": "s3",
+          "path": "cli/v$VERSION/"
+        },
+        {
+          "type": "s3",
+          "path": "cli/$CHANNEL/"
+        },
+        {
+          "type": "github"
+        }
+      ]
+    },
+    {
+      "name": "./snyk-linux.sha256",
+      "sha256": "$SHASUM",
+      "targets": [
+        {
+          "type": "s3",
+          "path": "cli/v$VERSION/"
+        },
+        {
+          "type": "s3",
+          "path": "cli/$CHANNEL/"
+        },
+        {
+          "type": "github"
+        }
+      ]
+    },
+    {
+      "name": "./snyk-linux-arm64",
+      "sha256": "$SHASUM",
+      "targets": [
+        {
+          "type": "s3",
+          "path": "cli/v$VERSION/"
+        },
+        {
+          "type": "s3",
+          "path": "cli/$CHANNEL/"
+        },
+        {
+          "type": "github"
+        }
+      ]
+    },
+    {
+      "name": "./snyk-linux-arm64.sha256",
+      "sha256": "$SHASUM",
+      "targets": [
+        {
+          "type": "s3",
+          "path": "cli/v$VERSION/"
+        },
+        {
+          "type": "s3",
+          "path": "cli/$CHANNEL/"
+        },
+        {
+          "type": "github"
+        }
+      ]
+    },
+    {
+      "name": "./snyk-macos",
+      "sha256": "$SHASUM",
+      "targets": [
+        {
+          "type": "s3",
+          "path": "cli/v$VERSION/"
+        },
+        {
+          "type": "s3",
+          "path": "cli/$CHANNEL/"
+        },
+        {
+          "type": "github"
+        }
+      ]
+    },
+    {
+      "name": "./snyk-macos.sha256",
+      "sha256": "$SHASUM",
+      "targets": [
+        {
+          "type": "s3",
+          "path": "cli/v$VERSION/"
+        },
+        {
+          "type": "s3",
+          "path": "cli/$CHANNEL/"
+        },
+        {
+          "type": "github"
+        }
+      ]
+    },
+    {
+      "name": "./snyk-macos-arm64",
+      "sha256": "$SHASUM",
+      "targets": [
+        {
+          "type": "s3",
+          "path": "cli/v$VERSION/"
+        },
+        {
+          "type": "s3",
+          "path": "cli/$CHANNEL/"
+        },
+        {
+          "type": "github"
+        }
+      ]
+    },
+    {
+      "name": "./snyk-macos-arm64.sha256",
+      "sha256": "$SHASUM",
+      "targets": [
+        {
+          "type": "s3",
+          "path": "cli/v$VERSION/"
+        },
+        {
+          "type": "s3",
+          "path": "cli/$CHANNEL/"
+        },
+        {
+          "type": "github"
+        }
+      ]
+    },
+    {
+      "name": "./snyk-win.exe",
+      "sha256": "$SHASUM",
+      "targets": [
+        {
+          "type": "s3",
+          "path": "cli/v$VERSION/"
+        },
+        {
+          "type": "s3",
+          "path": "cli/$CHANNEL/"
+        },
+        {
+          "type": "github"
+        }
+      ]
+    },
+    {
+      "name": "./snyk-win.exe.sha256",
+      "sha256": "$SHASUM",
+      "targets": [
+        {
+          "type": "s3",
+          "path": "cli/v$VERSION/"
+        },
+        {
+          "type": "s3",
+          "path": "cli/$CHANNEL/"
+        },
+        {
+          "type": "github"
+        }
+      ]
+    },
+    {
+      "name": "./sha256sums.txt.asc",
+      "sha256": "$SHASUM",
+      "targets": [
+        {
+          "type": "s3",
+          "path": "cli/v$VERSION/"
+        },
+        {
+          "type": "s3",
+          "path": "cli/$CHANNEL/"
+        },
+        {
+          "type": "github"
+        }
+      ]
+    },
+    {
+      "name": "./ls-protocol-version-25",
+      "sha256": "$SHASUM",
+      "targets": [
+        {
+          "type": "s3",
+          "path": "cli/v$VERSION/"
+        },
+        {
+          "type": "s3",
+          "path": "cli/$CHANNEL/"
+        },
+        {
+          "type": "github"
+        }
+      ]
+    },
+    {
+      "name": "./release.json",
+      "sha256": "$SHASUM",
+      "targets": [
+        {
+          "type": "s3",
+          "path": "cli/v$VERSION/"
+        },
+        {
+          "type": "s3",
+          "path": "cli/$CHANNEL/"
+        }
+      ]
+    },
+    {
+      "name": "./version",
+      "sha256": "$SHASUM",
+      "targets": [
+        {
+          "type": "s3",
+          "path": "cli/v$VERSION/"
+        },
+        {
+          "type": "s3",
+          "path": "cli/$CHANNEL/"
+        }
+      ]
+    },
+    {
+      "name": "./RELEASE_NOTES.md",
+      "sha256": "$SHASUM",
+      "targets": [
+        {
+          "type": "s3",
+          "path": "cli/v$VERSION/"
+        },
+        {
+          "type": "s3",
+          "path": "cli/$CHANNEL/"
+        },
+        {
+          "type": "github"
+        }
+      ]
+    },
+    {
+      "name": "./snyk.tgz",
+      "sha256": "$SHASUM",
+      "targets": [
+        {
+          "type": "s3",
+          "path": "cli/v$VERSION/"
+        },
+        {
+          "type": "npm"
+        }
+      ]
+    },
+    {
+      "name": "./snyk-fix.tgz",
+      "sha256": "$SHASUM",
+      "targets": [
+        {
+          "type": "s3",
+          "path": "cli/v$VERSION/"
+        },
+        {
+          "type": "npm"
+        }
+      ]
+    },
+    {
+      "name": "./snyk-protect.tgz",
+      "sha256": "$SHASUM",
+      "targets": [
+        {
+          "type": "s3",
+          "path": "cli/v$VERSION/"
+        },
+        {
+          "type": "npm"
+        }
+      ]
+    },
+    {
+      "name": "./fips/snyk-linux",
+      "sha256": "$SHASUM",
+      "targets": [
+        {
+          "type": "s3",
+          "path": "fips/cli/v$VERSION/"
+        },
+        {
+          "type": "s3",
+          "path": "fips/cli/$CHANNEL/"
+        }
+      ]
+    },
+    {
+      "name": "./fips/snyk-linux.sha256",
+      "sha256": "$SHASUM",
+      "targets": [
+        {
+          "type": "s3",
+          "path": "fips/cli/v$VERSION/"
+        },
+        {
+          "type": "s3",
+          "path": "fips/cli/$CHANNEL/"
+        }
+      ]
+    },
+    {
+      "name": "./fips/snyk-linux-arm64",
+      "sha256": "$SHASUM",
+      "targets": [
+        {
+          "type": "s3",
+          "path": "fips/cli/v$VERSION/"
+        },
+        {
+          "type": "s3",
+          "path": "fips/cli/$CHANNEL/"
+        }
+      ]
+    },
+    {
+      "name": "./fips/snyk-linux-arm64.sha256",
+      "sha256": "$SHASUM",
+      "targets": [
+        {
+          "type": "s3",
+          "path": "fips/cli/v$VERSION/"
+        },
+        {
+          "type": "s3",
+          "path": "fips/cli/$CHANNEL/"
+        }
+      ]
+    },
+    {
+      "name": "./fips/snyk-win.exe",
+      "sha256": "$SHASUM",
+      "targets": [
+        {
+          "type": "s3",
+          "path": "fips/cli/v$VERSION/"
+        },
+        {
+          "type": "s3",
+          "path": "fips/cli/$CHANNEL/"
+        }
+      ]
+    },
+    {
+      "name": "./fips/snyk-win.exe.sha256",
+      "sha256": "$SHASUM",
+      "targets": [
+        {
+          "type": "s3",
+          "path": "fips/cli/v$VERSION/"
+        },
+        {
+          "type": "s3",
+          "path": "fips/cli/$CHANNEL/"
+        }
+      ]
+    },
+    {
+      "name": "./fips/sha256sums.txt.asc",
+      "sha256": "$SHASUM",
+      "targets": [
+        {
+          "type": "s3",
+          "path": "fips/cli/v$VERSION/"
+        },
+        {
+          "type": "s3",
+          "path": "fips/cli/$CHANNEL/"
+        }
+      ]
+    },
+    {
+      "name": "./fips/ls-protocol-version-25",
+      "sha256": "$SHASUM",
+      "targets": [
+        {
+          "type": "s3",
+          "path": "fips/cli/v$VERSION/"
+        },
+        {
+          "type": "s3",
+          "path": "fips/cli/$CHANNEL/"
+        }
+      ]
+    },
+    {
+      "name": "./fips/release.json",
+      "sha256": "$SHASUM",
+      "targets": [
+        {
+          "type": "s3",
+          "path": "fips/cli/v$VERSION/"
+        },
+        {
+          "type": "s3",
+          "path": "fips/cli/$CHANNEL/"
+        }
+      ]
+    },
+    {
+      "name": "./fips/version",
+      "sha256": "$SHASUM",
+      "targets": [
+        {
+          "type": "s3",
+          "path": "fips/cli/v$VERSION/"
+        },
+        {
+          "type": "s3",
+          "path": "fips/cli/$CHANNEL/"
+        }
+      ]
+    },
+    {
+      "name": "./fips/RELEASE_NOTES.md",
+      "sha256": "$SHASUM",
+      "targets": [
+        {
+          "type": "s3",
+          "path": "fips/cli/v$VERSION/"
+        },
+        {
+          "type": "s3",
+          "path": "fips/cli/$CHANNEL/"
+        }
+      ]
+    },
+    {
+      "name": "./experimental/snyk-linux",
+      "sha256": "$SHASUM",
+      "targets": [
+        {
+          "type": "s3",
+          "path": "experimental/cli/v$VERSION/"
+        },
+        {
+          "type": "s3",
+          "path": "experimental/cli/$CHANNEL/"
+        }
+      ]
+    },
+    {
+      "name": "./experimental/snyk-linux.sha256",
+      "sha256": "$SHASUM",
+      "targets": [
+        {
+          "type": "s3",
+          "path": "experimental/cli/v$VERSION/"
+        },
+        {
+          "type": "s3",
+          "path": "experimental/cli/$CHANNEL/"
+        }
+      ]
+    },
+    {
+      "name": "./experimental/snyk-linux-arm64",
+      "sha256": "$SHASUM",
+      "targets": [
+        {
+          "type": "s3",
+          "path": "experimental/cli/v$VERSION/"
+        },
+        {
+          "type": "s3",
+          "path": "experimental/cli/$CHANNEL/"
+        }
+      ]
+    },
+    {
+      "name": "./experimental/snyk-linux-arm64.sha256",
+      "sha256": "$SHASUM",
+      "targets": [
+        {
+          "type": "s3",
+          "path": "experimental/cli/v$VERSION/"
+        },
+        {
+          "type": "s3",
+          "path": "experimental/cli/$CHANNEL/"
+        }
+      ]
+    },
+    {
+      "name": "./experimental/sha256sums.txt.asc",
+      "sha256": "$SHASUM",
+      "targets": [
+        {
+          "type": "s3",
+          "path": "experimental/cli/v$VERSION/"
+        },
+        {
+          "type": "s3",
+          "path": "experimental/cli/$CHANNEL/"
+        }
+      ]
+    },
+    {
+      "name": "./experimental/ls-protocol-version-25",
+      "sha256": "$SHASUM",
+      "targets": [
+        {
+          "type": "s3",
+          "path": "experimental/cli/v$VERSION/"
+        },
+        {
+          "type": "s3",
+          "path": "experimental/cli/$CHANNEL/"
+        }
+      ]
+    }
+  ]
+}

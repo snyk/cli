@@ -660,6 +660,10 @@ func execute(additionalExts []workflow.ExtensionInit) (*cliRun, int) {
 	ctx := context.Background()
 	ctx = context.WithValue(ctx, networking.InteractionIdKey, instrumentation.AssembleUrnFromUUID(r.interactionId))
 
+	if isVersionRequest(os.Args[1:]) {
+		return r, runVersionCommand(ctx, os.Args[1:], os.Stdout)
+	}
+
 	startTime := time.Now()
 	var err error
 	rInfo := runtimeinfo.New(runtimeinfo.WithName("snyk-cli"), runtimeinfo.WithVersion(cliv2.GetFullVersion()))
