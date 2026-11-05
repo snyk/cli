@@ -32,8 +32,8 @@ var DATATYPEID_LEGACY_CLI_STDOUT workflow.Identifier = workflow.NewTypeIdentifie
 
 const (
 	PROXY_NOAUTH                  string = "proxy-noauth"
-	MIN_GLIBC_VERSION_LINUX_AMD64 string = "2.28"
-	MIN_GLIBC_VERSION_LINUX_ARM64 string = "2.31"
+	MIN_GLIBC_VERSION_LINUX_AMD64 string = "2.34"
+	MIN_GLIBC_VERSION_LINUX_ARM64 string = "2.34"
 )
 
 func initLegacycli(engine workflow.Engine) error {
