@@ -51,12 +51,12 @@ func (f *Fetcher) fetchOne(m *manifest.Manifest, a manifest.Artifact, dest strin
 	if !ok {
 		return fmt.Errorf("%s has no versioned s3 target", a.Name)
 	}
-	relative := strings.TrimPrefix(path.Clean(a.Name), "./")
+	relative := relativeName(a.Name)
 	if relative == ".." || strings.HasPrefix(relative, "../") || path.IsAbs(relative) {
 		return fmt.Errorf("%s points outside the destination", a.Name)
 	}
 	url := strings.TrimSuffix(f.BaseURL, "/") + "/" + folder + path.Base(relative)
-	file := filepath.Join(dest, filepath.FromSlash(relative))
+	file := LocalPath(dest, a.Name)
 
 	sum, err := f.download(url, file)
 	if err != nil {
@@ -66,6 +66,15 @@ func (f *Fetcher) fetchOne(m *manifest.Manifest, a manifest.Artifact, dest strin
 		return fmt.Errorf("checksum mismatch for %s: manifest has %s, %s has %s", a.Name, a.SHA256, url, sum)
 	}
 	return nil
+}
+
+// LocalPath is where Fetch stores the artifact with the given manifest name under dest.
+func LocalPath(dest, name string) string {
+	return filepath.Join(dest, filepath.FromSlash(relativeName(name)))
+}
+
+func relativeName(name string) string {
+	return strings.TrimPrefix(path.Clean(name), "./")
 }
 
 func (f *Fetcher) download(url, file string) (string, error) {

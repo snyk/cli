@@ -1,10 +1,13 @@
 // Command release-s3-v2 publishes the files of a filled-in artifacts manifest to each of their S3
 // channel folders, which are the s3 targets other than the versioned folder.
 //
-//	go run ./release-s3-v2 --dry-run <manifest>
+//	go run ./release-s3-v2 [--dry-run] [--echo] <manifest>
 //
-// Only --dry-run is supported for now: it fetches and checks the files, then prints the S3 keys it
-// would write instead of uploading them.
+// It fetches and checks the files, then uploads each one with `aws s3 cp`, so the content types
+// stay the ones the AWS CLI guesses. The upload is a dry run of every command followed by the real
+// ones. --dry-run stops after the dry run. --echo prints the commands without running any, which
+// together with --dry-run shows what a dry run would run. A manifest without channel folders has
+// nothing to publish.
 package main
 
 import (
@@ -13,6 +16,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"os/exec"
 	"slices"
 	"strings"
 	"time"
@@ -29,7 +33,7 @@ const (
 func main() {
 	bucket := getenv("PUBLIC_S3_BUCKET", defaultBucket)
 	baseURL := getenv("DOWNLOADS_BASE_URL", defaultBaseURL)
-	if err := run(os.Args[1:], os.Stdout, bucket, baseURL); err != nil {
+	if err := run(os.Args[1:], os.Stdout, bucket, baseURL, execAWS); err != nil {
 		fmt.Fprintln(os.Stderr, "release-s3-v2:", err)
 		os.Exit(1)
 	}
@@ -42,13 +46,58 @@ func getenv(name, fallback string) string {
 	return fallback
 }
 
-func run(args []string, stdout io.Writer, bucket, baseURL string) error {
-	if len(args) != 2 || args[0] != "--dry-run" {
-		return errors.New("usage: release-s3-v2 --dry-run <manifest>")
+const usage = "usage: release-s3-v2 [--dry-run] [--echo] <manifest>"
+
+// awsRunner runs the aws command with the given arguments.
+type awsRunner func(args ...string) error
+
+func execAWS(args ...string) error {
+	cmd := exec.Command("aws", args...)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	return cmd.Run()
+}
+
+type options struct {
+	dryRun           bool
+	echo             bool
+	manifestFilePath string
+}
+
+func parseArgs(args []string) (options, error) {
+	var opts options
+	var positional []string
+	for _, arg := range args {
+		switch arg {
+		case "--dry-run":
+			opts.dryRun = true
+		case "--echo":
+			opts.echo = true
+		default:
+			positional = append(positional, arg)
+		}
 	}
-	m, err := manifest.Read(args[1])
+	if len(positional) != 1 || strings.HasPrefix(positional[0], "-") {
+		return options{}, errors.New(usage)
+	}
+	opts.manifestFilePath = positional[0]
+	return opts, nil
+}
+
+func run(args []string, stdout io.Writer, bucket, baseURL string, aws awsRunner) error {
+	opts, err := parseArgs(args)
 	if err != nil {
 		return err
+	}
+	m, err := manifest.Read(opts.manifestFilePath)
+	if err != nil {
+		return err
+	}
+
+	uploads := releaseJSONLast(nonVersionedUploads(m))
+	if len(uploads) == 0 {
+		fmt.Fprintf(stdout, "v%s has nothing to publish for the %s channel, it has no channel folders.\n", m.Meta.Version, m.Meta.ReleaseChannel)
+		return nil
 	}
 
 	downloads, err := os.MkdirTemp("", "release-s3-v2-")
@@ -62,9 +111,37 @@ func run(args []string, stdout io.Writer, bucket, baseURL string) error {
 		return err
 	}
 
-	fmt.Fprintf(stdout, "DRY RUN: would publish v%s to the %s channel:\n", m.Meta.Version, m.Meta.ReleaseChannel)
-	for _, u := range releaseJSONLast(nonVersionedUploads(m)) {
-		fmt.Fprintf(stdout, "%s -> s3://%s/%s\n", u.srcName, bucket, u.s3Target)
+	// Dry run first so a bad command shows before the first real upload. aws --dryrun makes no S3
+	// request, so it can't catch permission or bucket errors.
+	dryRunOpts := opts
+	dryRunOpts.dryRun = true
+	fmt.Fprintf(stdout, "Dry run publishing v%s to the %s channel:\n", m.Meta.Version, m.Meta.ReleaseChannel)
+	if err := copyToS3(dryRunOpts, stdout, aws, bucket, downloads, uploads); err != nil {
+		return fmt.Errorf("dry run failed, nothing was uploaded: %w", err)
+	}
+	if opts.dryRun {
+		return nil
+	}
+
+	fmt.Fprintf(stdout, "Publishing v%s to the %s channel:\n", m.Meta.Version, m.Meta.ReleaseChannel)
+	return copyToS3(opts, stdout, aws, bucket, downloads, uploads)
+}
+
+// copyToS3 prints each aws s3 cp command in order and, unless --echo is set, runs it.
+func copyToS3(opts options, stdout io.Writer, aws awsRunner, bucket, downloads string, uploads []upload) error {
+	for _, u := range uploads {
+		cmdArgs := []string{"s3", "cp", fetchcheck.LocalPath(downloads, u.srcName), "s3://" + bucket + "/" + u.s3Target}
+		if opts.dryRun {
+			cmdArgs = append(cmdArgs, "--dryrun")
+		}
+		fmt.Fprintln(stdout, "aws "+strings.Join(cmdArgs, " "))
+		if opts.echo {
+			continue
+		}
+		// Stop at the first failure: release.json is last so it never points at files that didn't land.
+		if err := aws(cmdArgs...); err != nil {
+			return fmt.Errorf("uploading %s: %w", u.srcName, err)
+		}
 	}
 	return nil
 }

@@ -5,9 +5,11 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -92,77 +94,284 @@ func previewFiles() []file {
 	}
 }
 
-// uploadsOf returns the "source -> s3://..." lines of the output.
-func uploadsOf(output string) []string {
-	var uploads []string
-	for _, line := range strings.Split(output, "\n") {
-		if strings.Contains(line, " -> s3://") {
-			uploads = append(uploads, line)
+// destinationsOf returns the S3 URL each "aws s3 cp ..." line of the output copies to.
+func destinationsOf(output string) []string {
+	var destinations []string
+	for _, line := range commandLines(output) {
+		fields := strings.Fields(line)
+		for _, field := range fields {
+			if strings.HasPrefix(field, "s3://") {
+				destinations = append(destinations, field)
+			}
 		}
 	}
-	return uploads
+	return destinations
 }
 
-func TestDryRunListsChannelKeysWithReleaseJSONLast(t *testing.T) {
+// fakeAWS records the aws commands instead of running them.
+type fakeAWS struct {
+	t *testing.T
+	// commands are the arguments of each call, with the source file replaced by "content:" and what
+	// it held, because the downloads folder is removed when the run ends.
+	commands []string
+	// failOn is the 1-based call that fails, 0 for none.
+	failOn int
+}
+
+func (f *fakeAWS) run(args ...string) error {
+	f.t.Helper()
+	// args are: s3 cp <source> <s3 url> [--dryrun]
+	if len(args) < 4 || args[0] != "s3" || args[1] != "cp" {
+		f.t.Fatalf("unexpected aws arguments %v", args)
+	}
+	source, dest := args[2], args[3]
+	// The CLI guesses the content type from the source file name, so it must be the published name.
+	if filepath.Base(source) != path.Base(dest) {
+		f.t.Errorf("source %s must keep the name of %s", source, dest)
+	}
+	content, err := os.ReadFile(source)
+	if err != nil {
+		f.t.Fatalf("the downloaded file should exist while aws runs: %v", err)
+	}
+	normalised := append([]string{args[0], args[1], "content:" + string(content)}, args[3:]...)
+	f.commands = append(f.commands, strings.Join(normalised, " "))
+	if f.failOn == len(f.commands) {
+		return errors.New("aws failed")
+	}
+	return nil
+}
+
+// commandLines returns the "aws s3 cp ..." lines of the output.
+func commandLines(output string) []string {
+	var lines []string
+	for _, line := range strings.Split(output, "\n") {
+		if strings.HasPrefix(line, "aws s3 cp ") {
+			lines = append(lines, line)
+		}
+	}
+	return lines
+}
+
+// previewCommands are the aws commands of one pass over the preview files, release.json last.
+func previewCommands(flag string) []string {
+	commands := []string{
+		"s3 cp content:linux s3://test-bucket/cli/preview/snyk-linux",
+		"s3 cp content:fips linux s3://test-bucket/fips/cli/preview/snyk-linux",
+		"s3 cp content:release s3://test-bucket/cli/preview/release.json",
+		"s3 cp content:fips release s3://test-bucket/fips/cli/preview/release.json",
+	}
+	if flag != "" {
+		for i := range commands {
+			commands[i] += " " + flag
+		}
+	}
+	return commands
+}
+
+func TestUploadRunsADryRunPassBeforeTheRealOne(t *testing.T) {
+	// Arrange
+	manifest, baseURL := writeManifest(t, "preview", previewFiles(), nil)
+	aws := &fakeAWS{t: t}
+	var out bytes.Buffer
+
+	// Act
+	err := run([]string{manifest}, &out, "test-bucket", baseURL, aws.run)
+
+	// Assert: a failure in the dry run is seen before the first real upload. No extra flags besides
+	// --dryrun, so the CLI keeps guessing the content types.
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := append(previewCommands("--dryrun"), previewCommands("")...)
+	if strings.Join(aws.commands, "\n") != strings.Join(want, "\n") {
+		t.Fatalf("unexpected aws commands.\nwant:\n%s\ngot:\n%s", strings.Join(want, "\n"), strings.Join(aws.commands, "\n"))
+	}
+}
+
+func TestDryRunOnlyRunsTheDryRunPass(t *testing.T) {
+	manifest, baseURL := writeManifest(t, "preview", previewFiles(), nil)
+	aws := &fakeAWS{t: t}
+
+	err := run([]string{"--dry-run", manifest}, &bytes.Buffer{}, "test-bucket", baseURL, aws.run)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Join(aws.commands, "\n") != strings.Join(previewCommands("--dryrun"), "\n") {
+		t.Fatalf("expected only the --dryrun commands, got %v", aws.commands)
+	}
+}
+
+func TestEchoPrintsTheCommandsWithoutRunningThem(t *testing.T) {
+	manifest, baseURL := writeManifest(t, "preview", previewFiles(), nil)
+	aws := &fakeAWS{t: t}
+	var echoed, echoedDryRun bytes.Buffer
+
+	err := run([]string{"--echo", manifest}, &echoed, "test-bucket", baseURL, aws.run)
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = run([]string{"--echo", "--dry-run", manifest}, &echoedDryRun, "test-bucket", baseURL, aws.run)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(aws.commands) != 0 {
+		t.Fatalf("--echo must not run aws, got %v", aws.commands)
+	}
+	real, dry := commandLines(echoed.String()), commandLines(echoedDryRun.String())
+	if len(real) != 8 || len(dry) != 4 {
+		t.Fatalf("expected the dry run and the real pass (8 commands) and the dry run alone (4), got:\n%s\n%s", echoed.String(), echoedDryRun.String())
+	}
+	if !strings.HasSuffix(real[0], " s3://test-bucket/cli/preview/snyk-linux --dryrun") {
+		t.Errorf("the first pass should be the dry run, got %q", real[0])
+	}
+	if !strings.HasSuffix(real[4], " s3://test-bucket/cli/preview/snyk-linux") {
+		t.Errorf("the second pass should be the real one, got %q", real[4])
+	}
+	if !strings.HasSuffix(dry[0], " s3://test-bucket/cli/preview/snyk-linux --dryrun") {
+		t.Errorf("--echo --dry-run should print the --dryrun command, got %q", dry[0])
+	}
+}
+
+func TestNothingIsUploadedWhenTheDryRunFails(t *testing.T) {
+	manifest, baseURL := writeManifest(t, "preview", previewFiles(), nil)
+	aws := &fakeAWS{t: t, failOn: 2}
+
+	err := run([]string{manifest}, &bytes.Buffer{}, "test-bucket", baseURL, aws.run)
+
+	if err == nil || !strings.Contains(err.Error(), "dry run failed") || !strings.Contains(err.Error(), "aws failed") {
+		t.Fatalf("expected a dry run failure wrapping the aws failure, got %v", err)
+	}
+	if len(aws.commands) != 2 {
+		t.Fatalf("no command should run after the failure, got %v", aws.commands)
+	}
+	for _, command := range aws.commands {
+		if !strings.HasSuffix(command, " --dryrun") {
+			t.Errorf("only dry run commands may have run, got %q", command)
+		}
+	}
+}
+
+func TestUploadStopsAtTheFirstFailureSoReleaseJSONIsNotWritten(t *testing.T) {
+	manifest, baseURL := writeManifest(t, "preview", previewFiles(), nil)
+	// the dry run takes 4 commands, so the 6th is the second real upload
+	aws := &fakeAWS{t: t, failOn: 6}
+
+	err := run([]string{manifest}, &bytes.Buffer{}, "test-bucket", baseURL, aws.run)
+
+	if err == nil || !strings.Contains(err.Error(), "aws failed") {
+		t.Fatalf("expected the aws failure, got %v", err)
+	}
+	if len(aws.commands) != 6 {
+		t.Fatalf("no command should run after the failure, got %v", aws.commands)
+	}
+	for _, command := range aws.commands[4:] {
+		if strings.Contains(command, "release.json") {
+			t.Errorf("release.json must not be written after a failed upload: %v", aws.commands)
+		}
+	}
+}
+
+func TestNothingIsUploadedAfterAChecksumMismatch(t *testing.T) {
+	manifest, baseURL := writeManifest(t, "preview", previewFiles(), map[string]bool{"./snyk-linux": true})
+	aws := &fakeAWS{t: t}
+
+	err := run([]string{manifest}, &bytes.Buffer{}, "test-bucket", baseURL, aws.run)
+
+	if err == nil || !strings.Contains(err.Error(), "checksum mismatch for ./snyk-linux") {
+		t.Fatalf("expected a checksum mismatch for ./snyk-linux, got %v", err)
+	}
+	if len(aws.commands) != 0 {
+		t.Errorf("no file may be uploaded after a failed check, got %v", aws.commands)
+	}
+}
+
+func TestNothingToPublishWithoutChannelFolders(t *testing.T) {
+	// Arrange: the dev channel of e2e branches has only versioned folders, and nothing is served
+	files := []file{{name: "./snyk-linux", content: "linux", paths: []string{"cli/v1.2.3/"}, unserved: true}}
+	manifest, baseURL := writeManifest(t, "dev", files, nil)
+	aws := &fakeAWS{t: t}
+	var out bytes.Buffer
+
+	// Act
+	err := run([]string{manifest}, &out, "test-bucket", baseURL, aws.run)
+
+	// Assert
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(out.String(), "nothing to publish for the dev channel") {
+		t.Errorf("expected the nothing-to-publish message, got:\n%s", out.String())
+	}
+	if len(aws.commands) != 0 {
+		t.Errorf("nothing may be uploaded, got %v", aws.commands)
+	}
+}
+
+func TestRunRejectsUnknownFlags(t *testing.T) {
+	manifest, baseURL := writeManifest(t, "preview", previewFiles(), nil)
+
+	err := run([]string{"--dryrun", manifest}, &bytes.Buffer{}, "test-bucket", baseURL, (&fakeAWS{t: t}).run)
+
+	if err == nil || !strings.Contains(err.Error(), "usage") {
+		t.Fatalf("expected a usage error, got %v", err)
+	}
+}
+
+func TestEchoPrintsChannelKeysWithReleaseJSONLast(t *testing.T) {
 	// Arrange
 	manifest, baseURL := writeManifest(t, "preview", previewFiles(), nil)
 	var out bytes.Buffer
 
 	// Act
-	err := run([]string{"--dry-run", manifest}, &out, "test-bucket", baseURL)
+	err := run([]string{"--echo", "--dry-run", manifest}, &out, "test-bucket", baseURL, (&fakeAWS{t: t}).run)
 
 	// Assert: no versioned folder, and nothing for a file that only has a versioned target
 	if err != nil {
 		t.Fatal(err)
 	}
 	want := []string{
-		"./snyk-linux -> s3://test-bucket/cli/preview/snyk-linux",
-		"./fips/snyk-linux -> s3://test-bucket/fips/cli/preview/snyk-linux",
-		"./release.json -> s3://test-bucket/cli/preview/release.json",
-		"./fips/release.json -> s3://test-bucket/fips/cli/preview/release.json",
+		"s3://test-bucket/cli/preview/snyk-linux",
+		"s3://test-bucket/fips/cli/preview/snyk-linux",
+		"s3://test-bucket/cli/preview/release.json",
+		"s3://test-bucket/fips/cli/preview/release.json",
 	}
-	if got := uploadsOf(out.String()); strings.Join(got, "\n") != strings.Join(want, "\n") {
-		t.Fatalf("unexpected uploads.\nwant:\n%s\ngot:\n%s", strings.Join(want, "\n"), strings.Join(got, "\n"))
+	if got := destinationsOf(out.String()); strings.Join(got, "\n") != strings.Join(want, "\n") {
+		t.Fatalf("unexpected destinations.\nwant:\n%s\ngot:\n%s", strings.Join(want, "\n"), strings.Join(got, "\n"))
 	}
 	if !strings.Contains(out.String(), "v1.2.3 to the preview channel") {
 		t.Errorf("expected the version and channel from the manifest, got:\n%s", out.String())
 	}
+	if strings.Contains(out.String(), " -> s3://") {
+		t.Errorf("the commands already say where each file goes, got a recap:\n%s", out.String())
+	}
 }
 
-func TestDryRunListsEveryChannelFolderOfAFile(t *testing.T) {
+func TestEchoPrintsEveryChannelFolderOfAFile(t *testing.T) {
 	// Arrange: the manifest tool adds a latest folder next to the stable one
 	files := []file{{name: "./snyk-linux", content: "linux", paths: []string{"cli/v1.2.3/", "cli/stable/", "cli/latest/"}}}
 	manifest, baseURL := writeManifest(t, "stable", files, nil)
 	var out bytes.Buffer
 
 	// Act
-	err := run([]string{"--dry-run", manifest}, &out, "test-bucket", baseURL)
+	err := run([]string{"--echo", "--dry-run", manifest}, &out, "test-bucket", baseURL, (&fakeAWS{t: t}).run)
 
 	// Assert
 	if err != nil {
 		t.Fatal(err)
 	}
-	want := "./snyk-linux -> s3://test-bucket/cli/stable/snyk-linux\n./snyk-linux -> s3://test-bucket/cli/latest/snyk-linux"
-	if got := strings.Join(uploadsOf(out.String()), "\n"); got != want {
+	want := "s3://test-bucket/cli/stable/snyk-linux\ns3://test-bucket/cli/latest/snyk-linux"
+	if got := strings.Join(destinationsOf(out.String()), "\n"); got != want {
 		t.Fatalf("want:\n%s\ngot:\n%s", want, got)
 	}
 }
 
-func TestRunRequiresDryRun(t *testing.T) {
-	manifest, baseURL := writeManifest(t, "preview", previewFiles(), nil)
-
-	err := run([]string{manifest}, &bytes.Buffer{}, "test-bucket", baseURL)
-
-	if err == nil {
-		t.Fatal("expected a failure without --dry-run")
-	}
-}
-
-func TestDryRunListsNoKeysAfterAChecksumMismatch(t *testing.T) {
+func TestNoKeysAreListedAfterAChecksumMismatch(t *testing.T) {
 	manifest, baseURL := writeManifest(t, "preview", previewFiles(), map[string]bool{"./snyk-linux": true})
 	var out bytes.Buffer
 
-	err := run([]string{"--dry-run", manifest}, &out, "test-bucket", baseURL)
+	err := run([]string{"--echo", "--dry-run", manifest}, &out, "test-bucket", baseURL, (&fakeAWS{t: t}).run)
 
 	if err == nil || !strings.Contains(err.Error(), "checksum mismatch for ./snyk-linux") {
 		t.Fatalf("expected a checksum mismatch for ./snyk-linux, got %v", err)
@@ -172,14 +381,14 @@ func TestDryRunListsNoKeysAfterAChecksumMismatch(t *testing.T) {
 	}
 }
 
-func TestDryRunDoesNotFetchFilesWithoutAChannelFolder(t *testing.T) {
+func TestFilesWithoutAChannelFolderAreNotFetched(t *testing.T) {
 	// Arrange: the npm tarball only has a versioned folder, and the versioned upload doesn't publish it yet
 	files := append(previewFiles(), file{name: "./snyk-fix.tgz", content: "fix", paths: []string{"cli/v1.2.3/"}, unserved: true})
 	manifest, baseURL := writeManifest(t, "preview", files, nil)
 	var out bytes.Buffer
 
 	// Act
-	err := run([]string{"--dry-run", manifest}, &out, "test-bucket", baseURL)
+	err := run([]string{"--echo", "--dry-run", manifest}, &out, "test-bucket", baseURL, (&fakeAWS{t: t}).run)
 
 	// Assert
 	if err != nil {
