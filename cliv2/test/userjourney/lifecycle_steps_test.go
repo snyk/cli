@@ -179,11 +179,16 @@ func Test_install_panickingStepDoesNotStopTheOtherSteps(t *testing.T) {
 	assert.NotContains(t, out, "goroutine ")
 }
 
-// Test_install_stepThatInvokesInstallDoesNotRecurse: a step labeled lifecycle=install that invokes install again does
-// not run again. The pitch says install skips itself to prevent recursion. The re-entry semantics are not defined by
-// the pitch, see the open questions. A second run of the step returns an error, so a missing guard fails the assertion
-// instead of recursing without end.
-func Test_install_stepThatInvokesInstallDoesNotRecurse(t *testing.T) {
+// Test_install_stepThatInvokesInstallThroughItsInvocationDoesNotRecurse: a step labeled lifecycle=install invokes install
+// through the engine of its own invocation, which carries the invocation chain. The GAF re-entry guard follows that chain,
+// so the step does not run again.
+//
+// This test does NOT cover a step that invokes install through the root engine captured at registration. That call starts a
+// new invocation chain that the guard does not see, and the step runs twice (verified red in CLI-2066 review round 2). The
+// pitch says install skips itself to prevent recursion, so this gap is open. It needs an explicit user decision: a GAF
+// follow-up with an engine- or workflow-scoped guard, or a guard in the CLI install workflow. A second run of the step
+// returns an error, so a missing guard fails the assertion instead of recursing without end.
+func Test_install_stepThatInvokesInstallThroughItsInvocationDoesNotRecurse(t *testing.T) {
 	rec := &stepRecorder{}
 	reentrant := func(engine workflow.Engine) error {
 		config := workflow.ConfigurationOptionsFromFlagset(pflag.NewFlagSet("install-reentrant", pflag.ContinueOnError))
