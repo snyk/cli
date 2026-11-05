@@ -657,7 +657,7 @@ func Test_execute_theProfileOfTheRunIsSelected(t *testing.T) {
 	require.NoError(t, os.Unsetenv("SNYK_TOKEN"))
 
 	oldArgs := append([]string{}, os.Args...)
-	os.Args = []string{"snyk", "--version", "--" + profileFlag + "=work"}
+	os.Args = []string{"snyk", "--" + profileFlag + "=work", "--help"}
 	defer func() { os.Args = oldArgs }()
 
 	r, _ := execute(nil)
@@ -678,7 +678,7 @@ func Test_execute_aFailedEngineInitDoesNotSelectTheProfile(t *testing.T) {
 	require.NoError(t, os.Unsetenv("SNYK_TOKEN"))
 
 	oldArgs := append([]string{}, os.Args...)
-	os.Args = []string{"snyk", "--version", "--" + profileFlag + "=work"}
+	os.Args = []string{"snyk", "--" + profileFlag + "=work", "--help"}
 	defer func() { os.Args = oldArgs }()
 
 	failingExt := func(workflow.Engine) error { return fmt.Errorf("extension failed to initialize") }
