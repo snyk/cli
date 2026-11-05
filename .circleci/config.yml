@@ -1357,6 +1357,18 @@ workflows:
                 - '/release\/.*/'
                 - release-candidate
 
+      - release-s3-v2:
+          context:
+            - devex_cli_docker_hub
+          requires:
+            - Start Deployments
+          filters:
+            branches:
+              only:
+                - main
+                - '/release\/.*/'
+                - release-candidate
+
       - release-s3:
           name: upload release candidate
           deployment: rc
@@ -2214,6 +2226,23 @@ jobs:
           name: Publish to S3 ( << parameters.deployment >> )
           command: ./release-scripts/upload-artifacts.sh << parameters.deployment >>
       - failed-release-notification
+
+  release-s3-v2:
+    executor: docker-amd64
+    steps:
+      - prepare-workspace
+      - install-go:
+          go_os: linux
+          go_target_os: linux
+          go_arch: amd64
+          base_url: << pipeline.parameters.go_download_base_url >>
+          extraction_path: '.'
+      - run:
+          name: Dry run of the S3 channel publish from the manifest
+          # Shadow mode: a failure must not fail the workflow while the current S3 jobs publish.
+          command: |
+            (cd release-scripts && go run ./release-s3-v2 --dry-run ../binary-releases/artifacts-manifest.json) \
+              || echo "Shadow run failed, ignored."
 
   release-github:
     parameters:
