@@ -187,12 +187,13 @@ func Test_install_stepThatInvokesInstallDoesNotRecurse(t *testing.T) {
 	rec := &stepRecorder{}
 	reentrant := func(engine workflow.Engine) error {
 		config := workflow.ConfigurationOptionsFromFlagset(pflag.NewFlagSet("install-reentrant", pflag.ContinueOnError))
-		callback := func(workflow.InvocationContext, []workflow.Data) ([]workflow.Data, error) {
+		callback := func(ic workflow.InvocationContext, _ []workflow.Data) ([]workflow.Data, error) {
 			rec.record("install-reentrant")
 			if len(rec.steps()) > 1 {
 				return nil, errors.New("step ran again")
 			}
-			return engine.Invoke(workflow.NewWorkflowIdentifier("install"))
+			// the engine of the invocation carries its invocation chain, so the re-entry guard sees this run
+			return ic.GetEngine().Invoke(workflow.NewWorkflowIdentifier("install"))
 		}
 		_, err := catalog.Register(engine, workflow.NewWorkflowIdentifier("install-reentrant"), config, callback, catalog.WithLifecycle(catalog.Install))
 		return err
