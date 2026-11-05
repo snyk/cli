@@ -1369,6 +1369,75 @@ workflows:
                 - '/release\/.*/'
                 - release-candidate
 
+      - approve v2 echo:
+          type: approval
+          requires:
+            - upload version
+          filters:
+            branches:
+              only:
+                - '/.*e2e.*/' # TEMPORARY: test branch only
+
+      - release-s3-v2-e2e:
+          name: v2 echo
+          flags: '--echo --dry-run'
+          assume_role: false
+          context:
+            - team-hammerhead-common-deploy-tokens
+            - devex_cli_docker_hub
+          requires:
+            - approve v2 echo
+          filters:
+            branches:
+              only:
+                - '/.*e2e.*/' # TEMPORARY: test branch only
+
+      - approve v2 dry-run:
+          type: approval
+          requires:
+            - v2 echo
+          filters:
+            branches:
+              only:
+                - '/.*e2e.*/' # TEMPORARY: test branch only
+
+      - release-s3-v2-e2e:
+          name: v2 dry-run
+          flags: '--dry-run'
+          assume_role: true
+          context:
+            - team-hammerhead-common-deploy-tokens
+            - devex_cli_docker_hub
+          requires:
+            - approve v2 dry-run
+          filters:
+            branches:
+              only:
+                - '/.*e2e.*/' # TEMPORARY: test branch only
+
+      - approve v2 real:
+          type: approval
+          requires:
+            - v2 dry-run
+          filters:
+            branches:
+              only:
+                - '/.*e2e.*/' # TEMPORARY: test branch only
+
+      - release-s3-v2-e2e:
+          name: v2 real
+          flags: ''
+          assume_role: true
+          context:
+            - team-hammerhead-common-deploy-tokens
+            - devex_cli_docker_hub
+          requires:
+            - approve v2 real
+          filters:
+            branches:
+              only:
+                - '/.*e2e.*/' # TEMPORARY: test branch only
+
       - release-s3:
           name: upload release candidate
           deployment: rc
@@ -2243,6 +2312,37 @@ jobs:
           command: |
             (cd release-scripts && go run ./release-s3-v2 --echo --dry-run ../binary-releases/artifacts-manifest.json) \
               || echo "Shadow run failed, ignored."
+
+  release-s3-v2-e2e:
+    parameters:
+      flags:
+        type: string
+      assume_role:
+        type: boolean
+    executor: docker-amd64
+    environment:
+      AWS_REGION: us-east-1
+      PUBLIC_S3_BUCKET: snyk-assets
+    steps:
+      - prepare-workspace
+      - install-go:
+          go_os: linux
+          go_target_os: linux
+          go_arch: amd64
+          base_url: << pipeline.parameters.go_download_base_url >>
+          extraction_path: '.'
+      - when:
+          condition: << parameters.assume_role >>
+          steps:
+            - aws-cli/setup:
+                role_arn: << pipeline.parameters.snyk_assets_e2e_role_arn >>
+                region: ${AWS_REGION}
+            - run:
+                name: Confirm the assumed identity
+                command: aws sts get-caller-identity
+      - run:
+          name: release-s3-v2 << parameters.flags >>
+          command: cd release-scripts && go run ./release-s3-v2 << parameters.flags >> ../binary-releases/artifacts-manifest.json
 
   release-github:
     parameters:

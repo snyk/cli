@@ -150,7 +150,8 @@ type upload struct {
 func channelArtifacts(m *manifest.Manifest) []manifest.Artifact {
 	var artifacts []manifest.Artifact
 	for _, a := range m.ArtifactsWithTarget(manifest.TargetS3) {
-		if len(m.NonVersionedS3Folders(a)) > 0 {
+		// TEMPORARY, test branch only: publish everything the versioned upload wrote, except the tarballs.
+		if !hasTarget(a, manifest.TargetNPM) {
 			artifacts = append(artifacts, a)
 		}
 	}
@@ -162,7 +163,9 @@ func channelArtifacts(m *manifest.Manifest) []manifest.Artifact {
 func nonVersionedUploads(m *manifest.Manifest) []upload {
 	var uploads []upload
 	for _, a := range channelArtifacts(m) {
-		for _, folder := range m.NonVersionedS3Folders(a) {
+		// TEMPORARY, test branch only: overwrite the versioned folder with the identical, checked bytes.
+		versioned, _ := m.VersionedFolder(a)
+		for _, folder := range []string{versioned} {
 			uploads = append(uploads, upload{srcName: a.Name, s3Target: folder + a.Name[strings.LastIndex(a.Name, "/")+1:]})
 		}
 	}
@@ -186,4 +189,13 @@ func boolToInt(b bool) int {
 		return 1
 	}
 	return 0
+}
+
+func hasTarget(a manifest.Artifact, targetType string) bool {
+	for _, t := range a.Targets {
+		if t.Type == targetType {
+			return true
+		}
+	}
+	return false
 }
