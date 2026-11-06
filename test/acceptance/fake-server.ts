@@ -1397,7 +1397,10 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
   });
 
   app.post(
-    basePath.replace('v1', 'hidden') + `/orgs/:orgId/analytics`,
+    [
+      basePath.replace('v1', 'hidden') + `/orgs/:orgId/analytics`,
+      basePath.replace('v1', 'hidden') + `/tenants/:tenantId/analytics`,
+    ],
     (req, res) => {
       res.status(201).send({});
     },
