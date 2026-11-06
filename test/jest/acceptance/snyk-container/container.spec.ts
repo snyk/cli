@@ -11,6 +11,7 @@ import { getAvailableServerPort } from '../../util/getServerPort';
 import { describeIf, isWindowsOperatingSystem } from '../../../utils';
 
 jest.setTimeout(1000 * 300);
+jest.retryTimes(2, { logErrorsBeforeRetry: true });
 
 describe('snyk container', () => {
   const isWindows = isWindowsOperatingSystem();

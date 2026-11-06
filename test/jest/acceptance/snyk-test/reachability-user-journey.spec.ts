@@ -15,17 +15,38 @@ jest.setTimeout(USER_JOURNEY_JEST_TIMEOUT_MS);
 const TEST_REPO_URL = 'https://github.com/snyk/snyk-goof.git';
 const TEMP_LOCAL_PATH = '/tmp/snyk-goof';
 
+function cloneRepoWithRetry(
+  url: string,
+  path: string,
+  maxAttempts = 3,
+): void {
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      execSync(`git clone --depth 1 ${url} ${path}`, {
+        stdio: 'pipe',
+        timeout: 30000, // 30s timeout
+      });
+      return; // Success
+    } catch (error) {
+      if (attempt === maxAttempts) {
+        throw new Error(
+          `Failed to clone ${url} after ${maxAttempts} attempts: ${error.message}`,
+        );
+      }
+      console.log(
+        `Clone attempt ${attempt} failed, retrying... (${error.message})`,
+      );
+    }
+  }
+}
+
 beforeAll(() => {
   if (!existsSync(TEMP_LOCAL_PATH)) {
-    execSync(
-      // engine-strict=false: snyk-goof pins engines.node 6.14.1, and the CLI's
-      // .npmrc engine-strict leaks in via npm_config_* env from `npm run test:acceptance`,
-      // which would otherwise make this install fail (EBADENGINE) on modern Node.
-      `git clone ${TEST_REPO_URL} ${TEMP_LOCAL_PATH} && cd ${TEMP_LOCAL_PATH} && npm install --ignore-scripts --engine-strict=false`,
-      {
-        stdio: 'inherit',
-      },
-    );
+    cloneRepoWithRetry(TEST_REPO_URL, TEMP_LOCAL_PATH);
+    execSync(`cd ${TEMP_LOCAL_PATH} && npm install --ignore-scripts --engine-strict=false`, {
+      stdio: 'inherit',
+      timeout: 120000, // 2min timeout for npm install
+    });
   }
 });
 
