@@ -40,12 +40,14 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 pushd "$SCRIPT_DIR/.."
   NODEVERSION=$(head -1 .nvmrc)
   export NODEVERSION
+  NPMVERSION=$(head -1 .npm_version)
+  export NPMVERSION
 
   # Extract go_version from .circleci/config.yml (single source of truth)
   GOVERSION=$(grep -A3 "go_version:" .circleci/config.yml | grep "default:" | sed "s/.*default: *['\"]\\([^'\"]*\\)['\"].*/\\1/")
   export GOVERSION
 
-  echo "Building Docker image for $TARGET_ARCH with Node version: $NODEVERSION, Go version: $GOVERSION"
+  echo "Building Docker image for $TARGET_ARCH with Node version: $NODEVERSION, npm version: $NPMVERSION, Go version: $GOVERSION"
   echo "Timestamp: $TAG"
 
   # For local development, login to Docker
@@ -68,6 +70,7 @@ pushd "$SCRIPT_DIR/.."
   docker buildx build \
     ${CI:+--quiet} \
     --build-arg NODEVERSION="$NODEVERSION" \
+    --build-arg NPMVERSION="$NPMVERSION" \
     --build-arg ARCH="$DOCKER_ARCH" \
     --build-arg GOVERSION="$GOVERSION" \
     --platform linux/"$TARGET_ARCH" \
