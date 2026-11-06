@@ -105,6 +105,9 @@ type cliRun struct {
 	config       configuration.Configuration
 	logger       *zerolog.Logger
 	helpProvided bool
+	// scrubber is the writer behind logger. It is built from the default configuration, so the secrets of the
+	// configuration of the run are added to it, see scrubConfigurationSecrets.
+	scrubber logging.ScrubbingLogWriter
 
 	// interactionId identifies this run. It is sent as a URN, see instrumentation.AssembleUrnFromUUID.
 	interactionId string
@@ -577,6 +580,10 @@ func handleRetryNotification(engine workflow.Engine, logger *zerolog.Logger, err
 // tearDown handles sending analytics and instrumentation
 // It is used both for normal exit and signal-triggered exit
 func (r *cliRun) tearDown(ctx context.Context, err error, errorList []error, startTime time.Time, ua networking.UserAgentInfo, cliAnalytics analytics.Analytics) int {
+	// The command may have stored tokens in the configuration, for example by refreshing them. Scrub them from the
+	// teardown and the footer. This also runs for the teardown of the timeout.
+	r.scrubConfigurationSecrets()
+
 	// Create a context with timeout for teardown operations to ensure we don't hang indefinitely
 	teardownCtx, cancel := context.WithTimeout(ctx, teardownTimeout)
 	defer cancel()
@@ -699,6 +706,7 @@ func execute(additionalExts []workflow.ExtensionInit) (*cliRun, int) {
 
 	var scrubbedLogger logging.ScrubbingLogWriter
 	r.logger, scrubbedLogger = initDebugLogger(r.config)
+	r.scrubber = scrubbedLogger
 	r.engine = app.CreateAppEngineWithOptions(app.WithZeroLogger(r.logger), app.WithConfiguration(r.config), app.WithRuntimeInfo(rInfo))
 
 	r.config.AddDefaultValue(configuration.FF_OAUTH_AUTH_FLOW_ENABLED, defaultOAuthFF(r.config))
@@ -752,6 +760,10 @@ func execute(additionalExts []workflow.ExtensionInit) (*cliRun, int) {
 		r.selectProfile()
 		applyStartupValues(r.config)
 	}
+
+	// The writer knows the secrets of the default configuration. Add those of the configuration of the run, which is the
+	// one of the profile when one is selected, before anything else is logged.
+	r.scrubConfigurationSecrets()
 
 	// We want to scrub the debug log of sensitive information. Since we have a list of commands we know can occur, we can intersect that with arguments we don't recognize, and automatically scrub all those from the logs.
 	if debugEnabled {
@@ -826,6 +838,15 @@ func execute(additionalExts []workflow.ExtensionInit) (*cliRun, int) {
 	})
 
 	return r, finalExitCode
+}
+
+// scrubConfigurationSecrets adds the secrets the configuration of the run holds to the scrubbing log writer.
+// Secrets that are already known are not an issue.
+func (r *cliRun) scrubConfigurationSecrets() {
+	if r.scrubber == nil {
+		return
+	}
+	logging.AddSecretsFromConfig(r.scrubber, r.config)
 }
 
 // populateRedactionTerms computes likely-secret literal values (unrecognized CLI
