@@ -259,7 +259,8 @@ func TestGetLSProtocolVersionFromModuleVersionReadsGoreleaserFromModuleSource(t 
 		proxyPath = "/" + proxyPath // Windows drive paths need file:///C:/...
 	}
 	t.Setenv("GOPROXY", "file://"+proxyPath)
-	t.Setenv("GOPRIVATE", "")
+	// Not empty: an empty value falls back to the go env file, where github.com/snyk bypasses GOPROXY.
+	t.Setenv("GOPRIVATE", "example.com/fake-filler")
 	t.Setenv("GONOSUMDB", "")
 	t.Setenv("GOSUMDB", "off")
 	t.Setenv("GOFLAGS", "-modcacherw")
