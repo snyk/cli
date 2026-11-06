@@ -386,13 +386,25 @@ This is useful when you have multiple projects with the same name in other `.sln
 
 ## Options for .NET projects
 
+### `--dotnet-runtime-resolution`
+
+Optional. For SDK-style Projects (.NET Core, .NET Standard, and .NET 6 and later), Snyk uses runtime resolution by default when the .NET SDK (`dotnet`) is on your PATH, so you do not need to add this option. Runtime resolution uses the .NET SDK to resolve the dependency graph for each target framework. If `dotnet` is not found, Snyk shows a warning and scans `project.assets.json` instead.
+
+To turn off runtime resolution, use `--dotnet-runtime-resolution=false`. Snyk then reads `project.assets.json`, the restore output in your `obj` folder, so run `dotnet restore` first.
+
+If you set `--dotnet-runtime-resolution` explicitly, the scan fails when `dotnet` is not on your PATH, and for Projects that runtime resolution does not support, such as `packages.config` Projects.
+
+Example: `snyk test --dotnet-runtime-resolution=false`
+
 ### `--dotnet-target-framework`
 
 Optional. You may use this option if your solution contains multiple `<TargetFramework>` directives. If you do not specify the option `--dotnet-target-framework`, all supported Target Frameworks will be scanned.
 
 The Target Framework specified with this option should be defined following the standard [naming convention](https://learn.microsoft.com/en-us/dotnet/standard/frameworks#supported-target-frameworks)
 
-Example: `snyk test --dotnet-runtime-resolution --dotnet-target-framework=net6.0`
+This option requires runtime resolution. The scan fails if you also use `--dotnet-runtime-resolution=false`.
+
+Example: `snyk test --dotnet-target-framework=net6.0`
 
 ## Options for npm projects
 
