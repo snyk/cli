@@ -407,4 +407,112 @@ describe('getSinglePluginResult', () => {
       expect(result).toBe(mockInspectResult);
     });
   });
+
+  describe('plugin proxy environment', () => {
+    const proxyVars = [
+      'HTTP_PROXY',
+      'HTTPS_PROXY',
+      'http_proxy',
+      'https_proxy',
+    ];
+    const proxy = 'http://snyk:secret@127.0.0.1:1234';
+    const options: Options & TestOptions = {
+      path: '/test',
+      packageManager: 'sbt',
+      showVulnPaths: 'some',
+    };
+    let originalEnv: NodeJS.ProcessEnv;
+
+    beforeEach(() => {
+      originalEnv = process.env;
+      process.env = { ...originalEnv };
+      delete process.env.SNYK_SYSTEM_HTTP_PROXY;
+      delete process.env.SNYK_SYSTEM_HTTPS_PROXY;
+      for (const key of proxyVars) process.env[key] = proxy;
+    });
+
+    afterEach(() => {
+      process.env = originalEnv;
+    });
+
+    it.each([
+      ['standalone', undefined, undefined],
+      ['direct connection', '', ''],
+      ['system proxies', 'http://corp:8080', 'http://corp:8443'],
+    ])(
+      'uses %s during inspect and restores the environment',
+      async (_, http, https) => {
+        if (http !== undefined) process.env.SNYK_SYSTEM_HTTP_PROXY = http;
+        if (https !== undefined) process.env.SNYK_SYSTEM_HTTPS_PROXY = https;
+        mockModuleInfo.inspect.mockImplementation(async () => {
+          for (const key of proxyVars) {
+            const systemProxy =
+              key.toUpperCase() === 'HTTP_PROXY' ? http : https;
+            expect(process.env[key]).toBe(
+              systemProxy === undefined ? proxy : systemProxy || undefined,
+            );
+          }
+          return mockInspectResult;
+        });
+
+        expect(await getSinglePluginResult('/test', options)).toBe(
+          mockInspectResult,
+        );
+        for (const key of proxyVars) expect(process.env[key]).toBe(proxy);
+      },
+    );
+
+    it.each(['', 'http://corp:8080'])(
+      'restores Windows proxy aliases with system proxy %p',
+      async (systemProxy) => {
+        process.env.SNYK_SYSTEM_HTTP_PROXY = systemProxy;
+        process.env.SNYK_SYSTEM_HTTPS_PROXY = systemProxy;
+        process.env = new Proxy(process.env, {
+          get: (env, key) => env[String(key).toUpperCase()],
+          set: (env, key, value) => {
+            env[String(key).toUpperCase()] = value;
+            return true;
+          },
+          deleteProperty: (env, key) => delete env[String(key).toUpperCase()],
+        });
+        mockModuleInfo.inspect.mockImplementation(async () => {
+          expect(process.env.HTTP_PROXY).toBe(systemProxy || undefined);
+          expect(process.env.https_proxy).toBe(systemProxy || undefined);
+          return mockInspectResult;
+        });
+
+        await getSinglePluginResult('/test', options);
+
+        for (const key of proxyVars) expect(process.env[key]).toBe(proxy);
+      },
+    );
+
+    it.each(['maven', 'gradle'] as const)(
+      'preserves the CLI proxy for %s plugin API requests',
+      async (packageManager) => {
+        process.env.SNYK_SYSTEM_HTTP_PROXY = '';
+        process.env.SNYK_SYSTEM_HTTPS_PROXY = '';
+        mockModuleInfo.inspect.mockImplementation(async (...args) => {
+          expect(args[3]).toBe(snykHttpClient);
+          for (const key of proxyVars) expect(process.env[key]).toBe(proxy);
+          return mockInspectResult;
+        });
+
+        await getSinglePluginResult('/test', { ...options, packageManager });
+      },
+    );
+
+    it('restores set and unset variables when inspect rejects', async () => {
+      process.env.SNYK_SYSTEM_HTTP_PROXY = '';
+      process.env.SNYK_SYSTEM_HTTPS_PROXY = 'http://corp:8443';
+      delete process.env.https_proxy;
+      mockModuleInfo.inspect.mockRejectedValue(new Error('Inspect failed'));
+
+      await expect(getSinglePluginResult('/test', options)).rejects.toThrow(
+        'Inspect failed',
+      );
+      expect(process.env.HTTP_PROXY).toBe(proxy);
+      expect(process.env.https_proxy).toBeUndefined();
+    });
+  });
 });

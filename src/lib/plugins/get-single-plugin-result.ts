@@ -23,7 +23,22 @@ export async function getSinglePluginResult(
   // Build final options with any ecosystem-specific configurations/flags injected
   const pluginOptions = await buildPluginOptions(options, featureFlags);
 
-  const inspectRes: pluginApi.InspectResult = await moduleInfo.inspect(
+  // sbt must use the system proxy; other plugins may call Snyk APIs during inspect.
+  // shortcut: process.env is shared; pass env to subprocesses if callers become concurrent.
+  const proxyKeys =
+    options.packageManager === 'sbt'
+      ? ['HTTP_PROXY', 'HTTPS_PROXY', 'http_proxy', 'https_proxy']
+      : [];
+  const saved: NodeJS.ProcessEnv = Object.fromEntries(
+    proxyKeys.map((key) => [key, process.env[key]]),
+  );
+  for (const key of proxyKeys) {
+    const systemProxy = process.env[`SNYK_SYSTEM_${key.toUpperCase()}`];
+    if (systemProxy === undefined) continue;
+    if (systemProxy) process.env[key] = systemProxy;
+    else delete process.env[key];
+  }
+  const inspectPromise = moduleInfo.inspect(
     root,
     targetFile || options.file,
     {
@@ -60,5 +75,12 @@ export async function getSinglePluginResult(
     },
     snykHttpClient,
   );
-  return inspectRes;
+  try {
+    return await inspectPromise;
+  } finally {
+    for (const [key, value] of Object.entries(saved)) {
+      if (value === undefined) delete process.env[key];
+      else process.env[key] = value;
+    }
+  }
 }
