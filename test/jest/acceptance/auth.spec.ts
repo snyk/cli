@@ -1,6 +1,7 @@
 import { generateKeyPairSync } from 'crypto';
 import { fakeServer, getFirstIPv4Address } from '../../acceptance/fake-server';
 import { runSnykCLI, runSnykCLIWithArray } from '../util/runSnykCLI';
+import { startSnykCLI } from '../util/startSnykCLI';
 import { getCliConfig, restoreCliConfig } from '../../acceptance/config-helper';
 import { ciEnvs } from '../../../src/lib/is-ci';
 import { getServerPort } from '../util/getServerPort';
@@ -15,6 +16,36 @@ describe('Auth', () => {
   let fakeServerUrl: string;
   let fakeServerHost: string;
   const serverToken = 'fake-server-api-token';
+
+  const tokenRequests = () =>
+    server.getRequests().filter((req) => req.url.endsWith('/oauth2/token'));
+  const verifyRequests = () =>
+    server.getRequests().filter((req) => req.url.includes('/verify/'));
+
+  const basicCredentials = (clientId: string, secret: string) =>
+    Buffer.from(`${clientId}:${secret}`).toString('base64');
+
+  const pipeIntoAuth = async (args: string, input: string) => {
+    const cli = await startSnykCLI(`auth ${args}`, { env });
+    cli.process.stdin.end(input);
+    return cli;
+  };
+
+  // ignore runs in the legacy TS CLI, so it shows which credential the host hands over.
+  const ignoreInEmptyProject = async () => {
+    const project = await createProject('empty');
+    const requestsBefore = server.getRequests().length;
+    const { code } = await runSnykCLI('ignore --id=das', {
+      env,
+      cwd: project.path(),
+    });
+    await project.remove();
+    const authorizationRequest = server
+      .getRequests()
+      .slice(requestsBefore)
+      .find((req) => req.url.includes('/authorization/'));
+    return { code, authorization: authorizationRequest?.headers.authorization };
+  };
 
   beforeAll((done) => {
     const apiPath = '/api/v1';
@@ -250,6 +281,18 @@ describe('Auth', () => {
       );
       expect(code).toEqual(2);
     });
+
+    it('takes the client secret as the auth argument and authenticates later commands', async () => {
+      const { code } = await runSnykCLI('auth --client-id=a b', { env });
+      expect(code).toEqual(0);
+      expect(tokenRequests()[0]?.headers.authorization).toEqual(
+        `Basic ${basicCredentials('a', 'b')}`,
+      );
+      expect(await ignoreInEmptyProject()).toEqual({
+        code: 0,
+        authorization: 'Bearer access_token_value',
+      });
+    });
   });
 
   // Tests for existing token is invalid (for when config value is set incorrectly)  config set api=invalid
@@ -329,6 +372,50 @@ describe('Auth', () => {
       });
       expect(configCmd.code).toEqual(0);
       expect(configCmd.stdout).toContain(pat);
+    });
+  });
+
+  describe('secret piped with --stdin', () => {
+    it('logs in with a shared secret and drops its trailing newline', async () => {
+      const cli = await pipeIntoAuth('--client-id=a --stdin', 'b\n');
+      await expect(cli).toExitWith(0);
+      expect(tokenRequests()[0]?.headers.authorization).toEqual(
+        `Basic ${basicCredentials('a', 'b')}`,
+      );
+      expect(await ignoreInEmptyProject()).toEqual({
+        code: 0,
+        authorization: 'Bearer access_token_value',
+      });
+    });
+
+    it('fails without an auth request when stdin is empty', async () => {
+      const cli = await pipeIntoAuth('--client-id=a --stdin', '');
+      await expect(cli).toExitWith(2);
+      await expect(cli).toDisplay('stdin was empty');
+      expect(tokenRequests().length).toEqual(0);
+      expect(verifyRequests().length).toEqual(0);
+    });
+
+    it('keeps a piped private key out of the debug output', async () => {
+      const { privateKey } = generateKeyPairSync('rsa', {
+        modulusLength: 2048,
+        privateKeyEncoding: { type: 'pkcs8', format: 'pem' },
+        publicKeyEncoding: { type: 'spki', format: 'pem' },
+      });
+
+      const cli = await pipeIntoAuth(
+        '--client-id=machine-client-id --stdin -d',
+        `${privateKey}\n`,
+      );
+      await expect(cli).toExitWith(0);
+      expect(tokenRequests()[0]?.body.client_assertion_type).toEqual(
+        'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
+      );
+      const output = cli.stdout.get() + cli.stderr.get();
+      privateKey
+        .split('\n')
+        .filter((line) => line && !line.startsWith('-----'))
+        .forEach((part) => expect(output).not.toContain(part));
     });
   });
 });

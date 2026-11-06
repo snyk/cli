@@ -12,6 +12,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"sort"
+	"strings"
 	"testing"
 	"time"
 
@@ -843,4 +844,10 @@ func Test_GetErrorFromFile(t *testing.T) {
 		assert.Equal(t, snykErr.ErrorCode, jsonAPIError.ErrorCode)
 		assert.Nil(t, err)
 	})
+}
+
+func Test_CommandVersion(t *testing.T) {
+	var out strings.Builder
+	require.NoError(t, cliv2.CommandVersion([]string{"--version"}, &out))
+	assert.Equal(t, cliv2.GetFullVersion()+"\n", out.String())
 }

@@ -104,6 +104,14 @@ $(BINARY_OUTPUT_FOLDER)/sha256sums.txt.asc:
 $(BINARY_OUTPUT_FOLDER)/release.json:
 	./release-scripts/release.json.sh
 
+# Run it last: it fails if a declared file is missing or a built file is not declared.
+$(BINARY_OUTPUT_FOLDER)/artifacts-manifest.json:
+	cd release-scripts && go run ./artifacts-manifest \
+		--version "$$(cat ../$(BINARY_OUTPUT_FOLDER)/version)" \
+		--commit "$${CIRCLE_SHA1:-$$(git rev-parse HEAD)}" \
+		--channel "$$(./determine-release-channel.sh)" \
+		../$(BINARY_OUTPUT_FOLDER)
+
 # This target must not have any dependency to support checked in Release Notes that don't get overridden.
 $(BINARY_OUTPUT_FOLDER)/RELEASE_NOTES.md:
 	npx conventional-changelog-cli -l -r 1 --skip-unstable -n ./release-scripts/conventional-changelog-cli-config.js > $(BINARY_OUTPUT_FOLDER)/RELEASE_NOTES.md

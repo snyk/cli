@@ -257,15 +257,19 @@ func (c *CLI) GetTempDir() string {
 	return c.globalConfig.GetString(configuration.TEMP_DIR_PATH)
 }
 
-func (c *CLI) printVersion() {
-	_, _ = fmt.Fprintln(c.stdout, GetFullVersion())
+func printVersion(stdout io.Writer) {
+	_, _ = fmt.Fprintln(stdout, GetFullVersion())
 }
 
 func (c *CLI) commandVersion(passthroughArgs []string) error {
+	return CommandVersion(passthroughArgs, c.stdout)
+}
+
+func CommandVersion(passthroughArgs []string, stdout io.Writer) error {
 	if utils.Contains(passthroughArgs, "--json-file-output") {
 		return fmt.Errorf("The following option combination is not currently supported: version + json-file-output") //nolint:staticcheck // user-facing error message
 	} else {
-		c.printVersion()
+		printVersion(stdout)
 		return nil
 	}
 }
