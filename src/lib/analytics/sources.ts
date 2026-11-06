@@ -50,6 +50,7 @@ enum TrackedIntegration {
 
   // Partner integrations - tracked by passing envvar on CLI invocation
   DOCKER_DESKTOP = 'DOCKER_DESKTOP',
+  LOVABLE_CONNECTOR = 'LOVABLE_CONNECTOR',
 
   // DevRel integrations and plugins
   // Netlify plugin: https://github.com/snyk-labs/netlify-plugin-snyk
