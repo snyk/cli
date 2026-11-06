@@ -63,7 +63,7 @@
   "dependencies": {
     "@open-policy-agent/opa-wasm": "^1.6.0",
     "@sentry/node": "^7.120.4",
-    "@snyk/cli-interface": "2.15.0",
+    "@snyk/cli-interface": "2.16.0",
     "@snyk/cloud-config-parser": "^1.14.5",
     "@snyk/code-client": "^4.26.2",
     "@snyk/dep-graph": "^2.16.3",

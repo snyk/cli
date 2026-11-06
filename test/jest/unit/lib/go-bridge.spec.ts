@@ -179,6 +179,79 @@ describe('go-bridge', () => {
       jest.restoreAllMocks();
     });
 
+    it('keeps the SNYK_* variables the Go CLI needs in the child environment', async () => {
+      process.env.SNYK_INTERNAL_CLI_EXECUTABLE_PATH = '/usr/local/bin/snyk';
+      process.env.SNYK_TOKEN = 'real-api-token-value';
+      process.env.SNYK_API = 'https://api.snyk.io';
+      process.env.SNYK_CFG_ORG = 'my-org';
+      process.env.SNYK_OAUTH_TOKEN = 'oauth-token';
+
+      const mockProc = createMockProcess();
+      const spawnSpy = jest
+        .spyOn(childProcess, 'spawn')
+        .mockReturnValue(mockProc);
+
+      const promise = execGoCommand(['depgraph']);
+
+      mockProc.emit('close', 0);
+      await promise;
+
+      const spawnEnv = spawnSpy.mock.calls[0][2]?.env as NodeJS.ProcessEnv;
+      expect(spawnEnv).toMatchObject({
+        SNYK_TOKEN: 'real-api-token-value',
+        SNYK_API: 'https://api.snyk.io',
+        SNYK_CFG_ORG: 'my-org',
+        SNYK_OAUTH_TOKEN: 'oauth-token',
+      });
+
+      jest.restoreAllMocks();
+    });
+
+    it('restores the user proxy and OpenSSL settings from SNYK_SYSTEM_* for the Go CLI', async () => {
+      process.env.SNYK_INTERNAL_CLI_EXECUTABLE_PATH = '/usr/local/bin/snyk';
+      process.env.HTTP_PROXY = 'http://go-proxy:9000';
+      process.env.OPENSSL_CONF = '/go/openssl.cnf';
+      process.env.SNYK_SYSTEM_HTTP_PROXY = 'http://user-proxy:8080';
+      process.env.SNYK_SYSTEM_OPENSSL_CONF = '/user/openssl.cnf';
+
+      const mockProc = createMockProcess();
+      const spawnSpy = jest
+        .spyOn(childProcess, 'spawn')
+        .mockReturnValue(mockProc);
+
+      const promise = execGoCommand(['depgraph']);
+
+      mockProc.emit('close', 0);
+      await promise;
+
+      const spawnEnv = spawnSpy.mock.calls[0][2]?.env as NodeJS.ProcessEnv;
+      expect(spawnEnv.HTTP_PROXY).toBe('http://user-proxy:8080');
+      expect(spawnEnv.OPENSSL_CONF).toBe('/user/openssl.cnf');
+
+      jest.restoreAllMocks();
+    });
+
+    it('removes HTTP_PROXY for the Go CLI when SNYK_SYSTEM_HTTP_PROXY is empty', async () => {
+      process.env.SNYK_INTERNAL_CLI_EXECUTABLE_PATH = '/usr/local/bin/snyk';
+      process.env.HTTP_PROXY = 'http://go-proxy:9000';
+      process.env.SNYK_SYSTEM_HTTP_PROXY = '';
+
+      const mockProc = createMockProcess();
+      const spawnSpy = jest
+        .spyOn(childProcess, 'spawn')
+        .mockReturnValue(mockProc);
+
+      const promise = execGoCommand(['depgraph']);
+
+      mockProc.emit('close', 0);
+      await promise;
+
+      const spawnEnv = spawnSpy.mock.calls[0][2]?.env as NodeJS.ProcessEnv;
+      expect(spawnEnv).not.toHaveProperty('HTTP_PROXY');
+
+      jest.restoreAllMocks();
+    });
+
     it('succeeds when SNYK_TOKEN is not present in the environment', async () => {
       process.env.SNYK_INTERNAL_CLI_EXECUTABLE_PATH = '/usr/local/bin/snyk';
       delete process.env.SNYK_TOKEN;
