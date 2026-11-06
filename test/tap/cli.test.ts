@@ -8,7 +8,7 @@ import { makeTmpDirectory, silenceLog } from '../utils';
 import * as sinon from 'sinon';
 import * as proxyquire from 'proxyquire';
 import * as policy from 'snyk-policy';
-import stripAnsi = require('strip-ansi');
+import * as stripAnsi from 'strip-ansi';
 import * as os from 'os';
 import * as isDocker from '../../src/lib/is-docker';
 import { fakeServer } from '../acceptance/fake-server';
@@ -44,10 +44,20 @@ sinon.stub(util, 'promisify').returns(() => {});
 // configure our fake configuration too
 import * as cli from '../../src/cli/commands';
 import { PolicyNotFoundError } from '../../src/lib/errors';
+import * as errors from '../../src/lib/errors/legacy-errors';
 import { chdirWorkspaces } from '../acceptance/workspace-helper';
 
 const before = test;
 const after = test;
+
+// open is ESM-only, so the stub must expose a default export.
+const stubOpen = () => {
+  const open = sinon.stub().resolves();
+  const auth = proxyquire('../../src/cli/commands/auth', {
+    open: { default: open, '@noCallThru': true },
+  });
+  return { open, auth };
+};
 
 before('setup', async (t) => {
   const key = await cli.config('get', 'api');
@@ -94,8 +104,6 @@ test('auth via key', async (t) => {
 });
 
 test('auth via invalid key', async (t) => {
-  const errors = require('../../src/lib/errors/legacy-errors');
-
   try {
     const res = await cli.auth('_____________');
     t.fail('auth should not succeed: ' + res);
@@ -111,8 +119,7 @@ test('auth via invalid key', async (t) => {
 
 test('auth with no args', async (t) => {
   // stub open so browser window doesn't actually open
-  const open = sinon.stub();
-  const auth = proxyquire('../../src/cli/commands/auth', { open });
+  const { open, auth } = stubOpen();
   // stub CI check (ensure returns false for system test)
   const ciStub = sinon.stub(ciChecker, 'isCI').returns(false);
   // ensure this works on circleCI as when running outside of a container
@@ -144,8 +151,7 @@ test('auth with no args', async (t) => {
 
 test('auth with UTMs in environment variables', async (t) => {
   // stub open so browser window doesn't actually open
-  const open = sinon.stub();
-  const auth = proxyquire('../../src/cli/commands/auth', { open });
+  const { open, auth } = stubOpen();
   // stub CI check (ensure returns false for system test)
   const ciStub = sinon.stub(ciChecker, 'isCI').returns(false);
   // ensure this works on circleCI as when running outside of a container
@@ -192,8 +198,7 @@ test('auth with UTMs in environment variables', async (t) => {
 
 test('auth with default UTMs', async (t) => {
   // stub open so browser window doesn't actually open
-  const open = sinon.stub();
-  const auth = proxyquire('../../src/cli/commands/auth', { open });
+  const { open, auth } = stubOpen();
   // stub CI check (ensure returns false for system test)
   const ciStub = sinon.stub(ciChecker, 'isCI').returns(false);
   const osStub = sinon.stub(os, 'type').returns('Darwin');
@@ -279,7 +284,6 @@ test('snyk ignore - no ID', async (t) => {
     });
     t.fail('should not succeed with missing ID');
   } catch (e) {
-    const errors = require('../../src/lib/errors/legacy-errors');
     const message = stripAnsi(errors.message(e));
     t.equal(
       message.toLowerCase().indexOf('id is a required field'),
