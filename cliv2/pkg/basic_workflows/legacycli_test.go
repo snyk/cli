@@ -181,7 +181,7 @@ func Test_ValidateGlibcVersion_validation(t *testing.T) {
 		testCases := []glibcTest{
 			{
 				name:                "version too old on amd64",
-				version:             "2.27", // below minimum of 2.28
+				version:             "2.33", // below minimum of 2.34
 				os:                  "linux",
 				arch:                "amd64",
 				expectedSnykErrCode: "SNYK-0010",
@@ -189,7 +189,7 @@ func Test_ValidateGlibcVersion_validation(t *testing.T) {
 			},
 			{
 				name:                "version too old on arm64",
-				version:             "2.30", // below minimum of 2.31
+				version:             "2.33", // below minimum of 2.34
 				os:                  "linux",
 				arch:                "arm64",
 				expectedSnykErrCode: "SNYK-0010",
