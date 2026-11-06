@@ -1,6 +1,7 @@
 import debugModule = require('debug');
 const debug = debugModule('snyk');
 import { exec } from 'child_process';
+import { cleanSnykEnv } from '@snyk/cli-interface';
 
 export default function npm(
   method: string,
@@ -42,6 +43,7 @@ export default function npm(
       cmd,
       {
         cwd,
+        env: cleanSnykEnv({ ...process.env }),
       },
       (error, stdout, stderr) => {
         if (error) {
@@ -69,6 +71,7 @@ export function getVersion() {
       'npm --version',
       {
         cwd: process.cwd(),
+        env: cleanSnykEnv({ ...process.env }),
       },
       (error, stdout) => {
         if (error) {

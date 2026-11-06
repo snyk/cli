@@ -9,6 +9,7 @@
 */
 
 import { exec } from 'child_process';
+import { cleanSnykEnv } from '@snyk/cli-interface';
 import * as createDebug from 'debug';
 import * as fs from 'fs';
 import { join } from 'path';
@@ -158,12 +159,16 @@ export function validateHomebrew(snykExecutablePath: string): boolean {
 
 function runCommand(cmd: string): Promise<string> {
   return new Promise((resolve) => {
-    exec(cmd, (error, stdout, stderr) => {
-      if (error) {
-        debug("Error trying to get program's version", error);
-      }
-      return resolve(stdout ? stdout : stderr);
-    });
+    exec(
+      cmd,
+      { env: cleanSnykEnv({ ...process.env }) },
+      (error, stdout, stderr) => {
+        if (error) {
+          debug("Error trying to get program's version", error);
+        }
+        return resolve(stdout ? stdout : stderr);
+      },
+    );
   });
 }
 
