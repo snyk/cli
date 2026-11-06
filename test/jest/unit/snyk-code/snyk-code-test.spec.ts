@@ -23,6 +23,7 @@ import { jsonStringifyLargeObject } from '../../../../src/lib/json';
 import { ArgsOptions } from '../../../../src/cli/args';
 import * as codeConfig from '../../../../src/lib/code-config';
 import { NeedleResponse } from 'needle';
+import { storeSnykToken } from '../../../../src/lib/go-bridge';
 
 const { getCodeTestResults } = analysis;
 
@@ -71,6 +72,7 @@ describe('Test snyk code', () => {
 
   afterEach(() => {
     delete process.env.SNYK_OAUTH_TOKEN;
+    storeSnykToken();
     jest.resetAllMocks();
   });
 
@@ -96,6 +98,8 @@ describe('Test snyk code', () => {
   it('should use oauth token for auth if provided', async () => {
     const oauthToken = 'oauth-token';
     process.env.SNYK_OAUTH_TOKEN = oauthToken;
+    storeSnykToken();
+    expect(process.env.SNYK_OAUTH_TOKEN).toBeUndefined();
 
     const sastSettings = {
       sastEnabled: true,
