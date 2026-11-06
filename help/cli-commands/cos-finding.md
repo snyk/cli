@@ -1,14 +1,8 @@
 ---
-description: The snyk cos finding commands for listing and inspecting findings.
+description: Use the snyk cos finding commands to list and inspect findings.
 ---
 
 # COS finding
-
-{% hint style="info" %}
-**Release status**
-
-The `snyk cos` command set is in Closed Beta and is available only for Enterprise plans. If you want to set it up in your Group or Organization, contact your Snyk account team.
-{% endhint %}
 
 ## Usage
 
@@ -16,9 +10,9 @@ The `snyk cos` command set is in Closed Beta and is available only for Enterpris
 
 ## Description
 
-The `snyk cos finding` command lists and inspects the findings discovered during scans.
+The `snyk cos finding` command lists and inspects findings from scans.
 
-For a list of related commands see the [snyk cos](cos.md) help, `snyk cos --help`.
+For a list of related commands, visit the [Snyk COS](cos.md) help, `snyk cos --help`.
 
 ## Commands
 
@@ -27,7 +21,7 @@ For a list of related commands see the [snyk cos](cos.md) help, `snyk cos --help
 
 ## Configure the Snyk CLI
 
-You can use environment variables to configure the Snyk CLI and set variables for connecting with the Snyk API. For more information see [Configure the Snyk CLI](https://docs.snyk.io/snyk-cli/configure-the-snyk-cli).
+You can use environment variables to configure the Snyk CLI and set variables to connect to the Snyk API. For more information, visit [Configure the Snyk CLI](https://docs.snyk.io/snyk-cli/configure-the-snyk-cli).
 
 ## Debug
 
