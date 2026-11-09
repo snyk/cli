@@ -9,7 +9,7 @@ require (
 	github.com/snyk/cli-extension-supply-chain v0.0.0-20261103195759-cee881cdc9da
 	github.com/snyk/cli/cliv2 v0.0.0
 	github.com/snyk/remy-cli-extension v1.53.2
-	github.com/snyk/rift-cli-extension v1.4.2
+	github.com/snyk/rift-cli-extension v1.4.8
 )
 
 require (
