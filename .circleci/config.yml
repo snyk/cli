@@ -1342,7 +1342,7 @@ workflows:
                 - main
                 - '/release.*/'
 
-      - release-s3:
+      - release-s3-v2:
           name: upload preview
           deployment: preview
           context:
@@ -1354,10 +1354,8 @@ workflows:
             branches:
               only:
                 - main
-                - '/release\/.*/'
-                - release-candidate
 
-      - release-s3-v2:
+      - release-s3-v2-shadow:
           context:
             - devex_cli_docker_hub
           requires:
@@ -1365,7 +1363,6 @@ workflows:
           filters:
             branches:
               only:
-                - main
                 - '/release\/.*/'
                 - release-candidate
 
@@ -1436,7 +1433,6 @@ workflows:
             branches:
               only:
                 - main
-                - '/release.*/'
 
       - release-npm:
           name: upload npm (rc)
@@ -2228,6 +2224,36 @@ jobs:
       - failed-release-notification
 
   release-s3-v2:
+    parameters:
+      deployment:
+        type: string
+    executor: docker-amd64
+    environment:
+      AWS_REGION: us-east-1
+      PUBLIC_S3_BUCKET: snyk-assets
+    steps:
+      - prepare-workspace
+      - shall-deploy:
+          deployment: << parameters.deployment >>
+      - install-go:
+          go_os: linux
+          go_target_os: linux
+          go_arch: amd64
+          base_url: << pipeline.parameters.go_download_base_url >>
+          extraction_path: '.'
+      # Exchanges the CircleCI OIDC token for temporary STS credentials
+      - aws-cli/setup:
+          role_arn: << pipeline.parameters.snyk_assets_role_arn >>
+          region: ${AWS_REGION}
+      - run:
+          name: Confirm the assumed identity
+          command: aws sts get-caller-identity
+      - run:
+          name: Publish to S3 ( << parameters.deployment >> )
+          command: cd release-scripts && go run ./release-s3-v2 ../binary-releases/artifacts-manifest.json
+      - failed-release-notification
+
+  release-s3-v2-shadow:
     executor: docker-amd64
     steps:
       - prepare-workspace
