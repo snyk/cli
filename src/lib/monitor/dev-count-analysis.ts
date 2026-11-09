@@ -7,6 +7,7 @@
  * output) and can be disabled by config (see https://snyk.io/policies/tracking-and-analytics/).
  */
 import { exec } from 'child_process';
+import { cleanSnykEnv } from '@snyk/cli-interface';
 import { Contributor } from '../types';
 
 export const SERIOUS_DELIMITER = '_SNYK_SEPARATOR_';
@@ -164,6 +165,7 @@ export function execShell(
 ): Promise<string> {
   const options = {
     cwd: workingDirectory,
+    env: cleanSnykEnv(process.env, process.env),
   };
 
   return new Promise((resolve, reject) => {
