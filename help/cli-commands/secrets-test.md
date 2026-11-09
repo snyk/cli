@@ -2,6 +2,8 @@
 description: >-
   The snyk secrets test command, which scans for hard-coded secrets and
   credentials
+last_reviewed: 2026-09-29
+last_reviewed_source: focused-edit
 ---
 
 # Secrets test

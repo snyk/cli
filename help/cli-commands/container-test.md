@@ -1,5 +1,7 @@
 ---
 description: The snyk container test command that tests a container image for vulnerabilities
+last_reviewed: 2026-05-21
+last_reviewed_source: focused-edit
 ---
 
 # Container test
@@ -17,7 +19,7 @@ The `snyk container test` command tests container images for any known vulnerabi
 Possible exit codes and their meaning:
 
 **0**: success (scan completed), no vulnerabilities found\
-**1**: action_needed (scan completed), vulnerabilities found\
+**1**: action\_needed (scan completed), vulnerabilities found\
 **2**: failure, try to re-run command. Use `-d` to output the debug logs.\
 **3**: failure, no supported projects detected
 

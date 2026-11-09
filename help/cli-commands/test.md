@@ -1,5 +1,7 @@
 ---
 description: The snyk test command that tests a Project for vulnerabilities
+last_reviewed: 2026-09-29
+last_reviewed_source: focused-edit
 ---
 
 # Test
@@ -19,7 +21,7 @@ The `snyk test` command checks projects for open-source vulnerabilities and lice
 Possible exit codes and their meaning:
 
 **0**: success (scan completed), no vulnerabilities found\
-**1**: action_needed (scan completed), vulnerabilities found\
+**1**: action\_needed (scan completed), vulnerabilities found\
 **2**: failure, try to re-run the command. Use `-d` to output the debug logs.\
 **3**: failure, no supported projects detected
 
@@ -214,7 +216,7 @@ Return results in SARIF format.
 
 ### `--sarif-file-output=<OUTPUT_FILE_PATH>`
 
-Save test output in SARIF format directly to the \<OUTPUT_FILE_PATH> file, regardless of whether or not you use the `--sarif` option.
+Save test output in SARIF format directly to the \<OUTPUT\_FILE\_PATH> file, regardless of whether or not you use the `--sarif` option.
 
 This is especially useful if you want to display the human-readable test output using stdout and at the same time save the SARIF format output to a file.
 
@@ -386,25 +388,13 @@ This is useful when you have multiple projects with the same name in other `.sln
 
 ## Options for .NET projects
 
-### `--dotnet-runtime-resolution`
-
-Optional. For SDK-style Projects (.NET Core, .NET Standard, and .NET 6 and later), Snyk uses runtime resolution by default when the .NET SDK (`dotnet`) is on your PATH, so you do not need to add this option. Runtime resolution uses the .NET SDK to resolve the dependency graph for each target framework. If `dotnet` is not found, Snyk shows a warning and scans `project.assets.json` instead.
-
-To turn off runtime resolution, use `--dotnet-runtime-resolution=false`. Snyk then reads `project.assets.json`, the restore output in your `obj` folder, so run `dotnet restore` first.
-
-If you set `--dotnet-runtime-resolution` explicitly, the scan fails when `dotnet` is not on your PATH, and for Projects that runtime resolution does not support, such as `packages.config` Projects.
-
-Example: `snyk test --dotnet-runtime-resolution=false`
-
 ### `--dotnet-target-framework`
 
 Optional. You may use this option if your solution contains multiple `<TargetFramework>` directives. If you do not specify the option `--dotnet-target-framework`, all supported Target Frameworks will be scanned.
 
 The Target Framework specified with this option should be defined following the standard [naming convention](https://learn.microsoft.com/en-us/dotnet/standard/frameworks#supported-target-frameworks)
 
-This option requires runtime resolution. The scan fails if you also use `--dotnet-runtime-resolution=false`.
-
-Example: `snyk test --dotnet-target-framework=net6.0`
+Example: `snyk test --dotnet-runtime-resolution --dotnet-target-framework=net6.0`
 
 ## Options for npm projects
 

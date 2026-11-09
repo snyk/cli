@@ -1,5 +1,7 @@
 ---
 description: The snyk log4shell command that scans for the Log4Shell vulnerability
+last_reviewed: 2026-05-15
+last_reviewed_source: bulk-sync
 ---
 
 # Log4shell
@@ -27,7 +29,7 @@ See the Maven options section of the [test command help](test.md); `snyk test --
 Possible exit codes and their meaning:
 
 **0**: success (scan completed), Log4Shell not found\
-**1**: action_needed (scan completed), Log4Shell found\
+**1**: action\_needed (scan completed), Log4Shell found\
 **2**: failure, try to re-run the command. Use `-d` to output the debug logs.
 
 ## Debug

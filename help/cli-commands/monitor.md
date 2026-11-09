@@ -1,5 +1,7 @@
 ---
 description: The snyk monitor command that snapshots and monitors a Project
+last_reviewed: 2026-05-15
+last_reviewed_source: bulk-sync
 ---
 
 # Monitor
@@ -339,23 +341,21 @@ This is useful when you have multiple projects with the same name in other `.sln
 
 ### `--dotnet-runtime-resolution`
 
-Optional. For SDK-style Projects (.NET Core, .NET Standard, and .NET 6 and later), Snyk uses runtime resolution by default when the .NET SDK (`dotnet`) is on your PATH, so you do not need to add this option. Runtime resolution uses the .NET SDK to resolve the dependency graph for each target framework. If `dotnet` is not found, Snyk shows a warning and scans `project.assets.json` instead.
+**Note:** This option in in Early Access and may change until it is released.
 
-To turn off runtime resolution, use `--dotnet-runtime-resolution=false`. Snyk then reads `project.assets.json`, the restore output in your `obj` folder, so run `dotnet restore` first.
+Required. You must use this option when you test .NET projects using Runtime Resolution Scanning.
 
-If you set `--dotnet-runtime-resolution` explicitly, the scan fails when `dotnet` is not on your PATH, and for Projects that runtime resolution does not support, such as `packages.config` Projects.
-
-Example: `snyk monitor --dotnet-runtime-resolution=false`
+Example: `snyk test --dotnet-runtime-resolution`
 
 ### `--dotnet-target-framework`
+
+**Note:** This option in in Early Access and may change until it is released.
 
 Optional. You may use this option if your solution contains multiple `<TargetFramework>` directives. If you do not specify the option `--dotnet-target-framework`, all supported Target Frameworks will be scanned.
 
 The Target Framework specified with this option should be defined following the standard [naming convention](https://learn.microsoft.com/en-us/dotnet/standard/frameworks#supported-target-frameworks)
 
-This option requires runtime resolution. The scan fails if you also use `--dotnet-runtime-resolution=false`.
-
-Example: `snyk monitor --dotnet-target-framework=net6.0`
+Example: `snyk test --dotnet-runtime-resolution --dotnet-target-framework=net6.0`
 
 ## Options for npm projects
 

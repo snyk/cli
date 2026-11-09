@@ -1,4 +1,6 @@
 ---
+last_reviewed: 2026-07-28T00:00:00.000Z
+last_reviewed_source: focused-edit
 description: The snyk ignore command that ignores a specified issue
 ---
 
@@ -85,7 +87,7 @@ Default: 30 days or none if used with `--file-path`
 
 Note: The `expiry` field is not required, it will use the default if omitted. If you need a permanent ignore, set the expiry to a date far in the future (for example, `9999-01-01`).
 
-To ensure that expiration dates are enforced for ignores, you must specify a valid expiration date. The date must be in the Date Time String Javascript format like YYYY-MM-DDThh:mm:ss.fffZ. If the specified expiration date does not adhere to this format, the ignore will be respected and persist indefinitely.
+To ensure that expiration dates are enforced for ignores, you must specify a valid expiration date. The date must be in the Date Time String Javascript format like `YYYY-MM-DDThh:mm:ss.fffZ`. If the specified expiration date does not adhere to this format, the ignore will be respected and persist indefinitely.
 
 ### `--reason=<REASON>`
 
@@ -150,7 +152,7 @@ $ snyk ignore --id='SNYK-JS-PATHPARSE-1077067' --expiry='2021-01-10' --path='nyc
 In this example, `snyk iac test` on Windows returned a Path containing single quotes and a File specification containing back slashes:
 
 Rule: [https://security.snyk.io/rules/cloud/SNYK-CC-TF-118](https://security.snyk.io/rules/cloud/SNYK-CC-TF-118)\
-Path: resource > aws_iam_role\[OrganizationAccountAccessRole] > assume_role_policy\['Statement']\[0]\
+Path: resource > aws\_iam\_role\[OrganizationAccountAccessRole] > assume\_role\_policy\['Statement']\[0]\
 File: terraform\environment\com\iam.tf
 
 The corresponding `snyk ignore` command would be:
@@ -164,7 +166,7 @@ $ snyk ignore --id=SNYK-CC-TF-118 --path="terraform\environment\com\iam.tf > res
 In this example, `snyk iac test` on Linux or Mac OS returned a Path containing single quotes and a File specification containing forward slashes:
 
 Rule: [https://security.snyk.io/rules/cloud/SNYK-CC-TF-118](https://security.snyk.io/rules/cloud/SNYK-CC-TF-118)\
-Path: resource > aws_iam_role\[OrganizationAccountAccessRole] > assume_role_policy\['Statement']\[0]\
+Path: resource > aws\_iam\_role\[OrganizationAccountAccessRole] > assume\_role\_policy\['Statement']\[0]\
 File: terraform/environment/com/iam.tf
 
 The corresponding `snyk ignore` command would be:

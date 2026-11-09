@@ -1,5 +1,7 @@
 ---
 description: The snyk sbom command that generates an SBOM for a Project
+last_reviewed: 2026-05-21
+last_reviewed_source: focused-edit
 ---
 
 # SBOM
