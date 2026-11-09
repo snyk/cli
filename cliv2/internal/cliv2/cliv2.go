@@ -344,6 +344,8 @@ func PrepareV1EnvironmentVariables(
 		err = EnvironmentWarning{message: fmt.Sprintf("Partially defined environment, please ensure to provide both %s and %s together!", constants.SNYK_INTEGRATION_NAME_ENV, constants.SNYK_INTEGRATION_VERSION_ENV)}
 	}
 
+	// The TypeScript side restores these SNYK_SYSTEM_* variables via restoreSystemEnv/cleanSnykEnv
+	// in @snyk/cli-interface (snyk-env.ts, SYSTEM_RESTORES). A variable saved here must be added there too.
 	// preserve original proxy settings
 	inputAsMap[constants.SNYK_HTTPS_PROXY_ENV_SYSTEM], _ = utils.FindValueCaseInsensitive(inputAsMap, constants.SNYK_HTTPS_PROXY_ENV)
 	inputAsMap[constants.SNYK_HTTP_PROXY_ENV_SYSTEM], _ = utils.FindValueCaseInsensitive(inputAsMap, constants.SNYK_HTTP_PROXY_ENV)
