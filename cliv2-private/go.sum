@@ -602,8 +602,8 @@ github.com/snyk/cli-extension-axi v0.0.0-20261102092111-6acf30273022 h1:qJXoHOOZ
 github.com/snyk/cli-extension-axi v0.0.0-20261102092111-6acf30273022/go.mod h1:L3M0y5p8AUFXm4ekRNxndIOIQx5xZT76A5UsfNEpbQY=
 github.com/snyk/cli-extension-cos v0.0.0-20261105214232-7b105d991421 h1:emW7n4aYA0o/TeitAxjw5hOW3sBJwieEmyx4/eAwca8=
 github.com/snyk/cli-extension-cos v0.0.0-20261105214232-7b105d991421/go.mod h1:R1aDJGih8/50whFgBDnzVvML+iE5dbVDDK5BWFBl73g=
-github.com/snyk/cli-extension-dep-graph/v2 v2.20.1 h1:bcCKtcEGpgP5ghv+HmVyZXX6JzgthjxDRGq30nCWj0M=
-github.com/snyk/cli-extension-dep-graph/v2 v2.20.1/go.mod h1:I0GXbV6Rk8T0AEC9EugE4AgYE5SbDn0m0bGgAjZqy5U=
+github.com/snyk/cli-extension-dep-graph/v2 v2.20.2 h1:X0I/16uh2EJvjmcXSqDc9PNTbwD1ozWKeh/N0PTHmo0=
+github.com/snyk/cli-extension-dep-graph/v2 v2.20.2/go.mod h1:I0GXbV6Rk8T0AEC9EugE4AgYE5SbDn0m0bGgAjZqy5U=
 github.com/snyk/cli-extension-iac v0.0.0-20261027152215-16877b8f1f4d h1:O3xE1nUv7s0Epa5B+Gc+58GlwV6lxHnBBkDz8C/eWts=
 github.com/snyk/cli-extension-iac v0.0.0-20261027152215-16877b8f1f4d/go.mod h1:foIhZKRzoy6rteXN/80JZW353EtZR2IfadEMIk9J/0w=
 github.com/snyk/cli-extension-iac-rules v0.0.0-20261027152158-1df61a39e801 h1:5HKPOVV11CdUu2XGduf2dI8i9MbtKqEcydQqnhf3yHY=
