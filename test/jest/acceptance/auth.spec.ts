@@ -114,6 +114,19 @@ describe('Auth', () => {
       });
       expect(code).toEqual(2);
     });
+
+    it('rejects an invalid token with an authentication error', async () => {
+      // Act
+      // Without --auth-type a non-UUID, non-PAT token selects the OAuth login.
+      const { code, stdout, stderr } = await runSnykCLI(
+        'auth --auth-type=token _____________',
+        { env },
+      );
+
+      // Assert
+      expect(code).toEqual(2);
+      expect(stdout + stderr).toContain('Authentication failed');
+    });
   });
 
   describe('oauth authentication', () => {
