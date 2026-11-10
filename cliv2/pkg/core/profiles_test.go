@@ -18,6 +18,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/snyk/error-catalog-golang-public/cli"
 	"github.com/snyk/error-catalog-golang-public/snyk_errors"
 
 	"github.com/snyk/go-application-framework/pkg/analytics"
@@ -164,7 +165,7 @@ func Test_selectProfile_theConfigurationOfTheRunIsTheProfile(t *testing.T) {
 		writeCorruptProfile(t, profileDir, "broken")
 		r := &cliRun{engine: engine, config: base, logger: &logger, profileName: "broken"}
 		r.selectProfile()
-		catalogErr := requireValidationFailure(t, r.profileErr)
+		catalogErr := requireCatalogError(t, r.profileErr, cli.NewConfigProfileUnreadableError("").ErrorCode)
 		assert.Contains(t, catalogErr.Detail, "broken")
 		assert.Same(t, base, r.config)
 		content, err := os.ReadFile(filepath.Join(profileDir, "broken.json"))
@@ -211,14 +212,16 @@ func Test_selectProfile_aProfileWithoutAFileIsEmpty(t *testing.T) {
 	})
 }
 
-// requireValidationFailure asserts that err is a catalog validation error, which is what the command reports to the
-// user, and returns it.
-func requireValidationFailure(t *testing.T, err error) snyk_errors.Error {
+// requireCatalogError asserts that err is the error-catalog error with the given code, returned as it is and not wrapped,
+// and returns it. The command reports the code and the reason of the catalog error, so a wrapped or re-coded error
+// hides them from the user.
+func requireCatalogError(t *testing.T, err error, code string) snyk_errors.Error {
 	t.Helper()
 	require.Error(t, err)
+	require.IsType(t, snyk_errors.Error{}, err, "the error is the catalog error itself, not wrapped")
 	var catalogErr snyk_errors.Error
 	require.ErrorAs(t, err, &catalogErr, "the error is a catalog error")
-	assert.Equal(t, "SNYK-CLI-0010", catalogErr.ErrorCode, "the error is the catalog's validation failure")
+	assert.Equal(t, code, catalogErr.ErrorCode)
 	return catalogErr
 }
 
@@ -231,7 +234,7 @@ func Test_selectProfile_failsWhenTheRegistryIsUnavailable(t *testing.T) {
 		r := &cliRun{engine: engine, config: base, logger: &logger, profileName: "work"}
 
 		r.selectProfile()
-		_ = requireValidationFailure(t, r.profileErr)
+		_ = requireCatalogError(t, r.profileErr, cli.NewConfigProfileDirectoryInvalidError("").ErrorCode)
 		assert.Same(t, base, r.config)
 	})
 
@@ -240,7 +243,7 @@ func Test_selectProfile_failsWhenTheRegistryIsUnavailable(t *testing.T) {
 		r := &cliRun{config: base, profileName: "work"}
 
 		r.selectProfile()
-		_ = requireValidationFailure(t, r.profileErr)
+		_ = requireCatalogError(t, r.profileErr, cli.NewConfigProfilesUnavailableError("").ErrorCode)
 		assert.Same(t, base, r.config)
 	})
 }
@@ -291,7 +294,7 @@ func Test_legacyHelp_isNotRefusedForAProfile(t *testing.T) {
 	t.Run("running the legacy command is refused for another profile and does not invoke the workflow", func(t *testing.T) {
 		r, invocations := newRunWithLegacyStub(t, "work")
 
-		_ = requireValidationFailure(t, r.defaultCmd([]string{"legacy-cmd"}))
+		_ = requireCatalogError(t, r.defaultCmd([]string{"legacy-cmd"}), cli.NewValidationFailureError("").ErrorCode)
 		assert.Equal(t, 0, *invocations)
 	})
 }
@@ -502,13 +505,14 @@ func Test_runMainWorkflow_aBrokenProfileFailsAndReportsNothing(t *testing.T) {
 	r.profileName = "broken"
 	r.selectProfile()
 
-	_ = requireValidationFailure(t, r.profileErr)
+	unreadable := cli.NewConfigProfileUnreadableError("").ErrorCode
+	_ = requireCatalogError(t, r.profileErr, unreadable)
 	assert.Same(t, base, r.config, "the run keeps the default configuration")
 
 	cmd := &cobra.Command{Use: "test"}
 	err := r.runMainWorkflow(cmd, nil, nil)
 
-	_ = requireValidationFailure(t, err)
+	_ = requireCatalogError(t, err, unreadable)
 	assert.Error(t, r.refuseLegacyCommandForProfile(), "the legacy CLI stays refused")
 
 	_ = r.tearDown(context.Background(), nil, nil, time.Now(), networking.UserAgentInfo{}, r.engine.GetAnalytics())
