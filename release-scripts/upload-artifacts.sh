@@ -22,34 +22,9 @@ declare -a StaticFiles=(
   "binary-releases/$PROTOCOL_VERSION_FILE"
 )
 
-declare -a StaticFilesExperimental=(
-  "binary-releases/experimental/snyk-linux"
-  "binary-releases/experimental/snyk-linux.sha256"
-  "binary-releases/experimental/snyk-linux-arm64"
-  "binary-releases/experimental/snyk-linux-arm64.sha256"
-  "binary-releases/experimental/sha256sums.txt.asc"
-  "binary-releases/experimental/$PROTOCOL_VERSION_FILE"
-)
-
-declare -a StaticFilesFIPS=(
-  "binary-releases/fips/snyk-linux"
-  "binary-releases/fips/snyk-linux.sha256"
-  "binary-releases/fips/snyk-linux-arm64"
-  "binary-releases/fips/snyk-linux-arm64.sha256"
-  "binary-releases/fips/snyk-win.exe"
-  "binary-releases/fips/snyk-win.exe.sha256"
-  "binary-releases/fips/sha256sums.txt.asc"
-  "binary-releases/fips/$PROTOCOL_VERSION_FILE"
-)
-
 VERSION_TAG="v$(cat binary-releases/version)"
 RELEASE_CHANNEL="$($(dirname "$0")/determine-release-channel.sh)"
 DRY_RUN=false
-
-if [ ${#} == 0 ]; then
-  echo "No upload target defined!"
-  exit 1
-fi
 
 show_help() {
   echo "Usage: upload-artifacts.sh [options] [arguments]"
@@ -63,16 +38,16 @@ show_help() {
   echo "  version       upload the versioned S3 folders listed in the artifacts manifest"
   echo "  github        upload artifacts to GitHub"
   echo "  npm           upload artifacts to npm"
-  echo "  s3            upload artifacts to S3"
+  echo "  s3            upload the non-versioned S3 folders listed in the artifacts manifest to S3"
   echo ""
   echo "Example:"
-  echo "  upload-artifacts.sh v1.0.0 github npm s3"
+  echo "  upload-artifacts.sh version s3 github npm"
   echo ""
-  echo "  This will upload artifacts to GitHub, npm, and S3 for version v1.0.0"
+  echo "  This will upload artifacts to the versioned and non-versioned S3 folders, GitHub, and npm"
   echo ""
-  echo "  upload-artifacts.sh --dry-run v1.0.0 github npm s3"
+  echo "  upload-artifacts.sh --dry-run s3 github npm"
   echo ""
-  echo "  This will perform a dry run of uploading artifacts to GitHub, npm, and S3 for version v1.0.0"
+  echo "  This will perform a dry run of uploading artifacts to the non-versioned S3 folders, GitHub, and npm"
   echo ""
   echo -e "\033[1;33mTrigger Build and Publish Snyk Images:\033[0m"  # Set color to yellow
   echo ""
@@ -206,58 +181,32 @@ trigger_build_agentic_integration() {
   fi
 }
 
-upload_s3() {
-  version_target=$1
-  if [ "${DRY_RUN}" == true ]; then
-    echo "DRY RUN: uploading to S3..."
-    for filename in "${StaticFiles[@]}"; do
-      aws s3 cp "${filename}" s3://"${PUBLIC_S3_BUCKET}"/cli/"${version_target}"/ --dryrun
-    done
-    aws s3 cp "binary-releases/release.json" s3://"${PUBLIC_S3_BUCKET}"/cli/"${version_target}"/ --dryrun
-    aws s3 cp "binary-releases/version" s3://"${PUBLIC_S3_BUCKET}"/cli/"${version_target}"/ --dryrun
-    aws s3 cp "binary-releases/RELEASE_NOTES.md" s3://"${PUBLIC_S3_BUCKET}"/cli/"${version_target}"/ --dryrun
-
-    for filename in "${StaticFilesFIPS[@]}"; do
-      aws s3 cp "${filename}" s3://"${PUBLIC_S3_BUCKET}"/fips/cli/"${version_target}"/ --dryrun
-    done
-    aws s3 cp "binary-releases/fips/release.json" s3://"${PUBLIC_S3_BUCKET}"/fips/cli/"${version_target}"/ --dryrun
-    aws s3 cp "binary-releases/fips/version" s3://"${PUBLIC_S3_BUCKET}"/fips/cli/"${version_target}"/ --dryrun
-    aws s3 cp "binary-releases/fips/RELEASE_NOTES.md" s3://"${PUBLIC_S3_BUCKET}"/fips/cli/"${version_target}"/ --dryrun
-
-    for filename in "${StaticFilesExperimental[@]}"; do
-      aws s3 cp "${filename}" s3://"${PUBLIC_S3_BUCKET}"/experimental/cli/"${version_target}"/ --dryrun
-    done
-  else
-    echo "Uploading to S3..."
-    for filename in "${StaticFiles[@]}"; do
-      aws s3 cp "${filename}" s3://"${PUBLIC_S3_BUCKET}"/cli/"${version_target}"/
-    done
-    aws s3 cp "binary-releases/release.json" s3://"${PUBLIC_S3_BUCKET}"/cli/"${version_target}"/
-    aws s3 cp "binary-releases/version" s3://"${PUBLIC_S3_BUCKET}"/cli/"${version_target}"/
-    aws s3 cp "binary-releases/RELEASE_NOTES.md" s3://"${PUBLIC_S3_BUCKET}"/cli/"${version_target}"/
-
-    for filename in "${StaticFilesFIPS[@]}"; do
-      aws s3 cp "${filename}" s3://"${PUBLIC_S3_BUCKET}"/fips/cli/"${version_target}"/
-    done
-    aws s3 cp "binary-releases/fips/release.json" s3://"${PUBLIC_S3_BUCKET}"/fips/cli/"${version_target}"/
-    aws s3 cp "binary-releases/fips/version" s3://"${PUBLIC_S3_BUCKET}"/fips/cli/"${version_target}"/
-    aws s3 cp "binary-releases/fips/RELEASE_NOTES.md" s3://"${PUBLIC_S3_BUCKET}"/fips/cli/"${version_target}"/
-
-    for filename in "${StaticFilesExperimental[@]}"; do
-      aws s3 cp "${filename}" s3://"${PUBLIC_S3_BUCKET}"/experimental/cli/"${version_target}"/
-    done
-  fi
-}
-
 MANIFEST="binary-releases/artifacts-manifest.json"
 
 check_artifacts() {
-  local dir=$1
+  local dir="$1"
+  local artifacts="$2"
   local name sha256
   while read -r name _; do
     sha256="$(jq -er --arg name "${name}" '.artifacts[] | select(.name == $name) | .sha256' "${MANIFEST}")"
     echo "${sha256}  ${dir}/${name#./}" | shasum -a 256 -c --quiet -
-  done
+  done <<< "${artifacts}"
+}
+
+upload_artifacts() {
+  local dir="$1"
+  local artifacts="$2"
+
+  local dry_run_arg=""
+  if [ "${DRY_RUN}" == true ]; then
+    dry_run_arg="--dryrun"
+  fi
+
+  local name folder file
+  while read -r name folder; do
+    file="${dir}/${name#./}"
+    aws s3 cp "${file}" "s3://${PUBLIC_S3_BUCKET}/${folder}$(basename "${file}")" ${dry_run_arg}
+  done <<< "${artifacts}"
 }
 
 upload_versioned() {
@@ -267,18 +216,24 @@ upload_versioned() {
     | .targets[] | select(.type == "s3" and (.path | endswith("/v\($version)/")))
     | "\($name) \(.path)"' "${MANIFEST}")"
 
-  check_artifacts binary-releases <<< "${artifacts}"
+  check_artifacts 'binary-releases' "${artifacts}"
+  upload_artifacts 'binary-releases' "${artifacts}"
+}
 
-  local dry_run_arg=""
-  if [ "${DRY_RUN}" == true ]; then
-    dry_run_arg="--dryrun"
+upload_s3_non_versioned() {
+  local artifacts
+  artifacts="$(jq -r '.meta.version as $version
+    | .artifacts[] | .name as $name
+    | .targets[] | select(.type == "s3" and (.path | endswith("/v\($version)/") | not))
+    | "\($name) \(.path)"' "${MANIFEST}")"
+
+  if [[ -z "${artifacts}" ]]; then
+    echo "No non-versioned artifacts found (\"dev\" channel?)"
+    return
   fi
 
-  local name folder file
-  while read -r name folder; do
-    file="binary-releases/${name#./}"
-    aws s3 cp "${file}" "s3://${PUBLIC_S3_BUCKET}/${folder}$(basename "${file}")" ${dry_run_arg}
-  done <<< "${artifacts}"
+  check_artifacts 'binary-releases' "${artifacts}"
+  upload_artifacts 'binary-releases' "${artifacts}"
 }
 
 # Capture valid flags
@@ -313,10 +268,14 @@ done
 # Remove flags from arguments
 shift $((OPTIND-1))
 
+if [[ ${#} -eq 0 ]]; then
+  echo 'No upload target defined!' >&2
+  show_help
+  exit 1
+fi
+
 # Interpret arguments
 for arg in "${@}"; do
-   target="${arg}"
-
   # Upload files to the GitHub release
   if [ "${arg}" == "github" ]; then
     upload_github
@@ -362,12 +321,12 @@ for arg in "${@}"; do
     upload_versioned
 
   # Upload files to S3 bucket
-  else
-    upload_s3 "${target}"
+  elif [ "${arg}" == "s3" ]; then
+    upload_s3_non_versioned
 
-    # stable and latest are the same target
-    if [ "${target}" == "stable" ]; then
-      upload_s3 "latest"
-    fi
+  else
+    echo "Invalid argument: ${arg}" >&2
+    show_help
+    exit 1
   fi
 done
