@@ -1,5 +1,7 @@
 ---
 description: The snyk container sbom command that generates an SBOM for a container image
+last_reviewed: 2026-05-15
+last_reviewed_source: bulk-sync
 ---
 
 # Container SBOM

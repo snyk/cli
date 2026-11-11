@@ -1,5 +1,7 @@
 ---
 description: The snyk monitor command that snapshots and monitors a Project
+last_reviewed: 2026-11-05
+last_reviewed_source: reviewed
 ---
 
 # Monitor

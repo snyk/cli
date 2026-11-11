@@ -1,5 +1,7 @@
 ---
 description: The snyk aibom test command that tests an AI bill of materials
+last_reviewed: 2026-08-17
+last_reviewed_source: focused-edit
 ---
 
 # AI-BOM test

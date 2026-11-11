@@ -1,5 +1,7 @@
 ---
 description: The snyk iac test command that tests infrastructure as code files for misconfigurations
+last_reviewed: 2026-05-15
+last_reviewed_source: bulk-sync
 ---
 
 # IaC test

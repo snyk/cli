@@ -1,5 +1,7 @@
 ---
 description: The snyk policy command that displays the .snyk policy for a Project
+last_reviewed: 2026-05-15
+last_reviewed_source: bulk-sync
 ---
 
 # Policy

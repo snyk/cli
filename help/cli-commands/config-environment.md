@@ -1,5 +1,7 @@
 ---
 description: The snyk config environment command for setting the Snyk API environment
+last_reviewed: 2026-05-15
+last_reviewed_source: bulk-sync
 ---
 
 # Config environment

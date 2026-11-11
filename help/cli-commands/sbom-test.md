@@ -1,5 +1,7 @@
 ---
 description: The snyk sbom test command that tests an SBOM for vulnerabilities
+last_reviewed: 2026-05-15
+last_reviewed_source: bulk-sync
 ---
 
 # SBOM test

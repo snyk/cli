@@ -1,5 +1,7 @@
 ---
 description: The snyk container monitor command that monitors a container image
+last_reviewed: 2026-05-21
+last_reviewed_source: focused-edit
 ---
 
 # Container monitor

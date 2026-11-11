@@ -1,5 +1,7 @@
 ---
 description: The snyk container commands that test and monitor container images
+last_reviewed: 2026-05-15
+last_reviewed_source: bulk-sync
 ---
 
 # Container
