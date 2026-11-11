@@ -855,7 +855,7 @@ func (r *cliRun) scrubConfigurationSecrets() {
 // them regardless of whether debug logging is enabled.
 func populateRedactionTerms(config configuration.Configuration, engine workflow.Engine) []string {
 	knownTerms, _ := instrumentation.GetKnownCommandsAndFlags(engine)
-	knownTerms = append(knownTerms, config.GetString(configuration.API_URL), config.GetString(configuration.ORGANIZATION), config.GetString(configuration.ORGANIZATION_SLUG), config.GetString(configuration.TENANT), config.GetString(configuration.INTEGRATION_NAME), config.GetString(configuration.INTEGRATION_VERSION), config.GetString(configuration.INTEGRATION_ENVIRONMENT), config.GetString(configuration.INTEGRATION_ENVIRONMENT_VERSION), config.GetString(clientMachineIdConfigKey), config.GetString(AgentSessionIdConfigKey))
+	knownTerms = append(knownTerms, config.GetString(configuration.API_URL), config.GetString(configuration.ORGANIZATION), config.GetString(configuration.ORGANIZATION_SLUG), config.GetString(configuration.INTEGRATION_NAME), config.GetString(configuration.INTEGRATION_VERSION), config.GetString(configuration.INTEGRATION_ENVIRONMENT), config.GetString(configuration.INTEGRATION_ENVIRONMENT_VERSION), config.GetString(clientMachineIdConfigKey), config.GetString(AgentSessionIdConfigKey))
 	// AI_AGENT is trusted verbatim by agent.DetectAgent, and persona.Report
 	// falls back to that same raw value whenever the Harness name/version split
 	// or canonicalisation does not apply, so its raw value needs the same
@@ -870,6 +870,11 @@ func populateRedactionTerms(config configuration.Configuration, engine workflow.
 		name, version := agent.SplitVersion(detectedAgent)
 		knownTerms = append(knownTerms, detectedAgent, name, version)
 		knownTerms = append(knownTerms, strings.Fields(detectedAgent)...)
+	}
+	// Resolving an unset tenant would look it up over the network on every command, and a looked-up tenant never appears in the arguments or environment.
+	// IsSet misses the SNYK_CFG_TENANT alternative key, which would get the tenant redacted.
+	if len(config.GetAllKeysThatContainValues(configuration.TENANT)) > 0 {
+		knownTerms = append(knownTerms, config.GetString(configuration.TENANT))
 	}
 	// Without an override, resolving the machine id here could create the machine id file just to build redaction terms.
 	if config.IsSet(configuration.MACHINE_ID) {

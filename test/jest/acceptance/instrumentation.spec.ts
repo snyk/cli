@@ -230,6 +230,14 @@ describe('instrumentation module', () => {
           expect(request.headers.authorization).toBe(`token ${env.SNYK_TOKEN}`);
           expect(request.body).toMatchSchema(INSTRUMENTATION_SCHEMA);
         }
+        const tenantLookups = server
+          .getRequests()
+          .filter(
+            (request) =>
+              request.query.expand === 'tenant' ||
+              /\/rest\/orgs\/$/.test(request.path),
+          );
+        expect(tenantLookups.map((request) => request.originalUrl)).toEqual([]);
       },
     );
   });
