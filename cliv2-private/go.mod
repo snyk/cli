@@ -1,6 +1,6 @@
 module github.com/snyk/cli/cliv2-private
 
-go 1.27.3
+go 1.27.4
 
 require (
 	github.com/snyk/cli-extension-axi v0.0.0-20261102092111-6acf30273022
