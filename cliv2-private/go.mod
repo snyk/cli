@@ -225,7 +225,7 @@ require (
 	github.com/snyk/cli-extension-dep-graph/v2 v2.20.2 // indirect
 	github.com/snyk/cli-extension-iac v0.0.0-20261027152215-16877b8f1f4d // indirect
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20261027152158-1df61a39e801 // indirect
-	github.com/snyk/cli-extension-os-flows v0.0.0-20261019113940-6bd18a6c09b8 // indirect
+	github.com/snyk/cli-extension-os-flows v0.0.0-20261111151648-8bc401dd3ae5 // indirect
 	github.com/snyk/cli-extension-sbom v0.0.0-20260818092356-16ee760085f9 // indirect
 	github.com/snyk/cli-extension-secrets v0.0.0-20261102155850-7868999a9c97 // indirect
 	github.com/snyk/code-client-go v1.31.9 // indirect
@@ -233,7 +233,7 @@ require (
 	github.com/snyk/dep-graph/go v0.0.0-20260127160647-c836da762c62 // indirect
 	github.com/snyk/error-catalog-golang-public v0.0.0-20261109151447-ff0c5a9c0665 // indirect
 	github.com/snyk/farcaster v0.1.1-0.20261105195107-095e254b5ed9 // indirect
-	github.com/snyk/go-application-framework v0.50.0 //indirect
+	github.com/snyk/go-application-framework v0.51.0 //indirect
 	github.com/snyk/go-httpauth v0.0.0-20261007154458-c110eb9b820f // indirect
 	github.com/snyk/policy-engine v1.1.8 // indirect
 	github.com/snyk/snyk-iac-capture v0.6.5 // indirect
