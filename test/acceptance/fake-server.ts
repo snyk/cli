@@ -473,7 +473,8 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     res.send('Test Authenticated!');
   });
 
-  app.get(`/api/rest/orgs/:orgId`, (req, res) => {
+  // GAF derives the URL from the API URL, so the /api prefix may or may not be present.
+  app.get([`/rest/orgs/:orgId`, `/api/rest/orgs/:orgId`], (req, res) => {
     res.status(200);
     res.send({
       data: {
@@ -487,6 +488,13 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
           created_at: '2023-06-09T10:37:07Z',
           updated_at: '2024-03-22T10:46:32Z',
         },
+        ...(req.query.expand === 'tenant' && {
+          relationships: {
+            tenant: {
+              data: { id: 'tenant-of-' + req.params.orgId, type: 'tenant' },
+            },
+          },
+        }),
       },
       jsonapi: {
         version: '1.0',
