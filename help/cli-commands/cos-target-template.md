@@ -1,6 +1,3 @@
----
-description: A sample target configuration file for the snyk cos target add command.
----
 
 # COS target template
 

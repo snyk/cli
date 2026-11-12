@@ -1,8 +1,3 @@
----
-description: >-
-  The snyk fix --agentic command, which applies and verifies vulnerability
-  fixes
----
 
 # Fix (`snyk fix --agentic`)
 

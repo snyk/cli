@@ -1,6 +1,3 @@
----
-description: The snyk cos finding commands for listing and inspecting findings.
----
 
 # COS finding
 

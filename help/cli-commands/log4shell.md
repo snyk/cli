@@ -1,6 +1,3 @@
----
-description: The snyk log4shell command that scans for the Log4Shell vulnerability
----
 
 # Log4shell
 

@@ -1,6 +1,3 @@
----
-description: The snyk cos scan commands for scanning applications for security issues.
----
 
 # COS scan
 

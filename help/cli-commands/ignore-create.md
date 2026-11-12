@@ -1,8 +1,3 @@
----
-description: The snyk ignore create command that creates a Snyk Code ignore
-hidden: true
-noIndex: true
----
 
 # Ignore create
 

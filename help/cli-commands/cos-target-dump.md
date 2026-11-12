@@ -1,6 +1,3 @@
----
-description: The snyk cos target dump command that exports a target as YAML.
----
 
 # COS target dump
 

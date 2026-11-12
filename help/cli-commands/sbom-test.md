@@ -1,6 +1,3 @@
----
-description: The snyk sbom test command that tests an SBOM for vulnerabilities
----
 
 # SBOM test
 

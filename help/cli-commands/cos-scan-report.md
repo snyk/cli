@@ -1,6 +1,3 @@
----
-description: The snyk cos scan report command that returns the report for a completed scan.
----
 
 # COS scan report
 
