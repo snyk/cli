@@ -5,8 +5,6 @@ GOOS = $(shell go env GOOS)
 GOARCH = $(shell go env GOARCH)
 GOHOSTOS = $(shell go env GOHOSTOS)
 GOHOSTARCH = $(shell go env GOHOSTARCH)
-FIPS_CRYPTO_BACKEND_DEFAULT = systemcrypto
-FIPS_CRYPTO_BACKEND =
 MS_GO_NOSYSTEMCRYPTO ?= 1
 HASH = sha
 HASH_ALGORITHM = 256
@@ -46,7 +44,7 @@ _validate-build-mode:
 
 # Build tools
 GO_BIN := $(shell pwd)/.bin
-OVERRIDE_GOCI_LINT_V := v2.9.0
+OVERRIDE_GOCI_LINT_V := v2.14.0
 SHELL := env PATH=$(GO_BIN):$(PATH) $(SHELL)
 
 # Make directories per convention
@@ -178,7 +176,6 @@ dependencies: $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME) $(V1_DIRECTORY)/$(V1_EXECUTA
 summary:
 	@echo "$(LOG_PREFIX) Build Summary"
 	@echo "$(LOG_PREFIX)  Using Go installation:        $(shell which go)"
-	@echo "$(LOG_PREFIX)  Non-Standard Crypto-Backend:  $(FIPS_CRYPTO_BACKEND)"
 	@echo "$(LOG_PREFIX)  MS_GO_NOSYSTEMCRYPTO:         $(MS_GO_NOSYSTEMCRYPTO)"
 	@echo "$(LOG_PREFIX)  Building Binary:              $(BUILD_DIR)/$(V2_EXECUTABLE_NAME)"
 	@echo "$(LOG_PREFIX)  Build mode:                   $(BUILD_MODE)"
@@ -216,16 +213,11 @@ $(BUILD_DIR)/$(V2_EXECUTABLE_NAME): $(BUILD_DIR) $(SRCS) generate-ls-protocol-me
 	@echo "$(LOG_PREFIX)  EXTRA_FLAGS: "
 	@$(foreach flag,$(filter -X%,$(subst -X ,$(space)-X,$(EXTRA_FLAGS))),echo "$(LOG_PREFIX)    $(flag)";)
 	@echo "$(LOG_PREFIX)  GCFLAGS:     $(GCFLAGS)"
-	@cd $(BUILD_ROOT_DIR) && CGO_ENABLED=$(CGO_ENABLED)  GOEXPERIMENT=$(FIPS_CRYPTO_BACKEND) MS_GO_NOSYSTEMCRYPTO=$(MS_GO_NOSYSTEMCRYPTO) GOOS=$(_GO_OS) GOARCH=$(GOARCH) $(GOCMD) build -tags=application -ldflags="$(LDFLAGS) $(EXTRA_FLAGS)" $(GCFLAGS) -o $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) ./cmd/cliv2
+	@cd $(BUILD_ROOT_DIR) && CGO_ENABLED=$(CGO_ENABLED) MS_GO_NOSYSTEMCRYPTO=$(MS_GO_NOSYSTEMCRYPTO) GOOS=$(_GO_OS) GOARCH=$(GOARCH) $(GOCMD) build -tags=application -ldflags="$(LDFLAGS) $(EXTRA_FLAGS)" $(GCFLAGS) -o $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) ./cmd/cliv2
 
 .PHONY: fips
 fips:
-	# CI uses Microsoft's Go toolchain for Linux and Windows builds. Since Microsoft Go enables
-	# `systemcrypto` by default, we explicitly disable it for the non-FIPS binaries.
-	# See https://github.com/microsoft/go/blob/microsoft/main/eng/doc/fips/README.md
 	$(eval MS_GO_NOSYSTEMCRYPTO := 0)
-	# assign name of crypto backend to use
-	$(eval FIPS_CRYPTO_BACKEND := $(FIPS_CRYPTO_BACKEND_DEFAULT))
 	@echo "$(LOG_PREFIX) FIPS"
 
 .PHONY: experimental

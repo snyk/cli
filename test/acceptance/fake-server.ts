@@ -54,6 +54,27 @@ export function getFirstIPv4Address(): string {
   return ipaddress;
 }
 
+const jwtIssuer = (jwt: unknown): string | undefined => {
+  if (typeof jwt !== 'string') return undefined;
+  const segments = jwt.split('.');
+  if (
+    segments.length !== 3 ||
+    !segments.every((s) => /^[A-Za-z0-9_-]+$/.test(s))
+  ) {
+    return undefined;
+  }
+  try {
+    const decode = (s: string) =>
+      // 'base64' decoding also accepts the base64url alphabet
+      JSON.parse(Buffer.from(s, 'base64').toString());
+    decode(segments[0]);
+    const { iss } = decode(segments[1]);
+    return typeof iss === 'string' ? iss : undefined;
+  } catch {
+    return undefined;
+  }
+};
+
 // An endpoint answers with either a JSON document or a raw body. The raw form
 // covers downloads that are not JSON, such as a binary report.
 type EndpointResponse = Record<string, unknown> | string;
@@ -452,7 +473,8 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     res.send('Test Authenticated!');
   });
 
-  app.get(`/api/rest/orgs/:orgId`, (req, res) => {
+  // GAF derives the URL from the API URL, so the /api prefix may or may not be present.
+  app.get([`/rest/orgs/:orgId`, `/api/rest/orgs/:orgId`], (req, res) => {
     res.status(200);
     res.send({
       data: {
@@ -466,6 +488,13 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
           created_at: '2023-06-09T10:37:07Z',
           updated_at: '2024-03-22T10:46:32Z',
         },
+        ...(req.query.expand === 'tenant' && {
+          relationships: {
+            tenant: {
+              data: { id: 'tenant-of-' + req.params.orgId, type: 'tenant' },
+            },
+          },
+        }),
       },
       jsonapi: {
         version: '1.0',
@@ -897,6 +926,30 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     },
   );
 
+  // Org-level Secrets setting, read by `snyk secrets test` before scanning.
+  // Disabled unless a test opts in via setOrgSetting('secrets', true).
+  // Registered with and without the /api prefix, since the REST base URL
+  // follows the API base path the server was created with.
+  app.get(
+    [
+      `/rest/orgs/:orgId/settings/secrets`,
+      `/api/rest/orgs/:orgId/settings/secrets`,
+    ],
+    (req, res) => {
+      res.setHeader('Content-Type', 'application/vnd.api+json');
+      res.send({
+        jsonapi: { version: '1.0' },
+        data: {
+          type: 'secrets_settings',
+          id: req.params.orgId,
+          attributes: {
+            secrets_enabled: availableSettings.get('secrets') === true,
+          },
+        },
+      });
+    },
+  );
+
   // Unified Test API endpoints for uv acceptance tests
   const testJobId = 'aaaaaaaa-bbbb-cccc-dddd-000000000001';
   const testId = 'aaaaaaaa-bbbb-cccc-dddd-000000000002';
@@ -1276,6 +1329,14 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
   });
 
   app.get(basePath + '/authorization/:action', (req, res) => {
+    const { authorization } = req.headers;
+    if (
+      authorization?.startsWith('token ') &&
+      authorization !== `token ${snykToken}`
+    ) {
+      res.status(401).send({});
+      return;
+    }
     const result = unauthorizedActions.get(req.params.action) || {
       allowed: true,
       reason: 'Default fake server response.',
@@ -1344,7 +1405,10 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
   });
 
   app.post(
-    basePath.replace('v1', 'hidden') + `/orgs/:orgId/analytics`,
+    [
+      basePath.replace('v1', 'hidden') + `/orgs/:orgId/analytics`,
+      basePath.replace('v1', 'hidden') + `/tenants/:tenantId/analytics`,
+    ],
     (req, res) => {
       res.status(201).send({});
     },
@@ -1635,6 +1699,17 @@ ${componentsXml}
     }
     // authorization code grant: expect code and state
     if (req.body.grant_type === 'authorization_code' && req.body.code) {
+      res.status(200).send(fake_oauth_token);
+      return;
+    }
+    // client credentials grant with a private_key_jwt client assertion; the signature is not verified
+    if (
+      req.body.grant_type === 'client_credentials' &&
+      req.body.client_assertion_type ===
+        'urn:ietf:params:oauth:client-assertion-type:jwt-bearer' &&
+      req.body.client_id &&
+      jwtIssuer(req.body.client_assertion) === req.body.client_id
+    ) {
       res.status(200).send(fake_oauth_token);
       return;
     }

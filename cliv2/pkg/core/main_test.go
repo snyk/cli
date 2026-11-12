@@ -1,13 +1,21 @@
 package core
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
+	"io/fs"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"os/exec"
+	"path/filepath"
+	"slices"
 	"strings"
+	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -17,6 +25,7 @@ import (
 	"github.com/snyk/error-catalog-golang-public/snyk_errors"
 	"github.com/snyk/go-application-framework/pkg/analytics"
 	"github.com/snyk/go-application-framework/pkg/apiclients/testapi"
+	"github.com/snyk/go-application-framework/pkg/app"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/content_type"
@@ -42,10 +51,11 @@ import (
 	"github.com/snyk/cli/cliv2/pkg/basic_workflows"
 )
 
-func cleanup() {
-	helpProvided = false
-	globalConfiguration = nil
-	globalEngine = nil
+// newTestRun returns what a run of the CLI works on, with a quiet logger. Tests set the configuration and the
+// engine they need.
+func newTestRun() *cliRun {
+	logger := zerolog.New(io.Discard)
+	return &cliRun{logger: &logger}
 }
 
 func Test_configureSarifEqualJSON_IncludesHTMLFileWriter(t *testing.T) {
@@ -88,20 +98,18 @@ func Test_isHtmlOutput(t *testing.T) {
 }
 
 func Test_mainWithErrorCode(t *testing.T) {
-	defer cleanup()
 	oldArgs := append([]string{}, os.Args...)
-	os.Args = []string{"snyk", "--version"}
+	os.Args = []string{"snyk", "--help"}
 	defer func() { os.Args = oldArgs }()
 
-	errCode := mainWithErrorCode(nil)
-	assert.False(t, globalConfiguration.GetBool(configuration.CONFIG_CACHE_DISABLED))
-	assert.Equal(t, configuration.NoCacheExpiration, globalConfiguration.GetDuration(configuration.CONFIG_CACHE_TTL))
+	r, errCode := execute(nil)
+	assert.False(t, r.config.GetBool(configuration.CONFIG_CACHE_DISABLED))
+	assert.Equal(t, configuration.NoCacheExpiration, r.config.GetDuration(configuration.CONFIG_CACHE_TTL))
 
 	assert.Equal(t, 0, errCode)
 
 	t.Run("outputs an error list", func(t *testing.T) {
 		t.Setenv("SNYK_TOKEN", "invalidToken")
-		defer cleanup()
 		oldArgs := append([]string{}, os.Args...)
 		os.Args = []string{"snyk", "whoami", "--experimental"}
 		defer func() {
@@ -111,6 +119,117 @@ func Test_mainWithErrorCode(t *testing.T) {
 		errCode := mainWithErrorCode(nil)
 		assert.Equal(t, 2, errCode)
 	})
+}
+
+func Test_versionDoesNotUseNetwork(t *testing.T) {
+	if os.Getenv("TEST_VERSION_SUBPROCESS") == "1" {
+		os.Args = append([]string{"snyk"}, os.Args[3:]...)
+		os.Exit(mainWithErrorCode(nil))
+	}
+
+	for _, version := range []string{"--version", "-v", "version"} {
+		for _, debug := range []bool{false, true} {
+			for _, org := range []string{"", "test-org", "11111111-1111-4111-8111-111111111111"} {
+				t.Run(fmt.Sprintf("%s/debug=%t/org=%s", version, debug, org), func(t *testing.T) {
+					args := []string{version}
+					if debug {
+						args = append(args, "--debug")
+					}
+					if org != "" {
+						args = append(args, "--org", org)
+					}
+					testVersionProcess(t, args, false)
+				})
+			}
+		}
+		t.Run(version+"/json-file-output", func(t *testing.T) {
+			testVersionProcess(t, []string{version, "--json-file-output", filepath.Join(t.TempDir(), "output.json")}, true)
+		})
+		t.Run(version+"/ignores-following-command", func(t *testing.T) {
+			testVersionProcess(t, []string{version, "test"}, false)
+		})
+	}
+}
+
+func testVersionProcess(t *testing.T, args []string, wantError bool) {
+	t.Helper()
+	var requests atomic.Int32
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		requests.Add(1)
+		w.Header().Set("Content-Type", "application/vnd.api+json")
+		_, _ = io.WriteString(w, `{"data":{"id":"11111111-1111-4111-8111-111111111111","type":"org","attributes":{"slug":"test-org"}}}`)
+	}))
+	defer server.Close()
+
+	ctx, cancel := context.WithTimeout(t.Context(), 15*time.Second)
+	defer cancel()
+	commandArgs := append([]string{"-test.run=^Test_versionDoesNotUseNetwork$", "--"}, args...)
+	command := exec.CommandContext(ctx, os.Args[0], commandArgs...)
+	home := t.TempDir()
+	command.Env = []string{
+		"TEST_VERSION_SUBPROCESS=1", "SNYK_API=" + server.URL, "SNYK_TOKEN=test-token",
+		"SNYK_DISABLE_ANALYTICS=false", "SNYK_CFG_DISABLE_ANALYTICS=false",
+		"HOME=" + home, "USERPROFILE=" + home, "LOCALAPPDATA=" + home, "APPDATA=" + home, "ProgramData=" + home,
+		"SNYK_CACHE_PATH=" + t.TempDir(), "PATH=" + os.Getenv("PATH"), "SYSTEMROOT=" + os.Getenv("SYSTEMROOT"),
+	}
+	output, err := command.Output()
+	require.NoError(t, ctx.Err(), "version command exceeded deadline")
+	if wantError {
+		var exitError *exec.ExitError
+		require.ErrorAs(t, err, &exitError)
+		assert.Equal(t, constants.SNYK_EXIT_CODE_ERROR, exitError.ExitCode())
+		assert.Contains(t, strings.Join(strings.Fields(string(output)), ""), "version+json-file-output")
+	} else {
+		if exitError, ok := err.(*exec.ExitError); ok {
+			t.Logf("stderr: %s", exitError.Stderr)
+		}
+		require.NoError(t, err, "stdout: %s", output)
+		assert.Equal(t, cliv2.GetFullVersion()+"\n", string(output))
+	}
+	assert.Zero(t, requests.Load(), "version must not query the API or send telemetry")
+}
+
+func Test_isVersionRequest(t *testing.T) {
+	tests := []struct {
+		args string
+		want bool
+	}{
+		{"--version", true},
+		{"-v", true},
+		{"version", true},
+		{"--version --org abc", true},
+		{"--version --all-projects", true},
+		{"--unknown value --version", true},
+		{"--version --json-file-output", true},
+		{"--version --json-file-output=out.json", true},
+		{"version -h", true},
+		{"--version test", true},
+		{"-v test", true},
+		{"version test", true},
+		{"--version -- x", true},
+		{"--version=false", false},
+		{"--version --help", false},
+		{"--version --help=true", false},
+		{"--help --version", false},
+		{"-vh", false},
+		{"-v -h", false},
+		{"help version", false},
+		{"help --version", false},
+		{"test --version", false},
+		{"test -v", false},
+		{"test version", false},
+		{"test --org version", false},
+		{"test -- version", false},
+		{"--org version", false},
+		{"--integration-name version", false},
+		{"--max-attempts x --version", false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.args, func(t *testing.T) {
+			assert.Equal(t, tt.want, isVersionRequest(strings.Fields(tt.args)))
+		})
+	}
 }
 
 func Test_populateRedactionTerms(t *testing.T) {
@@ -144,6 +263,61 @@ func Test_populateRedactionTerms_excludesClientMachineId(t *testing.T) {
 	assert.NotContains(t, terms, machineId, "client machine id must never be swept into REDACTION_TERMS, or the analytics scrub chokepoint strips it right back out of its own extension")
 }
 
+func newAppEngineForRedactionTerms(t *testing.T) (configuration.Configuration, workflow.Engine) {
+	t.Helper()
+	config := configuration.NewWithOpts(configuration.WithSupportedEnvVarPrefixes("snyk_", "internal_", "test_"))
+	engine := app.CreateAppEngineWithOptions(app.WithConfiguration(config))
+	// Replaces the application defaults, which look the organization up over the network.
+	config.AddDefaultValue(configuration.ORGANIZATION, configuration.StandardDefaultValueFunction(""))
+	config.AddDefaultValue(configuration.ORGANIZATION_SLUG, configuration.StandardDefaultValueFunction(""))
+	return config, engine
+}
+
+func populateRedactionTermsWithSuppliedMachineID(t *testing.T, machineID string) []string {
+	t.Helper()
+	t.Setenv("HOME", t.TempDir())
+	t.Setenv("INTERNAL_SNYK_MACHINE_ID", machineID)
+	config, engine := newAppEngineForRedactionTerms(t)
+	return populateRedactionTerms(config, engine)
+}
+
+func Test_populateRedactionTerms_doesNotCreateMachineIdFileWithoutSuppliedMachineId(t *testing.T) {
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	t.Setenv("LOCALAPPDATA", home)
+	t.Setenv("ProgramData", home)
+	t.Setenv("INTERNAL_SNYK_MACHINE_ID", "")
+	require.NoError(t, os.Unsetenv("INTERNAL_SNYK_MACHINE_ID"))
+	config, engine := newAppEngineForRedactionTerms(t)
+
+	populateRedactionTerms(config, engine)
+
+	var machineIDFiles []string
+	require.NoError(t, filepath.WalkDir(home, func(path string, d fs.DirEntry, err error) error {
+		if err == nil && d.Name() == "machine-id.json" {
+			machineIDFiles = append(machineIDFiles, path)
+		}
+		return err
+	}))
+	assert.Empty(t, machineIDFiles, "building redaction terms must not resolve the machine id, which creates a machine id file when none exists")
+}
+
+func Test_populateRedactionTerms_excludesValidSuppliedMachineId(t *testing.T) {
+	machineID := "3f2504e0-4f89-41d3-9a0c-0305e82c3301"
+
+	terms := populateRedactionTermsWithSuppliedMachineID(t, machineID)
+
+	assert.NotContains(t, terms, machineID, "a machine id the application accepted must not be redacted, or the debug log header shows it as ***")
+}
+
+func Test_populateRedactionTerms_redactsInvalidSuppliedMachineId(t *testing.T) {
+	invalid := "sk_live/Secret+Token"
+
+	terms := populateRedactionTermsWithSuppliedMachineID(t, invalid)
+
+	assert.Contains(t, terms, invalid, "a value the application rejected as a machine id is not shown as one, so it must stay redacted")
+}
+
 func Test_populateRedactionTerms_excludesIntegrationDetails(t *testing.T) {
 	mockController := gomock.NewController(t)
 	mockEngine := mocks.NewMockEngine(mockController)
@@ -160,6 +334,64 @@ func Test_populateRedactionTerms_excludesIntegrationDetails(t *testing.T) {
 	for _, term := range []string{"custom-integration", "custom-version", "custom-environment", "custom-environment-version"} {
 		assert.NotContains(t, terms, term)
 	}
+}
+
+func Test_populateRedactionTerms_excludesTenant(t *testing.T) {
+	t.Setenv("HOME", t.TempDir())
+	t.Setenv("SNYK_CFG_TENANT", "custom-tenant")
+	config, engine := newAppEngineForRedactionTerms(t)
+	initApplicationConfiguration(config)
+
+	terms := populateRedactionTerms(config, engine)
+
+	// NotContains would print every term on failure, and terms hold environment values.
+	assert.False(t, slices.Contains(terms, "custom-tenant"))
+}
+
+func Test_populateRedactionTerms_doesNotLookUpTenantWhenNotSet(t *testing.T) {
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	t.Setenv("XDG_CONFIG_HOME", home)
+	var requestedMu sync.Mutex
+	var requested []string
+	fakeAPI := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requestedMu.Lock()
+		requested = append(requested, r.URL.Path)
+		requestedMu.Unlock()
+		w.WriteHeader(http.StatusInternalServerError)
+	}))
+	t.Cleanup(fakeAPI.Close)
+	config, engine := newAppEngineForRedactionTerms(t)
+	initApplicationConfiguration(config)
+	config.Set(configuration.API_URL, fakeAPI.URL)
+	config.Set(configuration.AUTHENTICATION_TOKEN, "a-token")
+	config.Set(configuration.ORGANIZATION, "3f2504e0-4f89-41d3-9a0c-0305e82c3301")
+
+	populateRedactionTerms(config, engine)
+
+	requestedMu.Lock()
+	defer requestedMu.Unlock()
+	for _, path := range requested {
+		assert.NotContains(t, path, "/rest/machines/self", "building redaction terms must not look up the tenant of an enrolled machine")
+		assert.NotContains(t, path, "/rest/orgs/", "building redaction terms must not look up the tenant of the organization")
+	}
+}
+
+func Test_populateRedactionTerms_excludesTenantFlag(t *testing.T) {
+	oldArgs := os.Args
+	os.Args = []string{"snyk", "whoami", "--tenant", "flag-tenant"}
+	defer func() { os.Args = oldArgs }()
+	t.Setenv("HOME", t.TempDir())
+	config, engine := newAppEngineForRedactionTerms(t)
+	initApplicationConfiguration(config)
+	flags := pflag.NewFlagSet("whoami", pflag.ContinueOnError)
+	flags.String(configuration.TENANT, "", "")
+	require.NoError(t, flags.Parse(os.Args[2:]))
+	require.NoError(t, config.AddFlagSet(flags))
+
+	terms := populateRedactionTerms(config, engine)
+
+	assert.NotContains(t, terms, "flag-tenant")
 }
 
 func Test_populateRedactionTerms_excludesDetectedAgent(t *testing.T) {
@@ -279,12 +511,22 @@ func Test_initApplicationConfiguration_DisablesAnalytics(t *testing.T) {
 	})
 }
 
-func Test_CreateCommandsForWorkflowWithSubcommands(t *testing.T) {
-	defer cleanup()
+func Test_initApplicationConfiguration_ReadsTenantFromSnykCfgTenant(t *testing.T) {
+	t.Setenv("SNYK_CFG_TENANT", "my-tenant")
+	c := configuration.NewWithOpts(configuration.WithSupportedEnvVarPrefixes("snyk_", "internal_", "test_"))
+	assert.Empty(t, c.GetString(configuration.TENANT))
 
-	globalConfiguration = configuration.New()
-	globalConfiguration.Set(configuration.DEBUG, true)
-	globalEngine = workflow.NewWorkFlowEngine(globalConfiguration)
+	initApplicationConfiguration(c)
+
+	assert.Equal(t, "my-tenant", c.GetString(configuration.TENANT))
+}
+
+func Test_CreateCommandsForWorkflowWithSubcommands(t *testing.T) {
+	r := newTestRun()
+
+	r.config = configuration.New()
+	r.config.Set(configuration.DEBUG, true)
+	r.engine = workflow.NewWorkFlowEngine(r.config)
 
 	fn := func(invocation workflow.InvocationContext, input []workflow.Data) ([]workflow.Data, error) {
 		return []workflow.Data{}, nil
@@ -295,15 +537,15 @@ func Test_CreateCommandsForWorkflowWithSubcommands(t *testing.T) {
 	for _, v := range commandList {
 		workflowConfig := workflow.ConfigurationOptionsFromFlagset(pflag.NewFlagSet("pla", pflag.ContinueOnError))
 		workflowId1 := workflow.NewWorkflowIdentifier(v)
-		_, err := globalEngine.Register(workflowId1, workflowConfig, fn)
+		_, err := r.engine.Register(workflowId1, workflowConfig, fn)
 		assert.NoError(t, err)
 	}
 
-	_ = globalEngine.Init()
-	rootCommand := prepareRootCommand(testHelpRouter())
+	_ = r.engine.Init()
+	rootCommand := r.prepareRootCommand(testHelpRouter())
 
 	// invoke method under test
-	createCommandsForWorkflows(rootCommand, globalEngine)
+	r.createCommandsForWorkflows(rootCommand)
 
 	// test that root subcmd2 has expected subcommands
 	cmd, _, _ := rootCommand.Find([]string{"cmd"})
@@ -315,13 +557,13 @@ func Test_CreateCommandsForWorkflowWithSubcommands(t *testing.T) {
 	parseError := cmd.ParseFlags([]string{"cmd", "--unknown"})
 
 	// test which command triggers a handleError() and which not
-	assert.Equal(t, handleErrorUnhandled, handleError(cmd.RunE(cmd, []string{})))
-	assert.Equal(t, handleErrorUnhandled, handleError(subcmd2.RunE(subcmd2, []string{})))
-	assert.Equal(t, handleErrorUnhandled, handleError(subcmd3.RunE(subcmd3, []string{})))
-	assert.Equal(t, handleErrorUnhandled, handleError(something.RunE(something, []string{})))
-	assert.Equal(t, handleErrorFallbackToLegacyCLI, handleError(subcmd1.RunE(subcmd1, []string{})))
-	assert.Equal(t, handleErrorFallbackToLegacyCLI, handleError(cmd2.RunE(cmd2, []string{})))
-	assert.Equal(t, handleErrorShowHelp, handleError(parseError))
+	assert.Equal(t, handleErrorUnhandled, r.handleError(cmd.RunE(cmd, []string{})))
+	assert.Equal(t, handleErrorUnhandled, r.handleError(subcmd2.RunE(subcmd2, []string{})))
+	assert.Equal(t, handleErrorUnhandled, r.handleError(subcmd3.RunE(subcmd3, []string{})))
+	assert.Equal(t, handleErrorUnhandled, r.handleError(something.RunE(something, []string{})))
+	assert.Equal(t, handleErrorFallbackToLegacyCLI, r.handleError(subcmd1.RunE(subcmd1, []string{})))
+	assert.Equal(t, handleErrorFallbackToLegacyCLI, r.handleError(cmd2.RunE(cmd2, []string{})))
+	assert.Equal(t, handleErrorShowHelp, r.handleError(parseError))
 
 	assert.True(t, subcmd1.DisableFlagParsing)
 	assert.False(t, subcmd2.DisableFlagParsing)
@@ -339,28 +581,32 @@ func Test_CreateCommandsForWorkflowWithSubcommands(t *testing.T) {
 	assert.True(t, cmd2.Hidden)
 }
 
-// setupMainWorkflowTestEnv wires up the global engine/config that runMainWorkflow needs and
-// returns a fresh per-invocation config plus a command. Callers should `defer cleanup()`.
-func setupMainWorkflowTestEnv(t *testing.T) (configuration.Configuration, *cobra.Command) {
+// setupMainWorkflowTestEnv wires up the engine and configuration that runMainWorkflow needs and
+// returns the run and a command.
+func setupMainWorkflowTestEnv(t *testing.T) (*cliRun, *cobra.Command) {
 	t.Helper()
 
-	globalConfiguration = configuration.New()
-	globalConfiguration.Set(configuration.DEBUG, true)
-	globalEngine = workflow.NewWorkFlowEngine(globalConfiguration)
+	r := newTestRun()
+
+	r.config = configuration.New()
+	r.config.Set(configuration.DEBUG, true)
+	r.engine = workflow.NewWorkFlowEngine(r.config)
 
 	noopWorkflow := func(workflow.InvocationContext, []workflow.Data) ([]workflow.Data, error) {
 		return []workflow.Data{}, nil
 	}
 	for _, name := range []string{"command", localworkflows.WORKFLOWID_OUTPUT_WORKFLOW.Host} {
 		opts := workflow.ConfigurationOptionsFromFlagset(pflag.NewFlagSet("pla", pflag.ContinueOnError))
-		_, err := globalEngine.Register(workflow.NewWorkflowIdentifier(name), opts, noopWorkflow)
+		_, err := r.engine.Register(workflow.NewWorkflowIdentifier(name), opts, noopWorkflow)
 		require.NoError(t, err)
 	}
-	require.NoError(t, localworkflows.InitDataTransformationWorkflow(globalEngine))
-	_ = globalEngine.Init()
-	require.NoError(t, localworkflows.InitFilterFindingsWorkflow(globalEngine))
+	require.NoError(t, localworkflows.InitDataTransformationWorkflow(r.engine))
+	_ = r.engine.Init()
+	require.NoError(t, localworkflows.InitFilterFindingsWorkflow(r.engine))
 
-	return configuration.NewWithOpts(configuration.WithAutomaticEnv()), &cobra.Command{Use: "command"}
+	cmd := &cobra.Command{Use: "command"}
+	cmd.SetContext(t.Context())
+	return r, cmd
 }
 
 // Test_runMainWorkflow_inputDirectoryParsing is the CLI-1631 regression coverage. It asserts how
@@ -419,10 +665,11 @@ func Test_runMainWorkflow_inputDirectoryParsing(t *testing.T) {
 
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
-			defer cleanup()
-			config, cmd := setupMainWorkflowTestEnv(t)
+			r, cmd := setupMainWorkflowTestEnv(t)
 
-			require.NoError(t, runMainWorkflow(config, cmd, tc.positionalArgs, tc.rawArgs))
+			require.NoError(t, r.runMainWorkflow(cmd, tc.positionalArgs, tc.rawArgs))
+
+			config := r.config
 
 			if tc.wantInputDirs == nil {
 				assert.Nil(t, config.Get(configuration.INPUT_DIRECTORY),
@@ -577,10 +824,10 @@ func Test_getErrorFromWorkFlowData(t *testing.T) {
 }
 
 func Test_runWorkflowAndProcessData(t *testing.T) {
-	defer cleanup()
-	globalConfiguration = configuration.New()
-	globalConfiguration.Set(configuration.DEBUG, true)
-	globalEngine = workflow.NewWorkFlowEngine(globalConfiguration)
+	r := newTestRun()
+	r.config = configuration.New()
+	r.config.Set(configuration.DEBUG, true)
+	r.engine = workflow.NewWorkFlowEngine(r.config)
 
 	testCmnd := "subcmd1"
 	workflowId1 := workflow.NewWorkflowIdentifier("output")
@@ -608,10 +855,10 @@ func Test_runWorkflowAndProcessData(t *testing.T) {
 
 	workflowConfig := workflow.ConfigurationOptionsFromFlagset(pflag.NewFlagSet("pla", pflag.ContinueOnError))
 
-	_, err := globalEngine.Register(workflowId1, workflowConfig, outputFn)
+	_, err := r.engine.Register(workflowId1, workflowConfig, outputFn)
 	assert.NoError(t, err)
 	// Register our data filter workflow
-	err = localworkflows.InitFilterFindingsWorkflow(globalEngine)
+	err = localworkflows.InitFilterFindingsWorkflow(r.engine)
 	assert.NoError(t, err)
 
 	fn := func(invocation workflow.InvocationContext, input []workflow.Data) ([]workflow.Data, error) {
@@ -641,20 +888,20 @@ func Test_runWorkflowAndProcessData(t *testing.T) {
 	// setup workflow engine to contain a workflow with subcommands
 	wrkflowId := workflow.NewWorkflowIdentifier(testCmnd)
 
-	entry, err := globalEngine.Register(wrkflowId, workflowConfig, fn)
+	entry, err := r.engine.Register(wrkflowId, workflowConfig, fn)
 	assert.Nil(t, err)
 	assert.NotNil(t, entry)
 
 	// Register our data transformation workflow
-	err = localworkflows.InitDataTransformationWorkflow(globalEngine)
+	err = localworkflows.InitDataTransformationWorkflow(r.engine)
 	assert.NoError(t, err)
 
-	err = globalEngine.Init()
+	err = r.engine.Init()
 	assert.NoError(t, err)
 
 	// invoke method under test
 	logger := zerolog.New(os.Stderr)
-	err = runWorkflowAndProcessData(t.Context(), globalEngine, &logger, testCmnd)
+	err = runWorkflowAndProcessData(t.Context(), r.engine, &logger, testCmnd)
 
 	var expectedError *clierrors.ErrorWithExitCode
 	assert.ErrorAs(t, err, &expectedError)
@@ -665,14 +912,14 @@ func Test_runWorkflowAndProcessData(t *testing.T) {
 }
 
 func Test_runWorkflowAndProcessData_with_Filtering(t *testing.T) {
-	defer cleanup()
-	globalConfiguration = configuration.New()
-	globalConfiguration.Set(configuration.DEBUG, true)
-	globalConfiguration.Set(configuration.IN_MEMORY_THRESHOLD_BYTES, -1)
-	globalConfiguration.Set(configuration.FLAG_SEVERITY_THRESHOLD, "high")
-	globalConfiguration.Set(configuration.FF_TRANSFORMATION_WORKFLOW, true)
+	r := newTestRun()
+	r.config = configuration.New()
+	r.config.Set(configuration.DEBUG, true)
+	r.config.Set(configuration.IN_MEMORY_THRESHOLD_BYTES, -1)
+	r.config.Set(configuration.FLAG_SEVERITY_THRESHOLD, "high")
+	r.config.Set(configuration.FF_TRANSFORMATION_WORKFLOW, true)
 
-	globalEngine = workflow.NewWorkFlowEngine(globalConfiguration)
+	r.engine = workflow.NewWorkFlowEngine(r.config)
 
 	testCmnd := "subcmd1"
 	workflowId1 := workflow.NewWorkflowIdentifier("output")
@@ -697,11 +944,11 @@ func Test_runWorkflowAndProcessData_with_Filtering(t *testing.T) {
 
 	workflowConfig := workflow.ConfigurationOptionsFromFlagset(pflag.NewFlagSet("pla", pflag.ContinueOnError))
 
-	_, err := globalEngine.Register(workflowId1, workflowConfig, outputFn)
+	_, err := r.engine.Register(workflowId1, workflowConfig, outputFn)
 	assert.NoError(t, err)
 
 	// Register our data filter workflow
-	err = localworkflows.InitFilterFindingsWorkflow(globalEngine)
+	err = localworkflows.InitFilterFindingsWorkflow(r.engine)
 	assert.NoError(t, err)
 
 	// Invoke a custom command that returns input
@@ -740,25 +987,26 @@ func Test_runWorkflowAndProcessData_with_Filtering(t *testing.T) {
 		}, nil
 	}
 	wrkflowId := workflow.NewWorkflowIdentifier(testCmnd)
-	entry, err := globalEngine.Register(wrkflowId, workflowConfig, fn)
+	entry, err := r.engine.Register(wrkflowId, workflowConfig, fn)
 	assert.NoError(t, err)
 	assert.NotNil(t, entry)
 
-	err = globalEngine.Init()
+	err = r.engine.Init()
 	assert.NoError(t, err)
 
 	logger := zerolog.New(os.Stderr)
-	err = runWorkflowAndProcessData(t.Context(), globalEngine, &logger, testCmnd)
+	err = runWorkflowAndProcessData(t.Context(), r.engine, &logger, testCmnd)
 }
 
 func Test_setTimeout(t *testing.T) {
+	r := newTestRun()
 	exitedCh := make(chan struct{})
 	fakeExit := func() {
 		close(exitedCh)
 	}
-	config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
-	config.Set(configuration.TIMEOUT, 1)
-	setTimeout(config, fakeExit)
+	r.config = configuration.NewWithOpts(configuration.WithAutomaticEnv())
+	r.config.Set(configuration.TIMEOUT, 1)
+	r.setTimeout(fakeExit)
 	select {
 	case <-exitedCh:
 		break
@@ -768,6 +1016,8 @@ func Test_setTimeout(t *testing.T) {
 }
 
 func Test_displayError(t *testing.T) {
+	r := newTestRun()
+	r.config = configuration.NewWithOpts(configuration.WithAutomaticEnv())
 	mockController := gomock.NewController(t)
 	userInterface := mocks.NewMockUserInterface(mockController)
 
@@ -775,8 +1025,7 @@ func Test_displayError(t *testing.T) {
 		err := errors.New("test error")
 		userInterface.EXPECT().OutputError(err, gomock.Any()).Times(1)
 
-		config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
-		displayError(err, userInterface, config, t.Context(), false)
+		r.displayError(t.Context(), err, userInterface, false)
 	})
 
 	scenarios := []struct {
@@ -795,9 +1044,8 @@ func Test_displayError(t *testing.T) {
 
 	for _, scenario := range scenarios {
 		t.Run(fmt.Sprintf("%s does not display anything", scenario.name), func(t *testing.T) {
-			config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
 			err := scenario.err
-			displayError(err, userInterface, config, t.Context(), false)
+			r.displayError(t.Context(), err, userInterface, false)
 		})
 	}
 
@@ -805,9 +1053,24 @@ func Test_displayError(t *testing.T) {
 		err := &wrErr{wraps: &exec.ExitError{}}
 		userInterface.EXPECT().OutputError(err, gomock.Any()).Times(1)
 
-		config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
-		displayError(err, userInterface, config, t.Context(), false)
+		r.displayError(t.Context(), err, userInterface, false)
 	})
+}
+
+func Test_displayError_jsonOutputUsesInputDirectoryOfTheRun(t *testing.T) {
+	r := newTestRun()
+	r.config = configuration.NewWithOpts()
+	r.config.Set(output_workflow.OUTPUT_CONFIG_KEY_JSON, true)
+	r.config.Set(configuration.INPUT_DIRECTORY, "/some/dir")
+
+	userInterface := mocks.NewMockUserInterface(gomock.NewController(t))
+	userInterface.EXPECT().Output(gomock.Any()).DoAndReturn(func(out string) error {
+		assert.Contains(t, out, `"path": "/some/dir"`)
+		assert.Contains(t, out, "test error")
+		return nil
+	})
+
+	r.displayError(t.Context(), errors.New("test error"), userInterface, false)
 }
 
 func Test_doctorTip(t *testing.T) {
@@ -964,33 +1227,33 @@ func Test_processError(t *testing.T) {
 // prints the auxiliary network error after valid command output — breaking JSON
 // output and showing misleading errors.
 func Test_tearDown_exitCode1WithNetworkErrors(t *testing.T) {
-	setupTearDownGlobals := func(t *testing.T, ctrl *gomock.Controller) (*mocks.MockUserInterface, analytics.Analytics) {
+	setupTearDownRun := func(t *testing.T, ctrl *gomock.Controller) (*cliRun, *mocks.MockUserInterface, analytics.Analytics) {
 		t.Helper()
 
-		globalConfiguration = configuration.NewWithOpts()
-		globalConfiguration.Set(configuration.ANALYTICS_DISABLED, true)
-		globalEngine = workflow.NewWorkFlowEngine(globalConfiguration)
+		r := newTestRun()
 
-		err := basic_workflows.Init(globalEngine)
+		r.config = configuration.NewWithOpts()
+		r.config.Set(configuration.ANALYTICS_DISABLED, true)
+		r.engine = workflow.NewWorkFlowEngine(r.config)
+
+		err := basic_workflows.Init(r.engine)
 		assert.NoError(t, err)
-		err = globalEngine.Init()
+		err = r.engine.Init()
 		assert.NoError(t, err)
 
 		mockUI := mocks.NewMockUserInterface(ctrl)
-		globalEngine.SetUserInterface(mockUI)
+		r.engine.SetUserInterface(mockUI)
 
-		globalContext = t.Context()
 		noopLog := zerolog.New(io.Discard)
-		globalLogger = &noopLog
+		r.logger = &noopLog
 
-		cliAnalytics := globalEngine.GetAnalytics()
-		return mockUI, cliAnalytics
+		cliAnalytics := r.engine.GetAnalytics()
+		return r, mockUI, cliAnalytics
 	}
 
 	t.Run("legacycli exit code 1 with collected network error", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
-		mockUI, cliAnalytics := setupTearDownGlobals(t, ctrl)
-		defer cleanup()
+		r, mockUI, cliAnalytics := setupTearDownRun(t, ctrl)
 
 		commandErr := exec.Command("sh", "-c", "exit 1").Run()
 		require.Error(t, commandErr)
@@ -1002,15 +1265,13 @@ func Test_tearDown_exitCode1WithNetworkErrors(t *testing.T) {
 		mockUI.EXPECT().OutputError(gomock.Any(), gomock.Any()).MaxTimes(0)
 		mockUI.EXPECT().Output(gomock.Any()).MaxTimes(0)
 
-		na := globalEngine.GetNetworkAccess()
-		exitCode := tearDown(commandErr, errorList, time.Now(), networking.UserAgentInfo{}, cliAnalytics, na)
+		exitCode := r.tearDown(t.Context(), commandErr, errorList, time.Now(), networking.UserAgentInfo{}, cliAnalytics)
 		assert.Equal(t, constants.SNYK_EXIT_CODE_VULNERABILITIES_FOUND, exitCode)
 	})
 
 	t.Run("ErrorWithExitCode 1 with collected network error", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
-		mockUI, cliAnalytics := setupTearDownGlobals(t, ctrl)
-		defer cleanup()
+		r, mockUI, cliAnalytics := setupTearDownRun(t, ctrl)
 
 		commandErr := &clierrors.ErrorWithExitCode{
 			ExitCode: constants.SNYK_EXIT_CODE_VULNERABILITIES_FOUND,
@@ -1021,15 +1282,13 @@ func Test_tearDown_exitCode1WithNetworkErrors(t *testing.T) {
 		mockUI.EXPECT().OutputError(gomock.Any(), gomock.Any()).MaxTimes(0)
 		mockUI.EXPECT().Output(gomock.Any()).MaxTimes(0)
 
-		na := globalEngine.GetNetworkAccess()
-		exitCode := tearDown(commandErr, errorList, time.Now(), networking.UserAgentInfo{}, cliAnalytics, na)
+		exitCode := r.tearDown(t.Context(), commandErr, errorList, time.Now(), networking.UserAgentInfo{}, cliAnalytics)
 		assert.Equal(t, constants.SNYK_EXIT_CODE_VULNERABILITIES_FOUND, exitCode)
 	})
 
 	t.Run("exit code 2 with network errors still displays the error", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
-		mockUI, cliAnalytics := setupTearDownGlobals(t, ctrl)
-		defer cleanup()
+		r, mockUI, cliAnalytics := setupTearDownRun(t, ctrl)
 
 		commandErr := exec.Command("sh", "-c", "exit 2").Run()
 		require.Error(t, commandErr)
@@ -1040,15 +1299,13 @@ func Test_tearDown_exitCode1WithNetworkErrors(t *testing.T) {
 		// displayError SHOULD show this error — the command genuinely failed.
 		mockUI.EXPECT().OutputError(gomock.Any(), gomock.Any()).MinTimes(1)
 
-		na := globalEngine.GetNetworkAccess()
-		exitCode := tearDown(commandErr, errorList, time.Now(), networking.UserAgentInfo{}, cliAnalytics, na)
+		exitCode := r.tearDown(t.Context(), commandErr, errorList, time.Now(), networking.UserAgentInfo{}, cliAnalytics)
 		assert.Equal(t, constants.SNYK_EXIT_CODE_ERROR, exitCode)
 	})
 
 	t.Run("arbitrary error with network errors still displays the error", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
-		mockUI, cliAnalytics := setupTearDownGlobals(t, ctrl)
-		defer cleanup()
+		r, mockUI, cliAnalytics := setupTearDownRun(t, ctrl)
 
 		commandErr := fmt.Errorf("this is a failure")
 		auxiliaryNetworkError := fmt.Errorf("network error")
@@ -1057,8 +1314,7 @@ func Test_tearDown_exitCode1WithNetworkErrors(t *testing.T) {
 		// displayError SHOULD show this error — the command genuinely failed.
 		mockUI.EXPECT().OutputError(gomock.Any(), gomock.Any()).MinTimes(1)
 
-		na := globalEngine.GetNetworkAccess()
-		exitCode := tearDown(commandErr, errorList, time.Now(), networking.UserAgentInfo{}, cliAnalytics, na)
+		exitCode := r.tearDown(t.Context(), commandErr, errorList, time.Now(), networking.UserAgentInfo{}, cliAnalytics)
 		assert.Equal(t, constants.SNYK_EXIT_CODE_ERROR, exitCode)
 	})
 }
@@ -1114,14 +1370,13 @@ func Test_defaultNetworkRequestRetryAllowedPaths(t *testing.T) {
 }
 
 func Test_NetworkRequestRetryAllowedPaths_Integration(t *testing.T) {
-	defer cleanup()
 	oldArgs := append([]string{}, os.Args...)
-	os.Args = []string{"snyk", "--version"}
+	os.Args = []string{"snyk", "--help"}
 	defer func() { os.Args = oldArgs }()
 
-	_ = mainWithErrorCode(nil)
+	r, _ := execute(nil)
 
-	paths := globalConfiguration.GetStringSlice(configuration.NETWORK_REQUEST_RETRY_ALLOWED_PATHS)
+	paths := r.config.GetStringSlice(configuration.NETWORK_REQUEST_RETRY_ALLOWED_PATHS)
 	assert.Contains(t, paths, "oauth2/token")
 	assert.Contains(t, paths, "test-dep-graph")
 	assert.Contains(t, paths, "verify/token")

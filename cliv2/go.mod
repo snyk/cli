@@ -1,6 +1,6 @@
 module github.com/snyk/cli/cliv2
 
-go 1.26.10
+go 1.27.3
 
 require (
 	github.com/elazarl/goproxy v1.7.2
@@ -11,27 +11,27 @@ require (
 	github.com/mattn/go-isatty v0.0.24
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.35.1
-	github.com/snyk/cli-extension-agent-scan v0.0.0-20260821092236-dc228259a004
+	github.com/snyk/cli-extension-agent-scan v0.0.0-20261028134456-f2d8eab5aee8
 	github.com/snyk/cli-extension-ai-bom v0.0.0-20260817214817-d0a81ac40172
-	github.com/snyk/cli-extension-dep-graph/v2 v2.19.2
+	github.com/snyk/cli-extension-dep-graph/v2 v2.20.2
 	github.com/snyk/cli-extension-iac v0.0.0-20261027152215-16877b8f1f4d
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20261027152158-1df61a39e801
-	github.com/snyk/cli-extension-os-flows v0.0.0-20261019113940-6bd18a6c09b8
+	github.com/snyk/cli-extension-os-flows v0.0.0-20261111151648-8bc401dd3ae5
 	github.com/snyk/cli-extension-sbom v0.0.0-20260818092356-16ee760085f9
-	github.com/snyk/cli-extension-secrets v0.0.0-20260811115637-ee872c26b0cd
+	github.com/snyk/cli-extension-secrets v0.0.0-20261102155850-7868999a9c97
 	github.com/snyk/code-client-go v1.31.9
 	github.com/snyk/container-cli v0.0.0-20260213211631-cd2b2cf8f3ea
-	github.com/snyk/error-catalog-golang-public v0.0.0-20260930150215-d822bd122137
-	github.com/snyk/go-application-framework v0.30.2
-	github.com/snyk/go-httpauth v0.0.0-20260810142636-0f6182aaccbc
+	github.com/snyk/error-catalog-golang-public v0.0.0-20261109151447-ff0c5a9c0665
+	github.com/snyk/go-application-framework v0.52.0
+	github.com/snyk/go-httpauth v0.0.0-20261007154458-c110eb9b820f
 	github.com/snyk/snyk-iac-capture v0.6.5
-	github.com/snyk/snyk-ls v0.0.0-20261028141737-d1e76800c157
-	github.com/snyk/studio-mcp v1.15.4
+	github.com/snyk/snyk-ls v0.0.0-20261111124117-59ad931080c0
+	github.com/snyk/studio-mcp v1.15.5
 	github.com/spf13/cobra v1.10.2
 	github.com/spf13/pflag v1.0.10
 	github.com/stretchr/testify v1.12.1
 	github.com/vercel/detect-agent v1.2.0
-	golang.org/x/mod v0.41.0
+	golang.org/x/mod v0.42.0
 )
 
 require (
@@ -183,7 +183,7 @@ require (
 	github.com/muesli/cancelreader v0.2.2 // indirect
 	github.com/muesli/reflow v0.3.0 // indirect
 	github.com/muesli/termenv v0.16.0 // indirect
-	github.com/oapi-codegen/runtime v1.6.0 // indirect
+	github.com/oapi-codegen/runtime v1.7.0 // indirect
 	github.com/olekukonko/cat v0.0.0-20250911104152-50322a0618f6 // indirect
 	github.com/olekukonko/errors v1.2.0 // indirect
 	github.com/olekukonko/ll v0.1.6 // indirect

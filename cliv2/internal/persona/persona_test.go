@@ -1,36 +1,55 @@
 package persona
 
 import (
+	"encoding/json"
 	"os"
+	"strconv"
 	"strings"
 	"testing"
 
+	"github.com/golang/mock/gomock"
 	"github.com/snyk/go-application-framework/pkg/analytics"
+	"github.com/stretchr/testify/require"
 )
 
-// fakeAnalytics records the extension values written by Report. It embeds
-// analytics.Analytics (left nil) only to satisfy the full GAF interface; the
-// four methods below are the only ones Report ever calls.
-type fakeAnalytics struct {
-	analytics.Analytics
-	ci       bool
-	bools    map[string]bool
-	integers map[string]int
-	strings  map[string]string
+//go:generate go run github.com/golang/mock/mockgen -destination=analytics_generated_mock_test.go -package=persona github.com/snyk/go-application-framework/pkg/analytics Analytics
+
+type reported struct {
+	collector analytics.InstrumentationCollector
+	bools     map[string]bool
+	integers  map[string]int
+	strings   map[string]string
 }
 
-func newFakeAnalytics() *fakeAnalytics {
-	return &fakeAnalytics{
-		bools:    map[string]bool{},
-		integers: map[string]int{},
-		strings:  map[string]string{},
+func runReport(t *testing.T) *reported {
+	t.Helper()
+	r := &reported{
+		collector: analytics.NewInstrumentationCollector(),
+		bools:     map[string]bool{},
+		integers:  map[string]int{},
+		strings:   map[string]string{},
 	}
+	a := NewMockAnalytics(gomock.NewController(t))
+	a.EXPECT().IsCiEnvironment().Return(false)
+	a.EXPECT().GetInstrumentation().Return(r.collector)
+	a.EXPECT().AddExtensionBoolValue(keyInteractive, gomock.Any()).Do(func(k string, v bool) { r.bools[k] = v })
+	a.EXPECT().AddExtensionIntegerValue(keyInteractiveMode, gomock.Any()).Do(func(k string, v int) { r.integers[k] = v })
+	a.EXPECT().AddExtensionStringValue(gomock.Any(), gomock.Any()).Do(func(k, v string) { r.strings[k] = v }).AnyTimes()
+	Report(a)
+	return r
 }
 
-func (f *fakeAnalytics) IsCiEnvironment() bool                          { return f.ci }
-func (f *fakeAnalytics) AddExtensionBoolValue(key string, value bool)   { f.bools[key] = value }
-func (f *fakeAnalytics) AddExtensionIntegerValue(key string, value int) { f.integers[key] = value }
-func (f *fakeAnalytics) AddExtensionStringValue(key, value string)      { f.strings[key] = value }
+// typedPersona returns interaction.persona as GAF serializes it, or nil when Report didn't set it.
+func (r *reported) typedPersona(t *testing.T) map[string]any {
+	t.Helper()
+	body, err := analytics.GetV2InstrumentationObject(r.collector)
+	require.NoError(t, err)
+	encoded, err := json.Marshal(body.Data.Attributes.Interaction.Persona)
+	require.NoError(t, err)
+	var persona map[string]any
+	require.NoError(t, json.Unmarshal(encoded, &persona))
+	return persona
+}
 
 // isolateEnv wipes the entire process environment for the duration of t and
 // restores it on cleanup. detect-agent's signature list (which env vars each
@@ -70,24 +89,47 @@ func TestIsolateEnvRestoresCallerEnvironment(t *testing.T) {
 		t.Setenv("SOME_TEST_VAR", "whatever")
 	})
 
-	if got := os.Getenv("ISOLATE_ENV_SENTINEL"); got != "outer" {
-		t.Fatalf("sentinel env var not restored after isolateEnv cleanup: got %q, want %q", got, "outer")
-	}
+	require.Equal(t, "outer", os.Getenv("ISOLATE_ENV_SENTINEL"), "sentinel env var not restored after isolateEnv cleanup")
 }
 
 // TestReport verifies that the public entrypoint wires the interactive and
 // mode signals onto the analytics instance. The per-mode and per-agent
 // behaviour is exercised in the interactive and agent subpackages.
 func TestReport(t *testing.T) {
-	a := newFakeAnalytics()
-	Report(a)
+	a := runReport(t)
 
-	if _, ok := a.bools[keyInteractive]; !ok {
-		t.Fatalf("expected %q to be reported", keyInteractive)
-	}
-	if _, ok := a.integers[keyInteractiveMode]; !ok {
-		t.Fatalf("expected %q to be reported", keyInteractiveMode)
-	}
+	require.Contains(t, a.bools, keyInteractive)
+	require.Contains(t, a.integers, keyInteractiveMode)
+}
+
+// TestReport_TypedPersona verifies that Report sets interaction.persona to the
+// same values it writes to the persona extension keys.
+func TestReport_TypedPersona(t *testing.T) {
+	isolateEnv(t)
+	t.Setenv("AI_AGENT", "claude-code_2-1-233_agent")
+
+	a := runReport(t)
+
+	persona := a.typedPersona(t)
+	require.Equal(t, map[string]any{
+		"agent":            a.strings[keyAgent],
+		"agent_version":    a.strings[keyAgentVersion],
+		"interactive":      a.bools[keyInteractive],
+		"interactive_mode": strconv.Itoa(a.integers[keyInteractiveMode]),
+	}, persona)
+	require.Equal(t, "claude_code", persona["agent"])
+	require.Equal(t, "2.1.233", persona["agent_version"])
+}
+
+// TestReport_TypedPersona_noAgent verifies that the typed persona leaves out
+// the agent fields, rather than sending them empty, when no agent is detected.
+func TestReport_TypedPersona_noAgent(t *testing.T) {
+	isolateEnv(t)
+
+	persona := runReport(t).typedPersona(t)
+	require.NotContains(t, persona, "agent")
+	require.NotContains(t, persona, "agent_version")
+	require.Equal(t, "0", persona["interactive_mode"])
 }
 
 // TestReport_Agent covers every real-world AI_AGENT shape observed in
@@ -179,21 +221,14 @@ func TestReport_Agent(t *testing.T) {
 				t.Setenv(k, v)
 			}
 
-			a := newFakeAnalytics()
-			Report(a)
+			a := runReport(t)
 
-			if got := a.strings[keyAgent]; got != tc.wantAgent {
-				t.Fatalf("%s = %q, want %q", keyAgent, got, tc.wantAgent)
-			}
+			require.Equal(t, tc.wantAgent, a.strings[keyAgent])
 			if tc.wantVersion == "" {
-				if v, ok := a.strings[keyAgentVersion]; ok {
-					t.Fatalf("expected %q to be absent, got %q", keyAgentVersion, v)
-				}
+				require.NotContains(t, a.strings, keyAgentVersion)
 				return
 			}
-			if got := a.strings[keyAgentVersion]; got != tc.wantVersion {
-				t.Fatalf("%s = %q, want %q", keyAgentVersion, got, tc.wantVersion)
-			}
+			require.Equal(t, tc.wantVersion, a.strings[keyAgentVersion])
 		})
 	}
 }

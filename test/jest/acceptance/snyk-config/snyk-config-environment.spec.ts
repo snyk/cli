@@ -15,6 +15,7 @@ describe('snyk config environment', () => {
     delete env.SNYK_TOKEN;
     delete env.SNYK_API;
     delete env.SNYK_CFG_ORG;
+    delete env.SNYK_CFG_TENANT;
   });
 
   afterAll(async () => {
@@ -64,6 +65,14 @@ describe('snyk config environment', () => {
       env: { ...env, SNYK_TOKEN: 'https://api.snyk.io' },
     });
     expect(stderr).toEqual('');
+    expect(code).toEqual(2);
+  });
+
+  it('fail with a tenant set in SNYK_CFG_TENANT', async () => {
+    const { code, stdout } = await runSnykCLI(`config environment eu`, {
+      env: { ...env, SNYK_CFG_TENANT: 'my-tenant' },
+    });
+    expect(stdout).toContain('SNYK_CFG_TENANT');
     expect(code).toEqual(2);
   });
 

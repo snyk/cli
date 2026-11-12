@@ -5,7 +5,6 @@ const omit = require('lodash.omit');
 import * as assign from 'lodash.assign';
 import chalk from 'chalk';
 import { MissingArgError } from '../../../lib/errors';
-import * as theme from '../../../lib/theme';
 
 import * as snyk from '../../../lib';
 import { Options, TestOptions } from '../../../lib/types';
@@ -59,12 +58,6 @@ import { checkOSSPaths } from '../../../lib/check-paths';
 
 const debug = Debug('snyk-test');
 const SEPARATOR = '\n-------------------------------------------------------\n';
-
-const appVulnsReleaseWarningMsg = `${theme.icon.WARNING} Important: Beginning January 24th, 2023, application dependencies in container
-images will be scanned by default when using the snyk container test/monitor
-commands. If you are using Snyk in a CI pipeline, action may be required. Read
-https://snyk.io/blog/securing-container-applications-using-the-snyk-cli/ for
-more info.`;
 
 // TODO: avoid using `as any` whenever it's possible
 
@@ -125,18 +118,6 @@ export default async function test(
         options,
         true,
       ));
-
-      // we can't print the warning message with JSON output as that would make
-      // the JSON output invalid.
-      // We also only want to print the message if the user did not overwrite
-      // the default with one of the flags.
-      if (
-        options[EXCLUDE_APP_VULNS_OPTION] &&
-        !options['json'] &&
-        !options['sarif']
-      ) {
-        console.log(theme.color.status.warn(appVulnsReleaseWarningMsg));
-      }
     }
 
     // Check scanUsrLibJars feature flag and add --include-system-jars parameter

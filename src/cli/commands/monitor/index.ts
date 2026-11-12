@@ -4,7 +4,6 @@ import * as Debug from 'debug';
 import * as pathUtil from 'path';
 import { legacyPlugin as pluginApi } from '@snyk/cli-interface';
 import { checkOSSPaths } from '../../../lib/check-paths';
-import * as theme from '../../../lib/theme';
 
 import {
   MonitorOptions,
@@ -75,12 +74,6 @@ import { getOrganizationID } from '../../../lib/organization';
 
 const SEPARATOR = '\n-------------------------------------------------------\n';
 const debug = Debug('snyk');
-const appVulnsReleaseWarningMsg = `${theme.icon.WARNING} Important: Beginning January 24th, 2023, application dependencies in container
-images will be scanned by default when using the snyk container test/monitor
-commands. If you are using Snyk in a CI pipeline, action may be required. Read
-https://snyk.io/blog/securing-container-applications-using-the-snyk-cli/ for
-more info.`;
-
 // This is used instead of `let x; try { x = await ... } catch { cleanup }` to avoid
 // declaring the type of x as possibly undefined.
 async function promiseOrCleanup<T>(
@@ -131,18 +124,6 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
         options,
         false,
       ));
-
-      // we can't print the warning message with JSON output as that would make
-      // the JSON output invalid.
-      // We also only want to print the message if the user did not overwrite
-      // the default with one of the flags.
-      if (
-        options[EXCLUDE_APP_VULNS_OPTION] &&
-        !options['json'] &&
-        !options['sarif']
-      ) {
-        console.log(theme.color.status.warn(appVulnsReleaseWarningMsg));
-      }
     }
 
     // Check scanUsrLibJars feature flag and add --include-system-jars parameter

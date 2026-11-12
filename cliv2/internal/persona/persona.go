@@ -20,17 +20,24 @@ const (
 	keyAgentVersion = "persona.agent_version"
 )
 
-// Report adds the persona extension values to the given analytics instance.
+// Report sets interaction.persona and the persona extension values on the given analytics instance.
 func Report(a analytics.Analytics) {
 	mode := interactive.GetInteractiveMode(a.IsCiEnvironment())
 	// A terminal on stdin is our signal that a human is driving the session.
-	a.AddExtensionBoolValue(keyInteractive, mode.Has(interactive.StdinTTY))
-	a.AddExtensionIntegerValue(keyInteractiveMode, int(mode))
+	p := analytics.Persona{Interactive: mode.Has(interactive.StdinTTY), InteractiveMode: int(mode)}
 	if raw, ok := agent.DetectAgent(); ok {
-		name, version := agent.SplitVersion(raw)
-		a.AddExtensionStringValue(keyAgent, name)
-		if version != "" {
-			a.AddExtensionStringValue(keyAgentVersion, version)
-		}
+		p.Agent, p.AgentVersion = agent.SplitVersion(raw)
+	}
+
+	// SetPersona only fails for a collector GAF didn't create; the extension values are still written.
+	_ = analytics.SetPersona(a.GetInstrumentation(), p)
+
+	a.AddExtensionBoolValue(keyInteractive, p.Interactive)
+	a.AddExtensionIntegerValue(keyInteractiveMode, p.InteractiveMode)
+	if p.Agent != "" {
+		a.AddExtensionStringValue(keyAgent, p.Agent)
+	}
+	if p.AgentVersion != "" {
+		a.AddExtensionStringValue(keyAgentVersion, p.AgentVersion)
 	}
 }

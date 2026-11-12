@@ -19,10 +19,10 @@ parameters:
   go_version:
     type: string
     # https://go.dev/doc/devel/release
-    default: '1.26.10'
+    default: '1.27.3'
   fips_go_version:
     type: string
-    default: '1.26.10'
+    default: '1.27.3'
   gh_version:
     type: string
     # https://github.com/cli/cli/releases
@@ -98,6 +98,14 @@ executors:
           password: $DOCKER_CLI_BUILD_PASSWORD
     # working_directory: /mnt/ramdisk/snyk
     resource_class: arm.xlarge
+  docker-arm64-gen2:
+    docker:
+      - image: snyklabs/cli-build-private-arm64:20260610-125138
+        auth:
+          username: $DOCKER_CLI_BUILD_USERNAME
+          password: $DOCKER_CLI_BUILD_PASSWORD
+    # working_directory: /mnt/ramdisk/snyk
+    resource_class: arm.large.gen2
   linux-ubuntu-jammy-amd64:
     docker:
       - image: ubuntu:jammy
@@ -779,7 +787,7 @@ workflows:
           go_arch: arm64
           static_binary: true
           go_download_base_url: << pipeline.parameters.go_download_base_url >>
-          executor: docker-arm64-xl
+          executor: docker-arm64-gen2
           requires:
             - prepare-build
 
@@ -795,7 +803,7 @@ workflows:
           static_binary: true
           go_download_base_url: << pipeline.parameters.go_download_base_url >>
           make_target: build-experimental BUILD_MODE=private
-          executor: docker-arm64-xl
+          executor: docker-arm64-gen2
           requires:
             - prepare-build
 
@@ -811,7 +819,7 @@ workflows:
           go_download_base_url: << pipeline.parameters.fips_go_download_base_url >>
           go_version: << pipeline.parameters.fips_go_version >>
           make_target: build-fips BUILD_MODE=private
-          executor: docker-arm64-xl
+          executor: docker-arm64-gen2
           requires:
             - prepare-build
 
@@ -840,7 +848,7 @@ workflows:
           go_os: linux
           go_arch: arm64
           go_download_base_url: << pipeline.parameters.go_download_base_url >>
-          executor: docker-arm64-xl
+          executor: docker-arm64-gen2
           c_compiler: /usr/bin/musl-gcc
           requires:
             - prepare-build
@@ -1592,8 +1600,6 @@ jobs:
           open-source-scan-reachability: true
           open-source-scan: high
           open-source-block-ignore-sla: true
-          open-source-agentic-fix-enabled: true
-          open-source-agentic-fix-base-branch: main
 
   docs-only-check:
     executor: docker-amd64
@@ -2040,6 +2046,9 @@ jobs:
             make ls-protocol-metadata
             cp binary-releases/ls-protocol-version-* binary-releases/fips/
             cp binary-releases/ls-protocol-version-* binary-releases/experimental/
+      - run:
+          name: Creating artifacts manifest
+          command: make binary-releases/artifacts-manifest.json
       - store_artifacts:
           path: ./binary-releases
       - persist_to_workspace:
@@ -2047,6 +2056,7 @@ jobs:
           paths:
             - binary-releases/sha256sums.txt.asc
             - binary-releases/release.json
+            - binary-releases/artifacts-manifest.json
             - binary-releases/snyk-*.sha256
             - binary-releases/fips/sha256sums.txt.asc
             - binary-releases/fips/release.json
