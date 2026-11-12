@@ -1,5 +1,7 @@
 ---
 description: The snyk code command for finding security issues with Snyk Code
+last_reviewed: 2026-05-15
+last_reviewed_source: bulk-sync
 ---
 
 # Code

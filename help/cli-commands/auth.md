@@ -1,5 +1,7 @@
 ---
 description: The snyk auth command that authenticates the CLI with your Snyk account
+last_reviewed: 2026-05-15
+last_reviewed_source: bulk-sync
 ---
 
 # Auth

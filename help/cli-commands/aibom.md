@@ -1,5 +1,7 @@
 ---
 description: The snyk aibom command that generates an AI bill of materials
+last_reviewed: 2026-08-06
+last_reviewed_source: focused-edit
 ---
 
 # AI-BOM

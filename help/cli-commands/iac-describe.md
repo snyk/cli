@@ -1,5 +1,7 @@
 ---
 description: The snyk iac describe command that detects drift in infrastructure as code
+last_reviewed: 2026-05-15
+last_reviewed_source: bulk-sync
 ---
 
 # IaC describe

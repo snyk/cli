@@ -1,5 +1,7 @@
 ---
 description: The snyk code test command that runs a Snyk Code static analysis test
+last_reviewed: 2026-09-29
+last_reviewed_source: focused-edit
 ---
 
 # Code test

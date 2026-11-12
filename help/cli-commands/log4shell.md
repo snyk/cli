@@ -1,5 +1,7 @@
 ---
 description: The snyk log4shell command that scans for the Log4Shell vulnerability
+last_reviewed: 2026-05-15
+last_reviewed_source: bulk-sync
 ---
 
 # Log4shell

@@ -2,6 +2,8 @@
 description: The snyk ignore create command that creates a Snyk Code ignore
 hidden: true
 noIndex: true
+last_reviewed: 2026-08-07
+last_reviewed_source: focused-edit
 ---
 
 # Ignore create

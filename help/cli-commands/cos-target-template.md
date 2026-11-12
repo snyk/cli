@@ -1,14 +1,10 @@
 ---
-description: A sample target configuration file for the snyk cos target add command.
+description: Use this sample configuration file with snyk cos target add.
+last_reviewed: 2026-10-09
+last_reviewed_source: bulk-sync
 ---
 
 # COS target template
-
-{% hint style="info" %}
-**Release status**
-
-The `snyk cos` command set is in Closed Beta and is available only for Enterprise plans. If you want to set it up in your Group or Organization, contact your Snyk account team.
-{% endhint %}
 
 ## Description
 

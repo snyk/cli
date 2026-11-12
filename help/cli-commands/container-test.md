@@ -1,5 +1,7 @@
 ---
 description: The snyk container test command that tests a container image for vulnerabilities
+last_reviewed: 2026-05-21
+last_reviewed_source: focused-edit
 ---
 
 # Container test
