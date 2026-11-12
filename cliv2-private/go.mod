@@ -5,7 +5,7 @@ go 1.27.4
 require (
 	github.com/snyk/cli-extension-axi v0.0.0-20261102092111-6acf30273022
 	github.com/snyk/cli-extension-cos v0.0.0-20261105214232-7b105d991421
-	github.com/snyk/cli-extension-studio v1.0.7
+	github.com/snyk/cli-extension-studio v1.0.8
 	github.com/snyk/cli-extension-supply-chain v0.0.0-20261103195759-cee881cdc9da
 	github.com/snyk/cli/cliv2 v0.0.0
 	github.com/snyk/remy-cli-extension v1.53.2
