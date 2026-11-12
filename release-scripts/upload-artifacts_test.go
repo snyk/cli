@@ -1,6 +1,9 @@
 package main
 
 import (
+	"archive/tar"
+	"bytes"
+	"compress/gzip"
 	"crypto/sha256"
 	"encoding/json"
 	"fmt"
@@ -50,6 +53,9 @@ func uploadArtifacts(t *testing.T, branch string, prepare func(binaryReleases st
 	tools := []string{"gh", "npm", "aws"}
 	for _, tool := range tools {
 		script := "#!/usr/bin/env bash\necho \"$*\" >> \"" + filepath.Join(logDir, tool+".log") + "\"\n"
+		if tool == "npm" {
+			script += fakeNpmViewBehaviour
+		}
 		if err := os.WriteFile(filepath.Join(fakeBin, tool), []byte(script), 0755); err != nil {
 			t.Fatal(err)
 		}
@@ -74,12 +80,81 @@ func uploadArtifacts(t *testing.T, branch string, prepare func(binaryReleases st
 	return calls, string(out), err
 }
 
+// fakeNpmViewBehaviour lets a test script "npm view <spec>" through files in
+// binary-releases/fake-npm-view named after the spec (with "/" replaced by "_"):
+// <spec>.out is stdout, <spec>.stderr is stderr and <spec>.exit is the exit code.
+const fakeNpmViewBehaviour = `if [ "$1" = view ]; then
+  f="binary-releases/fake-npm-view/${2//\//_}"
+  [ -f "$f.stderr" ] && cat "$f.stderr" >&2
+  [ -f "$f.out" ] && cat "$f.out"
+  [ -f "$f.exit" ] && exit "$(cat "$f.exit")"
+fi
+exit 0
+`
+
+func fakeNpmView(t *testing.T, binaryReleases, spec, stdout, stderr string, exitCode int) {
+	t.Helper()
+
+	dir := filepath.Join(binaryReleases, "fake-npm-view")
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		t.Fatal(err)
+	}
+	base := filepath.Join(dir, strings.ReplaceAll(spec, "/", "_"))
+	for suffix, contents := range map[string]string{".out": stdout, ".stderr": stderr, ".exit": fmt.Sprint(exitCode)} {
+		if err := os.WriteFile(base+suffix, []byte(contents), 0644); err != nil {
+			t.Fatal(err)
+		}
+	}
+}
+
+func npmTarball(t *testing.T, name, version string) []byte {
+	t.Helper()
+
+	manifest := fmt.Sprintf(`{"name":%q,"version":%q}`, name, version)
+	var buf bytes.Buffer
+	gz := gzip.NewWriter(&buf)
+	tw := tar.NewWriter(gz)
+	if err := tw.WriteHeader(&tar.Header{Name: "package/package.json", Mode: 0644, Size: int64(len(manifest))}); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := tw.Write([]byte(manifest)); err != nil {
+		t.Fatal(err)
+	}
+	if err := tw.Close(); err != nil {
+		t.Fatal(err)
+	}
+	if err := gz.Close(); err != nil {
+		t.Fatal(err)
+	}
+	return buf.Bytes()
+}
+
+// writeNpmManifest writes a manifest with the three npm tarballs (snyk.tgz is the last entry)
+// and one binary that has no npm target.
+func writeNpmManifest(t *testing.T, binaryReleases, channel string) {
+	t.Helper()
+
+	packages := map[string]string{"./snyk-fix.tgz": "@snyk/fix", "./snyk-protect.tgz": "@snyk/protect", "./snyk.tgz": "snyk"}
+	artifacts := map[string][]testTarget{"./snyk-linux": {{Type: "s3", Path: "cli/v1.3.0/"}, {Type: "github"}}}
+	contents := map[string][]byte{}
+	for file, name := range packages {
+		artifacts[file] = []testTarget{{Type: "s3", Path: "cli/v1.3.0/"}, {Type: "npm"}}
+		contents[file] = npmTarball(t, name, "1.3.0")
+	}
+	writeTestManifestWithContents(t, binaryReleases, channel, artifacts, contents)
+}
+
 type testTarget struct {
 	Type string `json:"type"`
 	Path string `json:"path,omitempty"`
 }
 
 func writeTestManifest(t *testing.T, binaryReleases string, channel string, artifacts map[string][]testTarget) {
+	t.Helper()
+	writeTestManifestWithContents(t, binaryReleases, channel, artifacts, nil)
+}
+
+func writeTestManifestWithContents(t *testing.T, binaryReleases string, channel string, artifacts map[string][]testTarget, fileContents map[string][]byte) {
 	t.Helper()
 
 	type artifact struct {
@@ -89,7 +164,10 @@ func writeTestManifest(t *testing.T, binaryReleases string, channel string, arti
 	}
 	var listed []artifact
 	for name, targets := range artifacts {
-		contents := []byte("contents of " + name)
+		contents, ok := fileContents[name]
+		if !ok {
+			contents = []byte("contents of " + name)
+		}
 		file := filepath.Join(binaryReleases, filepath.FromSlash(name))
 		if err := os.MkdirAll(filepath.Dir(file), 0755); err != nil {
 			t.Fatal(err)
@@ -299,32 +377,184 @@ func TestUploadArtifactsGithubPrereleaseFlagPerChannel(t *testing.T) {
 	}
 }
 
-func TestUploadArtifactsNpmTagPerChannel(t *testing.T) {
+func npmPublishLines(npm []string) []string {
+	var publishes []string
+	for _, line := range npm {
+		if strings.HasPrefix(line, "publish") {
+			publishes = append(publishes, line)
+		}
+	}
+	return publishes
+}
+
+func TestUploadArtifactsNpmTagPerChannelFollowsTheManifest(t *testing.T) {
 	testCases := []struct {
-		branch  string
-		wantTag string
+		channel string
+		tag     string
 	}{
-		{branch: "main", wantTag: "--tag preview"},
-		{branch: "release-candidate", wantTag: "--tag rc"},
-		{branch: "chore/some-feature", wantTag: "--tag dev"},
-		{branch: "release/1.3", wantTag: ""},
+		{channel: "preview", tag: " --tag preview"},
+		{channel: "rc", tag: " --tag rc"},
+		{channel: "stable", tag: ""},
 	}
 
 	for _, tc := range testCases {
-		t.Run(tc.branch, func(t *testing.T) {
-			_, npm := runUploadArtifacts(t, tc.branch, "npm")
-			if len(npm) != 3 {
-				t.Fatalf("expected 3 npm publish calls, got %q", npm)
+		t.Run(tc.channel, func(t *testing.T) {
+			// the branch says dev, the manifest decides
+			calls, output, err := uploadArtifacts(t, "chore/some-feature", func(binaryReleases string) {
+				writeNpmManifest(t, binaryReleases, tc.channel)
+			}, "npm")
+			if err != nil {
+				t.Fatalf("upload-artifacts.sh npm failed: %v\n%s", err, output)
 			}
-			for _, line := range npm {
-				if got := strings.Contains(line, "--tag"); got != (tc.wantTag != "") {
-					t.Fatalf("unexpected --tag presence in %q (want %q)", line, tc.wantTag)
-				}
-				if tc.wantTag != "" && !strings.Contains(line, tc.wantTag) {
-					t.Fatalf("expected %q in %q", tc.wantTag, line)
-				}
+
+			want := []string{
+				"view @snyk/fix@1.3.0 version --json",
+				"publish" + tc.tag + " binary-releases/snyk-fix.tgz",
+				"view @snyk/protect@1.3.0 version --json",
+				"publish" + tc.tag + " binary-releases/snyk-protect.tgz",
+				"view snyk@1.3.0 version --json",
+				"publish" + tc.tag + " binary-releases/snyk.tgz",
+			}
+			if !slices.Equal(calls["npm"], want) {
+				t.Fatalf("npm calls:\n%s\nwant:\n%s", strings.Join(calls["npm"], "\n"), strings.Join(want, "\n"))
+			}
+			if want := "published snyk@1.3.0"; !strings.Contains(output, want) {
+				t.Fatalf("expected %q in the output:\n%s", want, output)
 			}
 		})
+	}
+}
+
+func TestUploadArtifactsNpmDryRunPassesDryRunToNpm(t *testing.T) {
+	calls, output, err := uploadArtifacts(t, "main", func(binaryReleases string) {
+		writeNpmManifest(t, binaryReleases, "preview")
+	}, "--dry-run", "npm")
+	if err != nil {
+		t.Fatalf("upload-artifacts.sh --dry-run npm failed: %v\n%s", err, output)
+	}
+
+	want := []string{
+		"publish --dry-run --tag preview binary-releases/snyk-fix.tgz",
+		"publish --dry-run --tag preview binary-releases/snyk-protect.tgz",
+		"publish --dry-run --tag preview binary-releases/snyk.tgz",
+	}
+	if got := npmPublishLines(calls["npm"]); !slices.Equal(got, want) {
+		t.Fatalf("npm publish calls:\n%s\nwant:\n%s", strings.Join(got, "\n"), strings.Join(want, "\n"))
+	}
+	if want := "publish snyk@1.3.0"; !strings.Contains(output, want) || strings.Contains(output, "published") {
+		t.Fatalf("expected %q and no \"published\" in the output:\n%s", want, output)
+	}
+}
+
+func TestUploadArtifactsNpmSkipsVersionsNpmAlreadyHas(t *testing.T) {
+	calls, output, err := uploadArtifacts(t, "main", func(binaryReleases string) {
+		writeNpmManifest(t, binaryReleases, "preview")
+		fakeNpmView(t, binaryReleases, "@snyk/fix@1.3.0", `"1.3.0"`, "", 0)
+		fakeNpmView(t, binaryReleases, "@snyk/protect@1.3.0", `"1.3.0"`, "", 0)
+	}, "npm")
+	if err != nil {
+		t.Fatalf("upload-artifacts.sh npm failed: %v\n%s", err, output)
+	}
+
+	want := []string{"publish --tag preview binary-releases/snyk.tgz"}
+	if got := npmPublishLines(calls["npm"]); !slices.Equal(got, want) {
+		t.Fatalf("npm publish calls:\n%s\nwant:\n%s", strings.Join(got, "\n"), strings.Join(want, "\n"))
+	}
+	if want := "skip @snyk/fix@1.3.0"; !strings.Contains(output, want) {
+		t.Fatalf("expected %q in the output:\n%s", want, output)
+	}
+}
+
+func TestUploadArtifactsNpmPublishesWhenNpmViewReportsE404(t *testing.T) {
+	e404 := `{"error":{"code":"E404","summary":"Not Found"}}`
+	testCases := []struct {
+		name   string
+		stdout string
+		stderr string
+	}{
+		{name: "on stdout", stdout: e404},
+		{name: "on stderr", stderr: e404},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			calls, output, err := uploadArtifacts(t, "main", func(binaryReleases string) {
+				writeNpmManifest(t, binaryReleases, "preview")
+				fakeNpmView(t, binaryReleases, "snyk@1.3.0", tc.stdout, tc.stderr, 1)
+			}, "npm")
+			if err != nil {
+				t.Fatalf("upload-artifacts.sh npm failed: %v\n%s", err, output)
+			}
+			if got := npmPublishLines(calls["npm"]); len(got) != 3 {
+				t.Fatalf("expected 3 npm publish calls, got %q", got)
+			}
+		})
+	}
+}
+
+func TestUploadArtifactsNpmStopsWhenNpmViewFailsForAnotherReason(t *testing.T) {
+	calls, output, err := uploadArtifacts(t, "main", func(binaryReleases string) {
+		writeNpmManifest(t, binaryReleases, "preview")
+		fakeNpmView(t, binaryReleases, "@snyk/protect@1.3.0", "", "npm error network request failed", 1)
+	}, "npm")
+	if err == nil {
+		t.Fatalf("expected upload-artifacts.sh npm to fail\n%s", output)
+	}
+
+	want := []string{"publish --tag preview binary-releases/snyk-fix.tgz"}
+	if got := npmPublishLines(calls["npm"]); !slices.Equal(got, want) {
+		t.Fatalf("npm publish calls:\n%s\nwant:\n%s", strings.Join(got, "\n"), strings.Join(want, "\n"))
+	}
+}
+
+func TestUploadArtifactsNpmRefusesAFileThatDoesNotMatchTheManifest(t *testing.T) {
+	calls, output, err := uploadArtifacts(t, "main", func(binaryReleases string) {
+		writeNpmManifest(t, binaryReleases, "preview")
+		if err := os.WriteFile(filepath.Join(binaryReleases, "snyk.tgz"), []byte("rebuilt"), 0644); err != nil {
+			t.Fatal(err)
+		}
+	}, "npm")
+	if err == nil {
+		t.Fatalf("expected upload-artifacts.sh npm to fail\n%s", output)
+	}
+	if want := "binary-releases/snyk.tgz: FAILED"; !strings.Contains(output, want) {
+		t.Fatalf("expected %q in the output:\n%s", want, output)
+	}
+	if len(calls["npm"]) != 0 {
+		t.Fatalf("expected no npm calls, got %q", calls["npm"])
+	}
+}
+
+func TestUploadArtifactsNpmRefusesATarballWithoutPackageJson(t *testing.T) {
+	calls, output, err := uploadArtifacts(t, "main", func(binaryReleases string) {
+		// the default test contents are not a tarball, but the sha256 in the manifest matches
+		writeTestManifest(t, binaryReleases, "preview", map[string][]testTarget{
+			"./snyk.tgz": {{Type: "npm"}},
+		})
+	}, "npm")
+	if err == nil {
+		t.Fatalf("expected upload-artifacts.sh npm to fail\n%s", output)
+	}
+	if want := "cannot read package/package.json from binary-releases/snyk.tgz"; !strings.Contains(output, want) {
+		t.Fatalf("expected %q in the output:\n%s", want, output)
+	}
+	if len(calls["npm"]) != 0 {
+		t.Fatalf("expected no npm calls, got %q", calls["npm"])
+	}
+}
+
+func TestUploadArtifactsNpmRejectsChannelsNpmDoesNotTake(t *testing.T) {
+	calls, output, err := uploadArtifacts(t, "release/1.3", func(binaryReleases string) {
+		writeNpmManifest(t, binaryReleases, "dev")
+	}, "npm")
+	if err == nil {
+		t.Fatalf("expected upload-artifacts.sh npm to fail\n%s", output)
+	}
+	if want := `release channel "dev"`; !strings.Contains(output, want) {
+		t.Fatalf("expected %q in the output:\n%s", want, output)
+	}
+	if len(calls["npm"]) != 0 {
+		t.Fatalf("expected no npm calls, got %q", calls["npm"])
 	}
 }
 

@@ -37,7 +37,7 @@ show_help() {
   echo "Arguments:"
   echo "  version       upload the versioned S3 folders listed in the artifacts manifest"
   echo "  github        upload artifacts to GitHub"
-  echo "  npm           upload artifacts to npm"
+  echo "  npm           publish the npm packages listed in the artifacts manifest, skipping versions npm already has"
   echo "  s3            upload the non-versioned S3 folders listed in the artifacts manifest to S3"
   echo ""
   echo "Example:"
@@ -85,26 +85,6 @@ upload_github() {
       --target "${CIRCLE_SHA1}" \
       --title "${VERSION_TAG}" \
       --notes-file binary-releases/RELEASE_NOTES.md
-  fi
-}
-
-upload_npm() {
-  # For non-stable releases, specify --tag to avoid npm's prerelease version error
-  local npm_tag_arg=""
-  if [ -n "${RELEASE_CHANNEL}" ] && [ "${RELEASE_CHANNEL}" != "stable" ]; then
-    npm_tag_arg="--tag ${RELEASE_CHANNEL}"
-  fi
-
-  if [ "${DRY_RUN}" == true ]; then
-    echo "DRY RUN: uploading to npm..."
-    npm publish --dry-run ${npm_tag_arg} ./binary-releases/snyk-fix.tgz
-    npm publish --dry-run ${npm_tag_arg} ./binary-releases/snyk-protect.tgz
-    npm publish --dry-run ${npm_tag_arg} ./binary-releases/snyk.tgz
-  else
-    echo "Uploading to npm..."
-    npm publish ${npm_tag_arg} ./binary-releases/snyk-fix.tgz
-    npm publish ${npm_tag_arg} ./binary-releases/snyk-protect.tgz
-    npm publish ${npm_tag_arg} ./binary-releases/snyk.tgz
   fi
 }
 
@@ -234,6 +214,89 @@ upload_s3_non_versioned() {
 
   check_artifacts 'binary-releases' "${artifacts}"
   upload_artifacts 'binary-releases' "${artifacts}"
+}
+
+# Exit status 0 if npm already has this exact name@version, 1 if it does not.
+# Any other npm failure (network, auth, registry outage) stops the script, so an
+# outage is never mistaken for "not published" and the version is never published twice.
+npm_has_version() {
+  local spec="$1"
+  local out err_file err rc=0 code
+  err_file="$(mktemp)"
+  out="$(npm view "${spec}" version --json 2>"${err_file}")" || rc=$?
+  err="$(cat "${err_file}")"
+  rm -f "${err_file}"
+
+  # npm view succeeded. It prints the version if it exists and nothing if it does not.
+  if [[ ${rc} -eq 0 ]]; then
+    [[ -n "${out}" ]]
+    return
+  fi
+
+  # npm view failed. With --json, npm reports errors as {"error":{"code":"E404",...}},
+  # on stdout or on stderr depending on the npm version. E404 means the registry has
+  # no such package version, so it is safe to publish.
+  code="$(jq -r '.error.code // empty' <<< "${out:-${err}}" 2>/dev/null || true)"
+  if [[ "${code}" == "E404" ]]; then
+    return 1
+  fi
+
+  echo "npm view ${spec} failed (exit ${rc}):" >&2
+  echo "${out:-${err}}" >&2
+  exit 1
+}
+
+upload_npm() {
+  local channel tag_arg=""
+  channel="$(jq -er '.meta.releaseChannel' "${MANIFEST}")"
+  # review and rc builds get a dist-tag named after the channel.
+  # Stable gets no tag and so becomes "latest".
+  if [[ "${channel}" == "preview" || "${channel}" == "rc" ]]; then
+    tag_arg="--tag ${channel}"
+  elif [[ "${channel}" != "stable" ]]; then
+    echo "Cannot publish to npm from release channel \"${channel}\" (preview, rc or stable only)" >&2
+    exit 1
+  fi
+
+  local artifacts
+  artifacts="$(jq -r '.artifacts[] | .name as $name
+    | select(any(.targets[]; .type == "npm")) | $name' "${MANIFEST}")"
+  if [[ -z "${artifacts}" ]]; then
+    echo "No npm artifacts found in the manifest"
+    return
+  fi
+
+  check_artifacts 'binary-releases' "${artifacts}"
+
+  local name file spec package
+  local -a files=() specs=()
+  while read -r name; do
+    file="binary-releases/${name#./}"
+    package="$(tar -xzOf "${file}" package/package.json)" || { echo "cannot read package/package.json from ${file}" >&2; exit 1; }
+    spec="$(jq -er '"\(.name)@\(.version)"' <<< "${package}")" || { echo "${file} has no package name and version" >&2; exit 1; }
+    files+=("${file}")
+    specs+=("${spec}")
+  done <<< "${artifacts}"
+
+  local dry_run_arg=""
+  if [ "${DRY_RUN}" == true ]; then
+    dry_run_arg="--dry-run"
+  fi
+
+  local i
+  for i in "${!files[@]}"; do
+    if npm_has_version "${specs[$i]}"; then
+      echo "skip ${specs[$i]} (already on npm)"
+      continue
+    fi
+    # shellcheck disable=SC2086
+    npm publish ${dry_run_arg} ${tag_arg} "${files[$i]}"
+    if [ "${DRY_RUN}" == true ]; then
+      echo "publish ${specs[$i]} (dry run)"
+    else
+      echo "published ${specs[$i]}"
+    fi
+  done
 }
 
 # Capture valid flags
