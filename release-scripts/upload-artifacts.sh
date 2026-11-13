@@ -1,27 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-PROTOCOL_VERSION_FILE=$(basename "$(/bin/ls binary-releases/ls-protocol-version*)")
-
-declare -a StaticFiles=(
-  "binary-releases/snyk-alpine"
-  "binary-releases/snyk-alpine.sha256"
-  "binary-releases/snyk-alpine-arm64"
-  "binary-releases/snyk-alpine-arm64.sha256"
-  "binary-releases/snyk-linux"
-  "binary-releases/snyk-linux.sha256"
-  "binary-releases/snyk-linux-arm64"
-  "binary-releases/snyk-linux-arm64.sha256"
-  "binary-releases/snyk-macos"
-  "binary-releases/snyk-macos.sha256"
-  "binary-releases/snyk-macos-arm64"
-  "binary-releases/snyk-macos-arm64.sha256"
-  "binary-releases/snyk-win.exe"
-  "binary-releases/snyk-win.exe.sha256"
-  "binary-releases/sha256sums.txt.asc"
-  "binary-releases/$PROTOCOL_VERSION_FILE"
-)
-
 VERSION_TAG="v$(cat binary-releases/version)"
 RELEASE_CHANNEL="$($(dirname "$0")/determine-release-channel.sh)"
 DRY_RUN=false
@@ -36,7 +15,7 @@ show_help() {
   echo ""
   echo "Arguments:"
   echo "  version       upload the versioned S3 folders listed in the artifacts manifest"
-  echo "  github        upload artifacts to GitHub"
+  echo "  github        create the GitHub release from the artifacts manifest"
   echo "  npm           upload artifacts to npm"
   echo "  s3            upload the non-versioned S3 folders listed in the artifacts manifest to S3"
   echo ""
@@ -58,33 +37,74 @@ show_help() {
 }
 
 upload_github() {
-  # Non-stable channels (preview, rc) are published as GitHub prereleases so that
+  local version commit channel tag
+  version="$(jq -er '.meta.version' "${MANIFEST}")"
+  commit="$(jq -er '.meta.commit' "${MANIFEST}")"
+  channel="$(jq -er '.meta.releaseChannel' "${MANIFEST}")"
+  tag="v${version}"
+
+  local github_artifacts
+  github_artifacts="$(jq -r '.artifacts[] | select(any(.targets[]; .type == "github")) | .name' "${MANIFEST}")"
+  if ! grep -qxF './RELEASE_NOTES.md' <<< "${github_artifacts}"; then
+    echo "The manifest has no RELEASE_NOTES.md with a github target" >&2
+    exit 1
+  fi
+  # RELEASE_NOTES.md is the GH Release's body, not a GH Release asset.
+  local assets
+  assets="$(grep -vxF './RELEASE_NOTES.md' <<< "${github_artifacts}")" || true
+  if [[ -z "${assets}" ]]; then
+    echo "The manifest has no non-RELEASE_NOTES.md artifacts with a github target" >&2
+    exit 1
+  fi
+
+  # GitHub release assets are flat: a file in a folder would be published under its base name.
+  local asset
+  while read -r asset; do
+    if [[ "${asset#./}" == */* ]]; then
+      echo "GitHub release assets can't be in a folder: ${asset}" >&2
+      exit 1
+    fi
+  done <<< "${assets}"
+
+  # Non-stable channels (preview, rc, dev) are published as GitHub prereleases so that
   # the "latest release" pointer consumed by homebrew-tap, scoop-snyk, and install
   # scripts keeps resolving to stable only.
   local prerelease_arg=""
-  if [ -n "${RELEASE_CHANNEL}" ] && [ "${RELEASE_CHANNEL}" != "stable" ]; then
+  if [ "${channel}" != "stable" ]; then
     prerelease_arg="--prerelease"
   fi
 
+  echo "GitHub release ${tag} at ${commit} (channel: ${channel}, prerelease?: ${prerelease_arg:-false})"
+  echo "Assets:"
+  # shellcheck disable=SC2001 # Parameter expansion can't strip a leading "./" from each line of a multi-line string.
+  sed -e 's|^\./|  |' <<< "${assets}"
+
+  check_artifacts 'binary-releases' "${github_artifacts}"
+
+  local files=() name
+  while read -r name; do
+    files+=("binary-releases/${name#./}")
+  done <<< "${assets}"
+
+  local draft_arg=""
   if [ "${DRY_RUN}" == true ]; then
     echo "DRY RUN: uploading draft to GitHub..."
-    gh release create "${VERSION_TAG}" "${StaticFiles[@]}" \
-      --draft \
-      ${prerelease_arg} \
-      --target "${CIRCLE_SHA1}" \
-      --title "${VERSION_TAG}" \
-      --notes-file binary-releases/RELEASE_NOTES.md
-
-    echo "DRY RUN: deleting draft from GitHub..."
-    gh release delete "${VERSION_TAG}" \
-      --yes
+    draft_arg="--draft"
   else
     echo "Uploading to GitHub..."
-    gh release create "${VERSION_TAG}" "${StaticFiles[@]}" \
-      ${prerelease_arg} \
-      --target "${CIRCLE_SHA1}" \
-      --title "${VERSION_TAG}" \
-      --notes-file binary-releases/RELEASE_NOTES.md
+  fi
+
+  gh release create "${tag}" "${files[@]}" \
+    ${draft_arg} \
+    ${prerelease_arg} \
+    --target "${commit}" \
+    --title "${tag}" \
+    --notes-file binary-releases/RELEASE_NOTES.md
+
+  if [ "${DRY_RUN}" == true ]; then
+    echo "DRY RUN: deleting draft from GitHub..."
+    gh release delete "${tag}" \
+      --yes
   fi
 }
 
