@@ -23,7 +23,7 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as crypto from 'crypto';
 import { createDirIfNotExists, isExe } from '../file-utils';
-import { restoreEnvProxy } from '../env-utils';
+import { cleanSnykEnv } from '@snyk/cli-interface';
 
 const debug = debugLib('driftctl');
 
@@ -238,10 +238,13 @@ export const runDriftCTL = async ({
 
   debug('running driftctl %s ', args.join(' '));
 
-  const dctl_env: NodeJS.ProcessEnv = restoreEnvProxy({
-    ...process.env,
-    DCTL_IS_SNYK: 'true',
-  });
+  const dctl_env: NodeJS.ProcessEnv = cleanSnykEnv(
+    {
+      ...process.env,
+      DCTL_IS_SNYK: 'true',
+    },
+    process.env,
+  );
 
   const p = child_process.spawn(path, args, {
     stdio,
