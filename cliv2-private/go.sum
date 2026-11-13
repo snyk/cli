@@ -634,8 +634,8 @@ github.com/snyk/go-httpauth v0.0.0-20261007154458-c110eb9b820f h1:6JiyUAk09kEzUf
 github.com/snyk/go-httpauth v0.0.0-20261007154458-c110eb9b820f/go.mod h1:f42qLL7WXOS0od7dXJV/hK3myjms/r6HsXgLrg1HRRY=
 github.com/snyk/policy-engine v1.1.8 h1:3UByH4aMpk43/ji190Tj9nToUnep4g2WI0s+5tK4nnQ=
 github.com/snyk/policy-engine v1.1.8/go.mod h1:05zec9grBZpy0TuRYAfMSOlUOU4v00eWySGM/ccSGDw=
-github.com/snyk/remy-cli-extension v1.53.2 h1:mLfNmh8VnVNvOm8os1LrEg+fJWAdECTeFkPJdchYvcA=
-github.com/snyk/remy-cli-extension v1.53.2/go.mod h1:Two5xqy2lCGgte/4JeCCyvoENmAMmVrzSlpyUznCxXQ=
+github.com/snyk/remy-cli-extension v1.53.4 h1:wRvJH/Qk/nRa9N0lDLfcwfzVyDDNeWdHwJhwfRKy+JI=
+github.com/snyk/remy-cli-extension v1.53.4/go.mod h1:4YdXhhmNP8/DCwobFlyNbIx4AvVbl7NaFEAWJf92SEU=
 github.com/snyk/rift-cli-extension v1.4.8 h1:6uciiZFAVG4fC7S4d8a2gnpHCh0EaSLhZlcRl7o2y1M=
 github.com/snyk/rift-cli-extension v1.4.8/go.mod h1:cwJPibmahlPS+twXJ/nKMZfVUOVnKw3wnZZnwh8ByZE=
 github.com/snyk/snyk-iac-capture v0.6.5 h1:992DXCAJSN97KtUh8T5ndaWwd/6ZCal2bDkRXqM1u/E=
