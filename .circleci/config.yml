@@ -2220,7 +2220,7 @@ jobs:
           command: aws sts get-caller-identity
       - run:
           name: Publish to S3 ( << parameters.deployment >> )
-          command: ./release-scripts/upload-artifacts.sh << parameters.deployment >>
+          command: ./release-scripts/upload-artifacts.sh s3
       - failed-release-notification
 
   release-github:
