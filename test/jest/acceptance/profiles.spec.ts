@@ -176,7 +176,9 @@ describe('profiles', () => {
 
     const result = await whoami('--config-profile=broken');
     expect(result.code).toEqual(2);
-    expect(result.stdout).toContain('SNYK-CLI-0010');
+    expect(result.stdout).toContain('SNYK-CLI-0035');
+    expect(result.stdout).toContain('Profile "broken" cannot be read');
+    expect(result.stdout).not.toContain('SNYK-CLI-0010');
     expect(tokensUsed(defaultServer)).toEqual([]);
     expect(tokensUsed(workServer)).toEqual([]);
     expect(fs.readFileSync(corruptFile, 'utf8')).toEqual('{not json');

@@ -1,8 +1,6 @@
 package core
 
 import (
-	"fmt"
-
 	"github.com/snyk/error-catalog-golang-public/cli"
 
 	"github.com/snyk/go-application-framework/pkg/configuration/profile"
@@ -22,7 +20,7 @@ const profileDirEnvAlias = "snyk_config_profile_dir"
 // selectProfile makes the configuration of the profile the configuration of the run. It runs once, in execute, after the
 // engine is initialized and before anything can time out or report. The engine selects the same profile for its
 // invocations, because it reads the name from its own configuration. When the profile cannot be used the run keeps the
-// default configuration, and profileErr holds the validation error.
+// default configuration, and profileErr holds the error-catalog error.
 //
 // Known limitation: environment variables such as SNYK_TOKEN, SNYK_API and the organization still apply to every
 // profile, not only to the default one. Test_selectProfile_environmentCredentialsStillApplyToAProfile pins the current
@@ -35,12 +33,12 @@ func (r *cliRun) selectProfile() {
 	// The engine owns the registry and may rebuild it, so it is asked for here and not kept.
 	registry, err := workflow.GetProfileRegistry(r.engine)
 	if err != nil {
-		r.profileErr = cli.NewValidationFailureError(fmt.Sprintf("The configuration profile %q cannot be used, the profiles are not available: %v", name, err))
+		r.profileErr = err
 		return
 	}
 	p, err := registry.Profile(name)
 	if err != nil {
-		r.profileErr = cli.NewValidationFailureError(fmt.Sprintf("The configuration profile %q cannot be used: %v", name, err))
+		r.profileErr = err
 		return
 	}
 	r.config = p.Configuration()
