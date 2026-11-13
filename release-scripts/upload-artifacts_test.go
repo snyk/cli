@@ -79,7 +79,7 @@ type testTarget struct {
 	Path string `json:"path,omitempty"`
 }
 
-func writeTestManifest(t *testing.T, binaryReleases string, artifacts map[string][]testTarget) {
+func writeTestManifest(t *testing.T, binaryReleases string, channel string, artifacts map[string][]testTarget) {
 	t.Helper()
 
 	type artifact struct {
@@ -103,7 +103,7 @@ func writeTestManifest(t *testing.T, binaryReleases string, artifacts map[string
 
 	manifest, err := json.Marshal(map[string]any{
 		"schemaVersion": 1,
-		"meta":          map[string]string{"version": "1.3.0", "commit": "deadbeef", "releaseChannel": "stable"},
+		"meta":          map[string]string{"version": "1.3.0", "commit": "deadbeef", "releaseChannel": channel},
 		"artifacts":     listed,
 	})
 	if err != nil {
@@ -130,9 +130,23 @@ var testArtifacts = map[string][]testTarget{
 	},
 }
 
+var testArtifactsVersionedOnly = map[string][]testTarget{
+	"./snyk-linux": {
+		{Type: "s3", Path: "cli/v1.3.0/"},
+		{Type: "github"},
+	},
+	"./fips/snyk-linux": {
+		{Type: "s3", Path: "fips/cli/v1.3.0/"},
+	},
+	"./snyk.tgz": {
+		{Type: "s3", Path: "cli/v1.3.0/"},
+		{Type: "npm"},
+	},
+}
+
 func TestUploadArtifactsVersionUploadsTheManifestVersionedFolders(t *testing.T) {
 	calls, output, err := uploadArtifacts(t, "release/1.3", func(binaryReleases string) {
-		writeTestManifest(t, binaryReleases, testArtifacts)
+		writeTestManifest(t, binaryReleases, "stable", testArtifacts)
 	}, "version")
 	if err != nil {
 		t.Fatalf("upload-artifacts.sh version failed: %v\n%s", err, output)
@@ -150,7 +164,7 @@ func TestUploadArtifactsVersionUploadsTheManifestVersionedFolders(t *testing.T) 
 
 func TestUploadArtifactsVersionRefusesAFileThatDoesNotMatchTheManifest(t *testing.T) {
 	calls, output, err := uploadArtifacts(t, "release/1.3", func(binaryReleases string) {
-		writeTestManifest(t, binaryReleases, testArtifacts)
+		writeTestManifest(t, binaryReleases, "stable", testArtifacts)
 		if err := os.WriteFile(filepath.Join(binaryReleases, "snyk.tgz"), []byte("rebuilt"), 0644); err != nil {
 			t.Fatal(err)
 		}
@@ -159,6 +173,70 @@ func TestUploadArtifactsVersionRefusesAFileThatDoesNotMatchTheManifest(t *testin
 		t.Fatalf("expected upload-artifacts.sh version to fail\n%s", output)
 	}
 	if want := "binary-releases/snyk.tgz: FAILED"; !strings.Contains(output, want) {
+		t.Fatalf("expected %q in the output:\n%s", want, output)
+	}
+	if len(calls["aws"]) != 0 {
+		t.Fatalf("expected no uploads, got %q", calls["aws"])
+	}
+}
+
+func TestUploadArtifactsS3UploadsTheManifestNonVersionedFolders(t *testing.T) {
+	calls, output, err := uploadArtifacts(t, "release/1.3", func(binaryReleases string) {
+		writeTestManifest(t, binaryReleases, "stable", testArtifacts)
+	}, "s3")
+	if err != nil {
+		t.Fatalf("upload-artifacts.sh s3 failed: %v\n%s", err, output)
+	}
+
+	want := []string{
+		"s3 cp binary-releases/fips/snyk-linux s3://test-bucket/fips/cli/stable/snyk-linux",
+		"s3 cp binary-releases/snyk-linux s3://test-bucket/cli/stable/snyk-linux",
+	}
+	if !slices.Equal(calls["aws"], want) {
+		t.Fatalf("aws calls:\n%s\nwant:\n%s", strings.Join(calls["aws"], "\n"), strings.Join(want, "\n"))
+	}
+}
+
+func TestUploadArtifactsS3DryRunPassesDryrunToAWS(t *testing.T) {
+	calls, output, err := uploadArtifacts(t, "release/1.3", func(binaryReleases string) {
+		writeTestManifest(t, binaryReleases, "stable", testArtifacts)
+	}, "--dry-run", "s3")
+	if err != nil {
+		t.Fatalf("upload-artifacts.sh s3 failed: %v\n%s", err, output)
+	}
+
+	want := []string{
+		"s3 cp binary-releases/fips/snyk-linux s3://test-bucket/fips/cli/stable/snyk-linux --dryrun",
+		"s3 cp binary-releases/snyk-linux s3://test-bucket/cli/stable/snyk-linux --dryrun",
+	}
+	if !slices.Equal(calls["aws"], want) {
+		t.Fatalf("aws calls:\n%s\nwant:\n%s", strings.Join(calls["aws"], "\n"), strings.Join(want, "\n"))
+	}
+}
+
+func TestUploadArtifactsS3FailsWithoutNonVersionedTargets(t *testing.T) {
+	calls, output, err := uploadArtifacts(t, "release/1.3", func(binaryReleases string) {
+		writeTestManifest(t, binaryReleases, "stable", testArtifactsVersionedOnly)
+	}, "s3")
+	if err == nil {
+		t.Fatalf("expected upload-artifacts.sh s3 to fail\n%s", output)
+	}
+	if len(calls["aws"]) != 0 {
+		t.Fatalf("expected no uploads, got %q", calls["aws"])
+	}
+}
+
+func TestUploadArtifactsS3RefusesAFileThatDoesNotMatchTheManifest(t *testing.T) {
+	calls, output, err := uploadArtifacts(t, "release/1.3", func(binaryReleases string) {
+		writeTestManifest(t, binaryReleases, "stable", testArtifacts)
+		if err := os.WriteFile(filepath.Join(binaryReleases, "snyk-linux"), []byte("rebuilt"), 0644); err != nil {
+			t.Fatal(err)
+		}
+	}, "s3")
+	if err == nil {
+		t.Fatalf("expected upload-artifacts.sh s3 to fail\n%s", output)
+	}
+	if want := "binary-releases/snyk-linux: FAILED"; !strings.Contains(output, want) {
 		t.Fatalf("expected %q in the output:\n%s", want, output)
 	}
 	if len(calls["aws"]) != 0 {
@@ -241,6 +319,35 @@ func TestUploadArtifactsNpmTagPerChannel(t *testing.T) {
 				if tc.wantTag != "" && !strings.Contains(line, tc.wantTag) {
 					t.Fatalf("expected %q in %q", tc.wantTag, line)
 				}
+			}
+		})
+	}
+}
+
+func TestUploadArtifactsRejectsMissingAndUnknownArguments(t *testing.T) {
+	testCases := []struct {
+		name      string
+		args      []string
+		wantError string
+	}{
+		{name: "no arguments", args: nil, wantError: "No upload target defined!"},
+		{name: "unknown argument", args: []string{"bogus"}, wantError: "Invalid argument: bogus"},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			calls, output, err := uploadArtifacts(t, "release/1.3", nil, tc.args...)
+			if err == nil {
+				t.Fatalf("expected upload-artifacts.sh %v to fail\n%s", tc.args, output)
+			}
+			if !strings.Contains(output, tc.wantError) {
+				t.Fatalf("expected %q in the output:\n%s", tc.wantError, output)
+			}
+			if wantUsage := "Usage: upload-artifacts.sh"; !strings.Contains(output, wantUsage) {
+				t.Fatalf("expected %q in the output:\n%s", wantUsage, output)
+			}
+			if len(calls["aws"]) != 0 {
+				t.Fatalf("expected no uploads, got %q", calls["aws"])
 			}
 		})
 	}
