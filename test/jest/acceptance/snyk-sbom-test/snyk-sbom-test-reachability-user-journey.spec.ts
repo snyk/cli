@@ -27,6 +27,31 @@ const reachabilityEnv = {
   INTERNAL_SNYK_CLI_REACHABILITY_ENABLED: 'true',
 };
 
+function cloneRepoWithRetry(
+  url: string,
+  path: string,
+  maxAttempts = 3,
+): void {
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      execSync(`git clone --depth 1 ${url} ${path}`, {
+        stdio: 'pipe',
+        timeout: 30000, // 30s timeout
+      });
+      return; // Success
+    } catch (error) {
+      if (attempt === maxAttempts) {
+        throw new Error(
+          `Failed to clone ${url} after ${maxAttempts} attempts: ${error.message}`,
+        );
+      }
+      console.log(
+        `Clone attempt ${attempt} failed, retrying... (${error.message})`,
+      );
+    }
+  }
+}
+
 beforeAll(() => {
   if (!existsSync(SBOM_FILE_PATH)) {
     throw new Error(
@@ -35,16 +60,7 @@ beforeAll(() => {
   }
 
   if (!existsSync(TEMP_LOCAL_PATH)) {
-    try {
-      execSync(`git clone --depth 1 ${TEST_REPO_URL} ${TEMP_LOCAL_PATH}`, {
-        stdio: 'pipe',
-        timeout: 30000,
-      });
-    } catch (error) {
-      throw new Error(
-        `Failed to clone test repository: ${error.message}. This test requires network access.`,
-      );
-    }
+    cloneRepoWithRetry(TEST_REPO_URL, TEMP_LOCAL_PATH);
   }
 });
 
