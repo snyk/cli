@@ -16,6 +16,7 @@ describe('uv monitor', () => {
   let server: FakeServer;
   let env: Record<string, string>;
   const orgId = '55555555-5555-5555-5555-555555555555';
+  const validToken = '123456789';
 
   async function makeProjectOutOfSync(projectPath: string): Promise<void> {
     const pyprojectPath = `${projectPath}/pyproject.toml`;
@@ -43,13 +44,13 @@ describe('uv monitor', () => {
       SNYK_API: apiEndpoint,
       SNYK_CFG_ORG: orgId,
       SNYK_HOST: 'http://localhost:' + port,
-      SNYK_TOKEN: '123456789',
+      SNYK_TOKEN: validToken,
       SNYK_DISABLE_ANALYTICS: '1',
     };
     if (hasBinary) {
       env.SNYK_CLI_EXECUTABLE_PATH = getCliBinaryPath();
     }
-    server = fakeServer(baseApi, env.SNYK_TOKEN);
+    server = fakeServer(baseApi, validToken);
     return new Promise<void>((res) => {
       server.listen(port, res);
     });
@@ -152,6 +153,35 @@ describe('uv monitor', () => {
         'urllib3@1.26.15',
         'uv-project@0.1.0',
       ]);
+    },
+  );
+
+  testIf(hasBinary)(
+    'authenticates the SBOM conversion and monitor requests with SNYK_TOKEN',
+    async () => {
+      server.setFeatureFlag('enableUvCLI', true);
+
+      const project = await createProjectFromFixture('uv-project');
+      const { code } = await runSnykCLI('monitor --file=uv.lock', {
+        env: { ...env, XDG_CONFIG_HOME: project.path() },
+        cwd: project.path(),
+      });
+
+      expect(code).toEqual(0);
+
+      const authedRequests = server
+        .getRequests()
+        .filter(
+          (request) =>
+            /\/monitor\/[^/]+\/graph/.test(request.url) ||
+            request.url.includes(`/hidden/orgs/${orgId}/sboms/convert`),
+        );
+
+      // one SBOM conversion and one monitor upload
+      expect(authedRequests).toHaveLength(2);
+      for (const request of authedRequests) {
+        expect(request.headers.authorization).toBe(`token ${validToken}`);
+      }
     },
   );
 
