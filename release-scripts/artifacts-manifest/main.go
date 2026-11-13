@@ -20,6 +20,8 @@ import (
 	"regexp"
 	"slices"
 	"strings"
+
+	"github.com/snyk/cli/release-scripts/manifest"
 )
 
 func main() {
@@ -48,12 +50,12 @@ func run(args []string) error {
 	if err != nil {
 		return err
 	}
-	manifest, err := Build(template, dir, *version, *commit, *channel)
+	m, err := Build(template, dir, *version, *commit, *channel)
 	if err != nil {
 		return err
 	}
 
-	encoded, err := json.MarshalIndent(manifest, "", "  ")
+	encoded, err := json.MarshalIndent(m, "", "  ")
 	if err != nil {
 		return err
 	}
@@ -62,9 +64,6 @@ func run(args []string) error {
 
 const (
 	schemaVersion = 1
-	targetS3      = "s3"
-	targetGitHub  = "github"
-	targetNPM     = "npm"
 
 	channelDev    = "dev"
 	channelStable = "stable"
@@ -74,36 +73,12 @@ const (
 
 var placeholderPattern = regexp.MustCompile(`\$[A-Za-z_][A-Za-z0-9_]*`)
 
-type Manifest struct {
-	SchemaVersion int        `json:"schemaVersion"`
-	Meta          Meta       `json:"meta"`
-	Artifacts     []Artifact `json:"artifacts"`
-}
-
-type Meta struct {
-	Version        string `json:"version"`
-	Commit         string `json:"commit"`
-	ReleaseChannel string `json:"releaseChannel"`
-}
-
-type Artifact struct {
-	// Name is a path relative to the build output directory, like ./fips/snyk-linux.
-	Name    string   `json:"name"`
-	SHA256  string   `json:"sha256"`
-	Targets []Target `json:"targets"`
-}
-
-type Target struct {
-	Type string `json:"type"`
-	Path string `json:"path,omitempty"`
-}
-
-func Build(template []byte, dir, version, commit, channel string) (*Manifest, error) {
+func Build(template []byte, dir, version, commit, channel string) (*manifest.Manifest, error) {
 	if version == "" || commit == "" || channel == "" {
 		return nil, errors.New("version, commit and channel are required")
 	}
 
-	var m Manifest
+	var m manifest.Manifest
 	decoder := json.NewDecoder(bytes.NewReader(template))
 	decoder.DisallowUnknownFields()
 	if err := decoder.Decode(&m); err != nil {
@@ -114,10 +89,10 @@ func Build(template []byte, dir, version, commit, channel string) (*Manifest, er
 	}
 
 	var problems []string
-	m.Meta = Meta{Version: version, Commit: commit, ReleaseChannel: channel}
+	m.Meta = manifest.Meta{Version: version, Commit: commit, ReleaseChannel: channel}
 	replacer := strings.NewReplacer("$VERSION", version, "$COMMIT", commit, "$CHANNEL", channel)
 
-	var artifacts []Artifact
+	var artifacts []manifest.Artifact
 	seen := map[string]bool{}
 	for _, a := range m.Artifacts {
 		a.Name = replacer.Replace(a.Name)
@@ -183,30 +158,30 @@ func Build(template []byte, dir, version, commit, channel string) (*Manifest, er
 	return &m, nil
 }
 
-func fillTargets(targets []Target, replacer *strings.Replacer, channel string) []Target {
-	var out []Target
+func fillTargets(targets []manifest.Target, replacer *strings.Replacer, channel string) []manifest.Target {
+	var out []manifest.Target
 	for _, t := range targets {
-		isChannelFolder := t.Type == targetS3 && strings.Contains(t.Path, "$CHANNEL")
+		isChannelFolder := t.Type == manifest.TargetS3 && strings.Contains(t.Path, "$CHANNEL")
 		// The dev channel is what e2e branches build. They only upload the versioned folder.
 		if channel == channelDev && isChannelFolder {
 			continue
 		}
-		filled := Target{Type: t.Type, Path: replacer.Replace(t.Path)}
+		filled := manifest.Target{Type: t.Type, Path: replacer.Replace(t.Path)}
 		out = append(out, filled)
 		if channel == channelStable && isChannelFolder {
-			out = append(out, Target{Type: t.Type, Path: strings.ReplaceAll(t.Path, "$CHANNEL", "latest")})
+			out = append(out, manifest.Target{Type: t.Type, Path: strings.ReplaceAll(t.Path, "$CHANNEL", "latest")})
 		}
 	}
 	return out
 }
 
-func checkTarget(t Target) string {
+func checkTarget(t manifest.Target) string {
 	switch t.Type {
-	case targetS3:
+	case manifest.TargetS3:
 		if t.Path == "" || !strings.HasSuffix(t.Path, "/") {
 			return fmt.Sprintf("s3 target path %q must be a folder ending in /", t.Path)
 		}
-	case targetGitHub, targetNPM:
+	case manifest.TargetGitHub, manifest.TargetNPM:
 		if t.Path != "" {
 			return fmt.Sprintf("%s targets don't take a path", t.Type)
 		}
@@ -216,10 +191,10 @@ func checkTarget(t Target) string {
 	return ""
 }
 
-func countVersionedTargets(a Artifact, version string) int {
+func countVersionedTargets(a manifest.Artifact, version string) int {
 	count := 0
 	for _, t := range a.Targets {
-		if t.Type == targetS3 && versionedFolder(t.Path, version) {
+		if t.Type == manifest.TargetS3 && versionedFolder(t.Path, version) {
 			count++
 		}
 	}
