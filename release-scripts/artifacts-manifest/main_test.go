@@ -10,6 +10,8 @@ import (
 	"regexp"
 	"strings"
 	"testing"
+
+	"github.com/snyk/cli/release-scripts/manifest"
 )
 
 const testVersion = "1.2.3"
@@ -42,7 +44,7 @@ func sum(content string) string {
 func buildOutput(t *testing.T) string {
 	t.Helper()
 	dir := t.TempDir()
-	var template Manifest
+	var template manifest.Manifest
 	if err := json.Unmarshal(repoTemplate(t), &template); err != nil {
 		t.Fatal(err)
 	}
@@ -56,21 +58,21 @@ func buildOutput(t *testing.T) string {
 	return dir
 }
 
-func build(template []byte, dir, channel string) (*Manifest, error) {
+func build(template []byte, dir, channel string) (*manifest.Manifest, error) {
 	return Build(template, dir, testVersion, "abc123", channel)
 }
 
-func targetPaths(a Artifact) []string {
+func targetPaths(a manifest.Artifact) []string {
 	var paths []string
 	for _, t := range a.Targets {
-		if t.Type == targetS3 {
+		if t.Type == manifest.TargetS3 {
 			paths = append(paths, t.Path)
 		}
 	}
 	return paths
 }
 
-func find(t *testing.T, m *Manifest, name string) Artifact {
+func find(t *testing.T, m *manifest.Manifest, name string) manifest.Artifact {
 	t.Helper()
 	for _, a := range m.Artifacts {
 		if a.Name == name {
@@ -78,7 +80,7 @@ func find(t *testing.T, m *Manifest, name string) Artifact {
 		}
 	}
 	t.Fatalf("%s is not in the manifest", name)
-	return Artifact{}
+	return manifest.Artifact{}
 }
 
 func TestBuildFillsEverythingIn(t *testing.T) {
@@ -88,7 +90,7 @@ func TestBuildFillsEverythingIn(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if m.Meta != (Meta{Version: testVersion, Commit: "abc123", ReleaseChannel: "preview"}) {
+	if m.Meta != (manifest.Meta{Version: testVersion, Commit: "abc123", ReleaseChannel: "preview"}) {
 		t.Errorf("unexpected meta %+v", m.Meta)
 	}
 	for _, a := range m.Artifacts {
@@ -110,6 +112,8 @@ func TestBuildFillsEverythingIn(t *testing.T) {
 	}
 	find(t, m, "./ls-protocol-version-25")
 	find(t, m, "./experimental/snyk-linux")
+	find(t, m, "./experimental/version")
+	find(t, m, "./experimental/RELEASE_NOTES.md")
 }
 
 func TestBuildDevOnlyDeploysTheVersionedFolder(t *testing.T) {
@@ -168,7 +172,7 @@ func TestTemplateDeclaresEveryBinaryTheWrapperDownloads(t *testing.T) {
 	if err := json.Unmarshal(content, &deployments); err != nil {
 		t.Fatal(err)
 	}
-	var template Manifest
+	var template manifest.Manifest
 	if err := json.Unmarshal(repoTemplate(t), &template); err != nil {
 		t.Fatal(err)
 	}

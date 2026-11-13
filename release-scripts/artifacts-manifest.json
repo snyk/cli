@@ -599,6 +599,48 @@
           "path": "experimental/cli/$CHANNEL/"
         }
       ]
+    },
+    {
+      "name": "./experimental/release.json",
+      "sha256": "$SHASUM",
+      "targets": [
+        {
+          "type": "s3",
+          "path": "experimental/cli/v$VERSION/"
+        },
+        {
+          "type": "s3",
+          "path": "experimental/cli/$CHANNEL/"
+        }
+      ]
+    },
+    {
+      "name": "./experimental/version",
+      "sha256": "$SHASUM",
+      "targets": [
+        {
+          "type": "s3",
+          "path": "experimental/cli/v$VERSION/"
+        },
+        {
+          "type": "s3",
+          "path": "experimental/cli/$CHANNEL/"
+        }
+      ]
+    },
+    {
+      "name": "./experimental/RELEASE_NOTES.md",
+      "sha256": "$SHASUM",
+      "targets": [
+        {
+          "type": "s3",
+          "path": "experimental/cli/v$VERSION/"
+        },
+        {
+          "type": "s3",
+          "path": "experimental/cli/$CHANNEL/"
+        }
+      ]
     }
   ]
 }

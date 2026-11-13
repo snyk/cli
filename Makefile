@@ -38,10 +38,10 @@ help:
 	@echo 'This Makefile is currently only for building release artifacts.'
 	@echo 'Use `npm run` for CLIv1 scripts.'
 
-$(BINARY_OUTPUT_FOLDER)/fips: $(BINARY_OUTPUT_FOLDER)
+$(BINARY_OUTPUT_FOLDER)/fips: | $(BINARY_OUTPUT_FOLDER)
 	@mkdir -p $(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER)/fips
 
-$(BINARY_OUTPUT_FOLDER)/experimental: $(BINARY_OUTPUT_FOLDER)
+$(BINARY_OUTPUT_FOLDER)/experimental: | $(BINARY_OUTPUT_FOLDER)
 	@mkdir -p $(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER)/experimental
 
 $(BINARY_RELEASES_FOLDER_TS_CLI):
@@ -56,17 +56,17 @@ BUILD_MODE ?= $(if $(_CAN_BUILD_PRIVATE),private,public)
 $(BINARY_RELEASES_FOLDER_TS_CLI)/version: | $(BINARY_RELEASES_FOLDER_TS_CLI)
 	BUILD_MODE=$(BUILD_MODE) ./release-scripts/next-version.sh > $(BINARY_RELEASES_FOLDER_TS_CLI)/version
 
-$(BINARY_OUTPUT_FOLDER)/experimental/version: $(BINARY_RELEASES_FOLDER_TS_CLI)/version $(BINARY_OUTPUT_FOLDER)/experimental
+$(BINARY_OUTPUT_FOLDER)/experimental/version: $(BINARY_RELEASES_FOLDER_TS_CLI)/version | $(BINARY_OUTPUT_FOLDER)/experimental
 	@cp $(BINARY_RELEASES_FOLDER_TS_CLI)/version $(BINARY_OUTPUT_FOLDER)/experimental/version
 
-$(BINARY_OUTPUT_FOLDER)/fips/version: $(BINARY_RELEASES_FOLDER_TS_CLI)/version $(BINARY_OUTPUT_FOLDER)/fips
+$(BINARY_OUTPUT_FOLDER)/fips/version: $(BINARY_RELEASES_FOLDER_TS_CLI)/version | $(BINARY_OUTPUT_FOLDER)/fips
 	@cp $(BINARY_RELEASES_FOLDER_TS_CLI)/version $(BINARY_OUTPUT_FOLDER)/fips/version
 
 ifneq ($(BINARY_OUTPUT_FOLDER), $(BINARY_RELEASES_FOLDER_TS_CLI))
 $(BINARY_OUTPUT_FOLDER):
 	@mkdir -p $(BINARY_OUTPUT_FOLDER)
 
-$(BINARY_OUTPUT_FOLDER)/version: $(BINARY_OUTPUT_FOLDER) $(BINARY_RELEASES_FOLDER_TS_CLI)/version
+$(BINARY_OUTPUT_FOLDER)/version: $(BINARY_RELEASES_FOLDER_TS_CLI)/version | $(BINARY_OUTPUT_FOLDER)
 	@cp $(BINARY_RELEASES_FOLDER_TS_CLI)/version $(BINARY_OUTPUT_FOLDER)/version
 endif
 
@@ -101,11 +101,12 @@ clean-ts:
 $(BINARY_OUTPUT_FOLDER)/sha256sums.txt.asc:
 	./release-scripts/sha256sums.txt.asc.sh
 
-$(BINARY_OUTPUT_FOLDER)/release.json:
-	./release-scripts/release.json.sh
+.PHONY: release-jsons
+release-jsons:
+	cd release-scripts && go run ./release-jsons ../$(BINARY_OUTPUT_FOLDER)
 
 # Run it last: it fails if a declared file is missing or a built file is not declared.
-$(BINARY_OUTPUT_FOLDER)/artifacts-manifest.json:
+$(BINARY_OUTPUT_FOLDER)/artifacts-manifest.json: release-jsons
 	cd release-scripts && go run ./artifacts-manifest \
 		--version "$$(cat ../$(BINARY_OUTPUT_FOLDER)/version)" \
 		--commit "$${CIRCLE_SHA1:-$$(git rev-parse HEAD)}" \
@@ -116,8 +117,11 @@ $(BINARY_OUTPUT_FOLDER)/artifacts-manifest.json:
 $(BINARY_OUTPUT_FOLDER)/RELEASE_NOTES.md:
 	npx conventional-changelog-cli -l -r 1 --skip-unstable -n ./release-scripts/conventional-changelog-cli-config.js > $(BINARY_OUTPUT_FOLDER)/RELEASE_NOTES.md
 
-$(BINARY_OUTPUT_FOLDER)/fips/RELEASE_NOTES.md: $(BINARY_OUTPUT_FOLDER)/RELEASE_NOTES.md $(BINARY_OUTPUT_FOLDER)/fips
+$(BINARY_OUTPUT_FOLDER)/fips/RELEASE_NOTES.md: $(BINARY_OUTPUT_FOLDER)/RELEASE_NOTES.md | $(BINARY_OUTPUT_FOLDER)/fips
 	@cp $(BINARY_OUTPUT_FOLDER)/RELEASE_NOTES.md $(BINARY_OUTPUT_FOLDER)/fips/RELEASE_NOTES.md
+
+$(BINARY_OUTPUT_FOLDER)/experimental/RELEASE_NOTES.md: $(BINARY_OUTPUT_FOLDER)/RELEASE_NOTES.md | $(BINARY_OUTPUT_FOLDER)/experimental
+	@cp $(BINARY_OUTPUT_FOLDER)/RELEASE_NOTES.md $(BINARY_OUTPUT_FOLDER)/experimental/RELEASE_NOTES.md
 
 # Generates a shasum of a target with the same name.
 # See "Automatic Variables" in GNU Make docs (linked at the top)
@@ -314,7 +318,7 @@ release-pre: release-validate-version
 	@echo "-- Publishing to S3 /version"
 	@./release-scripts/upload-artifacts.sh version
 
-.PHONE: release-validate-version
+.PHONY: release-validate-version
 release-validate-version:
 	@echo "-- Validating repository"
 	@./release-scripts/validate-repository.sh
