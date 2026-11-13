@@ -244,7 +244,7 @@ upload_npm() {
   local name
   while read -r name; do
     # shellcheck disable=SC2086
-    npm publish ${npm_dry_run_arg} ${npm_tag_arg} "binary-releases/${name#./}"
+    npm publish ${npm_dry_run_arg} ${npm_tag_arg} "./binary-releases/${name#./}"
   done <<< "${artifacts}"
 }
 

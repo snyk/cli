@@ -336,9 +336,9 @@ func TestUploadArtifactsNpmPublishesTheManifestTarballsWithTagPerChannel(t *test
 			}
 
 			want := []string{
-				tc.publish + " binary-releases/snyk-fix.tgz",
-				tc.publish + " binary-releases/snyk-protect.tgz",
-				tc.publish + " binary-releases/snyk.tgz",
+				tc.publish + " ./binary-releases/snyk-fix.tgz",
+				tc.publish + " ./binary-releases/snyk-protect.tgz",
+				tc.publish + " ./binary-releases/snyk.tgz",
 			}
 			if !slices.Equal(calls["npm"], want) {
 				t.Fatalf("npm calls:\n%s\nwant:\n%s", strings.Join(calls["npm"], "\n"), strings.Join(want, "\n"))
