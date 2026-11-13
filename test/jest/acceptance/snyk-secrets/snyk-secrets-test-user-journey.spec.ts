@@ -137,6 +137,14 @@ function severities(sarifOutput: any): Set<string | undefined> {
   return new Set(sarifOutput.runs[0].results.map(severityOf));
 }
 
+// Identities are stable across scans, so a threshold scan must keep exactly the baseline's criticals.
+function criticalIdentities(sarifOutput: any): string[] {
+  return sarifOutput.runs[0].results
+    .filter((result: any) => severityOf(result) === 'critical')
+    .map((result: any) => result.fingerprints.identity)
+    .sort();
+}
+
 function ignoredCountInSummary(stdout: string): number {
   return Number(stdout.match(/Ignored:\s*(\d+)/)?.[1]);
 }
@@ -209,6 +217,9 @@ describe('snyk secrets test', () => {
     expect(stderr).toBe('');
     assertSarifShape(sarif);
     expect(severities(sarif)).toEqual(new Set(['critical']));
+    expect(criticalIdentities(sarif)).toEqual(
+      criticalIdentities(examplesBaseline),
+    );
     expect(code).toBe(EXIT_CODES.VULNS_FOUND);
   });
 
@@ -558,6 +569,9 @@ describe('snyk secrets test', () => {
       expect(code).toBe(EXIT_CODES.VULNS_FOUND);
       checkSarif(sarif);
       expect(severities(sarif)).toEqual(new Set(['critical']));
+      expect(criticalIdentities(sarif)).toEqual(
+        criticalIdentities(ignoresBaseline.sarif),
+      );
     });
 
     it('renders ignore metadata in human-readable output with --include-ignores', async () => {
@@ -634,9 +648,12 @@ describe('snyk secrets test', () => {
       }
     });
 
-    async function scanExamples(flags = ''): Promise<string[]> {
-      // Each case must drop a file the unfiltered scan reports, while the other file
-      // stays reported, so an empty or broken scan cannot pass.
+    // Each case drops at least one of the two files the unfiltered scan reports.
+    // Single-exclusion cases require the other file to stay reported, and the case
+    // excluding both requires an empty result, so an empty or broken scan cannot pass.
+    async function scanExamples(
+      flags = '',
+    ): Promise<{ code: number; files: string[] }> {
       expect(reportedFiles(examplesBaseline)).toEqual(
         expect.arrayContaining([FILE_WITH_GENERIC_SECRET, TEST_FILE]),
       );
@@ -645,10 +662,7 @@ describe('snyk secrets test', () => {
 
       expect(stderr).toBe('');
       assertSarifShape(sarif);
-      const files = reportedFiles(sarif);
-      // Excluded findings must not affect the exit code.
-      expect(code).toBe(files.length > 0 ? EXIT_CODES.VULNS_FOUND : 0);
-      return files;
+      return { code, files: reportedFiles(sarif) };
     }
 
     it('applies the "global" exclude section', async () => {
@@ -661,10 +675,11 @@ exclude:
 `,
       );
 
-      const files = await scanExamples();
+      const { code, files } = await scanExamples();
 
       expect(files).not.toContain(TEST_FILE);
       expect(files).toContain(FILE_WITH_GENERIC_SECRET);
+      expect(code).toBe(EXIT_CODES.VULNS_FOUND);
     });
 
     it('applies the "secrets" exclude section', async () => {
@@ -677,10 +692,11 @@ exclude:
 `,
       );
 
-      const files = await scanExamples();
+      const { code, files } = await scanExamples();
 
       expect(files).not.toContain(FILE_WITH_GENERIC_SECRET);
       expect(files).toContain(TEST_FILE);
+      expect(code).toBe(EXIT_CODES.VULNS_FOUND);
     });
 
     it('combines the "global" and "secrets" exclude sections', async () => {
@@ -695,17 +711,20 @@ exclude:
 `,
       );
 
-      const files = await scanExamples();
+      const { code, files } = await scanExamples();
 
-      expect(files).not.toContain(TEST_FILE);
-      expect(files).not.toContain(FILE_WITH_GENERIC_SECRET);
+      expect(files).toEqual([]);
+      expect(code).toBe(0);
     });
 
     it('excludes files by name with --exclude', async () => {
-      const files = await scanExamples(`--exclude=${FILE_WITH_GENERIC_SECRET}`);
+      const { code, files } = await scanExamples(
+        `--exclude=${FILE_WITH_GENERIC_SECRET}`,
+      );
 
       expect(files).not.toContain(FILE_WITH_GENERIC_SECRET);
       expect(files).toContain(TEST_FILE);
+      expect(code).toBe(EXIT_CODES.VULNS_FOUND);
     });
   });
 });
