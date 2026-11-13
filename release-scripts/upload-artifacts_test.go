@@ -74,6 +74,17 @@ func uploadArtifacts(t *testing.T, branch string, prepare func(binaryReleases st
 	return calls, string(out), err
 }
 
+// writeNpmManifest writes a manifest with the three npm tarballs and one binary that has no npm target.
+func writeNpmManifest(t *testing.T, binaryReleases, channel string) {
+	t.Helper()
+
+	artifacts := map[string][]testTarget{"./snyk-linux": {{Type: "s3", Path: "cli/v1.3.0/"}, {Type: "github"}}}
+	for _, file := range []string{"./snyk-fix.tgz", "./snyk-protect.tgz", "./snyk.tgz"} {
+		artifacts[file] = []testTarget{{Type: "s3", Path: "cli/v1.3.0/"}, {Type: "npm"}}
+	}
+	writeTestManifest(t, binaryReleases, channel, artifacts)
+}
+
 type testTarget struct {
 	Type string `json:"type"`
 	Path string `json:"path,omitempty"`
@@ -299,32 +310,72 @@ func TestUploadArtifactsGithubPrereleaseFlagPerChannel(t *testing.T) {
 	}
 }
 
-func TestUploadArtifactsNpmTagPerChannel(t *testing.T) {
+func TestUploadArtifactsNpmPublishesTheManifestTarballsWithTagPerChannel(t *testing.T) {
 	testCases := []struct {
-		branch  string
-		wantTag string
+		name    string
+		channel string
+		args    []string
+		publish string
 	}{
-		{branch: "main", wantTag: "--tag preview"},
-		{branch: "release-candidate", wantTag: "--tag rc"},
-		{branch: "chore/some-feature", wantTag: "--tag dev"},
-		{branch: "release/1.3", wantTag: ""},
+		{name: "preview", channel: "preview", publish: "publish --tag preview"},
+		{name: "rc", channel: "rc", publish: "publish --tag rc"},
+		{name: "stable has no tag", channel: "stable", publish: "publish"},
+		{name: "dev is tagged like any non-stable channel", channel: "dev", publish: "publish --tag dev"},
+		{name: "dry run on dev passes --dry-run and --tag dev", channel: "dev", args: []string{"--dry-run"}, publish: "publish --dry-run --tag dev"},
+		{name: "dry run on stable", channel: "stable", args: []string{"--dry-run"}, publish: "publish --dry-run"},
 	}
 
 	for _, tc := range testCases {
-		t.Run(tc.branch, func(t *testing.T) {
-			_, npm := runUploadArtifacts(t, tc.branch, "npm")
-			if len(npm) != 3 {
-				t.Fatalf("expected 3 npm publish calls, got %q", npm)
+		t.Run(tc.name, func(t *testing.T) {
+			// the branch name is irrelevant, the manifest decides
+			calls, output, err := uploadArtifacts(t, "chore/some-feature", func(binaryReleases string) {
+				writeNpmManifest(t, binaryReleases, tc.channel)
+			}, slices.Concat(tc.args, []string{"npm"})...)
+			if err != nil {
+				t.Fatalf("upload-artifacts.sh npm failed: %v\n%s", err, output)
 			}
-			for _, line := range npm {
-				if got := strings.Contains(line, "--tag"); got != (tc.wantTag != "") {
-					t.Fatalf("unexpected --tag presence in %q (want %q)", line, tc.wantTag)
-				}
-				if tc.wantTag != "" && !strings.Contains(line, tc.wantTag) {
-					t.Fatalf("expected %q in %q", tc.wantTag, line)
-				}
+
+			want := []string{
+				tc.publish + " binary-releases/snyk-fix.tgz",
+				tc.publish + " binary-releases/snyk-protect.tgz",
+				tc.publish + " binary-releases/snyk.tgz",
+			}
+			if !slices.Equal(calls["npm"], want) {
+				t.Fatalf("npm calls:\n%s\nwant:\n%s", strings.Join(calls["npm"], "\n"), strings.Join(want, "\n"))
 			}
 		})
+	}
+}
+
+func TestUploadArtifactsNpmPublishesNothingWhenTheManifestHasNoNpmTargets(t *testing.T) {
+	calls, output, err := uploadArtifacts(t, "main", func(binaryReleases string) {
+		writeTestManifest(t, binaryReleases, "stable", map[string][]testTarget{
+			"./snyk-linux": {{Type: "s3", Path: "cli/v1.3.0/"}},
+		})
+	}, "npm")
+	if err != nil {
+		t.Fatalf("upload-artifacts.sh npm failed: %v\n%s", err, output)
+	}
+	if len(calls["npm"]) != 0 {
+		t.Fatalf("expected no npm calls, got %q", calls["npm"])
+	}
+}
+
+func TestUploadArtifactsNpmRefusesAFileThatDoesNotMatchTheManifest(t *testing.T) {
+	calls, output, err := uploadArtifacts(t, "main", func(binaryReleases string) {
+		writeNpmManifest(t, binaryReleases, "preview")
+		if err := os.WriteFile(filepath.Join(binaryReleases, "snyk.tgz"), []byte("rebuilt"), 0644); err != nil {
+			t.Fatal(err)
+		}
+	}, "npm")
+	if err == nil {
+		t.Fatalf("expected upload-artifacts.sh npm to fail\n%s", output)
+	}
+	if want := "binary-releases/snyk.tgz: FAILED"; !strings.Contains(output, want) {
+		t.Fatalf("expected %q in the output:\n%s", want, output)
+	}
+	if len(calls["npm"]) != 0 {
+		t.Fatalf("expected no npm calls, got %q", calls["npm"])
 	}
 }
 

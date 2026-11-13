@@ -37,7 +37,7 @@ show_help() {
   echo "Arguments:"
   echo "  version       upload the versioned S3 folders listed in the artifacts manifest"
   echo "  github        upload artifacts to GitHub"
-  echo "  npm           upload artifacts to npm"
+  echo "  npm           publish the npm packages listed in the artifacts manifest"
   echo "  s3            upload the non-versioned S3 folders listed in the artifacts manifest to S3"
   echo ""
   echo "Example:"
@@ -85,26 +85,6 @@ upload_github() {
       --target "${CIRCLE_SHA1}" \
       --title "${VERSION_TAG}" \
       --notes-file binary-releases/RELEASE_NOTES.md
-  fi
-}
-
-upload_npm() {
-  # For non-stable releases, specify --tag to avoid npm's prerelease version error
-  local npm_tag_arg=""
-  if [ -n "${RELEASE_CHANNEL}" ] && [ "${RELEASE_CHANNEL}" != "stable" ]; then
-    npm_tag_arg="--tag ${RELEASE_CHANNEL}"
-  fi
-
-  if [ "${DRY_RUN}" == true ]; then
-    echo "DRY RUN: uploading to npm..."
-    npm publish --dry-run ${npm_tag_arg} ./binary-releases/snyk-fix.tgz
-    npm publish --dry-run ${npm_tag_arg} ./binary-releases/snyk-protect.tgz
-    npm publish --dry-run ${npm_tag_arg} ./binary-releases/snyk.tgz
-  else
-    echo "Uploading to npm..."
-    npm publish ${npm_tag_arg} ./binary-releases/snyk-fix.tgz
-    npm publish ${npm_tag_arg} ./binary-releases/snyk-protect.tgz
-    npm publish ${npm_tag_arg} ./binary-releases/snyk.tgz
   fi
 }
 
@@ -234,6 +214,38 @@ upload_s3_non_versioned() {
 
   check_artifacts 'binary-releases' "${artifacts}"
   upload_artifacts 'binary-releases' "${artifacts}"
+}
+
+upload_npm() {
+  local channel
+  channel="$(jq -er '.meta.releaseChannel' "${MANIFEST}")"
+
+  # Non-stable releases need --tag, otherwise npm rejects prerelease versions as "latest".
+  local npm_tag_arg=""
+  if [ "${channel}" != "stable" ]; then
+    npm_tag_arg="--tag ${channel}"
+  fi
+
+  local npm_dry_run_arg=""
+  if [ "${DRY_RUN}" == true ]; then
+    npm_dry_run_arg="--dry-run"
+  fi
+
+  local artifacts
+  artifacts="$(jq -r '.artifacts[] | .name as $name
+    | select(any(.targets[]; .type == "npm")) | $name' "${MANIFEST}")"
+  if [[ -z "${artifacts}" ]]; then
+    echo "No npm artifacts found in the manifest"
+    return
+  fi
+
+  check_artifacts 'binary-releases' "${artifacts}"
+
+  local name
+  while read -r name; do
+    # shellcheck disable=SC2086
+    npm publish ${npm_dry_run_arg} ${npm_tag_arg} "binary-releases/${name#./}"
+  done <<< "${artifacts}"
 }
 
 # Capture valid flags
