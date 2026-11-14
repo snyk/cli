@@ -1,6 +1,3 @@
----
-description: The snyk cos target list command that lists all targets.
----
 
 # COS target list
 

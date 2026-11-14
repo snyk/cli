@@ -1,6 +1,3 @@
----
-description: The snyk monitor command that snapshots and monitors a Project
----
 
 # Monitor
 

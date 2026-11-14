@@ -1,6 +1,3 @@
----
-description: The snyk iac commands that test infrastructure as code files
----
 
 # IaC
 

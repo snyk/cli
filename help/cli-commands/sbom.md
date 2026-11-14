@@ -1,6 +1,3 @@
----
-description: The snyk sbom command that generates an SBOM for a Project
----
 
 # SBOM
 

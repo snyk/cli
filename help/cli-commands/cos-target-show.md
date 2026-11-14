@@ -1,6 +1,3 @@
----
-description: The snyk cos target show command that shows the details of a target.
----
 
 # COS target show
 

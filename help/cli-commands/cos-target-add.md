@@ -1,8 +1,3 @@
----
-description: >-
-  The snyk cos target add command that creates a target from a configuration
-  file.
----
 
 # COS target add
 

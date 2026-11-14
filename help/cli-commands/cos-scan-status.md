@@ -1,6 +1,3 @@
----
-description: The snyk cos scan status command that shows the current status of a scan.
----
 
 # COS scan status
 
