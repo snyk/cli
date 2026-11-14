@@ -130,17 +130,17 @@ executors:
     docker:
       - image: ubuntu:latest
     # working_directory: /mnt/ramdisk/snyk
-    resource_class: arm.medium
+    resource_class: arm.medium.gen2
   linux-ubuntu-jammy-arm64:
     docker:
       - image: ubuntu:jammy
     # working_directory: /mnt/ramdisk/snyk
-    resource_class: arm.medium
+    resource_class: arm.medium.gen2
   linux-ubuntu-focal-arm64:
     docker:
       - image: ubuntu:focal
     # working_directory: /mnt/ramdisk/snyk
-    resource_class: arm.medium
+    resource_class: arm.medium.gen2
   macos-arm64:
     macos:
       # https://circleci.com/developer/machine/image/xcode#image-tags
@@ -168,7 +168,7 @@ executors:
   suse-linux-fips:
     docker:
       - image: registry.suse.com/bci/bci-base-fips:15.6
-    resource_class: arm.medium
+    resource_class: arm.medium.gen2
 
 commands:
   make-binary:
@@ -1228,7 +1228,6 @@ workflows:
             parameters:
               executor:
                 - 'docker-amd64'
-                - 'docker-arm64'
                 - 'win-server2019-amd64'
                 - 'win-server2022-amd64'
                 - 'macos-arm64'
@@ -1239,6 +1238,21 @@ workflows:
                 - 'linux-ubuntu-jammy-arm64'
                 - 'linux-ubuntu-focal-arm64'
                 - 'alpine'
+          requires:
+            - upload version
+          filters:
+            branches:
+              only:
+                - main
+                - '/release.*/'
+                - '/.*e2e.*/'
+
+      - test-release:
+          name: e2e tests (docker-arm64)
+          executor: 'docker-arm64-gen2'
+          context:
+            - team_hammerhead-cli
+            - devex_cli_docker_hub
           requires:
             - upload version
           filters:
