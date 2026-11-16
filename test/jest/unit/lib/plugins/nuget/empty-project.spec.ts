@@ -196,6 +196,72 @@ describe.each(projectTypes)('empty classic %s', (extension) => {
   });
 
   it.each([
+    ['direct graph', 2, 'process failure'],
+    ['direct graph', 2, 'invalid JSON'],
+    ['complete graph', 3, 'process failure'],
+    ['complete graph', 3, 'invalid JSON'],
+  ])(
+    'reports verification failure for %s: %s %s',
+    async (_stage, call, failure) => {
+      const executeNormally = execute.getMockImplementation()!;
+      execute.mockImplementation((...args) => {
+        if (execute.mock.calls.length === call) {
+          return failure === 'invalid JSON'
+            ? Promise.resolve({ stdout: 'not JSON' })
+            : Promise.reject(new Error('MSBuild failed'));
+        }
+        return executeNormally(...args);
+      });
+
+      const result = inspect(root, targetFile);
+
+      await expect(result).rejects.toThrow('Could not verify');
+      expect(nuget.inspect).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each(['direct metadata', 'owned assets'])(
+    'preserves the plugin error for %s',
+    async (route) => {
+      const error = new Error('NuGet parser failed');
+      (nuget.inspect as jest.Mock).mockRejectedValue(error);
+      if (route === 'owned assets') {
+        const assets = path.join(root, 'obj', 'project.assets.json');
+        fs.mkdirSync(path.dirname(assets));
+        fs.writeFileSync(
+          assets,
+          JSON.stringify({ project: { restore: { projectPath: project } } }),
+        );
+      }
+
+      const result = inspect(
+        root,
+        route === 'owned assets' ? targetFile : 'packages.config',
+      );
+
+      await expect(result).rejects.toBe(error);
+      expect(nuget.inspect).toHaveBeenCalledTimes(1);
+    },
+  );
+
+  it('rejects unreadable owned assets as a verification failure', async () => {
+    const assets = path.join(root, 'obj', 'project.assets.json');
+    fs.mkdirSync(path.dirname(assets));
+    fs.writeFileSync(assets, '{}');
+    const read = jest.spyOn(fs, 'readFileSync').mockImplementationOnce(() => {
+      throw Object.assign(new Error('Access denied'), { code: 'EACCES' });
+    });
+    try {
+      const result = inspect(root, targetFile);
+
+      await expect(result).rejects.toThrow('Could not verify');
+      expect(nuget.inspect).not.toHaveBeenCalled();
+    } finally {
+      read.mockRestore();
+    }
+  });
+
+  it.each([
     { args: ['/p:Configuration=Release'] },
     { configuration: 'Release' },
     { 'dotnet-target-framework': 'net48' },

@@ -451,6 +451,56 @@ describe('empty classic project identity', () => {
     expect(makeRequest).not.toHaveBeenCalled();
   });
 
+  it.each(['process failure', 'invalid JSON'])(
+    'reports an identity failure for sibling %s',
+    async (failure) => {
+      const project = projectFile();
+      const sibling = projectFile('vbproj', 'Other.vbproj');
+      const executeNormally = execute.getMockImplementation()!;
+      execute.mockImplementation((...args) => {
+        if (args[1][1] === sibling) {
+          return failure === 'invalid JSON'
+            ? Promise.resolve({ stdout: 'not JSON' })
+            : Promise.reject(new Error('MSBuild failed'));
+        }
+        return executeNormally(...args);
+      });
+
+      const result = inspect(root, path.basename(project));
+
+      await expect(result).rejects.toThrow(
+        'unique legacy NuGet monitor identity',
+      );
+      expect(makeRequest).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each([
+    'ancestor stat',
+    'ancestor listing',
+    'project listing',
+    'project stat',
+  ])('reports an identity failure for inaccessible %s', async (operation) => {
+    const project = projectFile();
+    if (operation === 'ancestor stat' || operation === 'ancestor listing')
+      fs.mkdirSync(path.join(root, 'obj'));
+    const fail = () => {
+      throw Object.assign(new Error('Access denied'), { code: 'EACCES' });
+    };
+    if (operation === 'ancestor stat')
+      jest.spyOn(fs, 'lstatSync').mockImplementationOnce(fail);
+    else if (operation === 'project stat')
+      jest.spyOn(fs, 'statSync').mockImplementationOnce(fail);
+    else jest.spyOn(fs, 'readdirSync').mockImplementationOnce(fail);
+
+    const result = inspect(root, path.basename(project));
+
+    await expect(result).rejects.toThrow(
+      'unique legacy NuGet monitor identity',
+    );
+    expect(makeRequest).not.toHaveBeenCalled();
+  });
+
   it('allows mixed-language siblings with distinct evaluated outputs', async () => {
     const projects = ['csproj', 'vbproj', 'fsproj'].map((extension) => {
       const project = projectFile(extension);

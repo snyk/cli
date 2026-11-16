@@ -40,20 +40,16 @@ function cannotVerify(project: string): Error {
 }
 
 async function query(project: string, args: string[]) {
-  try {
-    const { stdout } = await execute(
-      'dotnet',
-      ['msbuild', project, '-nologo', ...args],
-      {
-        cwd: path.dirname(project),
-        timeout: 120000,
-        maxBuffer: 16 * 1024 * 1024,
-      },
-    );
-    return JSON.parse(stdout);
-  } catch {
-    throw cannotVerify(project);
-  }
+  const { stdout } = await execute(
+    'dotnet',
+    ['msbuild', project, '-nologo', ...args],
+    {
+      cwd: path.dirname(project),
+      timeout: 120000,
+      maxBuffer: 16 * 1024 * 1024,
+    },
+  );
+  return JSON.parse(stdout);
 }
 
 function samePath(left: unknown, right: string): boolean {
@@ -90,17 +86,19 @@ function projectFiles(directory: string): string[] {
     );
 }
 
-function verifyAssetsPath(assets: string | undefined, project: string): string {
+function isAssetsPathSafe(
+  assets: string | undefined,
+  project: string,
+): assets is string {
   const directory = path.dirname(project);
-  if (!assets || path.basename(assets) !== 'project.assets.json')
-    throw identityError(project);
+  if (!assets || path.basename(assets) !== 'project.assets.json') return false;
   const relative = path.relative(directory, assets);
   if (
     relative === '..' ||
     path.isAbsolute(relative) ||
     relative.startsWith(`..${path.sep}`)
   )
-    throw identityError(project);
+    return false;
   // A lexical child path can alias another project's output through a symlink.
   let ancestor = path.dirname(assets);
   while (!samePath(ancestor, directory)) {
@@ -108,47 +106,45 @@ function verifyAssetsPath(assets: string | undefined, project: string): string {
       if (
         fs.lstatSync(ancestor).isSymbolicLink() ||
         projectFiles(ancestor).length > 0
-      ) {
-        throw identityError(project);
-      }
+      )
+        return false;
     } catch (error) {
-      if (error.code !== 'ENOENT') throw identityError(project);
+      if (error.code !== 'ENOENT') throw error;
     }
     const parent = path.dirname(ancestor);
-    if (parent === ancestor) throw identityError(project);
+    if (parent === ancestor) return false;
     ancestor = parent;
   }
-  return assets;
+  return true;
 }
 
-async function verifyUniqueAssetsPath(
+async function uniqueAssetsPath(
   assets: string | undefined,
   project: string,
-) {
-  const verified = verifyAssetsPath(assets, project);
-  const directory = path.dirname(project);
-  for (const file of projectFiles(directory)) {
-    const sibling = path.join(directory, file);
-    if (samePath(sibling, project)) continue;
-    let evaluation;
-    try {
-      evaluation = await query(sibling, [
+): Promise<string | undefined> {
+  try {
+    if (!isAssetsPathSafe(assets, project)) return undefined;
+    const directory = path.dirname(project);
+    for (const file of projectFiles(directory)) {
+      const sibling = path.join(directory, file);
+      if (samePath(sibling, project)) continue;
+      const evaluation = await query(sibling, [
         '-getProperty:MSBuildProjectFullPath,ProjectAssetsFile,MSBuildProjectExtensionsPath',
       ]);
-    } catch {
-      throw identityError(project);
+      if (!samePath(evaluation?.Properties?.MSBuildProjectFullPath, sibling))
+        return undefined;
+      const siblingAssets = assetsPath(evaluation.Properties, directory);
+      // Missing output directories cannot reveal whether the filesystem folds case.
+      if (
+        !isAssetsPathSafe(siblingAssets, sibling) ||
+        siblingAssets.toLowerCase() === assets.toLowerCase()
+      )
+        return undefined;
     }
-    if (!samePath(evaluation?.Properties?.MSBuildProjectFullPath, sibling))
-      throw identityError(project);
-    const siblingAssets = verifyAssetsPath(
-      assetsPath(evaluation.Properties, directory),
-      sibling,
-    );
-    // Missing output directories cannot reveal whether the filesystem folds case.
-    if (siblingAssets.toLowerCase() === verified.toLowerCase())
-      throw identityError(project);
+    return assets;
+  } catch {
+    return undefined;
   }
-  return verified;
 }
 
 function legacyProjectName(
@@ -179,11 +175,11 @@ function emptyProjectSpec(
     !Array.isArray(items) ||
     items.length !== 1
   ) {
-    throw cannotVerify(project);
+    return undefined;
   }
   const spec = items[0];
   if (
-    spec.Type !== 'ProjectSpec' ||
+    spec?.Type !== 'ProjectSpec' ||
     spec.ProjectStyle !== 'Unknown' ||
     !samePath(spec.ProjectPath, project) ||
     !samePath(spec.ProjectUniqueName, project) ||
@@ -191,9 +187,85 @@ function emptyProjectSpec(
     typeof spec.ProjectName !== 'string' ||
     !spec.ProjectName
   ) {
-    throw cannotVerify(project);
+    return undefined;
   }
   return spec;
+}
+
+async function verifyProject(project: string, options: types.Options) {
+  try {
+    const directory = path.dirname(project);
+    const manifests = [
+      'packages.config',
+      'project.json',
+      'paket.dependencies',
+      `packages.${path.basename(project, path.extname(project))}.config`,
+    ];
+    if (
+      (options as any).configuration ||
+      (options as any).args?.length ||
+      manifests.some((manifest) =>
+        fs.existsSync(path.join(directory, manifest)),
+      )
+    )
+      return undefined;
+
+    const evaluation = await query(project, [
+      `-getProperty:${properties.join(',')}`,
+    ]);
+    const evaluated = evaluation?.Properties;
+    if (!samePath(evaluated?.MSBuildProjectFullPath, project)) return undefined;
+    const assets = assetsPath(evaluated, directory);
+    if (assets && fs.existsSync(assets)) {
+      const manifest = JSON.parse(fs.readFileSync(assets, 'utf8'));
+      return samePath(manifest?.project?.restore?.projectPath, project)
+        ? { assets }
+        : undefined;
+    }
+
+    if (
+      (options as any)['dotnet-target-framework'] ||
+      evaluated.UsingMicrosoftNETSdk !== '' ||
+      evaluated.TargetFrameworkIdentifier !== '.NETFramework' ||
+      !/^v4\.[0-9]+(?:\.[0-9]+)?$/.test(evaluated.TargetFrameworkVersion) ||
+      evaluated.TargetFrameworks !== '' ||
+      evaluated.RestoreProjectStyle !== ''
+    )
+      return undefined;
+    const framework = `${evaluated.TargetFrameworkIdentifier},Version=${evaluated.TargetFrameworkVersion}`;
+    // Read collected items in the same project instance; graph recursion uses child instances.
+    const direct = await query(project, [
+      '-getTargetResult:_GenerateProjectRestoreGraph',
+      `-getItem:${dependencyItems.join(',')}`,
+    ]);
+    if (
+      !emptyProjectSpec(
+        direct,
+        '_GenerateProjectRestoreGraph',
+        project,
+        framework,
+      ) ||
+      dependencyItems.some(
+        (item) =>
+          !Array.isArray(direct.Items?.[item]) ||
+          direct.Items[item].length !== 0,
+      )
+    )
+      return undefined;
+    // Use NuGet's complete graph as well, so project/tool restore entries cannot disappear.
+    const graph = await query(project, [
+      '-getTargetResult:_GenerateRestoreGraph',
+    ]);
+    const spec = emptyProjectSpec(
+      graph,
+      '_GenerateRestoreGraph',
+      project,
+      framework,
+    );
+    return spec ? { evaluated, assets, spec } : undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 export async function inspect(
@@ -205,90 +277,22 @@ export async function inspect(
     return nugetPlugin.inspect(root, targetFile, options);
   }
   const project = path.resolve(root, targetFile);
-  const directory = path.dirname(project);
-  if ((options as any).configuration || (options as any).args?.length) {
-    throw cannotVerify(project);
+  const verified = await verifyProject(project, options);
+  if (!verified) throw cannotVerify(project);
+  if (!('spec' in verified)) {
+    return nugetPlugin.inspect(
+      root,
+      path.relative(root, verified.assets),
+      options,
+    );
   }
-  if (
-    fs.existsSync(
-      path.join(
-        directory,
-        `packages.${path.basename(project, path.extname(project))}.config`,
-      ),
-    )
-  ) {
-    throw cannotVerify(project);
-  }
-  for (const manifest of [
-    'packages.config',
-    'project.json',
-    'paket.dependencies',
-  ]) {
-    if (fs.existsSync(path.join(directory, manifest)))
-      throw cannotVerify(project);
-  }
-
-  const evaluation = await query(project, [
-    `-getProperty:${properties.join(',')}`,
-  ]);
-  const evaluated = evaluation?.Properties;
-  if (!samePath(evaluated?.MSBuildProjectFullPath, project))
-    throw cannotVerify(project);
-  const assets = assetsPath(evaluated, directory);
-  if (assets && fs.existsSync(assets)) {
-    let manifest;
-    try {
-      manifest = JSON.parse(fs.readFileSync(assets, 'utf8'));
-    } catch {
-      throw cannotVerify(project);
-    }
-    if (!samePath(manifest?.project?.restore?.projectPath, project))
-      throw cannotVerify(project);
-    return nugetPlugin.inspect(root, path.relative(root, assets), options);
-  }
-
-  if (
-    (options as any)['dotnet-target-framework'] ||
-    evaluated.UsingMicrosoftNETSdk !== '' ||
-    evaluated.TargetFrameworkIdentifier !== '.NETFramework' ||
-    !/^v4\.[0-9]+(?:\.[0-9]+)?$/.test(evaluated.TargetFrameworkVersion) ||
-    evaluated.TargetFrameworks !== '' ||
-    evaluated.RestoreProjectStyle !== ''
-  ) {
-    throw cannotVerify(project);
-  }
-  const framework = `${evaluated.TargetFrameworkIdentifier},Version=${evaluated.TargetFrameworkVersion}`;
-  // Read collected items in the same project instance; graph recursion uses child instances.
-  const direct = await query(project, [
-    '-getTargetResult:_GenerateProjectRestoreGraph',
-    `-getItem:${dependencyItems.join(',')}`,
-  ]);
-  emptyProjectSpec(direct, '_GenerateProjectRestoreGraph', project, framework);
-  if (
-    dependencyItems.some(
-      (item) =>
-        !Array.isArray(direct.Items?.[item]) || direct.Items[item].length !== 0,
-    )
-  ) {
-    throw cannotVerify(project);
-  }
-  // Use NuGet's complete graph as well, so project/tool restore entries cannot disappear.
-  const graph = await query(project, [
-    '-getTargetResult:_GenerateRestoreGraph',
-  ]);
-  const spec = emptyProjectSpec(
-    graph,
-    '_GenerateRestoreGraph',
-    project,
-    framework,
-  );
-  const identityFile = path.relative(
-    root,
-    await verifyUniqueAssetsPath(assets, project),
-  );
+  const { evaluated, spec } = verified;
+  const assets = await uniqueAssetsPath(verified.assets, project);
+  if (!assets) throw identityError(project);
+  const identityFile = path.relative(root, assets);
   const name = (options as any)['assets-project-name']
     ? evaluated.PackageId || evaluated.AssemblyName || spec.ProjectName
-    : legacyProjectName(root, assets!, (options as any)['project-name-prefix']);
+    : legacyProjectName(root, assets, (options as any)['project-name-prefix']);
   const version = evaluated.PackageVersion || evaluated.Version || '1.0.0';
   const [major, minor, patch] = evaluated.TargetFrameworkVersion.slice(1)
     .split('.')
