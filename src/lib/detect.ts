@@ -40,6 +40,7 @@ const DETECTABLE_FILES: string[] = [
 ];
 
 export const AUTO_DETECTABLE_FILES: string[] = [
+  '.csproj',
   'pnpm-lock.yaml',
   'package-lock.json',
   'yarn.lock',
@@ -110,6 +111,7 @@ export function isPathToPackageFile(
   path: string,
   featureFlags: Set<string> = new Set<string>(),
 ) {
+  if (/\.csproj$/i.test(path)) return true;
   for (const fileName of DETECTABLE_FILES) {
     if (path.endsWith(fileName)) {
       if (!isFileCompatible(fileName, featureFlags)) {
@@ -211,6 +213,16 @@ export function detectPackageFile(
       return file;
     }
   }
+  if (isLocalFolder(root)) {
+    const projects = fs
+      .readdirSync(root)
+      .filter(
+        (file) =>
+          /\.csproj$/i.test(file) &&
+          fs.statSync(pathLib.join(root, file)).isFile(),
+      );
+    if (projects.length === 1) return projects[0];
+  }
   debug('no package file found in ' + root);
 }
 
@@ -219,6 +231,7 @@ export function detectPackageManagerFromFile(
   featureFlags: Set<string> = new Set<string>(),
 ): SupportedPackageManagers {
   let key = pathLib.basename(file);
+  if (/\.csproj$/i.test(key)) return 'nuget';
 
   // TODO: fix this to use glob matching instead
   // like *.gemspec

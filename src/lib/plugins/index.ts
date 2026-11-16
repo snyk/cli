@@ -4,7 +4,7 @@ import * as gradlePlugin from 'snyk-gradle-plugin';
 import * as sbtPlugin from 'snyk-sbt-plugin';
 import * as pythonPlugin from 'snyk-python-plugin';
 import * as goPlugin from 'snyk-go-plugin';
-import * as nugetPlugin from 'snyk-nuget-plugin';
+import * as nugetPlugin from './nuget';
 import * as phpPlugin from 'snyk-php-plugin';
 import * as legacyNodejsPlugin from './nodejs-plugin';
 import * as nodejsPlugin from 'snyk-nodejs-plugin';

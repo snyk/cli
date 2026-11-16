@@ -7,6 +7,7 @@ import * as assign from 'lodash.assign';
 import { detectPackageManagerFromFile } from './detect';
 import * as debugModule from 'debug';
 import { SUPPORTED_MANIFEST_FILES } from './package-managers';
+import { hasLegacyMetadata, isProjectRepresented } from './plugins/nuget';
 
 const debug = debugModule('snyk:find-files');
 
@@ -158,7 +159,10 @@ export function isExcludedPath(
 function findFile(path: string, filter: string[] = []): string | null {
   if (filter.length > 0) {
     const filename = pathLib.basename(path);
-    if (filter.includes(filename)) {
+    if (
+      filter.includes(filename) ||
+      (filter.includes('.csproj') && /\.csproj$/i.test(filename))
+    ) {
       return path;
     }
   } else {
@@ -174,7 +178,8 @@ async function findInDirectory(
   const files = await readDirectory(config.path);
   const toFind = files
     .filter((file) => !config.ignore.includes(file))
-    .map((file) => pathLib.resolve(config.path, file))
+    // Directory entries are names; keep resolution within the current directory.
+    .map((file) => pathLib.resolve(config.path, pathLib.basename(file)))
     .filter(
       (resolvedPath) => !isExcludedPath(resolvedPath, config.excludePaths),
     )
@@ -204,6 +209,11 @@ function filterForDefaultManifests(
   featureFlags: Set<string> = new Set<string>(),
 ): string[] {
   const filteredFiles: string[] = [];
+  // Legacy metadata directories keep their existing discovery and tooling requirements.
+  const projects = files.filter(
+    (file) => /\.csproj$/i.test(file) && !hasLegacyMetadata(file),
+  );
+  files = files.filter((file) => !/\.csproj$/i.test(file));
 
   const beforeSort = files
     .filter(Boolean)
@@ -254,7 +264,9 @@ function filterForDefaultManifests(
       }
     }
   }
-  return filteredFiles;
+  return filteredFiles.concat(
+    projects.filter((project) => !isProjectRepresented(project, filteredFiles)),
+  );
 }
 
 function detectProjectTypeFromFile(

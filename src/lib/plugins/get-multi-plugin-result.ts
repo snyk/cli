@@ -174,6 +174,9 @@ export async function getMultiPluginResult(
 
       allResults.push(...pluginResultWithCustomScannedProjects.scannedProjects);
     } catch (error) {
+      if (/\.csproj$/i.test(targetFile)) {
+        throw error;
+      }
       if (
         error.name === 'NotSupportedEcosystem' ||
         error.constructor?.name === 'NotSupportedEcosystem'
