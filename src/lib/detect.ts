@@ -8,6 +8,11 @@ import {
   UV_FEATURE_FLAG,
 } from './package-managers';
 
+import {
+  DOTNET_PROJECT_EXTENSIONS,
+  isDotnetProjectFile,
+} from './dotnet-project';
+
 const debug = debugLib('snyk-detect');
 
 const DETECTABLE_FILES: string[] = [
@@ -40,7 +45,7 @@ const DETECTABLE_FILES: string[] = [
 ];
 
 export const AUTO_DETECTABLE_FILES: string[] = [
-  '.csproj',
+  ...DOTNET_PROJECT_EXTENSIONS,
   'pnpm-lock.yaml',
   'package-lock.json',
   'yarn.lock',
@@ -92,6 +97,9 @@ const DETECTABLE_PACKAGE_MANAGERS: {
   [SUPPORTED_MANIFEST_FILES.REQUIREMENTS_TXT]: 'pip',
   [SUPPORTED_MANIFEST_FILES.GOPKG_LOCK]: 'golangdep',
   [SUPPORTED_MANIFEST_FILES.GO_MOD]: 'gomodules',
+  [SUPPORTED_MANIFEST_FILES.CSPROJ]: 'nuget',
+  [SUPPORTED_MANIFEST_FILES.VBPROJ]: 'nuget',
+  [SUPPORTED_MANIFEST_FILES.FSPROJ]: 'nuget',
   [SUPPORTED_MANIFEST_FILES.PROJECT_ASSETS_JSON]: 'nuget',
   [SUPPORTED_MANIFEST_FILES.PACKAGES_CONFIG]: 'nuget',
   [SUPPORTED_MANIFEST_FILES.PROJECT_JSON]: 'nuget',
@@ -111,7 +119,7 @@ export function isPathToPackageFile(
   path: string,
   featureFlags: Set<string> = new Set<string>(),
 ) {
-  if (/\.csproj$/i.test(path)) return true;
+  if (isDotnetProjectFile(path)) return true;
   for (const fileName of DETECTABLE_FILES) {
     if (path.endsWith(fileName)) {
       if (!isFileCompatible(fileName, featureFlags)) {
@@ -218,7 +226,7 @@ export function detectPackageFile(
       .readdirSync(root)
       .filter(
         (file) =>
-          /\.csproj$/i.test(file) &&
+          isDotnetProjectFile(file) &&
           fs.statSync(pathLib.join(root, file)).isFile(),
       );
     if (projects.length === 1) return projects[0];
@@ -231,7 +239,9 @@ export function detectPackageManagerFromFile(
   featureFlags: Set<string> = new Set<string>(),
 ): SupportedPackageManagers {
   let key = pathLib.basename(file);
-  if (/\.csproj$/i.test(key)) return 'nuget';
+  if (isDotnetProjectFile(key)) {
+    key = pathLib.extname(key).toLowerCase();
+  }
 
   // TODO: fix this to use glob matching instead
   // like *.gemspec

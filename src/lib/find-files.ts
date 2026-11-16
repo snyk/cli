@@ -8,6 +8,7 @@ import { detectPackageManagerFromFile } from './detect';
 import * as debugModule from 'debug';
 import { SUPPORTED_MANIFEST_FILES } from './package-managers';
 import { hasLegacyMetadata, isProjectRepresented } from './plugins/nuget';
+import { isDotnetProjectFile } from './dotnet-project';
 
 const debug = debugModule('snyk:find-files');
 
@@ -161,7 +162,8 @@ function findFile(path: string, filter: string[] = []): string | null {
     const filename = pathLib.basename(path);
     if (
       filter.includes(filename) ||
-      (filter.includes('.csproj') && /\.csproj$/i.test(filename))
+      (isDotnetProjectFile(filename) &&
+        filter.includes(pathLib.extname(filename).toLowerCase()))
     ) {
       return path;
     }
@@ -211,9 +213,9 @@ function filterForDefaultManifests(
   const filteredFiles: string[] = [];
   // Legacy metadata directories keep their existing discovery and tooling requirements.
   const projects = files.filter(
-    (file) => /\.csproj$/i.test(file) && !hasLegacyMetadata(file),
+    (file) => isDotnetProjectFile(file) && !hasLegacyMetadata(file),
   );
-  files = files.filter((file) => !/\.csproj$/i.test(file));
+  files = files.filter((file) => !isDotnetProjectFile(file));
 
   const beforeSort = files
     .filter(Boolean)

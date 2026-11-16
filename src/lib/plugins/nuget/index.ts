@@ -6,6 +6,7 @@ import { DepGraphBuilder } from '@snyk/dep-graph';
 import { InspectResult } from '@snyk/cli-interface/legacy/plugin';
 import * as nugetPlugin from 'snyk-nuget-plugin';
 import * as types from '../types';
+import { isDotnetProjectFile } from '../../dotnet-project';
 
 const execute = promisify(execFile);
 const properties = [
@@ -94,7 +95,7 @@ export async function inspect(
   targetFile: string,
   options: types.Options = {},
 ): Promise<InspectResult> {
-  if (!/\.csproj$/i.test(targetFile)) {
+  if (!isDotnetProjectFile(targetFile)) {
     return nugetPlugin.inspect(root, targetFile, options);
   }
   const project = path.resolve(root, targetFile);

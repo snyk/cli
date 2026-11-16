@@ -11,8 +11,11 @@ import { find } from '../../../../../../src/lib/find-files';
 import {
   AUTO_DETECTABLE_FILES,
   detectPackageFile,
+  detectPackageManager,
+  isPathToPackageFile,
   detectPackageManagerFromFile,
 } from '../../../../../../src/lib/detect';
+import { updateArgs } from '../../../../../../src/lib/sln';
 
 jest.mock('child_process', () => {
   const execFile: any = jest.fn();
@@ -33,7 +36,10 @@ const items = {
   FrameworkReference: [],
 };
 
-describe('verified empty classic NuGet projects', () => {
+const projectTypes = ['csproj', 'vbproj', 'fsproj'];
+
+describe.each(projectTypes)('empty classic %s', (extension) => {
+  const targetFile = `Example.${extension}`;
   let root: string;
   let project: string;
   let evaluation;
@@ -43,7 +49,7 @@ describe('verified empty classic NuGet projects', () => {
   beforeEach(() => {
     jest.resetAllMocks();
     root = fs.mkdtempSync(path.join(os.tmpdir(), 'nuget-empty-'));
-    project = path.join(root, 'Example.csproj');
+    project = path.join(root, targetFile);
     fs.writeFileSync(project, '<Project />');
     evaluation = {
       Properties: {
@@ -92,7 +98,7 @@ describe('verified empty classic NuGet projects', () => {
   afterEach(() => fs.rmSync(root, { recursive: true, force: true }));
 
   it('returns one root-only graph after both NuGet graph targets verify emptiness', async () => {
-    const result = await inspect(root, 'Example.csproj');
+    const result = await inspect(root, targetFile);
 
     if (!('scannedProjects' in result))
       throw new Error('Expected a project graph');
@@ -132,9 +138,7 @@ describe('verified empty classic NuGet projects', () => {
   ])('fails closed for %s', async (_name, property, value) => {
     evaluation.Properties[property] = value;
 
-    await expect(inspect(root, 'Example.csproj')).rejects.toThrow(
-      'Could not verify',
-    );
+    await expect(inspect(root, targetFile)).rejects.toThrow('Could not verify');
     expect(execute).toHaveBeenCalledTimes(1);
   });
 
@@ -143,7 +147,7 @@ describe('verified empty classic NuGet projects', () => {
     async (item) => {
       direct.Items[item] = [{ Identity: 'Injected' }];
 
-      await expect(inspect(root, 'Example.csproj')).rejects.toThrow(
+      await expect(inspect(root, targetFile)).rejects.toThrow(
         'Could not verify',
       );
     },
@@ -154,7 +158,7 @@ describe('verified empty classic NuGet projects', () => {
     async (type) => {
       graph.TargetResults._GenerateRestoreGraph.Items.push({ Type: type });
 
-      await expect(inspect(root, 'Example.csproj')).rejects.toThrow(
+      await expect(inspect(root, targetFile)).rejects.toThrow(
         'Could not verify',
       );
     },
@@ -175,9 +179,7 @@ describe('verified empty classic NuGet projects', () => {
     if (scenario === 'no spec')
       graph.TargetResults._GenerateRestoreGraph.Items = [];
 
-    await expect(inspect(root, 'Example.csproj')).rejects.toThrow(
-      'Could not verify',
-    );
+    await expect(inspect(root, targetFile)).rejects.toThrow('Could not verify');
   });
 
   it.each([
@@ -190,9 +192,7 @@ describe('verified empty classic NuGet projects', () => {
       execute.mockResolvedValue({ stdout: 'not JSON' });
     else execute.mockRejectedValue(new Error(failure));
 
-    await expect(inspect(root, 'Example.csproj')).rejects.toThrow(
-      'MSBuild 17.8',
-    );
+    await expect(inspect(root, targetFile)).rejects.toThrow('MSBuild 17.8');
   });
 
   it.each([
@@ -200,9 +200,9 @@ describe('verified empty classic NuGet projects', () => {
     { configuration: 'Release' },
     { 'dotnet-target-framework': 'net48' },
   ])('rejects unsupported configuration %j', async (options) => {
-    await expect(
-      inspect(root, 'Example.csproj', options as any),
-    ).rejects.toThrow('Could not verify');
+    await expect(inspect(root, targetFile, options as any)).rejects.toThrow(
+      'Could not verify',
+    );
   });
 
   it('keeps direct packages.config scans independent of dotnet', async () => {
@@ -222,9 +222,7 @@ describe('verified empty classic NuGet projects', () => {
   ])('never infers zero over %s', async (manifest) => {
     fs.writeFileSync(path.join(root, manifest), '{}');
 
-    await expect(inspect(root, 'Example.csproj')).rejects.toThrow(
-      'Could not verify',
-    );
+    await expect(inspect(root, targetFile)).rejects.toThrow('Could not verify');
     expect(execute).not.toHaveBeenCalled();
   });
 
@@ -249,14 +247,14 @@ describe('verified empty classic NuGet projects', () => {
       );
 
       if (scenario === 'matching') {
-        await inspect(root, 'Example.csproj');
+        await inspect(root, targetFile);
         expect(nuget.inspect).toHaveBeenCalledWith(
           root,
           path.join('custom', 'project.assets.json'),
           {},
         );
       } else {
-        await expect(inspect(root, 'Example.csproj')).rejects.toThrow(
+        await expect(inspect(root, targetFile)).rejects.toThrow(
           'Could not verify',
         );
       }
@@ -264,13 +262,48 @@ describe('verified empty classic NuGet projects', () => {
     },
   );
 
-  it('detects the explicit and root project', () => {
-    expect(detectPackageManagerFromFile(project)).toBe('nuget');
-    expect(detectPackageFile(root)).toBe('Example.csproj');
+  it.each(['lowercase', 'uppercase'])(
+    'detects %s explicit, root, solution and all-projects files',
+    async (casing) => {
+      const filename =
+        casing === 'uppercase'
+          ? `Example.${extension.toUpperCase()}`
+          : targetFile;
+      const filenamePath = path.join(root, filename);
+      fs.renameSync(project, filenamePath);
+      const solution = path.join(root, 'Example.sln');
+      fs.writeFileSync(
+        solution,
+        `Project("{guid}") = "Example", "${filename}", "{guid}"\nEndProject`,
+      );
+      const options = {};
+      const args = { options: { file: solution, _: ['test', options] } };
+
+      const found = await find({ path: root, filter: AUTO_DETECTABLE_FILES });
+      updateArgs(args);
+
+      expect(isPathToPackageFile(filenamePath)).toBe(true);
+      expect(detectPackageManagerFromFile(filenamePath)).toBe('nuget');
+      expect(detectPackageManager(root, { file: filename })).toBe('nuget');
+      expect(detectPackageManager(root, {})).toBe('nuget');
+      expect(detectPackageFile(root)).toBe(filename);
+      expect(found.files).toEqual([filenamePath]);
+      expect(args.options._).toEqual(['test', root, options]);
+    },
+  );
+
+  it('honors a filter containing only another language extension', async () => {
+    const otherExtension = extension === 'csproj' ? '.vbproj' : '.csproj';
+
+    const found = await find({ path: root, filter: [otherExtension] });
+
+    expect(found.files).toEqual([]);
   });
 
-  it('preserves two projects in one directory and deduplicates assets by identity', async () => {
-    const second = path.join(root, 'Second.csproj');
+  it('preserves mixed-language projects and deduplicates assets by identity', async () => {
+    const otherExtension =
+      projectTypes[(projectTypes.indexOf(extension) + 1) % projectTypes.length];
+    const second = path.join(root, `Second.${otherExtension}`);
     fs.writeFileSync(second, '<Project />');
     const assets = path.join(root, 'custom', 'project.assets.json');
     fs.mkdirSync(path.dirname(assets));
@@ -285,6 +318,21 @@ describe('verified empty classic NuGet projects', () => {
     expect(detectPackageFile(root)).toBeUndefined();
   });
 
+  it.each([
+    'obj/project.assets.json',
+    'project.assets.json',
+    'packages.config',
+  ])('prefers existing %s metadata over the root project', (manifest) => {
+    const file = path.join(root, manifest);
+    fs.mkdirSync(path.dirname(file), { recursive: true });
+    fs.writeFileSync(file, '{}');
+
+    const detected = detectPackageFile(root);
+
+    expect(detected).toBe(manifest);
+    expect(detectPackageManager(root, {})).toBe('nuget');
+  });
+
   it('respects project exclusions', async () => {
     const result = await find({
       path: root,
@@ -296,13 +344,13 @@ describe('verified empty classic NuGet projects', () => {
   });
 
   it('keeps legacy metadata directories outside automatic fallback, including shared directories', async () => {
-    fs.writeFileSync(path.join(root, 'Second.csproj'), '<Project />');
+    fs.writeFileSync(path.join(root, `Second.${extension}`), '<Project />');
     fs.writeFileSync(path.join(root, 'packages.config'), '<packages />');
 
     const result = await find({ path: root, filter: AUTO_DETECTABLE_FILES });
 
     expect(result.files).toEqual([path.join(root, 'packages.config')]);
-    await expect(inspect(root, 'Second.csproj')).rejects.toThrow(
+    await expect(inspect(root, `Second.${extension}`)).rejects.toThrow(
       'Could not verify',
     );
     expect(execute).not.toHaveBeenCalled();
@@ -318,7 +366,7 @@ describe('verified empty classic NuGet projects', () => {
     );
 
     await expect(
-      inspect(root, 'Example.csproj', {
+      inspect(root, targetFile, {
         args: ['/p:Configuration=Release'],
       } as any),
     ).rejects.toThrow('Could not verify');
@@ -327,7 +375,7 @@ describe('verified empty classic NuGet projects', () => {
   });
 
   it('does not hide an unrestored project behind a successful all-projects result', async () => {
-    const empty = await inspect(root, 'Example.csproj');
+    const empty = await inspect(root, targetFile);
     (getSinglePluginResult as jest.Mock)
       .mockResolvedValueOnce(empty)
       .mockRejectedValueOnce(new Error('Missing restored NuGet metadata'));
@@ -335,8 +383,35 @@ describe('verified empty classic NuGet projects', () => {
     await expect(
       getMultiPluginResult(root, { allProjects: true } as any, [
         project,
-        path.join(root, 'Unrestored.csproj'),
+        path.join(root, `Unrestored.${extension.toUpperCase()}`),
       ]),
     ).rejects.toThrow('Missing restored NuGet metadata');
+  });
+});
+
+describe('unsupported .NET project lookalikes', () => {
+  it.each([
+    'Example.csproj.bak',
+    'Example.vbproj.user',
+    'Example.fsprojx',
+    'Example.vcxproj',
+    'Example.njsproj',
+    'Example.proj',
+  ])('does not discover or route %s to NuGet', async (filename) => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'nuget-lookalike-'));
+    const file = path.join(root, filename);
+    fs.writeFileSync(file, '<Project />');
+    try {
+      const found = await find({ path: root, filter: AUTO_DETECTABLE_FILES });
+
+      expect(isPathToPackageFile(file)).toBe(false);
+      expect(() => detectPackageManagerFromFile(file)).toThrow(
+        'Could not detect package manager',
+      );
+      expect(detectPackageFile(root)).toBeUndefined();
+      expect(found.files).toEqual([]);
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
   });
 });
