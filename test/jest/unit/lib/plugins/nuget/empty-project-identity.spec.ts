@@ -67,12 +67,14 @@ describe('empty classic project identity', () => {
   let root: string;
   let evaluations: Record<string, any>;
   let graphFrameworks: Record<string, string>;
+  let restoreOutputs: Record<string, any>;
 
   beforeEach(() => {
     jest.clearAllMocks();
     root = fs.mkdtempSync(path.join(os.tmpdir(), 'nuget-identity-'));
     evaluations = {};
     graphFrameworks = {};
+    restoreOutputs = {};
     // No monitor can reach a socket, even if the request mock stops matching.
     const blocked = () => {
       throw new Error('Network forbidden in monitor identity tests');
@@ -119,6 +121,10 @@ describe('empty classic project identity', () => {
         stdout: JSON.stringify(
           target
             ? {
+                Properties: {
+                  ...evaluations[project],
+                  ...restoreOutputs[project],
+                },
                 Items: items,
                 TargetResults: {
                   [target.split(':')[1]]: {
@@ -387,22 +393,192 @@ describe('empty classic project identity', () => {
   });
 
   it.each([
-    ['ProjectAssetsFile', 'build/intermediate/project.assets.json'],
-    ['MSBuildProjectExtensionsPath', 'build/intermediate'],
+    {
+      name: 'forward slashes',
+      properties: {
+        ProjectAssetsFile: 'build/intermediate/project.assets.json',
+        MSBuildProjectExtensionsPath: 'build/intermediate',
+      },
+    },
+    {
+      name: 'backslashes',
+      properties: {
+        ProjectAssetsFile: 'build\\intermediate\\project.assets.json',
+        MSBuildProjectExtensionsPath: 'build\\intermediate',
+      },
+    },
+    {
+      name: 'mixed separators',
+      properties: {
+        ProjectAssetsFile: 'build\\intermediate/project.assets.json',
+        MSBuildProjectExtensionsPath: 'build/intermediate',
+      },
+    },
+    {
+      name: 'extensions path only',
+      properties: { MSBuildProjectExtensionsPath: 'build\\intermediate' },
+    },
+    {
+      name: 'explicit restore output',
+      properties: {
+        ProjectAssetsFile: 'build\\intermediate\\project.assets.json',
+        RestoreOutputPath: 'build/intermediate',
+      },
+    },
+  ])('uses aligned NuGet output with $name', async ({ properties }) => {
+    const project = projectFile();
+    Object.assign(evaluations[project], properties);
+
+    const result = await inspect(root, path.basename(project));
+
+    expect(result.plugin.targetFile).toBe(
+      path.join('build', 'intermediate', 'project.assets.json'),
+    );
+    expect(fs.readdirSync(root)).toEqual(['Example.csproj']);
+  });
+
+  it.each([
+    {
+      name: 'assets path differs from extensions',
+      properties: { ProjectAssetsFile: 'custom/project.assets.json' },
+    },
+    {
+      name: 'backslashed assets path differs from extensions',
+      properties: { ProjectAssetsFile: 'custom\\project.assets.json' },
+    },
+    {
+      name: 'restore redirects default assets',
+      properties: { RestoreOutputPath: 'custom' },
+    },
+    {
+      name: 'restore redirects explicit assets',
+      properties: {
+        ProjectAssetsFile: 'obj/project.assets.json',
+        RestoreOutputPath: 'custom',
+      },
+    },
+    {
+      name: 'backslashed parent traversal',
+      properties: {
+        ProjectAssetsFile: '..\\shared\\project.assets.json',
+        RestoreOutputPath: '..\\shared',
+      },
+    },
   ])(
-    'uses evaluated %s for custom in-tree output',
-    async (property, output) => {
+    'rejects an unverified restore identity: $name',
+    async ({ properties }) => {
       const project = projectFile();
-      evaluations[project][property] = output;
+      Object.assign(evaluations[project], properties);
 
-      const result = await inspect(root, path.basename(project));
-
-      expect(result.plugin.targetFile).toBe(
-        path.join('build', 'intermediate', 'project.assets.json'),
+      await expect(inspect(root, path.basename(project))).rejects.toThrow(
+        'unique legacy NuGet monitor identity',
       );
-      expect(fs.readdirSync(root)).toEqual(['Example.csproj']);
+      expect(makeRequest).not.toHaveBeenCalled();
     },
   );
+
+  it.each(['normalized collision', 'redirected sibling'])(
+    'rejects ambiguous normalized outputs: %s',
+    async (scenario) => {
+      const project = projectFile();
+      const sibling = projectFile('vbproj', 'Other.vbproj');
+      evaluations[project].MSBuildProjectExtensionsPath = 'build/shared';
+      evaluations[sibling].ProjectAssetsFile =
+        'build\\shared\\project.assets.json';
+      evaluations[sibling].MSBuildProjectExtensionsPath = 'build\\shared';
+      if (scenario === 'redirected sibling') {
+        evaluations[sibling].ProjectAssetsFile =
+          'build/other/project.assets.json';
+        evaluations[sibling].MSBuildProjectExtensionsPath = 'build/other';
+        evaluations[sibling].RestoreOutputPath = 'build\\shared';
+      }
+
+      await expect(inspect(root, path.basename(project))).rejects.toThrow(
+        'unique legacy NuGet monitor identity',
+      );
+      expect(execute.mock.calls[3][1]).toContain(
+        '-getProperty:MSBuildProjectFullPath,ProjectAssetsFile,MSBuildProjectExtensionsPath,RestoreOutputPath',
+      );
+    },
+  );
+
+  it.each([
+    {
+      name: 'late restore redirect',
+      properties: { RestoreOutputPath: 'custom' },
+      accepted: false,
+    },
+    {
+      name: 'aligned late output',
+      properties: {
+        ProjectAssetsFile: 'custom\\project.assets.json',
+        RestoreOutputPath: 'custom',
+      },
+      accepted: true,
+    },
+    {
+      name: 'changed project identity',
+      properties: { MSBuildProjectFullPath: '' },
+      accepted: false,
+    },
+  ])(
+    'verifies post-target properties: $name',
+    async ({ properties, accepted }) => {
+      const project = projectFile();
+      restoreOutputs[project] = properties;
+
+      const result = await inspect(root, path.basename(project)).then(
+        (inspection) => ({ targetFile: inspection.plugin.targetFile }),
+        (error) => ({ error: error.message }),
+      );
+
+      expect(result).toEqual(
+        accepted
+          ? { targetFile: path.join('custom', 'project.assets.json') }
+          : {
+              error: expect.stringContaining(
+                'unique legacy NuGet monitor identity',
+              ),
+            },
+      );
+      expect(execute.mock.calls[1][1]).toContain(
+        '-getProperty:MSBuildProjectFullPath,ProjectAssetsFile,MSBuildProjectExtensionsPath,RestoreOutputPath',
+      );
+    },
+  );
+
+  it.each(['redirected output', 'aligned collision'])(
+    'checks sibling outputs after targets: %s',
+    async (scenario) => {
+      const project = projectFile();
+      const sibling = projectFile('vbproj', 'Other.vbproj');
+      evaluations[sibling].MSBuildProjectExtensionsPath = 'other';
+      restoreOutputs[sibling] = { RestoreOutputPath: 'obj' };
+      if (scenario === 'aligned collision') {
+        restoreOutputs[sibling].ProjectAssetsFile = 'obj\\project.assets.json';
+      }
+
+      await expect(inspect(root, path.basename(project))).rejects.toThrow(
+        'unique legacy NuGet monitor identity',
+      );
+      expect(execute.mock.calls[3][1]).toContain(
+        '-getTargetResult:_GenerateProjectRestoreGraph',
+      );
+    },
+  );
+
+  it('delegates existing backslashed assets before verifying future restore output', async () => {
+    const project = projectFile();
+    const assets = path.join(root, 'custom', 'project.assets.json');
+    evaluations[project].ProjectAssetsFile = 'custom\\project.assets.json';
+    writeAssets(project, assets, 1);
+    const expected = await nuget.inspect(root, path.relative(root, assets), {});
+
+    const actual = await inspect(root, path.basename(project));
+
+    expect(actual).toEqual(expected);
+    expect(execute).toHaveBeenCalledTimes(1);
+  });
 
   it.each([
     { name: 'default version', properties: {}, version: '1.0.0' },

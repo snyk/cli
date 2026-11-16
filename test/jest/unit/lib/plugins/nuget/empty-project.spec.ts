@@ -72,6 +72,7 @@ describe.each(projectTypes)('empty classic %s', (extension) => {
       TargetFrameworks: '.NETFramework,Version=v4.8',
     };
     direct = {
+      Properties: evaluation.Properties,
       Items: { ...items },
       TargetResults: {
         _GenerateProjectRestoreGraph: {
@@ -117,6 +118,19 @@ describe.each(projectTypes)('empty classic %s', (extension) => {
       ),
     ).toBe(true);
     expect(nuget.inspect).not.toHaveBeenCalled();
+  });
+
+  it('suppresses SDK banners while preserving the inherited environment', async () => {
+    const inheritedEnvironment = { ...process.env };
+
+    await inspect(root, targetFile);
+
+    for (const [, , options] of execute.mock.calls) {
+      expect(options.env).toEqual({
+        ...inheritedEnvironment,
+        DOTNET_NOLOGO: '1',
+      });
+    }
   });
 
   it.each([

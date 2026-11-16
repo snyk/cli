@@ -18,11 +18,14 @@ const properties = [
   'RestoreProjectStyle',
   'ProjectAssetsFile',
   'MSBuildProjectExtensionsPath',
+  'RestoreOutputPath',
   'PackageId',
   'AssemblyName',
   'PackageVersion',
   'Version',
 ];
+const identityProperties =
+  'MSBuildProjectFullPath,ProjectAssetsFile,MSBuildProjectExtensionsPath,RestoreOutputPath';
 const dependencyItems = [
   'PackageReference',
   'ProjectReference',
@@ -45,6 +48,7 @@ async function query(project: string, args: string[]) {
     ['msbuild', project, '-nologo', ...args],
     {
       cwd: path.dirname(project),
+      env: { ...process.env, DOTNET_NOLOGO: '1' },
       timeout: 120000,
       maxBuffer: 16 * 1024 * 1024,
     },
@@ -65,7 +69,25 @@ function assetsPath(evaluated, directory: string): string | undefined {
     evaluated.ProjectAssetsFile ||
     (evaluated.MSBuildProjectExtensionsPath &&
       path.join(evaluated.MSBuildProjectExtensionsPath, 'project.assets.json'));
-  return assets ? path.resolve(directory, assets) : undefined;
+  return assets
+    ? path.resolve(directory, assets.replace(/\\/g, path.sep))
+    : undefined;
+}
+
+function restoreIdentityPath(evaluated, directory: string): string | undefined {
+  const assets = assetsPath(evaluated, directory);
+  // Standard NuGet restore defaults RestoreOutputPath to the extensions path.
+  const output =
+    evaluated.RestoreOutputPath || evaluated.MSBuildProjectExtensionsPath;
+  const restoredAssets =
+    output &&
+    path.join(
+      path.resolve(directory, output.replace(/\\/g, path.sep)),
+      'project.assets.json',
+    );
+  return assets && restoredAssets && samePath(assets, restoredAssets)
+    ? assets
+    : undefined;
 }
 
 function identityError(project: string): Error {
@@ -119,21 +141,27 @@ function isAssetsPathSafe(
 }
 
 async function uniqueAssetsPath(
-  assets: string | undefined,
+  evaluated,
   project: string,
 ): Promise<string | undefined> {
   try {
-    if (!isAssetsPathSafe(assets, project)) return undefined;
+    if (!samePath(evaluated?.MSBuildProjectFullPath, project)) return undefined;
     const directory = path.dirname(project);
+    const assets = restoreIdentityPath(evaluated, directory);
+    if (!isAssetsPathSafe(assets, project)) return undefined;
     for (const file of projectFiles(directory)) {
       const sibling = path.join(directory, file);
       if (samePath(sibling, project)) continue;
       const evaluation = await query(sibling, [
-        '-getProperty:MSBuildProjectFullPath,ProjectAssetsFile,MSBuildProjectExtensionsPath',
+        '-getTargetResult:_GenerateProjectRestoreGraph',
+        `-getProperty:${identityProperties}`,
       ]);
       if (!samePath(evaluation?.Properties?.MSBuildProjectFullPath, sibling))
         return undefined;
-      const siblingAssets = assetsPath(evaluation.Properties, directory);
+      const siblingAssets = restoreIdentityPath(
+        evaluation.Properties,
+        directory,
+      );
       // Missing output directories cannot reveal whether the filesystem folds case.
       if (
         !isAssetsPathSafe(siblingAssets, sibling) ||
@@ -237,6 +265,7 @@ async function verifyProject(project: string, options: types.Options) {
     const direct = await query(project, [
       '-getTargetResult:_GenerateProjectRestoreGraph',
       `-getItem:${dependencyItems.join(',')}`,
+      `-getProperty:${identityProperties}`,
     ]);
     if (
       !emptyProjectSpec(
@@ -262,7 +291,7 @@ async function verifyProject(project: string, options: types.Options) {
       project,
       framework,
     );
-    return spec ? { evaluated, assets, spec } : undefined;
+    return spec ? { evaluated, output: direct.Properties, spec } : undefined;
   } catch {
     return undefined;
   }
@@ -287,7 +316,7 @@ export async function inspect(
     );
   }
   const { evaluated, spec } = verified;
-  const assets = await uniqueAssetsPath(verified.assets, project);
+  const assets = await uniqueAssetsPath(verified.output, project);
   if (!assets) throw identityError(project);
   const identityFile = path.relative(root, assets);
   const name = (options as any)['assets-project-name']

@@ -826,6 +826,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
       `/hidden/orgs/:orgId/upload_revisions/:uploadRevisionId/files`,
       `/api/hidden/orgs/:orgId/upload_revisions/:uploadRevisionId/files`,
     ],
+    express.raw({ type: 'multipart/form-data', limit: '50mb' }),
     (_, res) => {
       res.status(204);
       res.send();
