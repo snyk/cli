@@ -18,6 +18,10 @@ const properties = [
   'RestoreProjectStyle',
   'ProjectAssetsFile',
   'MSBuildProjectExtensionsPath',
+  'PackageId',
+  'AssemblyName',
+  'PackageVersion',
+  'Version',
 ];
 const dependencyItems = [
   'PackageReference',
@@ -58,6 +62,108 @@ function samePath(left: unknown, right: string): boolean {
   return process.platform === 'win32'
     ? normalized.toLowerCase() === path.normalize(right).toLowerCase()
     : normalized === path.normalize(right);
+}
+
+function assetsPath(evaluated, directory: string): string | undefined {
+  const assets =
+    evaluated.ProjectAssetsFile ||
+    (evaluated.MSBuildProjectExtensionsPath &&
+      path.join(evaluated.MSBuildProjectExtensionsPath, 'project.assets.json'));
+  return assets ? path.resolve(directory, assets) : undefined;
+}
+
+function identityError(project: string): Error {
+  return new Error(
+    `Could not establish a unique legacy NuGet monitor identity for ${project}. ` +
+      'Empty projects require distinct project.assets.json paths inside their project directories. ' +
+      'Restore NuGet metadata for shared, external, or unverified output paths.',
+  );
+}
+
+function projectFiles(directory: string): string[] {
+  return fs
+    .readdirSync(directory)
+    .filter(
+      (file) =>
+        isDotnetProjectFile(file) &&
+        fs.statSync(path.join(directory, file)).isFile(),
+    );
+}
+
+function verifyAssetsPath(assets: string | undefined, project: string): string {
+  const directory = path.dirname(project);
+  if (!assets || path.basename(assets) !== 'project.assets.json')
+    throw identityError(project);
+  const relative = path.relative(directory, assets);
+  if (
+    relative === '..' ||
+    path.isAbsolute(relative) ||
+    relative.startsWith(`..${path.sep}`)
+  )
+    throw identityError(project);
+  // A lexical child path can alias another project's output through a symlink.
+  let ancestor = path.dirname(assets);
+  while (!samePath(ancestor, directory)) {
+    try {
+      if (
+        fs.lstatSync(ancestor).isSymbolicLink() ||
+        projectFiles(ancestor).length > 0
+      ) {
+        throw identityError(project);
+      }
+    } catch (error) {
+      if (error.code !== 'ENOENT') throw identityError(project);
+    }
+    const parent = path.dirname(ancestor);
+    if (parent === ancestor) throw identityError(project);
+    ancestor = parent;
+  }
+  return assets;
+}
+
+async function verifyUniqueAssetsPath(
+  assets: string | undefined,
+  project: string,
+) {
+  const verified = verifyAssetsPath(assets, project);
+  const directory = path.dirname(project);
+  for (const file of projectFiles(directory)) {
+    const sibling = path.join(directory, file);
+    if (samePath(sibling, project)) continue;
+    let evaluation;
+    try {
+      evaluation = await query(sibling, [
+        '-getProperty:MSBuildProjectFullPath,ProjectAssetsFile,MSBuildProjectExtensionsPath',
+      ]);
+    } catch {
+      throw identityError(project);
+    }
+    if (!samePath(evaluation?.Properties?.MSBuildProjectFullPath, sibling))
+      throw identityError(project);
+    const siblingAssets = verifyAssetsPath(
+      assetsPath(evaluation.Properties, directory),
+      sibling,
+    );
+    // Missing output directories cannot reveal whether the filesystem folds case.
+    if (siblingAssets.toLowerCase() === verified.toLowerCase())
+      throw identityError(project);
+  }
+  return verified;
+}
+
+function legacyProjectName(
+  root: string,
+  assets: string,
+  prefix: string,
+): string {
+  let name = path.basename(root || path.resolve(assets, '../../'));
+  if (!name) {
+    let directory = path.dirname(assets);
+    if (path.basename(directory).toLowerCase() === 'obj')
+      directory = path.dirname(directory);
+    name = path.basename(directory);
+  }
+  return (prefix || '') + (name || 'root');
 }
 
 function emptyProjectSpec(
@@ -128,21 +234,17 @@ export async function inspect(
   const evaluated = evaluation?.Properties;
   if (!samePath(evaluated?.MSBuildProjectFullPath, project))
     throw cannotVerify(project);
-  const assets =
-    evaluated.ProjectAssetsFile ||
-    (evaluated.MSBuildProjectExtensionsPath &&
-      path.join(evaluated.MSBuildProjectExtensionsPath, 'project.assets.json'));
-  if (assets && fs.existsSync(path.resolve(directory, assets))) {
-    const assetsPath = path.resolve(directory, assets);
+  const assets = assetsPath(evaluated, directory);
+  if (assets && fs.existsSync(assets)) {
     let manifest;
     try {
-      manifest = JSON.parse(fs.readFileSync(assetsPath, 'utf8'));
+      manifest = JSON.parse(fs.readFileSync(assets, 'utf8'));
     } catch {
       throw cannotVerify(project);
     }
     if (!samePath(manifest?.project?.restore?.projectPath, project))
       throw cannotVerify(project);
-    return nugetPlugin.inspect(root, path.relative(root, assetsPath), options);
+    return nugetPlugin.inspect(root, path.relative(root, assets), options);
   }
 
   if (
@@ -180,16 +282,50 @@ export async function inspect(
     project,
     framework,
   );
+  const identityFile = path.relative(
+    root,
+    await verifyUniqueAssetsPath(assets, project),
+  );
+  const name = (options as any)['assets-project-name']
+    ? evaluated.PackageId || evaluated.AssemblyName || spec.ProjectName
+    : legacyProjectName(root, assets!, (options as any)['project-name-prefix']);
+  const version = evaluated.PackageVersion || evaluated.Version || '1.0.0';
+  const [major, minor, patch] = evaluated.TargetFrameworkVersion.slice(1)
+    .split('.')
+    .map(Number);
+  const targetRuntime = `net${major}${minor}${patch || ''}`;
+  const runtimeResolution =
+    (options as any)['dotnet-runtime-resolution'] ||
+    ((options as any).cliDotnetRuntimeResolutionEnabled &&
+      (options as any)['dotnet-runtime-resolution'] === undefined);
+  // Match the existing assets route: tree and graph monitors differ in identity.
+  const dependencies = runtimeResolution
+    ? {
+        depGraph: new DepGraphBuilder(
+          { name: 'nuget' },
+          { name, version },
+        ).build(),
+        meta: { targetRuntime },
+      }
+    : {
+        depTree: {
+          name,
+          version,
+          packageFormatVersion: 'nuget:0.0.0',
+          dependencies: {},
+          targetFile: identityFile,
+        },
+      };
   return {
-    plugin: { name: 'snyk-nuget-plugin', targetFile },
+    plugin: {
+      name: 'snyk-nuget-plugin',
+      targetFile: identityFile,
+      ...(runtimeResolution ? {} : { targetRuntime }),
+    },
     scannedProjects: [
       {
         targetFile,
-        depGraph: new DepGraphBuilder(
-          { name: 'nuget' },
-          { name: spec.ProjectName },
-        ).build(),
-        meta: { targetRuntime: framework },
+        ...dependencies,
       },
     ],
   };

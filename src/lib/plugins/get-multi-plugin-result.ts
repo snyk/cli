@@ -7,7 +7,6 @@ import * as debugModule from 'debug';
 
 import { TestOptions, Options, MonitorOptions } from '../types';
 import { detectPackageManagerFromFile } from '../detect';
-import { isDotnetProjectFile } from '../dotnet-project';
 import {
   SUPPORTED_MANIFEST_FILES,
   SupportedPackageManagers,
@@ -175,9 +174,6 @@ export async function getMultiPluginResult(
 
       allResults.push(...pluginResultWithCustomScannedProjects.scannedProjects);
     } catch (error) {
-      if (isDotnetProjectFile(targetFile)) {
-        throw error;
-      }
       if (
         error.name === 'NotSupportedEcosystem' ||
         error.constructor?.name === 'NotSupportedEcosystem'

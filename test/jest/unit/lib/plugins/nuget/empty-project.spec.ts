@@ -97,16 +97,16 @@ describe.each(projectTypes)('empty classic %s', (extension) => {
   });
   afterEach(() => fs.rmSync(root, { recursive: true, force: true }));
 
-  it('returns one root-only graph after both NuGet graph targets verify emptiness', async () => {
+  it('returns one empty dependency tree after both NuGet graph targets verify emptiness', async () => {
     const result = await inspect(root, targetFile);
 
     if (!('scannedProjects' in result))
-      throw new Error('Expected a project graph');
-    const depGraph = result.scannedProjects[0].depGraph;
-    if (!depGraph) throw new Error('Expected a dependency graph');
+      throw new Error('Expected a scanned project');
+    const depTree = result.scannedProjects[0].depTree;
+    if (!depTree) throw new Error('Expected a dependency tree');
     expect(result.scannedProjects).toHaveLength(1);
-    expect(depGraph.getDepPkgs()).toEqual([]);
-    expect(depGraph.rootPkg.name).toBe('Example');
+    expect(depTree.dependencies).toEqual({});
+    expect(depTree.name).toBe(path.basename(root));
     expect(execute).toHaveBeenCalledTimes(3);
     expect(
       execute.mock.calls.every(
@@ -374,18 +374,72 @@ describe.each(projectTypes)('empty classic %s', (extension) => {
     expect(nuget.inspect).not.toHaveBeenCalled();
   });
 
-  it('does not hide an unrestored project behind a successful all-projects result', async () => {
-    const empty = await inspect(root, targetFile);
-    (getSinglePluginResult as jest.Mock)
-      .mockResolvedValueOnce(empty)
-      .mockRejectedValueOnce(new Error('Missing restored NuGet metadata'));
+  it.each(['successful project first', 'unrestored project first'])(
+    'keeps an unrestored project out of successful results: %s',
+    async (order) => {
+      const empty = await inspect(root, targetFile);
+      const unrestored = path.join(
+        root,
+        `Unrestored.${extension.toUpperCase()}`,
+      );
+      const error = new Error('Missing restored NuGet metadata');
+      const targets =
+        order === 'successful project first'
+          ? [project, unrestored]
+          : [unrestored, project];
+      (getSinglePluginResult as jest.Mock).mockImplementation(
+        async (_root, _options, file) => {
+          if (file === path.basename(unrestored)) throw error;
+          return empty;
+        },
+      );
 
-    await expect(
-      getMultiPluginResult(root, { allProjects: true } as any, [
-        project,
-        path.join(root, `Unrestored.${extension.toUpperCase()}`),
-      ]),
-    ).rejects.toThrow('Missing restored NuGet metadata');
+      const result = await getMultiPluginResult(
+        root,
+        { allProjects: true } as any,
+        targets,
+      );
+
+      expect(result.scannedProjects).toHaveLength(1);
+      expect(result.scannedProjects[0].targetFile).toBe(targetFile);
+      expect(result.scannedProjects[0].depTree).toBe(
+        (empty as any).scannedProjects[0].depTree,
+      );
+      expect(result.failedResults).toEqual([
+        { targetFile: unrestored, error, errMessage: error.message },
+      ]);
+      expect(result.failedResults![0].error).toBe(error);
+    },
+  );
+
+  it('rejects an all-projects scan when the only project is unrestored', async () => {
+    const error = new Error('Missing restored NuGet metadata');
+    (getSinglePluginResult as jest.Mock).mockRejectedValue(error);
+
+    const result = getMultiPluginResult(root, { allProjects: true } as any, [
+      project,
+    ]);
+
+    await expect(result).rejects.toThrow(
+      `Failed to get dependencies for all 1 potential projects.\n\n${project}:\n${error.message}`,
+    );
+  });
+
+  it('returns only a structured error for an unrestored project in JSONL mode', async () => {
+    const error = new Error('Missing restored NuGet metadata');
+    (getSinglePluginResult as jest.Mock).mockRejectedValue(error);
+
+    const result = await getMultiPluginResult(
+      root,
+      { allProjects: true, 'print-output-jsonl-with-errors': true } as any,
+      [project],
+    );
+
+    expect(result.scannedProjects).toEqual([]);
+    expect(result.failedResults).toEqual([
+      { targetFile: project, error, errMessage: error.message },
+    ]);
+    expect(result.failedResults![0].error).toBe(error);
   });
 });
 
