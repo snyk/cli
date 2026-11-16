@@ -201,6 +201,9 @@
       "ajv@6.10.2": "8.18.0"
     },
     "axios": "^1.15.0",
+    "@yao-pkg/pkg@6.24.0": {
+      "@yao-pkg/pkg-fetch": "3.6.8"
+    },
     "snyk-cpp-plugin": {
       "adm-zip": "$adm-zip"
     },
