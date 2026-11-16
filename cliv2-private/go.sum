@@ -628,8 +628,8 @@ github.com/snyk/error-catalog-golang-public v0.0.0-20261109151447-ff0c5a9c0665 h
 github.com/snyk/error-catalog-golang-public v0.0.0-20261109151447-ff0c5a9c0665/go.mod h1:0dz+HUR/r7VLlQpLfF0a/F1tdHH84NLTZzCxjZ+Q1nk=
 github.com/snyk/farcaster v0.1.1-0.20261105195107-095e254b5ed9 h1:DGKLSV0Y8PXvSJVC1uC5CuHdxZSxVgDoBVyBm34E1lI=
 github.com/snyk/farcaster v0.1.1-0.20261105195107-095e254b5ed9/go.mod h1:X8TNC5an4UqbnI+W4vd9BPcWGCdb2WKT8QnHxo5lgVc=
-github.com/snyk/go-application-framework v0.52.0 h1:XpHRVENVWcOVA0ptUnsKG/ppecnSHYzhfDTziosBzXw=
-github.com/snyk/go-application-framework v0.52.0/go.mod h1:PRNcGEB0yo/rkU+XuIsT7gG7jyBm2QWwO6TUxIeq5iw=
+github.com/snyk/go-application-framework v0.52.2 h1:W/dVLNZaV30tZZ/JgPA/fIMYrKaLswprEQykdaCf4AI=
+github.com/snyk/go-application-framework v0.52.2/go.mod h1:PRNcGEB0yo/rkU+XuIsT7gG7jyBm2QWwO6TUxIeq5iw=
 github.com/snyk/go-httpauth v0.0.0-20261007154458-c110eb9b820f h1:6JiyUAk09kEzUfjplGjlwRkXqKfWKpjAjbYfRz2tQZk=
 github.com/snyk/go-httpauth v0.0.0-20261007154458-c110eb9b820f/go.mod h1:f42qLL7WXOS0od7dXJV/hK3myjms/r6HsXgLrg1HRRY=
 github.com/snyk/policy-engine v1.1.8 h1:3UByH4aMpk43/ji190Tj9nToUnep4g2WI0s+5tK4nnQ=
