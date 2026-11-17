@@ -625,7 +625,7 @@ workflows:
                 - main
     jobs:
       - prodsec/secrets-scan:
-          name: secrets-scan
+          name: nightly secrets-scan
           context:
             - snyk-bot-slack
             - prodsec-orb-runtime
@@ -633,14 +633,15 @@ workflows:
           trusted-branch: main
 
       - prepare-build:
+          name: nightly prepare-build
           context:
             - devex_cli_docker_hub
             - team-cli-go-private-modules
           requires:
-            - secrets-scan
+            - nightly secrets-scan
 
       - build-artifact:
-          name: build linux amd64
+          name: nightly build linux amd64
           context:
             - iac-cli
             - team-cli-go-private-modules
@@ -652,10 +653,10 @@ workflows:
           go_download_base_url: << pipeline.parameters.go_download_base_url >>
           executor: docker-amd64-xl
           requires:
-            - prepare-build
+            - nightly prepare-build
 
       - build-artifact:
-          name: build linux static arm64
+          name: nightly build linux static arm64
           context:
             - iac-cli
             - team-cli-go-private-modules
@@ -668,10 +669,10 @@ workflows:
           make_target: build-experimental BUILD_MODE=private
           executor: docker-arm64-gen2
           requires:
-            - prepare-build
+            - nightly prepare-build
 
       - build-artifact:
-          name: build linux arm64
+          name: nightly build linux arm64
           context:
             - iac-cli
             - team-cli-go-private-modules
@@ -683,10 +684,10 @@ workflows:
           go_download_base_url: << pipeline.parameters.go_download_base_url >>
           executor: docker-arm64-gen2
           requires:
-            - prepare-build
+            - nightly prepare-build
 
       - build-artifact:
-          name: build linux fips arm64
+          name: nightly build linux fips arm64
           context:
             - iac-cli
             - team-cli-go-private-modules
@@ -699,10 +700,10 @@ workflows:
           make_target: build-fips BUILD_MODE=private
           executor: docker-arm64-gen2
           requires:
-            - prepare-build
+            - nightly prepare-build
 
       - build-artifact:
-          name: build alpine amd64
+          name: nightly build alpine amd64
           context:
             - iac-cli
             - team-cli-go-private-modules
@@ -714,10 +715,10 @@ workflows:
           executor: docker-amd64-xl
           c_compiler: /usr/bin/musl-gcc
           requires:
-            - prepare-build
+            - nightly prepare-build
 
       - build-artifact:
-          name: build alpine arm64
+          name: nightly build alpine arm64
           context:
             - iac-cli
             - team-cli-go-private-modules
@@ -729,10 +730,10 @@ workflows:
           executor: docker-arm64-gen2
           c_compiler: /usr/bin/musl-gcc
           requires:
-            - prepare-build
+            - nightly prepare-build
 
       - build-artifact:
-          name: build macOS arm64
+          name: nightly build macOS arm64
           go_target_os: darwin
           go_os: darwin
           go_arch: arm64
@@ -744,10 +745,10 @@ workflows:
             - iac-cli
             - team-cli-go-private-modules
           requires:
-            - prepare-build
+            - nightly prepare-build
 
       - build-artifact:
-          name: build windows amd64
+          name: nightly build windows amd64
           go_target_os: windows
           go_os: windows
           go_arch: amd64
@@ -762,10 +763,10 @@ workflows:
             - iac-cli
             - team-cli-go-private-modules
           requires:
-            - prepare-build
+            - nightly prepare-build
 
       - acceptance-tests:
-          name: acceptance-tests linux amd64
+          name: nightly acceptance-tests linux amd64
           go_target_os: linux
           go_os: linux
           go_arch: amd64
@@ -778,12 +779,12 @@ workflows:
             - team-cli-workflow-context
           pre_test_cmds: export BROWSER="curl -L"
           requires:
-            - build linux amd64
+            - nightly build linux amd64
           executor: docker-amd64-xl
           test_snyk_command: ./binary-releases/snyk-linux
 
       - acceptance-tests:
-          name: acceptance-tests linux static arm64
+          name: nightly acceptance-tests linux static arm64
           go_target_os: linux
           go_os: linux
           go_arch: arm64
@@ -796,12 +797,12 @@ workflows:
             - team-cli-workflow-context
           pre_test_cmds: export BROWSER="curl -L"
           requires:
-            - build linux static arm64
+            - nightly build linux static arm64
           executor: docker-arm64-xl
           test_snyk_command: ./binary-releases/experimental/snyk-linux-arm64
 
       - acceptance-tests:
-          name: acceptance-tests linux arm64
+          name: nightly acceptance-tests linux arm64
           go_target_os: linux
           go_os: linux
           go_arch: arm64
@@ -814,12 +815,12 @@ workflows:
             - team-cli-workflow-context
           pre_test_cmds: export BROWSER="curl -L"
           requires:
-            - build linux arm64
+            - nightly build linux arm64
           executor: docker-arm64
           test_snyk_command: ./binary-releases/snyk-linux-arm64
 
       - acceptance-tests:
-          name: acceptance-tests fips linux arm64
+          name: nightly acceptance-tests fips linux arm64
           go_target_os: linux
           go_os: linux
           go_arch: arm64
@@ -836,10 +837,10 @@ workflows:
             - team-cli-workflow-context
           pre_test_cmds: export BROWSER="curl -L"
           requires:
-            - build linux fips arm64
+            - nightly build linux fips arm64
 
       - acceptance-tests:
-          name: acceptance-tests alpine amd64
+          name: nightly acceptance-tests alpine amd64
           go_target_os: alpine
           go_os: linux
           go_arch: amd64
@@ -850,7 +851,7 @@ workflows:
             - team_hammerhead-cli
             - team-cli-workflow-context
           requires:
-            - build alpine amd64
+            - nightly build alpine amd64
           executor: alpine
           test_snyk_command: ./binary-releases/snyk-alpine
           install_deps_extension: alpine-full
@@ -858,7 +859,7 @@ workflows:
           pre_test_cmds: export BROWSER="wget -O -"
 
       - acceptance-tests:
-          name: acceptance-tests alpine arm64
+          name: nightly acceptance-tests alpine arm64
           go_target_os: alpine
           go_os: linux
           go_arch: arm64
@@ -869,7 +870,7 @@ workflows:
             - team_hammerhead-cli
             - team-cli-workflow-context
           requires:
-            - build alpine arm64
+            - nightly build alpine arm64
           executor: alpine-arm64
           test_snyk_command: ./binary-releases/snyk-alpine-arm64
           install_deps_extension: alpine-full
@@ -877,7 +878,7 @@ workflows:
           pre_test_cmds: export BROWSER="wget -O -"
 
       - acceptance-tests:
-          name: acceptance-tests macOS arm64
+          name: nightly acceptance-tests macOS arm64
           go_target_os: darwin
           go_os: darwin
           go_arch: arm64
@@ -888,13 +889,13 @@ workflows:
             - team_hammerhead-cli
             - team-cli-workflow-context
           requires:
-            - build macOS arm64
+            - nightly build macOS arm64
           executor: macos-arm64
           test_snyk_command: ./binary-releases/snyk-macos-arm64
           install_deps_extension: macos-full
 
       - acceptance-tests:
-          name: acceptance-tests windows amd64
+          name: nightly acceptance-tests windows amd64
           go_target_os: windows
           go_os: windows
           go_arch: amd64
@@ -904,7 +905,7 @@ workflows:
             - team_hammerhead-cli
             - team-cli-workflow-context
           requires:
-            - build windows amd64
+            - nightly build windows amd64
           executor: win-server2022-amd64
           test_snyk_command: binary-releases\\snyk-win.exe
           install_deps_extension: windows-full
