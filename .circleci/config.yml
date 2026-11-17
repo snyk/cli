@@ -916,11 +916,11 @@ workflows:
           filters:
             branches:
               ignore:
-                - main
                 - '/release.*/'
           pre_test_cmds: export BROWSER="curl -L"
           requires:
             - build linux static arm64
+            - run-full-acceptance
           executor: docker-arm64-xl
           test_snyk_command: ./binary-releases/experimental/snyk-linux-arm64
 
@@ -947,6 +947,19 @@ workflows:
           executor: docker-amd64-xl
           test_snyk_command: ./binary-releases/snyk-linux
 
+      # Approval gate for full acceptance matrix (7 additional platforms)
+      # On PR branches: manually approve in CircleCI UI when ready for full testing
+      # On main branch: runs automatically via nightly scheduled pipeline
+      - run-full-acceptance:
+          type: approval
+          filters:
+            branches:
+              ignore:
+                - main
+                - '/release.*/'
+          requires:
+            - acceptance-tests linux amd64
+
       - acceptance-tests:
           name: acceptance-tests linux arm64
           go_target_os: linux
@@ -962,11 +975,11 @@ workflows:
           filters:
             branches:
               ignore:
-                - main
                 - '/release.*/'
           pre_test_cmds: export BROWSER="curl -L"
           requires:
             - build linux arm64
+            - run-full-acceptance
           executor: docker-arm64
           test_snyk_command: ./binary-releases/snyk-linux-arm64
 
@@ -989,11 +1002,11 @@ workflows:
           filters:
             branches:
               ignore:
-                - main
                 - '/release.*/'
           pre_test_cmds: export BROWSER="curl -L"
           requires:
             - build linux fips arm64
+            - run-full-acceptance
 
       - acceptance-tests:
           name: acceptance-tests alpine amd64
@@ -1009,10 +1022,10 @@ workflows:
           filters:
             branches:
               ignore:
-                - main
                 - '/release.*/'
           requires:
             - build alpine amd64
+            - run-full-acceptance
           executor: alpine
           test_snyk_command: ./binary-releases/snyk-alpine
           install_deps_extension: alpine-full
@@ -1033,10 +1046,10 @@ workflows:
           filters:
             branches:
               ignore:
-                - main
                 - '/release.*/'
           requires:
             - build alpine arm64
+            - run-full-acceptance
           executor: alpine-arm64
           test_snyk_command: ./binary-releases/snyk-alpine-arm64
           install_deps_extension: alpine-full
@@ -1057,10 +1070,10 @@ workflows:
           filters:
             branches:
               ignore:
-                - main
                 - '/release.*/'
           requires:
             - build macOS arm64
+            - run-full-acceptance
           executor: macos-arm64
           test_snyk_command: ./binary-releases/snyk-macos-arm64
           install_deps_extension: macos-full
@@ -1078,10 +1091,10 @@ workflows:
           filters:
             branches:
               ignore:
-                - main
                 - '/release.*/'
           requires:
             - build windows amd64
+            - run-full-acceptance
           executor: win-server2022-amd64
           test_snyk_command: binary-releases\\snyk-win.exe
           install_deps_extension: windows-full
