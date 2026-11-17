@@ -1,4 +1,3 @@
-import * as open from 'open';
 import { v4 as uuidv4 } from 'uuid';
 import * as Debug from 'debug';
 import { Spinner } from 'cli-spinner';
@@ -15,6 +14,7 @@ import { TokenExpiredError } from '../../../lib/errors/token-expired-error';
 import { MisconfiguredAuthInCI } from '../../../lib/errors/misconfigured-auth-in-ci-error';
 import { Payload } from '../../../lib/request/types';
 import { getQueryParamsAsString } from '../../../lib/query-strings';
+import open from 'open';
 
 const apiUrl = new URL(config.API);
 // Ensure user gets redirected to the login page
@@ -57,7 +57,8 @@ async function webAuth() {
     spinner.start();
     if (!isDocker()) {
       await setTimeout(() => {
-        open(urlStr);
+        // Log only the message: the error's spawnargs carry the login URL token.
+        open(urlStr).catch((err: Error) => debug(err.message));
       }, 0);
     }
 

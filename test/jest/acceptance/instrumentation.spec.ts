@@ -157,6 +157,91 @@ describe('instrumentation module', () => {
     );
   });
 
+  describe('analytics destination', () => {
+    const tenant = '8F2D3C1A-5B6E-4F70-9A8B-1C2D3E4F5A6B';
+
+    beforeEach(() => {
+      // a user without a preferred organization, so no organization is found
+      for (const selfPath of ['/rest/self', '/api/rest/self']) {
+        server.setEndpointResponse(selfPath, {
+          data: {
+            type: 'user',
+            id: '11111111-2222-3333-4444-555555555555',
+            attributes: { username: 'test.user@snyk.io' },
+          },
+        });
+      }
+    });
+
+    it.each([
+      {
+        setup: 'no organization and a tenant',
+        destination: 'the tenant',
+        withOrg: false,
+        tenantValue: tenant,
+        expectedPaths: [
+          `/api/hidden/tenants/${tenant.toLowerCase()}/analytics`,
+        ],
+      },
+      {
+        setup: 'an organization and a tenant',
+        destination: 'the organization',
+        withOrg: true,
+        tenantValue: tenant,
+        expectedPaths: [`/api/hidden/orgs/${snykOrg}/analytics`],
+      },
+      {
+        setup: 'no organization and no tenant',
+        destination: 'nowhere',
+        withOrg: false,
+        tenantValue: undefined,
+        expectedPaths: [],
+      },
+      {
+        setup: 'no organization and a tenant that is not a UUID',
+        destination: 'nowhere',
+        withOrg: false,
+        tenantValue: 'my-tenant',
+        expectedPaths: [],
+      },
+    ])(
+      'sends instrumentation to $destination with $setup',
+      async ({ withOrg, tenantValue, expectedPaths }) => {
+        const runEnv = { ...env };
+        if (!withOrg) delete runEnv.SNYK_CFG_ORG;
+        if (tenantValue) runEnv.SNYK_CFG_TENANT = tenantValue;
+
+        const { code } = await runSnykCLI('whoami --experimental', {
+          env: runEnv,
+        });
+
+        expect(code).toBe(0);
+        const analyticsRequests = server
+          .getRequests()
+          .filter((request) =>
+            /^\/api\/hidden\/(orgs|tenants)\/[^/]*\/analytics$/.test(
+              request.path,
+            ),
+          );
+        expect(analyticsRequests.map((request) => request.path)).toEqual(
+          expectedPaths,
+        );
+        for (const request of analyticsRequests) {
+          expect(request.headers.authorization).toBe(`token ${env.SNYK_TOKEN}`);
+          expect(request.body).toMatchSchema(INSTRUMENTATION_SCHEMA);
+        }
+        const tenantLookups = server
+          .getRequests()
+          .filter(
+            (request) =>
+              request.query.expand === 'tenant' ||
+              /\/rest\/orgs\/$/.test(request.path),
+          );
+        expect(tenantLookups.map((request) => request.originalUrl)).toEqual([]);
+      },
+    );
+  });
+
   describe.each(['VS_CODE', 'JETBRAINS_IDE', 'VISUAL_STUDIO', 'ECLIPSE'])(
     'IDE support',
     (ide) => {
