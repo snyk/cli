@@ -15,11 +15,7 @@ jest.setTimeout(USER_JOURNEY_JEST_TIMEOUT_MS);
 const TEST_REPO_URL = 'https://github.com/snyk/snyk-goof.git';
 const TEMP_LOCAL_PATH = '/tmp/snyk-goof';
 
-function cloneRepoWithRetry(
-  url: string,
-  path: string,
-  maxAttempts = 3,
-): void {
+function cloneRepoWithRetry(url: string, path: string, maxAttempts = 3): void {
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
       execSync(`git clone --depth 1 ${url} ${path}`, {
@@ -43,10 +39,13 @@ function cloneRepoWithRetry(
 beforeAll(() => {
   if (!existsSync(TEMP_LOCAL_PATH)) {
     cloneRepoWithRetry(TEST_REPO_URL, TEMP_LOCAL_PATH);
-    execSync(`cd ${TEMP_LOCAL_PATH} && npm install --ignore-scripts --engine-strict=false`, {
-      stdio: 'inherit',
-      timeout: 120000, // 2min timeout for npm install
-    });
+    execSync(
+      `cd ${TEMP_LOCAL_PATH} && npm install --ignore-scripts --engine-strict=false`,
+      {
+        stdio: 'inherit',
+        timeout: 120000, // 2min timeout for npm install
+      },
+    );
   }
 });
 

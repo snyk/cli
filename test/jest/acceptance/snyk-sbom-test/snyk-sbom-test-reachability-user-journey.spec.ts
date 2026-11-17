@@ -27,11 +27,7 @@ const reachabilityEnv = {
   INTERNAL_SNYK_CLI_REACHABILITY_ENABLED: 'true',
 };
 
-function cloneRepoWithRetry(
-  url: string,
-  path: string,
-  maxAttempts = 3,
-): void {
+function cloneRepoWithRetry(url: string, path: string, maxAttempts = 3): void {
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
       execSync(`git clone --depth 1 ${url} ${path}`, {
