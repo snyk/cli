@@ -12,7 +12,9 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"slices"
 	"strings"
+	"sync"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -335,17 +337,61 @@ func Test_populateRedactionTerms_excludesIntegrationDetails(t *testing.T) {
 }
 
 func Test_populateRedactionTerms_excludesTenant(t *testing.T) {
-	mockController := gomock.NewController(t)
-	mockEngine := mocks.NewMockEngine(mockController)
-	mockEngine.EXPECT().GetWorkflows().Return(nil)
-
-	config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
+	t.Setenv("HOME", t.TempDir())
 	t.Setenv("SNYK_CFG_TENANT", "custom-tenant")
+	config, engine := newAppEngineForRedactionTerms(t)
 	initApplicationConfiguration(config)
 
-	terms := populateRedactionTerms(config, mockEngine)
+	terms := populateRedactionTerms(config, engine)
 
-	assert.NotContains(t, terms, "custom-tenant")
+	// NotContains would print every term on failure, and terms hold environment values.
+	assert.False(t, slices.Contains(terms, "custom-tenant"))
+}
+
+func Test_populateRedactionTerms_doesNotLookUpTenantWhenNotSet(t *testing.T) {
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	t.Setenv("XDG_CONFIG_HOME", home)
+	var requestedMu sync.Mutex
+	var requested []string
+	fakeAPI := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requestedMu.Lock()
+		requested = append(requested, r.URL.Path)
+		requestedMu.Unlock()
+		w.WriteHeader(http.StatusInternalServerError)
+	}))
+	t.Cleanup(fakeAPI.Close)
+	config, engine := newAppEngineForRedactionTerms(t)
+	initApplicationConfiguration(config)
+	config.Set(configuration.API_URL, fakeAPI.URL)
+	config.Set(configuration.AUTHENTICATION_TOKEN, "a-token")
+	config.Set(configuration.ORGANIZATION, "3f2504e0-4f89-41d3-9a0c-0305e82c3301")
+
+	populateRedactionTerms(config, engine)
+
+	requestedMu.Lock()
+	defer requestedMu.Unlock()
+	for _, path := range requested {
+		assert.NotContains(t, path, "/rest/machines/self", "building redaction terms must not look up the tenant of an enrolled machine")
+		assert.NotContains(t, path, "/rest/orgs/", "building redaction terms must not look up the tenant of the organization")
+	}
+}
+
+func Test_populateRedactionTerms_excludesTenantFlag(t *testing.T) {
+	oldArgs := os.Args
+	os.Args = []string{"snyk", "whoami", "--tenant", "flag-tenant"}
+	defer func() { os.Args = oldArgs }()
+	t.Setenv("HOME", t.TempDir())
+	config, engine := newAppEngineForRedactionTerms(t)
+	initApplicationConfiguration(config)
+	flags := pflag.NewFlagSet("whoami", pflag.ContinueOnError)
+	flags.String(configuration.TENANT, "", "")
+	require.NoError(t, flags.Parse(os.Args[2:]))
+	require.NoError(t, config.AddFlagSet(flags))
+
+	terms := populateRedactionTerms(config, engine)
+
+	assert.NotContains(t, terms, "flag-tenant")
 }
 
 func Test_populateRedactionTerms_excludesDetectedAgent(t *testing.T) {

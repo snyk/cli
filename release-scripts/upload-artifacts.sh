@@ -1,55 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-PROTOCOL_VERSION_FILE=$(basename "$(/bin/ls binary-releases/ls-protocol-version*)")
-
-declare -a StaticFiles=(
-  "binary-releases/snyk-alpine"
-  "binary-releases/snyk-alpine.sha256"
-  "binary-releases/snyk-alpine-arm64"
-  "binary-releases/snyk-alpine-arm64.sha256"
-  "binary-releases/snyk-linux"
-  "binary-releases/snyk-linux.sha256"
-  "binary-releases/snyk-linux-arm64"
-  "binary-releases/snyk-linux-arm64.sha256"
-  "binary-releases/snyk-macos"
-  "binary-releases/snyk-macos.sha256"
-  "binary-releases/snyk-macos-arm64"
-  "binary-releases/snyk-macos-arm64.sha256"
-  "binary-releases/snyk-win.exe"
-  "binary-releases/snyk-win.exe.sha256"
-  "binary-releases/sha256sums.txt.asc"
-  "binary-releases/$PROTOCOL_VERSION_FILE"
-)
-
-declare -a StaticFilesExperimental=(
-  "binary-releases/experimental/snyk-linux"
-  "binary-releases/experimental/snyk-linux.sha256"
-  "binary-releases/experimental/snyk-linux-arm64"
-  "binary-releases/experimental/snyk-linux-arm64.sha256"
-  "binary-releases/experimental/sha256sums.txt.asc"
-  "binary-releases/experimental/$PROTOCOL_VERSION_FILE"
-)
-
-declare -a StaticFilesFIPS=(
-  "binary-releases/fips/snyk-linux"
-  "binary-releases/fips/snyk-linux.sha256"
-  "binary-releases/fips/snyk-linux-arm64"
-  "binary-releases/fips/snyk-linux-arm64.sha256"
-  "binary-releases/fips/snyk-win.exe"
-  "binary-releases/fips/snyk-win.exe.sha256"
-  "binary-releases/fips/sha256sums.txt.asc"
-  "binary-releases/fips/$PROTOCOL_VERSION_FILE"
-)
-
 VERSION_TAG="v$(cat binary-releases/version)"
 RELEASE_CHANNEL="$($(dirname "$0")/determine-release-channel.sh)"
 DRY_RUN=false
-
-if [ ${#} == 0 ]; then
-  echo "No upload target defined!"
-  exit 1
-fi
 
 show_help() {
   echo "Usage: upload-artifacts.sh [options] [arguments]"
@@ -60,19 +14,19 @@ show_help() {
   echo "  --dry-run: perform a dry run of the upload"
   echo ""
   echo "Arguments:"
-  echo "  version       version tag to upload artifacts to"
-  echo "  github        upload artifacts to GitHub"
-  echo "  npm           upload artifacts to npm"
-  echo "  s3            upload artifacts to S3"
+  echo "  version       upload the versioned S3 folders listed in the artifacts manifest"
+  echo "  github        create the GitHub release from the artifacts manifest"
+  echo "  npm           publish the npm packages listed in the artifacts manifest"
+  echo "  s3            upload the non-versioned S3 folders listed in the artifacts manifest to S3"
   echo ""
   echo "Example:"
-  echo "  upload-artifacts.sh v1.0.0 github npm s3"
+  echo "  upload-artifacts.sh version s3 github npm"
   echo ""
-  echo "  This will upload artifacts to GitHub, npm, and S3 for version v1.0.0"
+  echo "  This will upload artifacts to the versioned and non-versioned S3 folders, GitHub, and npm"
   echo ""
-  echo "  upload-artifacts.sh --dry-run v1.0.0 github npm s3"
+  echo "  upload-artifacts.sh --dry-run s3 github npm"
   echo ""
-  echo "  This will perform a dry run of uploading artifacts to GitHub, npm, and S3 for version v1.0.0"
+  echo "  This will perform a dry run of uploading artifacts to the non-versioned S3 folders, GitHub, and npm"
   echo ""
   echo -e "\033[1;33mTrigger Build and Publish Snyk Images:\033[0m"  # Set color to yellow
   echo ""
@@ -83,53 +37,74 @@ show_help() {
 }
 
 upload_github() {
-  # Non-stable channels (preview, rc) are published as GitHub prereleases so that
+  local version commit channel tag
+  version="$(jq -er '.meta.version' "${MANIFEST}")"
+  commit="$(jq -er '.meta.commit' "${MANIFEST}")"
+  channel="$(jq -er '.meta.releaseChannel' "${MANIFEST}")"
+  tag="v${version}"
+
+  local github_artifacts
+  github_artifacts="$(jq -r '.artifacts[] | select(any(.targets[]; .type == "github")) | .name' "${MANIFEST}")"
+  if ! grep -qxF './RELEASE_NOTES.md' <<< "${github_artifacts}"; then
+    echo "The manifest has no RELEASE_NOTES.md with a github target" >&2
+    exit 1
+  fi
+  # RELEASE_NOTES.md is the GH Release's body, not a GH Release asset.
+  local assets
+  assets="$(grep -vxF './RELEASE_NOTES.md' <<< "${github_artifacts}")" || true
+  if [[ -z "${assets}" ]]; then
+    echo "The manifest has no non-RELEASE_NOTES.md artifacts with a github target" >&2
+    exit 1
+  fi
+
+  # GitHub release assets are flat: a file in a folder would be published under its base name.
+  local asset
+  while read -r asset; do
+    if [[ "${asset#./}" == */* ]]; then
+      echo "GitHub release assets can't be in a folder: ${asset}" >&2
+      exit 1
+    fi
+  done <<< "${assets}"
+
+  # Non-stable channels (preview, rc, dev) are published as GitHub prereleases so that
   # the "latest release" pointer consumed by homebrew-tap, scoop-snyk, and install
   # scripts keeps resolving to stable only.
   local prerelease_arg=""
-  if [ -n "${RELEASE_CHANNEL}" ] && [ "${RELEASE_CHANNEL}" != "stable" ]; then
+  if [ "${channel}" != "stable" ]; then
     prerelease_arg="--prerelease"
   fi
 
+  echo "GitHub release ${tag} at ${commit} (channel: ${channel}, prerelease?: ${prerelease_arg:-false})"
+  echo "Assets:"
+  # shellcheck disable=SC2001 # Parameter expansion can't strip a leading "./" from each line of a multi-line string.
+  sed -e 's|^\./|  |' <<< "${assets}"
+
+  check_artifacts 'binary-releases' "${github_artifacts}"
+
+  local files=() name
+  while read -r name; do
+    files+=("binary-releases/${name#./}")
+  done <<< "${assets}"
+
+  local draft_arg=""
   if [ "${DRY_RUN}" == true ]; then
     echo "DRY RUN: uploading draft to GitHub..."
-    gh release create "${VERSION_TAG}" "${StaticFiles[@]}" \
-      --draft \
-      ${prerelease_arg} \
-      --target "${CIRCLE_SHA1}" \
-      --title "${VERSION_TAG}" \
-      --notes-file binary-releases/RELEASE_NOTES.md
-
-    echo "DRY RUN: deleting draft from GitHub..."
-    gh release delete "${VERSION_TAG}" \
-      --yes
+    draft_arg="--draft"
   else
     echo "Uploading to GitHub..."
-    gh release create "${VERSION_TAG}" "${StaticFiles[@]}" \
-      ${prerelease_arg} \
-      --target "${CIRCLE_SHA1}" \
-      --title "${VERSION_TAG}" \
-      --notes-file binary-releases/RELEASE_NOTES.md
   fi
-}
 
-upload_npm() {
-  # For non-stable releases, specify --tag to avoid npm's prerelease version error
-  local npm_tag_arg=""
-  if [ -n "${RELEASE_CHANNEL}" ] && [ "${RELEASE_CHANNEL}" != "stable" ]; then
-    npm_tag_arg="--tag ${RELEASE_CHANNEL}"
-  fi
+  gh release create "${tag}" "${files[@]}" \
+    ${draft_arg} \
+    ${prerelease_arg} \
+    --target "${commit}" \
+    --title "${tag}" \
+    --notes-file binary-releases/RELEASE_NOTES.md
 
   if [ "${DRY_RUN}" == true ]; then
-    echo "DRY RUN: uploading to npm..."
-    npm publish --dry-run ${npm_tag_arg} ./binary-releases/snyk-fix.tgz
-    npm publish --dry-run ${npm_tag_arg} ./binary-releases/snyk-protect.tgz
-    npm publish --dry-run ${npm_tag_arg} ./binary-releases/snyk.tgz
-  else
-    echo "Uploading to npm..."
-    npm publish ${npm_tag_arg} ./binary-releases/snyk-fix.tgz
-    npm publish ${npm_tag_arg} ./binary-releases/snyk-protect.tgz
-    npm publish ${npm_tag_arg} ./binary-releases/snyk.tgz
+    echo "DRY RUN: deleting draft from GitHub..."
+    gh release delete "${tag}" \
+      --yes
   fi
 }
 
@@ -206,47 +181,82 @@ trigger_build_agentic_integration() {
   fi
 }
 
-upload_s3() {
-  version_target=$1
+MANIFEST="binary-releases/artifacts-manifest.json"
+
+check_artifacts() {
+  local dir="$1"
+  local artifacts="$2"
+  local name sha256
+  while read -r name _; do
+    sha256="$(jq -er --arg name "${name}" '.artifacts[] | select(.name == $name) | .sha256' "${MANIFEST}")"
+    echo "${sha256}  ${dir}/${name#./}" | shasum -a 256 -c --quiet -
+  done <<< "${artifacts}"
+}
+
+upload_s3_artifacts() {
+  local dir="$1"
+  local artifacts="$2"
+
+  local dry_run_arg=""
   if [ "${DRY_RUN}" == true ]; then
-    echo "DRY RUN: uploading to S3..."
-    for filename in "${StaticFiles[@]}"; do
-      aws s3 cp "${filename}" s3://"${PUBLIC_S3_BUCKET}"/cli/"${version_target}"/ --dryrun
-    done
-    aws s3 cp "binary-releases/release.json" s3://"${PUBLIC_S3_BUCKET}"/cli/"${version_target}"/ --dryrun
-    aws s3 cp "binary-releases/version" s3://"${PUBLIC_S3_BUCKET}"/cli/"${version_target}"/ --dryrun
-    aws s3 cp "binary-releases/RELEASE_NOTES.md" s3://"${PUBLIC_S3_BUCKET}"/cli/"${version_target}"/ --dryrun
-
-    for filename in "${StaticFilesFIPS[@]}"; do
-      aws s3 cp "${filename}" s3://"${PUBLIC_S3_BUCKET}"/fips/cli/"${version_target}"/ --dryrun
-    done
-    aws s3 cp "binary-releases/fips/release.json" s3://"${PUBLIC_S3_BUCKET}"/fips/cli/"${version_target}"/ --dryrun
-    aws s3 cp "binary-releases/fips/version" s3://"${PUBLIC_S3_BUCKET}"/fips/cli/"${version_target}"/ --dryrun
-    aws s3 cp "binary-releases/fips/RELEASE_NOTES.md" s3://"${PUBLIC_S3_BUCKET}"/fips/cli/"${version_target}"/ --dryrun
-
-    for filename in "${StaticFilesExperimental[@]}"; do
-      aws s3 cp "${filename}" s3://"${PUBLIC_S3_BUCKET}"/experimental/cli/"${version_target}"/ --dryrun
-    done
-  else
-    echo "Uploading to S3..."
-    for filename in "${StaticFiles[@]}"; do
-      aws s3 cp "${filename}" s3://"${PUBLIC_S3_BUCKET}"/cli/"${version_target}"/
-    done
-    aws s3 cp "binary-releases/release.json" s3://"${PUBLIC_S3_BUCKET}"/cli/"${version_target}"/
-    aws s3 cp "binary-releases/version" s3://"${PUBLIC_S3_BUCKET}"/cli/"${version_target}"/
-    aws s3 cp "binary-releases/RELEASE_NOTES.md" s3://"${PUBLIC_S3_BUCKET}"/cli/"${version_target}"/
-
-    for filename in "${StaticFilesFIPS[@]}"; do
-      aws s3 cp "${filename}" s3://"${PUBLIC_S3_BUCKET}"/fips/cli/"${version_target}"/
-    done
-    aws s3 cp "binary-releases/fips/release.json" s3://"${PUBLIC_S3_BUCKET}"/fips/cli/"${version_target}"/
-    aws s3 cp "binary-releases/fips/version" s3://"${PUBLIC_S3_BUCKET}"/fips/cli/"${version_target}"/
-    aws s3 cp "binary-releases/fips/RELEASE_NOTES.md" s3://"${PUBLIC_S3_BUCKET}"/fips/cli/"${version_target}"/
-
-    for filename in "${StaticFilesExperimental[@]}"; do
-      aws s3 cp "${filename}" s3://"${PUBLIC_S3_BUCKET}"/experimental/cli/"${version_target}"/
-    done
+    dry_run_arg="--dryrun"
   fi
+
+  local name folder file
+  while read -r name folder; do
+    file="${dir}/${name#./}"
+    aws s3 cp "${file}" "s3://${PUBLIC_S3_BUCKET}/${folder}$(basename "${file}")" ${dry_run_arg}
+  done <<< "${artifacts}"
+}
+
+upload_s3_versioned() {
+  local artifacts
+  artifacts="$(jq -er '.meta.version as $version
+    | .artifacts[] | .name as $name
+    | .targets[] | select(.type == "s3" and (.path | endswith("/v\($version)/")))
+    | "\($name) \(.path)"' "${MANIFEST}")"
+
+  check_artifacts 'binary-releases' "${artifacts}"
+  upload_s3_artifacts 'binary-releases' "${artifacts}"
+}
+
+upload_s3_non_versioned() {
+  local artifacts
+  artifacts="$(jq -er '.meta.version as $version
+    | .artifacts[] | .name as $name
+    | .targets[] | select(.type == "s3" and (.path | endswith("/v\($version)/") | not))
+    | "\($name) \(.path)"' "${MANIFEST}")"
+
+  check_artifacts 'binary-releases' "${artifacts}"
+  upload_s3_artifacts 'binary-releases' "${artifacts}"
+}
+
+upload_npm() {
+  local channel
+  channel="$(jq -er '.meta.releaseChannel' "${MANIFEST}")"
+
+  # Non-stable releases need --tag, otherwise npm rejects prerelease versions as "latest".
+  local npm_tag_arg=""
+  if [ "${channel}" != "stable" ]; then
+    npm_tag_arg="--tag ${channel}"
+  fi
+
+  local npm_dry_run_arg=""
+  if [ "${DRY_RUN}" == true ]; then
+    npm_dry_run_arg="--dry-run"
+  fi
+
+  local artifacts
+  artifacts="$(jq -er '.artifacts[] | .name as $name
+    | select(any(.targets[]; .type == "npm")) | $name' "${MANIFEST}")"
+
+  check_artifacts 'binary-releases' "${artifacts}"
+
+  local name
+  while read -r name; do
+    # shellcheck disable=SC2086
+    npm publish ${npm_dry_run_arg} ${npm_tag_arg} "./binary-releases/${name#./}"
+  done <<< "${artifacts}"
 }
 
 # Capture valid flags
@@ -281,13 +291,14 @@ done
 # Remove flags from arguments
 shift $((OPTIND-1))
 
+if [[ ${#} -eq 0 ]]; then
+  echo 'No upload target defined!' >&2
+  show_help
+  exit 1
+fi
+
 # Interpret arguments
 for arg in "${@}"; do
-   target="${arg}"
-    if [ "${arg}" == "version" ]; then
-      target="${VERSION_TAG}"
-    fi
-
   # Upload files to the GitHub release
   if [ "${arg}" == "github" ]; then
     upload_github
@@ -329,13 +340,16 @@ for arg in "${@}"; do
   elif [ "${arg}" == "trigger_build_agentic_integration" ]; then
     trigger_build_agentic_integration
 
-  # Upload files to S3 bucket
-  else
-    upload_s3 "${target}"
+  elif [ "${arg}" == "version" ]; then
+    upload_s3_versioned
 
-    # stable and latest are the same target
-    if [ "${target}" == "stable" ]; then
-      upload_s3 "latest"
-    fi
+  # Upload files to S3 bucket
+  elif [ "${arg}" == "s3" ]; then
+    upload_s3_non_versioned
+
+  else
+    echo "Invalid argument: ${arg}" >&2
+    show_help
+    exit 1
   fi
 done
