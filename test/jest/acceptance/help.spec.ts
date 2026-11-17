@@ -79,6 +79,21 @@ describe('help', () => {
       expect(stderr).toBe('');
     });
 
+    it('does not include YAML front matter in help output', async () => {
+      const { stdout, code, stderr } = await runSnykCLI('code test --help');
+
+      // Should not contain YAML front matter delimiters or metadata fields
+      expect(stdout).not.toMatch(/^---\s*$/m);
+      expect(stdout).not.toContain('description:');
+      expect(stdout).not.toContain('last_reviewed:');
+      expect(stdout).not.toContain('last_reviewed_source:');
+      
+      // Should contain the actual help content
+      expect(stdout).toContain('Code test');
+      expect(code).toBe(0);
+      expect(stderr).toBe('');
+    });
+
     describe('prints help info without ascii escape sequences', () => {
       it('has NO_COLOR set', async () => {
         const { stdout, code, stderr } = await runSnykCLI('help', {

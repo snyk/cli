@@ -1,8 +1,3 @@
----
-description: >-
-  The snyk cos commands for finding security vulnerabilities with Snyk
-  Continuous Offensive Security (COS).
----
 
 # COS
 

@@ -1,6 +1,3 @@
----
-description: The snyk cos scan list command that lists scans and their statuses.
----
 
 # COS scan list
 

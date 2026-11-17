@@ -1,6 +1,3 @@
----
-description: The snyk cos finding show command that shows the details of a finding.
----
 
 # COS finding show
 

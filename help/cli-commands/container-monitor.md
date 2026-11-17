@@ -1,6 +1,3 @@
----
-description: The snyk container monitor command that monitors a container image
----
 
 # Container monitor
 

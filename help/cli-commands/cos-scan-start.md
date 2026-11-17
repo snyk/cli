@@ -1,6 +1,3 @@
----
-description: The snyk cos scan start command that starts a new scan on a target.
----
 
 # COS scan start
 

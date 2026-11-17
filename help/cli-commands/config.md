@@ -1,6 +1,3 @@
----
-description: The snyk config command that manages Snyk CLI configuration
----
 
 # Config
 

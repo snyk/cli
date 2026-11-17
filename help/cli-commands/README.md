@@ -1,6 +1,3 @@
----
-description: Help reference for the Snyk CLI commands
----
 
 # CLI help
 

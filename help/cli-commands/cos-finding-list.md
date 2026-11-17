@@ -1,8 +1,3 @@
----
-description: >-
-  The snyk cos finding list command that lists the findings for a target or
-  scan.
----
 
 # COS finding list
 

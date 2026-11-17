@@ -1,6 +1,3 @@
----
-description: The snyk cos scan cancel command that cancels a running scan.
----
 
 # COS scan cancel
 

@@ -1,6 +1,3 @@
----
-description: The snyk cos target commands for creating, inspecting, and exporting targets.
----
 
 # COS target
 
