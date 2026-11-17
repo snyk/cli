@@ -35,3 +35,6 @@ The Snyk CLI is being deployed to different deployment channels, users can selec
 * **general**: The CLI now restricts the permissions of its configuration file so that only its owner can read it. ([e9ee053](https://github.com/snyk/snyk/commit/e9ee05373dda48908226349ccb88ef9c10aa6b98))
 * **deps**: Updates dependencies to fix vulnerabilities:
   - Updates `open` to 11.0.4 to address CVE-2026-119025 ([1ca93ab](https://github.com/snyk/snyk/commit/1ca93ab1c03987fcfb7fa0d4856bd325ff4c11d6))
+  - Updates the Node.js runtime to 22.23.5 to address CVE-2026-123871 and CVE-2026-123877 ([19b92dd](https://github.com/snyk/snyk/commit/19b92ddc52e0c80167714693a564acd4b9d964f9))
+  - Updates the Go runtime to 1.27.4 to address CVE-2026-97054 ([8a9b74d](https://github.com/snyk/snyk/commit/8a9b74dfc542a7aeae39f6ebc2696436fa15c9a5))
+  - Updates `go.opentelemetry.io/otel` to 1.47.0 to address CVE-2026-128085 and CVE-2026-128086 ([3ced284](https://github.com/snyk/snyk/commit/3ced2847070eb4d9ee9769e0e9a1b90fe5000bfe))
