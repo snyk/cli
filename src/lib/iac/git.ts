@@ -1,6 +1,7 @@
 import { statSync } from 'fs';
 import { dirname } from 'path';
 import * as childProcess from 'child_process';
+import { cleanSnykEnv } from '@snyk/cli-interface';
 
 export function getRepositoryRootForPath(p: string) {
   return getRepositoryRoot(getWorkingDirectoryForPath(p));
@@ -9,6 +10,7 @@ export function getRepositoryRootForPath(p: string) {
 export function getRepositoryRoot(cwd?: string) {
   const proc = childProcess.spawnSync('git', ['rev-parse', '--show-toplevel'], {
     cwd,
+    env: cleanSnykEnv(process.env, process.env),
   });
   if (proc.status !== 0) {
     throw new Error();

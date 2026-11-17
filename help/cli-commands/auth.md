@@ -1,7 +1,3 @@
----
-description: The snyk auth command that authenticates the CLI with your Snyk account
----
-
 # Auth
 
 ## Usage

@@ -1,7 +1,3 @@
----
-description: The snyk test command that tests a Project for vulnerabilities
----
-
 # Test
 
 ## Usage
