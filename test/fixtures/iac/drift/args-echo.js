@@ -22,7 +22,7 @@ if (args[0] === 'fmt') {
   buffer += `STDIN=${stdinBuffer.toString()}`
 }
 
-if (process.env.SNYK_FIXTURE_OUTPUT_PATH) {
-  fs.appendFileSync(process.env.SNYK_FIXTURE_OUTPUT_PATH, buffer)
+if (process.env.DCTL_FIXTURE_OUTPUT_PATH) {
+  fs.appendFileSync(process.env.DCTL_FIXTURE_OUTPUT_PATH, buffer)
 }
 
