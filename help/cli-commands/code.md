@@ -1,7 +1,3 @@
----
-description: The snyk code command for finding security issues with Snyk Code
----
-
 # Code
 
 ## Description

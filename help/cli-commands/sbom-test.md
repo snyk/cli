@@ -1,7 +1,3 @@
----
-description: The snyk sbom test command that tests an SBOM for vulnerabilities
----
-
 # SBOM test
 
 **Feature availability:** This feature is available to customers on Snyk Enterprise plans.
