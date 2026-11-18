@@ -8,7 +8,6 @@ import { mapSnykIacTestOutputToTestOutput, TestOutput } from './results';
 import * as os from 'os';
 import * as fs from 'fs';
 import * as path from 'path';
-import * as rimraf from 'rimraf';
 import config from '../../../../config';
 import { api, getOAuthToken } from '../../../../api-token';
 import envPaths from 'env-paths';
@@ -221,7 +220,13 @@ async function createTemporaryFiles(
 
 async function deleteTemporaryFiles(tempDirPath: string) {
   try {
-    await remove(tempDirPath);
+    // Same busy-retry backoff as rimraf@2 (100ms, 200ms, 300ms).
+    await fs.promises.rm(tempDirPath, {
+      recursive: true,
+      force: true,
+      maxRetries: 3,
+      retryDelay: 100,
+    });
   } catch (e) {
     debug('unable to delete temporary directory', e);
   }
@@ -258,18 +263,6 @@ async function readFile(path: string) {
         reject(err);
       } else {
         resolve(content);
-      }
-    });
-  });
-}
-
-async function remove(path: string) {
-  return new Promise<void>((resolve, reject) => {
-    rimraf(path, (err) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve();
       }
     });
   });
