@@ -1,7 +1,6 @@
 import { run as Run, startMockServer } from './helpers';
 import * as os from 'os';
 import * as fs from 'fs';
-import * as rimraf from 'rimraf';
 import * as path from 'path';
 import { findAndLoadPolicy } from '../../../../src/lib/policy';
 import { isWindowsOperatingSystem, testIf } from '../../../utils';
@@ -17,7 +16,7 @@ describe('iac update-exclude-policy', () => {
     tmpFolderPath = fs.mkdtempSync(path.join(os.tmpdir(), 'dctl-'));
   });
   afterEach(() => {
-    rimraf.sync(tmpFolderPath);
+    fs.rmSync(tmpFolderPath, { recursive: true, force: true });
   });
 
   beforeAll(async () => {

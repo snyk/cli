@@ -5,7 +5,6 @@ import * as os from 'os';
 import * as path from 'path';
 import { getFixturePath } from '../../util/getFixturePath';
 import * as uuid from 'uuid';
-import * as rimraf from 'rimraf';
 import { processHTMLOutput } from '../../../../src/lib/iac/drift';
 import { DescribeOptions } from '../../../../src/lib/iac/types';
 import { driftctlVersion } from '../../../../src/lib/iac/drift/driftctl';
@@ -30,7 +29,7 @@ describe('iac describe', () => {
     outputFile = path.join(tmpFolderPath, uuid.v4());
   });
   afterEach(() => {
-    rimraf.sync(tmpFolderPath);
+    fs.rmSync(tmpFolderPath, { recursive: true, force: true });
   });
 
   beforeAll(async () => {
@@ -167,7 +166,7 @@ describe('iac describe', () => {
       fs.copyFileSync(fixtureHtmlReport, htmlFile);
     });
     afterEach(() => {
-      rimraf.sync(htmlFile);
+      fs.rmSync(htmlFile, { recursive: true, force: true });
     });
 
     it('Launch driftctl with html output format', async () => {

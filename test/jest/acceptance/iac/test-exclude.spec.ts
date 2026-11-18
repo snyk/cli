@@ -1,7 +1,6 @@
 import { startMockServer } from './helpers';
 import * as pathLib from 'path';
 import * as fs from 'fs';
-import * as rimraf from 'rimraf';
 
 jest.setTimeout(50000);
 
@@ -19,7 +18,7 @@ describe('IAC test --exclude flag (Basename Matching)', () => {
     testDirPath = pathLib.join(fixturesPath, testDirName);
 
     if (fs.existsSync(testDirPath)) {
-      rimraf.sync(testDirPath);
+      fs.rmSync(testDirPath, { recursive: true, force: true });
     }
 
     const includedDir = pathLib.join(testDirPath, 'included');
@@ -47,7 +46,7 @@ describe('IAC test --exclude flag (Basename Matching)', () => {
 
   afterAll(async () => {
     if (testDirPath && fs.existsSync(testDirPath)) {
-      rimraf.sync(testDirPath);
+      fs.rmSync(testDirPath, { recursive: true, force: true });
     }
     await teardown();
   });
