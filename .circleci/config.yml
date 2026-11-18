@@ -199,6 +199,8 @@ commands:
                 command: |
                   # load Windows $Env:Path values of tools necessary to execute the build (like Go)
                   if [ -f "/c/tools-cache/<< pipeline.parameters.windows_bash_env_script >>" ]; then source "/c/tools-cache/<< pipeline.parameters.windows_bash_env_script >>"; fi
+                  # only sign the legacy CLI binary on branches that produce signed release artifacts (keep in sync with the `sign` jobs' branch filters)
+                  if [[ ! "$CIRCLE_BRANCH" =~ ^(main|release.*|.*e2e.*)$ ]]; then export SKIP_CODE_SIGNING=true; fi
                   make << parameters.make_target >> GOOS=<< parameters.go_target_os >> GOARCH=<< parameters.go_arch >> STATIC_NODE_BINARY=true CGO_ENABLED=0
       - unless:
           condition: << parameters.static >>
@@ -212,6 +214,8 @@ commands:
                 command: |
                   # load Windows $Env:Path values of tools necessary to execute the build (like Go)
                   if [ -f "/c/tools-cache/<< pipeline.parameters.windows_bash_env_script >>" ]; then source "/c/tools-cache/<< pipeline.parameters.windows_bash_env_script >>"; fi
+                  # only sign the legacy CLI binary on branches that produce signed release artifacts (keep in sync with the `sign` jobs' branch filters)
+                  if [[ ! "$CIRCLE_BRANCH" =~ ^(main|release.*|.*e2e.*)$ ]]; then export SKIP_CODE_SIGNING=true; fi
                   make << parameters.make_target >> GOOS=<< parameters.go_target_os >> GOARCH=<< parameters.go_arch >> STATIC_NODE_BINARY=false CGO_ENABLED=1
   install-go:
     parameters:
