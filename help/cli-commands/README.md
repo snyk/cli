@@ -1,7 +1,3 @@
----
-description: Help reference for the Snyk CLI commands
----
-
 # CLI help
 
 Snyk CLI scans and monitors your projects for security vulnerabilities and license issues.
@@ -66,9 +62,7 @@ Generates an AI-BOM and tests it against your tenant's policies, returning all r
 
 ### [`snyk cos`](cos.md)
 
-These commands manage targets, run scans, and review findings for Snyk AI Pentesting, to find security vulnerabilities in your deployed applications.
-
-**Note:** The `snyk cos` command set is in Closed Beta and is available only for Enterprise plans.
+These commands manage targets, run scans, and review findings for Snyk AI Pentesting to find security vulnerabilities in your deployed applications.
 
 ### [`snyk log4shell`](log4shell.md)
 
