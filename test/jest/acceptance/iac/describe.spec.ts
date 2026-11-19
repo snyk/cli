@@ -68,7 +68,7 @@ describe('iac describe', () => {
 
   it('Test when driftctl scan exit in error', async () => {
     const { stdout, stderr, exitCode } = await run(`snyk iac describe`, {
-      DCTL_FIXTURE_OUTPUT_PATH: outputFile,
+      SNYK_FIXTURE_OUTPUT_PATH: outputFile,
       DCTL_EXIT_CODE: '2',
       SNYK_DRIFTCTL_PATH: path.join(
         getFixturePath('iac'),
@@ -84,7 +84,7 @@ describe('iac describe', () => {
 
   it('Launch driftctl from SNYK_DRIFTCTL_PATH env var when org has the entitlement', async () => {
     const { stdout, stderr, exitCode } = await run(`snyk iac describe`, {
-      DCTL_FIXTURE_OUTPUT_PATH: outputFile,
+      SNYK_FIXTURE_OUTPUT_PATH: outputFile,
       SNYK_DRIFTCTL_PATH: path.join(
         getFixturePath('iac'),
         'drift',
@@ -123,7 +123,7 @@ describe('iac describe', () => {
 
   it('Launch driftctl from SNYK_DRIFTCTL_PATH with html output', async () => {
     const { stdout, stderr, exitCode } = await run(`snyk iac describe --html`, {
-      DCTL_FIXTURE_OUTPUT_PATH: outputFile,
+      SNYK_FIXTURE_OUTPUT_PATH: outputFile,
       SNYK_DRIFTCTL_PATH: path.join(
         getFixturePath('iac'),
         'drift',
@@ -174,7 +174,7 @@ describe('iac describe', () => {
       const { stdout, exitCode } = await run(
         `snyk iac describe --html-file-output=${htmlFile}`,
         {
-          DCTL_FIXTURE_OUTPUT_PATH: outputFile,
+          SNYK_FIXTURE_OUTPUT_PATH: outputFile,
           SNYK_DRIFTCTL_PATH: path.join(
             getFixturePath('iac'),
             'drift',

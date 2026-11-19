@@ -1,5 +1,4 @@
 import { execSync } from 'child_process';
-import { cleanSnykEnv } from '@snyk/cli-interface';
 
 const program = {
   darwin: 'pbcopy',
@@ -8,8 +7,5 @@ const program = {
 }[process.platform];
 
 export function copy(str: string) {
-  return execSync(program, {
-    input: str,
-    env: cleanSnykEnv(process.env, process.env),
-  });
+  return execSync(program, { input: str });
 }
