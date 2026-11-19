@@ -30,6 +30,12 @@ fi
 
 LOG_PREFIX="--- $(basename "$0"):"
 
+# signing is skipped on request (e.g. feature branches in CI for node, to avoid unnecessary signing requests)
+if [[ "${SKIP_CODE_SIGNING:-}" = "true" ]]; then
+  echo "$LOG_PREFIX Skipping signing, since SKIP_CODE_SIGNING is set."
+  exit 0
+fi
+
 echo "$LOG_PREFIX Signing & notarizing \"$APP_PATH\""
 
 if [[ "$OSTYPE" != *"darwin"* ]]; then
@@ -44,6 +50,20 @@ if [ -z "${APPLE_ID+x}" ]; then
 fi
 
 #
+# cleanup, runs on every exit after this point (success, failure and early exit)
+#
+KEYCHAIN_CREATED=0
+cleanup() {
+  rm -f "$APPLE_SIGNING_SECRETS" "$ZIP_PATH"
+  if [[ "$KEYCHAIN_CREATED" = "1" ]]; then
+    echo "$LOG_PREFIX Cleaning up"
+    security list-keychains -s "$OLD_KEYCHAIN_NAMES" || true
+    security delete-keychain "$KEYCHAIN_NAME" || true
+  fi
+}
+trap cleanup EXIT
+
+#
 # signing
 #
 echo "$LOG_PREFIX Creating p12 file"
@@ -51,6 +71,7 @@ echo "$APPLE_SIGNING_SECRETS_BINARY" | base64 --decode > "$APPLE_SIGNING_SECRETS
 
 echo "$LOG_PREFIX Adding temporary keychain"
 security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_NAME"
+KEYCHAIN_CREATED=1
 security list-keychains -s "$KEYCHAIN_NAME"
 security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_NAME"
 
@@ -95,9 +116,3 @@ xcrun notarytool submit "$ZIP_PATH" --keychain-profile "$KEYCHAIN_PROFILE" --wai
 #xcrun notarytool submit "$DMG_PATH" --keychain-profile "$KEYCHAIN_PROFILE" --wait
 # ONLY for .dmg - Staple
 #xcrun stapler staple "$DMG_PATH"
-
-# cleanup 
-echo "$LOG_PREFIX Cleaning up"
-security list-keychains -s "$OLD_KEYCHAIN_NAMES"
-security delete-keychain "$KEYCHAIN_NAME"
-rm "$ZIP_PATH"

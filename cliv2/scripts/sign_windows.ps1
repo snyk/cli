@@ -15,6 +15,12 @@ $SIGNING_SECRETS_B64 = "secrets.b64"
 # Prefix for log messages
 $LOG_PREFIX = "--- $(Split-Path $MyInvocation.MyCommand.Path -Leaf):"
 
+# signing is skipped on request (e.g. feature branches in CI for node, to avoid unnecessary signing requests)
+if ($env:SKIP_CODE_SIGNING -eq "true") {
+    Write-Host "$LOG_PREFIX Skipping signing, since SKIP_CODE_SIGNING is set."
+    exit
+}
+
 # if the required secrets are not available we skip signing completely without an error to enable local builds on windows. A later issigned check will catch this error in the build pipeline
 if (-Not (Test-Path env:SM_CODE_SIGNING_CERT_SHA1_HASH)) {
     Write-Host "$LOG_PREFIX Skipping signing, since the required secrets are not available."
