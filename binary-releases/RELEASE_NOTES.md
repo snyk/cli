@@ -1,4 +1,4 @@
-## [1.1309.0](https://github.com/snyk/snyk/compare/v1.1308.4...v1.1309.0) (2026-11-18)
+## [1.1309.0](https://github.com/snyk/snyk/compare/v1.1308.4...v1.1309.0) (2026-11-19)
 
 The Snyk CLI is being deployed to different deployment channels, users can select the stability level according to their needs. For details please see [this documentation](https://docs.snyk.io/snyk-cli/releases-and-channels-for-the-snyk-cli)
 
@@ -19,8 +19,6 @@ The Snyk CLI is being deployed to different deployment channels, users can selec
 * **test**: npm projects with lockfile v2 or v3 now report the correct version of packages that are installed more than once. ([b67d629](https://github.com/snyk/snyk/commit/b67d6290e03bdcc94e6f9d98a6ed50003713d799))
 * **test**: pip scans now include packages pulled in through extras and respect environment markers on requirements. ([9017841](https://github.com/snyk/snyk/commit/901784188f46ee9a053112c90076e052e92c5c8b))
 * **test**: Maven scans no longer fail with `Could not parse "[...s][info][gc]..."` when the JVM writes GC log lines to stdout, for example with a small heap on CI agents. ([f5a8c1d](https://github.com/snyk/snyk/commit/f5a8c1df59c3e56a6c0488a205a9c28f02eb681a))
-* **test**: Maven scans of very large builds no longer crash with `RangeError: Invalid string length` when Maven prints more output than the CLI can hold in memory. ([d33afd6](https://github.com/snyk/snyk/commit/d33afd6babb1076531ddb588dc0dbb82d3ff3d75))
-* **test, monitor**: sbt scans no longer fail with `407 Proxy Authentication Required`. sbt, Composer, CocoaPods and Mix now use your own proxy settings instead of the CLI's internal proxy. ([d33afd6](https://github.com/snyk/snyk/commit/d33afd6babb1076531ddb588dc0dbb82d3ff3d75))
 * **test**: `snyk test` no longer fails when `--maven-skip-wrapper` or `--include-provenance` is provided. ([11cf1aa](https://github.com/snyk/snyk/commit/11cf1aa1dbd0aaef54160de9fe177fd3b6548eed))
 * **test**: Gradle projects that use dependency verification no longer return an empty dependency graph when a checksum is rejected. ([6e9970f](https://github.com/snyk/snyk/commit/6e9970f00ff128d3e437c5b61b140471fcdb3980))
 * **test**: Gradle scans of Kotlin Gradle Plugin 2.0.0 projects no longer report false-positive vulnerabilities for dependency versions that were never resolved. ([c9446f7](https://github.com/snyk/snyk/commit/c9446f72031304562e78dd61d90c441c3f94ecb3))
