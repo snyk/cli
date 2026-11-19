@@ -108,6 +108,23 @@ func TestRootAndBinaryWrapperManifestsHaveDistinctNames(t *testing.T) {
 	}
 }
 
+func TestRootManifestIsNotPrivateSoPkgEmbedsSourcesForNoBytecodeBuilds(t *testing.T) {
+	contents, err := os.ReadFile(repoPath(t, "package.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var manifest struct {
+		Private bool `json:"private"`
+	}
+	if err := json.Unmarshal(contents, &manifest); err != nil {
+		t.Fatal(err)
+	}
+
+	if manifest.Private {
+		t.Error("root package.json is private, so pkg skips embedding its sources and the arm64 --no-bytecode builds fail with \"--no-bytecode and no source breaks final executable\"")
+	}
+}
+
 func TestRootLockfileNamesMatchRootManifest(t *testing.T) {
 	rootName := readNpmManifestName(t, repoPath(t, "package.json"))
 

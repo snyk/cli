@@ -1,6 +1,5 @@
 {
   "name": "snyk-monorepo",
-  "private": true,
   "version": "1.0.0-monorepo",
   "description": "snyk library and cli utility",
   "files": [
