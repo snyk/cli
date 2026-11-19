@@ -1,6 +1,5 @@
 import * as Debug from 'debug';
 import { exec } from 'child_process';
-import { cleanSnykEnv } from '@snyk/cli-interface';
 import { CustomError } from './errors';
 
 const debug = Debug('snyk');
@@ -39,7 +38,6 @@ export function yarn(
       cmd,
       {
         cwd,
-        env: cleanSnykEnv(process.env, process.env),
       },
       (error, stdout, stderr) => {
         if (error) {
