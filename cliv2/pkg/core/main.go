@@ -123,6 +123,7 @@ const (
 
 	codeUseUfmConfigKey   string = "internal_code_use_ufm"
 	ufmPresenterConfigKey string = "internal_use_ufm_presenter"
+	configLegacyConfigKey string = "internal_snyk_ff_config_legacy"
 )
 
 type JsonErrorStruct struct {
@@ -367,6 +368,34 @@ func (r *cliRun) runSecretsTestCommand(cmd *cobra.Command, args []string) error 
 	return r.runTestCommandWithSarifEqualJson(cmd, args)
 }
 
+// runConfigCommand runs a config workflow with the output flags of the legacy command, or the legacy command itself when
+// the local feature flag asks for it.
+func (r *cliRun) runConfigCommand(cmd *cobra.Command, args []string) error {
+	if r.config.GetBool(configLegacyConfigKey) {
+		return r.defaultCmd(os.Args[1:])
+	}
+	// the output flags the legacy command rejected for anything but test, in its order
+	for _, flag := range []string{output_workflow.OUTPUT_CONFIG_KEY_JSON_FILE, output_workflow.OUTPUT_CONFIG_KEY_SARIF, output_workflow.OUTPUT_CONFIG_KEY_SARIF_FILE} {
+		if cmd.Flags().Changed(flag) {
+			return cli.NewInvalidFlagOptionError("The following option combination is not currently supported: config + " + flag)
+		}
+	}
+	// the legacy command printed its text for --json and --html as well
+	r.config.Set(output_workflow.OUTPUT_CONFIG_KEY_DEFAULT_WRITER_LUT, map[string]string{
+		output_workflow.JSON_MIME_TYPE: output_workflow.DEFAULT_MIME_TYPE,
+		output_workflow.HTML_MIME_TYPE: output_workflow.DEFAULT_MIME_TYPE,
+	})
+	return r.runCommand(cmd, args)
+}
+
+// configFlagError makes a flag error on a config command a usage error instead of showing help.
+func (r *cliRun) configFlagError(_ *cobra.Command, err error) error {
+	if r.config.GetBool(configLegacyConfigKey) {
+		return r.defaultCmd(os.Args[1:])
+	}
+	return cli.NewInvalidFlagOptionError(err.Error())
+}
+
 func (r *cliRun) runAuthCommand(cmd *cobra.Command, args []string) error {
 	err := r.runCommand(cmd, args)
 
@@ -461,6 +490,14 @@ func (r *cliRun) createCommandsForWorkflows(rootCommand *cobra.Command) {
 		case "fix":
 			// to preserve backwards compatibility we will need to relax flag validation
 			parentCommand.FParseErrWhitelist.UnknownFlags = true
+		case "config", "config get", "config set", "config unset", "config clear":
+			// to preserve backwards compatibility we will need to relax flag validation
+			parentCommand.FParseErrWhitelist.UnknownFlags = true
+			parentCommand.RunE = r.runConfigCommand
+			parentCommand.SetFlagErrorFunc(r.configFlagError)
+		case "config environment":
+			// otherwise it inherits the flag error function of config
+			parentCommand.SetFlagErrorFunc(func(_ *cobra.Command, err error) error { return err })
 		}
 	}
 }
@@ -688,7 +725,7 @@ func execute(additionalExts []workflow.ExtensionInit) (*cliRun, int) {
 	// create engine
 	r.config = configuration.NewWithOpts(
 		configuration.WithFiles("snyk"),
-		configuration.WithSupportedEnvVars("NODE_EXTRA_CA_CERTS"),
+		configuration.WithSupportedEnvVars("NODE_EXTRA_CA_CERTS", "XDG_CONFIG_HOME"),
 		configuration.WithSupportedEnvVarPrefixes("snyk_", "internal_", "test_"),
 		configuration.WithCachingEnabled(configuration.NoCacheExpiration),
 	)
