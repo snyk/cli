@@ -23,12 +23,18 @@ describe('profiles identity environment variables', () => {
   let home: string;
   let profileDir: string;
 
-  const writeProfile = (file: string, token: string, api: string) => {
+  const writeProfile = (
+    file: string,
+    token: string,
+    api: string,
+    includeToken = true,
+  ) => {
     fs.mkdirSync(path.dirname(file), { recursive: true });
-    fs.writeFileSync(
-      file,
-      JSON.stringify({ api: token, endpoint: api, org: orgId }),
-    );
+    const body: Record<string, string> = { endpoint: api, org: orgId };
+    if (includeToken) {
+      body.api = token;
+    }
+    fs.writeFileSync(file, JSON.stringify(body));
   };
 
   const cleanEnvironment = (): Record<string, string | undefined> =>
@@ -96,6 +102,9 @@ describe('profiles identity environment variables', () => {
   });
 
   it('Go whoami stays unauthenticated when the profile is empty despite ambient SNYK_TOKEN', async () => {
+    // Endpoint lives in the profile file (no token) so Init on the base config does not
+    // hit the fake server with ambient SNYK_TOKEN before the profile is selected.
+    writeProfile(path.join(profileDir, 'fresh.json'), '', endpoint, false);
     server.setStatusCode(401);
 
     const result = await runSnykCLI(
@@ -104,7 +113,6 @@ describe('profiles identity environment variables', () => {
         env: {
           ...baseEnv(),
           SNYK_TOKEN: ambientToken,
-          SNYK_API: endpoint,
         },
       },
     );
