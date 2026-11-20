@@ -57,7 +57,7 @@ executors:
   alpine-arm64:
     docker:
       - image: alpine:3.23
-    resource_class: arm.xlarge
+    resource_class: arm.large
   generic-ubuntu:
     docker:
       - image: ubuntu:latest
@@ -97,7 +97,7 @@ executors:
           username: $DOCKER_CLI_BUILD_USERNAME
           password: $DOCKER_CLI_BUILD_PASSWORD
     # working_directory: /mnt/ramdisk/snyk
-    resource_class: arm.xlarge
+    resource_class: arm.large
   docker-arm64-gen2:
     docker:
       - image: snyklabs/cli-build-private-arm64:20260610-125138
