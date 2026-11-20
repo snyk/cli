@@ -110,7 +110,7 @@ describe.each(userJourneyWorkflows)(
               env,
             },
           );
-          expect(stdout).toContainText('Unsupported package manager');
+          expect(stdout).toContainText("Unsupported package manager 'hello'.");
           expect(code).toEqual(2);
         });
 
@@ -400,7 +400,7 @@ describe.each(userJourneyWorkflows)(
               env,
             });
             expect(stdout).toContainText(
-              'Empty --json-file-output argument. Did you mean --file=path/to/output-file.json ?',
+              'Empty --json-file-output argument. Did you mean --json-file-output=path/to/output-file.json ?',
             );
             expect(code).toEqual(2);
           });
@@ -442,7 +442,7 @@ describe.each(userJourneyWorkflows)(
               env,
             });
             expect(stdout).toContainText(
-              'Empty --sarif-file-output argument. Did you mean --file=path/to/output-file.json ?',
+              'Empty --sarif-file-output argument. Did you mean --sarif-file-output=path/to/output-file.sarif ?',
             );
             expect(code).toEqual(2);
           });
