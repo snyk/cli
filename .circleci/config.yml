@@ -905,6 +905,24 @@ workflows:
           requires:
             - prepare-build
 
+      # Approval gate for full acceptance matrix on PR branches
+      - run-full-acceptance-tests:
+          name: Run full acceptance matrix?
+          type: approval
+          requires:
+            - build linux static arm64
+            - build linux arm64
+            - build linux fips arm64
+            - build alpine amd64
+            - build alpine arm64
+            - build macOS arm64
+            - build windows amd64
+          filters:
+            branches:
+              ignore:
+                - main
+                - '/release.*/'
+
       - acceptance-tests:
           name: acceptance-tests linux static arm64
           go_target_os: linux
@@ -924,7 +942,7 @@ workflows:
                 - '/release.*/'
           pre_test_cmds: export BROWSER="curl -L"
           requires:
-            - build linux static arm64
+            - Run full acceptance matrix?
           executor: docker-arm64-xl
           test_snyk_command: ./binary-releases/experimental/snyk-linux-arm64
 
@@ -970,7 +988,7 @@ workflows:
                 - '/release.*/'
           pre_test_cmds: export BROWSER="curl -L"
           requires:
-            - build linux arm64
+            - Run full acceptance matrix?
           executor: docker-arm64
           test_snyk_command: ./binary-releases/snyk-linux-arm64
 
@@ -997,7 +1015,7 @@ workflows:
                 - '/release.*/'
           pre_test_cmds: export BROWSER="curl -L"
           requires:
-            - build linux fips arm64
+            - Run full acceptance matrix?
 
       - acceptance-tests:
           name: acceptance-tests alpine amd64
@@ -1016,7 +1034,7 @@ workflows:
                 - main
                 - '/release.*/'
           requires:
-            - build alpine amd64
+            - Run full acceptance matrix?
           executor: alpine
           test_snyk_command: ./binary-releases/snyk-alpine
           install_deps_extension: alpine-full
@@ -1040,7 +1058,7 @@ workflows:
                 - main
                 - '/release.*/'
           requires:
-            - build alpine arm64
+            - Run full acceptance matrix?
           executor: alpine-arm64
           test_snyk_command: ./binary-releases/snyk-alpine-arm64
           install_deps_extension: alpine-full
@@ -1064,7 +1082,7 @@ workflows:
                 - main
                 - '/release.*/'
           requires:
-            - build macOS arm64
+            - Run full acceptance matrix?
           executor: macos-arm64
           test_snyk_command: ./binary-releases/snyk-macos-arm64
           install_deps_extension: macos-full
@@ -1085,7 +1103,7 @@ workflows:
                 - main
                 - '/release.*/'
           requires:
-            - build windows amd64
+            - Run full acceptance matrix?
           executor: win-server2022-amd64
           test_snyk_command: binary-releases\\snyk-win.exe
           install_deps_extension: windows-full
@@ -1520,6 +1538,311 @@ workflows:
 ####################################################################################################
 # JOBS
 ####################################################################################################
+
+
+  # Nightly full acceptance matrix on main
+  nightly_acceptance:
+    triggers:
+      - schedule:
+          cron: "0 2 * * *"
+          filters:
+            branches:
+              only:
+                - main
+    jobs:
+      - prodsec/secrets-scan:
+          name: nightly secrets-scan
+          context:
+            - snyk-bot-slack
+            - prodsec-orb-runtime
+          channel: cli-alerts
+          trusted-branch: main
+
+      - prepare-build:
+          name: nightly prepare-build
+          context:
+            - devex_cli_docker_hub
+            - team-cli-go-private-modules
+          requires:
+            - nightly secrets-scan
+
+      - build-artifact:
+          name: nightly build linux amd64
+          context:
+            - iac-cli
+            - team-cli-go-private-modules
+            - devex_cli_docker_hub
+          go_target_os: linux
+          go_os: linux
+          go_arch: amd64
+          static_binary: true
+          go_download_base_url: << pipeline.parameters.go_download_base_url >>
+          executor: docker-amd64-xl
+          requires:
+            - nightly prepare-build
+
+      - build-artifact:
+          name: nightly build linux static arm64
+          context:
+            - iac-cli
+            - team-cli-go-private-modules
+            - devex_cli_docker_hub
+          go_target_os: linux
+          go_os: linux
+          go_arch: arm64
+          static_binary: true
+          go_download_base_url: << pipeline.parameters.go_download_base_url >>
+          make_target: build-experimental BUILD_MODE=private
+          executor: docker-arm64-gen2
+          requires:
+            - nightly prepare-build
+
+      - build-artifact:
+          name: nightly build linux arm64
+          context:
+            - iac-cli
+            - team-cli-go-private-modules
+            - devex_cli_docker_hub
+          go_target_os: linux
+          go_os: linux
+          go_arch: arm64
+          static_binary: true
+          go_download_base_url: << pipeline.parameters.go_download_base_url >>
+          executor: docker-arm64-gen2
+          requires:
+            - nightly prepare-build
+
+      - build-artifact:
+          name: nightly build linux fips arm64
+          context:
+            - iac-cli
+            - team-cli-go-private-modules
+            - devex_cli_docker_hub
+          go_target_os: linux
+          go_os: linux
+          go_arch: arm64
+          go_download_base_url: << pipeline.parameters.fips_go_download_base_url >>
+          go_version: << pipeline.parameters.fips_go_version >>
+          make_target: build-fips BUILD_MODE=private
+          executor: docker-arm64-gen2
+          requires:
+            - nightly prepare-build
+
+      - build-artifact:
+          name: nightly build alpine amd64
+          context:
+            - iac-cli
+            - team-cli-go-private-modules
+            - devex_cli_docker_hub
+          go_target_os: alpine
+          go_os: linux
+          go_arch: amd64
+          go_download_base_url: << pipeline.parameters.go_download_base_url >>
+          executor: docker-amd64-xl
+          c_compiler: /usr/bin/musl-gcc
+          requires:
+            - nightly prepare-build
+
+      - build-artifact:
+          name: nightly build alpine arm64
+          context:
+            - iac-cli
+            - team-cli-go-private-modules
+            - devex_cli_docker_hub
+          go_target_os: alpine
+          go_os: linux
+          go_arch: arm64
+          go_download_base_url: << pipeline.parameters.go_download_base_url >>
+          executor: docker-arm64-gen2
+          c_compiler: /usr/bin/musl-gcc
+          requires:
+            - nightly prepare-build
+
+      - build-artifact:
+          name: nightly build macOS arm64
+          go_target_os: darwin
+          go_os: darwin
+          go_arch: arm64
+          go_download_base_url: << pipeline.parameters.go_download_base_url >>
+          executor: macos-arm64-large
+          install_deps_extension: macos-build
+          context:
+            - snyk-macos-signing
+            - iac-cli
+            - team-cli-go-private-modules
+          requires:
+            - nightly prepare-build
+
+      - build-artifact:
+          name: nightly build windows amd64
+          go_target_os: windows
+          go_os: windows
+          go_arch: amd64
+          go_download_base_url: << pipeline.parameters.fips_go_download_base_url >>
+          go_version: << pipeline.parameters.fips_go_version >>
+          make_target: build clean-golang build-fips BUILD_MODE=private
+          install_deps_extension: windows-build-signing
+          install_path: 'C:\'
+          executor: win-server2022-amd64
+          context:
+            - snyk-windows-signing
+            - iac-cli
+            - team-cli-go-private-modules
+          requires:
+            - nightly prepare-build
+
+      - acceptance-tests:
+          name: nightly acceptance-tests linux amd64
+          go_target_os: linux
+          go_os: linux
+          go_arch: amd64
+          go_download_base_url: << pipeline.parameters.go_download_base_url >>
+          shards: 6
+          context:
+            - nodejs-install
+            - team_hammerhead-cli
+            - devex_cli_docker_hub
+            - team-cli-workflow-context
+          pre_test_cmds: export BROWSER="curl -L"
+          requires:
+            - nightly build linux amd64
+          executor: docker-amd64-xl
+          test_snyk_command: ./binary-releases/snyk-linux
+
+      - acceptance-tests:
+          name: nightly acceptance-tests linux static arm64
+          go_target_os: linux
+          go_os: linux
+          go_arch: arm64
+          go_download_base_url: << pipeline.parameters.go_download_base_url >>
+          shards: 6
+          context:
+            - nodejs-install
+            - team_hammerhead-cli
+            - devex_cli_docker_hub
+            - team-cli-workflow-context
+          pre_test_cmds: export BROWSER="curl -L"
+          requires:
+            - nightly build linux static arm64
+          executor: docker-arm64-xl
+          test_snyk_command: ./binary-releases/experimental/snyk-linux-arm64
+
+      - acceptance-tests:
+          name: nightly acceptance-tests linux arm64
+          go_target_os: linux
+          go_os: linux
+          go_arch: arm64
+          go_download_base_url: << pipeline.parameters.go_download_base_url >>
+          shards: 6
+          context:
+            - nodejs-install
+            - team_hammerhead-cli
+            - devex_cli_docker_hub
+            - team-cli-workflow-context
+          pre_test_cmds: export BROWSER="curl -L"
+          requires:
+            - nightly build linux arm64
+          executor: docker-arm64
+          test_snyk_command: ./binary-releases/snyk-linux-arm64
+
+      - acceptance-tests:
+          name: nightly acceptance-tests fips linux arm64
+          go_target_os: linux
+          go_os: linux
+          go_arch: arm64
+          go_download_base_url: << pipeline.parameters.fips_go_download_base_url >>
+          go_version: << pipeline.parameters.fips_go_version >>
+          shards: 6
+          executor: docker-arm64
+          test_snyk_command: ./binary-releases/fips/snyk-linux-arm64
+          fips: 1
+          context:
+            - nodejs-install
+            - team_hammerhead-cli
+            - devex_cli_docker_hub
+            - team-cli-workflow-context
+          pre_test_cmds: export BROWSER="curl -L"
+          requires:
+            - nightly build linux fips arm64
+
+      - acceptance-tests:
+          name: nightly acceptance-tests alpine amd64
+          go_target_os: alpine
+          go_os: linux
+          go_arch: amd64
+          go_download_base_url: << pipeline.parameters.go_download_base_url >>
+          shards: 6
+          context:
+            - nodejs-install
+            - team_hammerhead-cli
+            - team-cli-workflow-context
+          requires:
+            - nightly build alpine amd64
+          executor: alpine
+          test_snyk_command: ./binary-releases/snyk-alpine
+          install_deps_extension: alpine-full
+          dont_skip_tests: 0
+          pre_test_cmds: export BROWSER="wget -O -"
+
+      - acceptance-tests:
+          name: nightly acceptance-tests alpine arm64
+          go_target_os: alpine
+          go_os: linux
+          go_arch: arm64
+          go_download_base_url: << pipeline.parameters.go_download_base_url >>
+          shards: 6
+          context:
+            - nodejs-install
+            - team_hammerhead-cli
+            - team-cli-workflow-context
+          requires:
+            - nightly build alpine arm64
+          executor: alpine-arm64
+          test_snyk_command: ./binary-releases/snyk-alpine-arm64
+          install_deps_extension: alpine-full
+          dont_skip_tests: 0
+          pre_test_cmds: export BROWSER="wget -O -"
+
+      - acceptance-tests:
+          name: nightly acceptance-tests macOS arm64
+          go_target_os: darwin
+          go_os: darwin
+          go_arch: arm64
+          go_download_base_url: << pipeline.parameters.go_download_base_url >>
+          shards: 6
+          context:
+            - nodejs-install
+            - team_hammerhead-cli
+            - team-cli-workflow-context
+          requires:
+            - nightly build macOS arm64
+          executor: macos-arm64
+          test_snyk_command: ./binary-releases/snyk-macos-arm64
+          install_deps_extension: macos-full
+
+      - acceptance-tests:
+          name: nightly acceptance-tests windows amd64
+          go_target_os: windows
+          go_os: windows
+          go_arch: amd64
+          go_download_base_url: << pipeline.parameters.go_download_base_url >>
+          context:
+            - nodejs-install
+            - team_hammerhead-cli
+            - team-cli-workflow-context
+          requires:
+            - nightly build windows amd64
+          executor: win-server2022-amd64
+          test_snyk_command: binary-releases\\snyk-win.exe
+          install_deps_extension: windows-full
+          dont_skip_tests: 0
+          shards: 8
+          pre_test_cmds: |
+            if (Test-Path '<< pipeline.parameters.windows_cache_dir >>/<< pipeline.parameters.windows_env_script >>') { . '<< pipeline.parameters.windows_cache_dir >>/<< pipeline.parameters.windows_env_script >>' }
+          test_cmd: |
+            Get-ChildItem -Recurse -Path test/jest/acceptance,ts-binary-wrapper/test/acceptance -Filter *.spec.ts |
+              ForEach-Object { (Resolve-Path -Relative $_.FullName) -replace '\\', '/' -replace '^\./', '' } |
+              circleci tests run --command "xargs npx jest --maxWorkers=1 --selectProjects coreCli --reporters=jest-junit --reporters=default --forceExit --" --split-by=timings --timings-type=file
 
 jobs:
   prepare-build:
