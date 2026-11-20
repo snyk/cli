@@ -148,7 +148,7 @@ describe('profiles identity environment variables', () => {
     expect(result.code).not.toEqual(0);
     // Catalog errors are printed on stdout; the identity warning is on stderr.
     expect(result.stdout).toContain(
-      'Config read/write under a named configuration profile is not supported yet.',
+      'Config read/write under a named configuration profile is not supported yet',
     );
   });
 });

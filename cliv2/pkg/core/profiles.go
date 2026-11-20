@@ -72,7 +72,8 @@ func (r *cliRun) warnIgnoredIdentityEnvVars() {
 
 // refuseLegacyConfigForProfile refuses the legacy `config` command family under a named profile. Legacy config
 // get/set/unset/clear still read and write the default configstore, not the profile file, which would be misleading.
-// Other legacy commands are allowed.
+// Other legacy commands are allowed. This refusal is temporary: config is being ported to Go, and the Go command will
+// use the selected profile's Configuration; remove this once that lands.
 func (r *cliRun) refuseLegacyConfigForProfile(args []string) error {
 	name := r.profileName
 	if name == "" || name == profile.DefaultName {
@@ -82,7 +83,7 @@ func (r *cliRun) refuseLegacyConfigForProfile(args []string) error {
 		return nil
 	}
 	return cli.NewValidationFailureError(
-		"Config read/write under a named configuration profile is not supported yet.",
+		"Config read/write under a named configuration profile is not supported yet (the config command is being moved to Go).",
 	)
 }
 
