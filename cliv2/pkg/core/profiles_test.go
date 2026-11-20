@@ -530,12 +530,11 @@ func Test_tearDown_afterTheSelectionDoesNotReportWithTheDefaultCredentials(t *te
 	r, base := newProfileRun(t, profileDir)
 	base.Set(configuration.API_URL, defaultServer.URL)
 	base.Set(profile.ConfigKey, "work")
-	initRun(t, r)
 	r.profileName = "work"
+	initRun(t, r)
 	r.selectProfile()
 	require.NoError(t, r.profileErr)
-	// the engine looks up the organization with the default configuration while it initializes, which is not the teardown
-	defaultLog.reset()
+	assert.Empty(t, defaultLog.all(), "Init must not call the API with the default profile's token")
 
 	_ = r.tearDown(context.Background(), nil, nil, time.Now(), networking.UserAgentInfo{}, r.engine.GetAnalytics())
 
@@ -545,6 +544,22 @@ func Test_tearDown_afterTheSelectionDoesNotReportWithTheDefaultCredentials(t *te
 	for _, authorization := range reports {
 		assert.Equal(t, "token work-token", authorization)
 	}
+}
+
+// Init runs before selectProfile. With a non-default profile selected, it must not resolve
+// organization or feature flags with the default configuration's token (FRG-435).
+func Test_engineInit_withAProfile_doesNotCallTheApiWithTheDefaultToken(t *testing.T) {
+	defaultServer, defaultLog := newRequestLog(t)
+	profileDir := t.TempDir()
+	writeProfileWithEndpoint(t, profileDir, "work", "work-token", "http://127.0.0.1:9")
+	r, base := newProfileRun(t, profileDir)
+	base.Set(configuration.API_URL, defaultServer.URL)
+	base.Set(profile.ConfigKey, "work")
+	r.profileName = "work"
+
+	initRun(t, r)
+
+	assert.Empty(t, defaultLog.all(), "Init must not call the API with the default profile's token")
 }
 
 // testOrgID is an organization id, which GAF accepts as it is. A slug would be looked up through the API.
