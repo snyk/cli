@@ -28,7 +28,7 @@ const profileDirEnvAlias = "snyk_config_profile_dir"
 // default configuration, and profileErr holds the error-catalog error.
 //
 // Under a named profile, ambient identity environment variables (SNYK_TOKEN, SNYK_CFG_API, OAuth storage, …) are
-// ignored; proxy, certificate, and SNYK_API still apply. See app.IgnoreIdentityEnvVarsForProfile.
+// ignored at Derive time; proxy, certificate, and SNYK_API still apply. See app.IdentityIgnoreDeriveOpts.
 func (r *cliRun) selectProfile() {
 	name := r.profileName
 	if name == "" || name == profile.DefaultName {

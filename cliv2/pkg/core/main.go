@@ -707,8 +707,11 @@ func execute(additionalExts []workflow.ExtensionInit) (*cliRun, int) {
 	r.logger, scrubbedLogger = initDebugLogger(r.config)
 	r.scrubber = scrubbedLogger
 	r.engine = app.CreateAppEngineWithOptions(app.WithZeroLogger(r.logger), app.WithConfiguration(r.config), app.WithRuntimeInfo(rInfo))
-	// Named profiles ignore ambient identity environment variables. Must be set before
-	// selectProfile / GetProfileRegistry so enrichment runs when the profile is derived.
+	// Named profiles ignore ambient identity environment variables at Derive time.
+	// Must be set before selectProfile / GetProfileRegistry so Derive opts apply when the profile loads.
+	if err := workflow.SetProfileDeriveOpts(r.engine, app.IdentityIgnoreDeriveOpts()...); err != nil {
+		r.logger.Print("Failed to set profile derive options!", err)
+	}
 	if err := workflow.SetProfileConfigEnrichment(r.engine, app.IgnoreIdentityEnvVarsForProfile); err != nil {
 		r.logger.Print("Failed to set profile config enrichment!", err)
 	}
