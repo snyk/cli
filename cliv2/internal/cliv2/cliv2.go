@@ -24,6 +24,7 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/snyk/error-catalog-golang-public/snyk_errors"
 	"github.com/snyk/go-application-framework/pkg/configuration"
+	"github.com/snyk/go-application-framework/pkg/configuration/profile"
 	"github.com/snyk/go-application-framework/pkg/instrumentation"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/output_workflow"
 	"github.com/snyk/go-application-framework/pkg/runtimeinfo"
@@ -374,6 +375,19 @@ func PrepareV1EnvironmentVariables(
 
 		for _, key := range blackList {
 			inputAsMap = utils.Remove(inputAsMap, key)
+		}
+
+		// Under a named profile, strip ambient identity env vars the legacy process would
+		// otherwise read. Go already overwrites SNYK_TOKEN from the profile configuration.
+		if profile.IsProfile(config) {
+			for _, key := range []string{
+				constants.SNYK_OAUTH_ACCESS_TOKEN_ENV,
+				"SNYK_DOCKER_TOKEN",
+				"SNYK_CFG_API",
+				"SNYK_CFG_ENDPOINT",
+			} {
+				inputAsMap = utils.Remove(inputAsMap, key)
+			}
 		}
 
 		// fill expected values
