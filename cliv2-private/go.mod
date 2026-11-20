@@ -6,9 +6,9 @@ require (
 	github.com/snyk/cli-extension-axi v0.0.0-20261102092111-6acf30273022
 	github.com/snyk/cli-extension-cos v0.0.0-20261105214232-7b105d991421
 	github.com/snyk/cli-extension-studio v1.0.8
-	github.com/snyk/cli-extension-supply-chain v0.0.0-20261118134109-05838ebf47fb
+	github.com/snyk/cli-extension-supply-chain v0.0.0-20261119163037-b1b37f745d3f
 	github.com/snyk/cli/cliv2 v0.0.0
-	github.com/snyk/remy-cli-extension v1.53.4
+	github.com/snyk/remy-cli-extension v1.53.7
 	github.com/snyk/rift-cli-extension v1.4.8
 )
 
@@ -35,7 +35,7 @@ require (
 	github.com/agnivade/levenshtein v1.2.1 // indirect
 	github.com/alecthomas/chroma/v2 v2.20.0 // indirect
 	github.com/alexbrainman/sspi v0.0.0-20250919150558-7d374ff0d59e // indirect
-	github.com/anthropics/anthropic-sdk-go v1.50.2 // indirect
+	github.com/anthropics/anthropic-sdk-go v1.84.0 // indirect
 	github.com/apapsch/go-jsonmerge/v2 v2.0.0 // indirect
 	github.com/apparentlymart/go-cidr v1.1.0 // indirect
 	github.com/apparentlymart/go-textseg/v15 v15.0.0 // indirect
@@ -49,7 +49,6 @@ require (
 	github.com/aws/aws-sdk-go-v2/internal/configsources v1.4.37 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.7.37 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/v4a v1.4.38 // indirect
-	github.com/aws/aws-sdk-go-v2/service/bedrockruntime v1.50.4 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.13.17 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/checksum v1.9.30 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.13.37 // indirect
