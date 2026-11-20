@@ -1,7 +1,6 @@
 package core
 
 import (
-	"os"
 	"strings"
 
 	"github.com/snyk/go-application-framework/pkg/auth"
@@ -12,10 +11,16 @@ import (
 	"github.com/snyk/cli/cliv2/pkg/basic_workflows"
 )
 
-func defaultOAuthFF(config configuration.Configuration) configuration.DefaultValueFunction {
-	return func(_ configuration.Configuration, existingValue interface{}) (interface{}, error) {
-		if _, ok := os.LookupEnv(auth.CONFIG_KEY_OAUTH_TOKEN); ok {
-			return true, nil
+// defaultOAuthFF decides whether the OAuth auth flow is enabled from the configuration
+// the default-value callback receives. Using that config (not os.LookupEnv) means ignored
+// identity environment variables under a named profile do not flip the flag.
+func defaultOAuthFF() configuration.DefaultValueFunction {
+	return func(config configuration.Configuration, existingValue interface{}) (interface{}, error) {
+		oauthTokenKeys := config.GetAllKeysThatContainValues(auth.CONFIG_KEY_OAUTH_TOKEN)
+		for _, key := range oauthTokenKeys {
+			if config.GetKeyType(key) == configuration.EnvVarKeyType {
+				return true, nil
+			}
 		}
 
 		keysThatMightDisableOAuth := config.GetAllKeysThatContainValues(configuration.AUTHENTICATION_BEARER_TOKEN)

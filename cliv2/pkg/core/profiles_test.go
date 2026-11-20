@@ -1,6 +1,7 @@
 package core
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -8,12 +9,13 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"testing"
 	"time"
 
+	"github.com/golang/mock/gomock"
 	"github.com/rs/zerolog"
-	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -26,6 +28,7 @@ import (
 	"github.com/snyk/go-application-framework/pkg/auth"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	"github.com/snyk/go-application-framework/pkg/configuration/profile"
+	"github.com/snyk/go-application-framework/pkg/mocks"
 	"github.com/snyk/go-application-framework/pkg/networking"
 	"github.com/snyk/go-application-framework/pkg/utils"
 	"github.com/snyk/go-application-framework/pkg/workflow"
@@ -161,13 +164,15 @@ func Test_selectProfile_theConfigurationOfTheRunIsTheProfile(t *testing.T) {
 		assert.Equal(t, "work-token", r.config.GetString(configuration.AUTHENTICATION_TOKEN))
 	})
 
-	t.Run("a profile whose file is corrupt fails with a validation error and keeps the default configuration", func(t *testing.T) {
+	t.Run("a profile whose file is corrupt fails with a validation error and the file is not overwritten", func(t *testing.T) {
+		// A registry that has loaded a profile rejects the ignored environment variables, so this run has its own engine.
 		writeCorruptProfile(t, profileDir, "broken")
-		r := &cliRun{engine: engine, config: base, logger: &logger, profileName: "broken"}
+		r, _ := newProfileRun(t, profileDir)
+		initRun(t, r)
+		r.profileName = "broken"
 		r.selectProfile()
 		catalogErr := requireCatalogError(t, r.profileErr, cli.NewConfigProfileUnreadableError("").ErrorCode)
 		assert.Contains(t, catalogErr.Detail, "broken")
-		assert.Same(t, base, r.config)
 		content, err := os.ReadFile(filepath.Join(profileDir, "broken.json"))
 		require.NoError(t, err)
 		assert.Equal(t, corruptProfileContent, string(content), "the corrupt file is not overwritten")
@@ -248,66 +253,83 @@ func Test_selectProfile_failsWhenTheRegistryIsUnavailable(t *testing.T) {
 	})
 }
 
-func Test_refuseLegacyCommandForProfile(t *testing.T) {
-	r := &cliRun{config: configuration.NewWithOpts()}
-
-	require.NoError(t, r.refuseLegacyCommandForProfile(), "without a profile the legacy CLI runs")
-
-	r.profileName = profile.DefaultName
-	require.NoError(t, r.refuseLegacyCommandForProfile(), "the default profile is not refused")
+// selectProfile sets the ignored identity environment variables on the registry before it loads the profile. A registry
+// that has already loaded a profile refuses them, so the selection fails, and execute fails the run with that error.
+func Test_selectProfile_failsWhenTheIgnoredEnvVarsCannotBeSet(t *testing.T) {
+	profileDir := t.TempDir()
+	writeProfile(t, profileDir, "work", "work-token")
+	r, base := newProfileRun(t, profileDir)
+	initRun(t, r)
+	registry, err := workflow.GetProfileRegistry(r.engine)
+	require.NoError(t, err)
+	_, err = registry.Profile("work")
+	require.NoError(t, err, "the profile is loaded before the run selects it")
 
 	r.profileName = "work"
-	assert.Error(t, r.refuseLegacyCommandForProfile(), "another profile is refused")
+	r.selectProfile()
+
+	_ = requireCatalogError(t, r.profileErr, cli.NewConfigProfilesUnavailableError("").ErrorCode)
+	assert.Same(t, base, r.config, "the run keeps the default configuration")
+	assert.Equal(t, "default-token", r.config.GetString(configuration.AUTHENTICATION_TOKEN))
 }
 
-// The help of a legacy command reads no credentials, so it is not refused for a profile, while running the legacy command
-// is. The legacy workflow is replaced by a stub that records the invocation.
-func Test_legacyHelp_isNotRefusedForAProfile(t *testing.T) {
-	newRunWithLegacyStub := func(t *testing.T, profileName string) (*cliRun, *int) {
-		t.Helper()
-		r := &cliRun{config: configuration.NewWithOpts(), profileName: profileName}
-		engine := app.CreateAppEngineWithOptions(app.WithConfiguration(r.config))
-		invocations := 0
-		_, err := engine.Register(basic_workflows.WORKFLOWID_LEGACY_CLI,
-			workflow.ConfigurationOptionsFromFlagset(pflag.NewFlagSet("test", pflag.ContinueOnError)),
-			func(_ workflow.InvocationContext, _ []workflow.Data) ([]workflow.Data, error) {
-				invocations++
-				return nil, nil
-			})
-		require.NoError(t, err)
-		require.NoError(t, engine.Init())
-		r.engine = engine
-		return r, &invocations
-	}
+// registerCountingWorkflow registers a workflow with the given id that counts its invocations in invocations.
+func registerCountingWorkflow(engine workflow.Engine, id workflow.Identifier, invocations *int) error {
+	_, err := engine.Register(id, workflow.ConfigurationOptionsFromFlagset(pflag.NewFlagSet("test", pflag.ContinueOnError)),
+		func(_ workflow.InvocationContext, _ []workflow.Data) ([]workflow.Data, error) {
+			*invocations++
+			return nil, nil
+		})
+	return err
+}
 
+// Legacy commands reach the legacy workflow under a named profile.
+func Test_legacyCommand_runsUnderANamedProfile(t *testing.T) {
 	oldArgs := append([]string{}, os.Args...)
 	defer func() { os.Args = oldArgs }()
 	os.Args = []string{"snyk", "legacy-cmd", "--help"}
 
 	t.Run("the help reaches the legacy workflow for another profile", func(t *testing.T) {
-		r, invocations := newRunWithLegacyStub(t, "work")
+		r := &cliRun{config: configuration.NewWithOpts(), profileName: "work"}
+		r.engine = app.CreateAppEngineWithOptions(app.WithConfiguration(r.config))
+		invocations := new(int)
+		require.NoError(t, registerCountingWorkflow(r.engine, basic_workflows.WORKFLOWID_LEGACY_CLI, invocations))
+		initRun(t, r)
 
 		require.NoError(t, r.runLegacyHelp())
 		assert.Equal(t, 1, *invocations)
 	})
-
-	t.Run("running the legacy command is refused for another profile and does not invoke the workflow", func(t *testing.T) {
-		r, invocations := newRunWithLegacyStub(t, "work")
-
-		_ = requireCatalogError(t, r.defaultCmd([]string{"legacy-cmd"}), cli.NewValidationFailureError("").ErrorCode)
-		assert.Equal(t, 0, *invocations)
-	})
 }
 
-// This pins a known limitation: the environment is read for every profile, so SNYK_TOKEN applies to a profile that
-// holds no token of its own. Blocking the credentials of the environment for profiles is the next step. When that
-// lands, this test changes on purpose.
-func Test_selectProfile_environmentCredentialsStillApplyToAProfile(t *testing.T) {
+// captureFile returns what f writes to the file that file points to, which is replaced while f runs. It is used for
+// os.Stdout and os.Stderr, which the output of the CLI takes when it is created.
+func captureFile(t *testing.T, file **os.File, f func()) string {
+	t.Helper()
+	reader, writer, err := os.Pipe()
+	require.NoError(t, err)
+	original := *file
+	defer func() { *file = original }()
+	output := make(chan string)
+	go func() {
+		var buf bytes.Buffer
+		_, _ = buf.ReadFrom(reader)
+		output <- buf.String()
+	}()
+	*file = writer
+	f()
+	*file = original
+	require.NoError(t, writer.Close())
+	return <-output
+}
+
+// With identity env isolation, ambient SNYK_TOKEN does not apply to a named profile that holds no token.
+func Test_selectProfile_environmentCredentialsDoNotApplyToAProfile(t *testing.T) {
 	t.Setenv("SNYK_TOKEN", "env-token")
 	profileDir := t.TempDir()
 	require.NoError(t, os.WriteFile(filepath.Join(profileDir, "work.json"), []byte("{}"), 0o600))
 
-	base := configuration.NewWithOpts(configuration.WithAutomaticEnv(), configuration.WithSupportedEnvVarPrefixes("snyk_"))
+	// Match the CLI: supported prefixes, not AutomaticEnv (ignored env vars are incompatible with AutomaticEnv).
+	base := configuration.NewWithOpts(configuration.WithSupportedEnvVarPrefixes("snyk_"))
 	base.Set(profile.DirKey, profileDir)
 	engine := app.CreateAppEngineWithOptions(app.WithConfiguration(base))
 	require.NoError(t, engine.Init())
@@ -316,7 +338,55 @@ func Test_selectProfile_environmentCredentialsStillApplyToAProfile(t *testing.T)
 
 	r.selectProfile()
 	require.NoError(t, r.profileErr)
-	assert.Equal(t, "env-token", r.config.GetString(configuration.AUTHENTICATION_TOKEN))
+	assert.True(t, profile.IsProfile(r.config))
+	assert.Empty(t, r.config.GetString(configuration.AUTHENTICATION_TOKEN))
+	assert.Equal(t, "env-token", base.GetString(configuration.AUTHENTICATION_TOKEN), "default config still sees the env token")
+}
+
+// Ignoring the identity environment variables under a named profile is a normal mode, so the user is not told about it.
+// The names are in the debug log, once per run, and their values are never logged. The legacy path keeps the user
+// interface of the run, and a strict mock fails the test on any call to it.
+func Test_ignoredIdentityEnvVars_areOnlyInTheDebugLog(t *testing.T) {
+	t.Setenv("SNYK_TOKEN", "secret-must-not-appear")
+
+	// runPath selects the profile and runs a legacy command under it, as execute does, and returns the debug log.
+	runPath := func(t *testing.T, level zerolog.Level) string {
+		t.Helper()
+		profileDir := t.TempDir()
+		writeProfile(t, profileDir, "work", "work-token")
+		var logOutput bytes.Buffer
+		logger := zerolog.New(&logOutput).Level(level)
+		base := configuration.NewWithOpts()
+		base.Set(profile.DirKey, profileDir)
+		engine := app.CreateAppEngineWithOptions(app.WithConfiguration(base), app.WithZeroLogger(&logger))
+		r := &cliRun{engine: engine, config: base, logger: &logger, profileName: "work"}
+		invocations := new(int)
+		require.NoError(t, registerCountingWorkflow(engine, basic_workflows.WORKFLOWID_LEGACY_CLI, invocations))
+		initRun(t, r)
+		userInterface := mocks.NewMockUserInterface(gomock.NewController(t))
+		engine.SetUserInterface(userInterface)
+
+		r.selectProfile()
+		require.NoError(t, r.profileErr)
+		require.NoError(t, r.defaultCmd([]string{"legacy-cmd"}))
+
+		assert.Equal(t, 1, *invocations)
+		assert.Same(t, userInterface, r.engine.GetUserInterface(), "the legacy path keeps the user interface of the run")
+		return logOutput.String()
+	}
+
+	t.Run("at debug level the names are logged once and the values never", func(t *testing.T) {
+		debugLog := runPath(t, zerolog.DebugLevel)
+
+		// zerolog escapes the quotes of the profile name in the JSON line, so the count matches the phrase only
+		assert.Equal(t, 1, strings.Count(debugLog, "ignores the environment variables"))
+		assert.Contains(t, debugLog, "SNYK_TOKEN")
+		assert.NotContains(t, debugLog, "secret-must-not-appear")
+	})
+
+	t.Run("without debug logging nothing is written", func(t *testing.T) {
+		assert.NotContains(t, runPath(t, zerolog.InfoLevel), "ignores the environment variables")
+	})
 }
 
 // writeProfileWithEndpoint writes a profile that talks to the endpoint with the token.
@@ -464,61 +534,6 @@ func Test_settingSetAfterTheSelection_reachesTheEngineOnTheProfileOnly(t *testin
 	assert.Equal(t, "true", output[0].GetPayload(), "the engine invocation receives the setting")
 }
 
-// (b) After the selection the run's configuration no longer names the profile, so the legacy refusal reads the name of
-// the run and not the configuration.
-func Test_refuseLegacyCommandForProfile_holdsAfterTheSelection(t *testing.T) {
-	profileDir := t.TempDir()
-	writeProfile(t, profileDir, "work", "work-token")
-
-	t.Run("another profile is refused", func(t *testing.T) {
-		r, base := newProfileRun(t, profileDir)
-		base.Set(profile.ConfigKey, "work")
-		r.profileName = "work"
-		r.selectProfile()
-		require.NoError(t, r.profileErr)
-
-		assert.Empty(t, r.config.GetString(profile.ConfigKey), "the selected configuration does not name the profile")
-		assert.Error(t, r.refuseLegacyCommandForProfile())
-	})
-
-	t.Run("the default profile is allowed", func(t *testing.T) {
-		r, _ := newProfileRun(t, profileDir)
-		r.profileName = profile.DefaultName
-		r.selectProfile()
-		require.NoError(t, r.profileErr)
-
-		assert.NoError(t, r.refuseLegacyCommandForProfile())
-	})
-}
-
-// (c) A profile that cannot be selected fails the command with the validation error before any setting is applied. The
-// run keeps the default configuration, and nothing is reported with the default credentials.
-func Test_runMainWorkflow_aBrokenProfileFailsAndReportsNothing(t *testing.T) {
-	server, log := newRequestLog(t)
-	profileDir := t.TempDir()
-	writeProfile(t, profileDir, "work", "work-token")
-	writeCorruptProfile(t, profileDir, "broken")
-	r, base := newProfileRun(t, profileDir)
-	base.Set(configuration.API_URL, server.URL)
-	base.Set(profile.ConfigKey, "broken")
-	initRun(t, r)
-	r.profileName = "broken"
-	r.selectProfile()
-
-	unreadable := cli.NewConfigProfileUnreadableError("").ErrorCode
-	_ = requireCatalogError(t, r.profileErr, unreadable)
-	assert.Same(t, base, r.config, "the run keeps the default configuration")
-
-	cmd := &cobra.Command{Use: "test"}
-	err := r.runMainWorkflow(cmd, nil, nil)
-
-	_ = requireCatalogError(t, err, unreadable)
-	assert.Error(t, r.refuseLegacyCommandForProfile(), "the legacy CLI stays refused")
-
-	_ = r.tearDown(context.Background(), nil, nil, time.Now(), networking.UserAgentInfo{}, r.engine.GetAnalytics())
-	assert.Empty(t, log.posts(), "no report is sent, neither with the default credentials nor with others")
-}
-
 // (d) A teardown right after the early selection, for example after a timeout, reports with the profile's credentials
 // and never with the default profile's. The name is in the configuration of the engine from the start, as execute sets
 // it, so the engine's own invocations of the teardown use the profile too.
@@ -656,9 +671,8 @@ func Test_execute_theProfileOfTheRunIsSelected(t *testing.T) {
 	writeProfile(t, profileDir, "work", "work-token")
 	t.Setenv("HOME", t.TempDir())
 	t.Setenv("SNYK_CONFIG_PROFILE_DIR", profileDir)
-	// an environment token applies to every profile, see selectProfile, so it is cleared to read the token of the profile
-	t.Setenv("SNYK_TOKEN", "")
-	require.NoError(t, os.Unsetenv("SNYK_TOKEN"))
+	// Ambient SNYK_TOKEN is ignored under a named profile: selectProfile sets the identity names on the registry.
+	t.Setenv("SNYK_TOKEN", "ambient-env-token")
 
 	oldArgs := append([]string{}, os.Args...)
 	os.Args = []string{"snyk", "--" + profileFlag + "=work", "--help"}
@@ -668,6 +682,7 @@ func Test_execute_theProfileOfTheRunIsSelected(t *testing.T) {
 
 	require.NoError(t, r.profileErr, "the profile is selected, the engine supports profiles at that point")
 	assert.Equal(t, "work-token", r.config.GetString(configuration.AUTHENTICATION_TOKEN))
+	assert.NotEqual(t, "ambient-env-token", r.config.GetString(configuration.AUTHENTICATION_TOKEN))
 }
 
 // Test_execute_aFailedEngineInitDoesNotSelectTheProfile: when the engine fails to initialize, the run is an error about
@@ -677,7 +692,6 @@ func Test_execute_aFailedEngineInitDoesNotSelectTheProfile(t *testing.T) {
 	writeProfile(t, profileDir, "work", "work-token")
 	t.Setenv("HOME", t.TempDir())
 	t.Setenv("SNYK_CONFIG_PROFILE_DIR", profileDir)
-	// an environment token applies to every profile, see selectProfile, so it is cleared to read the token of the profile
 	t.Setenv("SNYK_TOKEN", "")
 	require.NoError(t, os.Unsetenv("SNYK_TOKEN"))
 
@@ -692,4 +706,48 @@ func Test_execute_aFailedEngineInitDoesNotSelectTheProfile(t *testing.T) {
 	assert.Equal(t, constants.SNYK_EXIT_CODE_ERROR, exitCode)
 	require.NoError(t, r.profileErr, "a failed engine init is not reported as a profile problem")
 	assert.NotEqual(t, "work-token", r.config.GetString(configuration.AUTHENTICATION_TOKEN), "the profile is not selected")
+}
+
+// A requested profile that cannot be loaded fails the run before anything runs on the default configuration: no command,
+// no legacy CLI, and no help. The error is displayed, and nothing is reported, neither with the default credentials nor
+// with others.
+func Test_execute_aBrokenProfileFailsBeforeAnyCommand(t *testing.T) {
+	for _, args := range [][]string{{"test-cmd"}, {"woof"}, {"--help"}} {
+		t.Run(strings.Join(args, " "), func(t *testing.T) {
+			server, log := newRequestLog(t)
+			profileDir := t.TempDir()
+			writeCorruptProfile(t, profileDir, "broken")
+			t.Setenv("HOME", t.TempDir())
+			t.Setenv("SNYK_CONFIG_PROFILE_DIR", profileDir)
+			t.Setenv("SNYK_API", server.URL)
+
+			oldArgs := append([]string{}, os.Args...)
+			os.Args = append([]string{"snyk", "--" + profileFlag + "=broken"}, args...)
+			defer func() { os.Args = oldArgs }()
+
+			var commandRuns, legacyRuns int
+			extension := func(engine workflow.Engine) error {
+				if err := registerCountingWorkflow(engine, workflow.NewWorkflowIdentifier("test-cmd"), &commandRuns); err != nil {
+					return err
+				}
+				return registerCountingWorkflow(engine, basic_workflows.WORKFLOWID_LEGACY_CLI, &legacyRuns)
+			}
+
+			var r *cliRun
+			var exitCode int
+			stdout := captureFile(t, &os.Stdout, func() {
+				r, exitCode = execute([]workflow.ExtensionInit{extension})
+			})
+
+			assert.Equal(t, constants.SNYK_EXIT_CODE_ERROR, exitCode)
+			_ = requireCatalogError(t, r.profileErr, cli.NewConfigProfileUnreadableError("").ErrorCode)
+			assert.Contains(t, stdout, "Configuration profile unreadable", "the error is displayed")
+			assert.Equal(t, 0, commandRuns, "the command does not run")
+			assert.Equal(t, 0, legacyRuns, "the legacy CLI does not run")
+			assert.Empty(t, log.posts(), "nothing is reported")
+			content, err := os.ReadFile(filepath.Join(profileDir, "broken.json"))
+			require.NoError(t, err)
+			assert.Equal(t, corruptProfileContent, string(content), "the corrupt file is not overwritten")
+		})
+	}
 }

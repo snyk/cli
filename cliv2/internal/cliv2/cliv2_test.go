@@ -19,6 +19,7 @@ import (
 	"github.com/snyk/error-catalog-golang-public/snyk_errors"
 	"github.com/snyk/go-application-framework/pkg/app"
 	"github.com/snyk/go-application-framework/pkg/configuration"
+	"github.com/snyk/go-application-framework/pkg/configuration/profile"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/output_workflow"
 	"github.com/snyk/go-application-framework/pkg/runtimeinfo"
 	"github.com/snyk/go-application-framework/pkg/utils"
@@ -319,6 +320,154 @@ func Test_PrepareV1EnvironmentVariables_RequestConcurrency(t *testing.T) {
 		assert.Contains(t, actual, constants.SNYK_INTERNAL_REQUEST_CONCURRENCY_ENV+"=9")
 		assert.NotContains(t, actual, constants.SNYK_INTERNAL_REQUEST_CONCURRENCY_ENV+"=999")
 	})
+}
+
+func Test_PrepareV1EnvironmentVariables_removesIdentityEnvUnderNamedProfile(t *testing.T) {
+	config := configuration.NewWithOpts()
+	profile.SetMarker(config, "work")
+	config.Set(configuration.API_URL, "https://api.example")
+	config.Set(configuration.AUTHENTICATION_TOKEN, "profile-token")
+	config.Set(configuration.ORGANIZATION, "profile-org")
+
+	input := []string{
+		"SNYK_OAUTH_TOKEN=oauth-from-env",
+		"SNYK_DOCKER_TOKEN=docker-from-env",
+		"SNYK_CFG_API=cfg-api-from-env",
+		"SNYK_CFG_ENDPOINT=https://ambient.example",
+		"SNYK_TOKEN=ambient-token",
+		"SNYK_CFG_ORG=ambient-org",
+		"INTERNAL_OAUTH_TOKEN_STORAGE=oauth-storage",
+		"KEEP_ME=1",
+	}
+
+	actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacert", config, []string{})
+	require.NoError(t, err)
+
+	assert.NotContains(t, actual, "SNYK_OAUTH_TOKEN=oauth-from-env")
+	assert.NotContains(t, actual, "SNYK_DOCKER_TOKEN=docker-from-env")
+	assert.NotContains(t, actual, "SNYK_CFG_API=cfg-api-from-env")
+	assert.NotContains(t, actual, "SNYK_TOKEN=ambient-token")
+	assert.NotContains(t, actual, "SNYK_CFG_ORG=ambient-org")
+	assert.NotContains(t, actual, "INTERNAL_OAUTH_TOKEN_STORAGE=oauth-storage")
+	// API URL is intentionally ambient; SNYK_CFG_ENDPOINT is kept (SNYK_API from config still wins in TS).
+	assert.Contains(t, actual, "SNYK_CFG_ENDPOINT=https://ambient.example")
+	assert.Contains(t, actual, "KEEP_ME=1")
+	assert.Contains(t, actual, "SNYK_API=https://api.example")
+	// The profile token and org are injected afterwards by fillEnvironmentFromConfig, exact case, once.
+	assert.Contains(t, actual, "SNYK_TOKEN=profile-token")
+	assert.Contains(t, actual, "SNYK_CFG_ORG=profile-org")
+	assertSingleEnvEntry(t, actual, "SNYK_TOKEN")
+}
+
+// assertSingleEnvEntry asserts that exactly one entry of env has the exact name.
+func assertSingleEnvEntry(t *testing.T, env []string, name string) {
+	t.Helper()
+	count := 0
+	for _, entry := range env {
+		if strings.HasPrefix(entry, name+"=") {
+			count++
+		}
+	}
+	assert.Equal(t, 1, count, "exactly one %s entry", name)
+}
+
+func Test_PrepareV1EnvironmentVariables_injectsPlaceholderTokenForNamedProfileWithoutToken(t *testing.T) {
+	config := configuration.NewWithOpts()
+	profile.SetMarker(config, "work")
+
+	input := []string{
+		"SNYK_TOKEN=ambient-token",
+		"SNYK_OAUTH_TOKEN=oauth-from-env",
+		"KEEP_ME=1",
+	}
+
+	actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacert", config, []string{})
+	require.NoError(t, err)
+
+	assert.Contains(t, actual, "SNYK_TOKEN=random")
+	assert.NotContains(t, actual, "SNYK_TOKEN=ambient-token")
+	assert.NotContains(t, actual, "SNYK_OAUTH_TOKEN=oauth-from-env")
+	assert.Contains(t, actual, "KEEP_ME=1")
+	assertSingleEnvEntry(t, actual, "SNYK_TOKEN")
+}
+
+// A partially defined integration environment is only a warning for the default profile. Under a named profile the run
+// must not reach the legacy CLI with the ambient identity env, so no environment is returned.
+func Test_PrepareV1EnvironmentVariables_partialIntegrationEnvUnderNamedProfileReturnsNoEnvironment(t *testing.T) {
+	config := configuration.NewWithOpts()
+	profile.SetMarker(config, "work")
+	config.Set(configuration.AUTHENTICATION_TOKEN, "profile-token")
+
+	input := []string{
+		"SNYK_INTEGRATION_NAME=partial",
+		"SNYK_TOKEN=ambient-token",
+		"SNYK_OAUTH_TOKEN=oauth-from-env",
+		"KEEP_ME=1",
+	}
+
+	actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacert", config, []string{})
+
+	var warning cliv2.EnvironmentWarning
+	require.ErrorAs(t, err, &warning)
+	assert.Empty(t, actual, "the ambient identity env must not reach the legacy CLI")
+}
+
+// Execute does not run the legacy CLI when the integration environment is partial under a named profile.
+func Test_Execute_partialIntegrationEnvUnderNamedProfileDoesNotRunTheLegacyCLI(t *testing.T) {
+	t.Run("named profile fails closed with the warning", func(t *testing.T) {
+		config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
+		config.Set(configuration.CACHE_PATH, getCacheDir(t))
+		profile.SetMarker(config, "work")
+		cli, err := cliv2.NewCLIv2(config, discardLogger, getRuntimeInfo(t))
+		require.NoError(t, err)
+		// a legacy CLI that cannot be started: if it were started, the error would not be the warning
+		cli.SetV1BinaryLocation(filepath.Join(t.TempDir(), "missing-cliv1"))
+		cli.AppendEnvironmentVariables([]string{"SNYK_INTEGRATION_NAME=partial", "SNYK_TOKEN=ambient-token"})
+
+		err = cli.Execute(t.Context(), getProxyInfoForTest(), []string{"--help"})
+
+		var warning cliv2.EnvironmentWarning
+		require.ErrorAs(t, err, &warning)
+	})
+
+	t.Run("default profile still only warns and runs the legacy CLI", func(t *testing.T) {
+		config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
+		config.Set(configuration.CACHE_PATH, getCacheDir(t))
+		cli, err := cliv2.NewCLIv2(config, discardLogger, getRuntimeInfo(t))
+		require.NoError(t, err)
+		cli.SetV1BinaryLocation(filepath.Join(t.TempDir(), "missing-cliv1"))
+		cli.AppendEnvironmentVariables([]string{"SNYK_INTEGRATION_NAME=partial"})
+
+		err = cli.Execute(t.Context(), getProxyInfoForTest(), []string{"--help"})
+
+		var warning cliv2.EnvironmentWarning
+		assert.False(t, errors.As(err, &warning), "the legacy CLI is started, which fails on the missing binary")
+		assert.Error(t, err)
+	})
+}
+
+func Test_PrepareV1EnvironmentVariables_keepsIdentityEnvOnDefaultProfile(t *testing.T) {
+	config := configuration.NewWithOpts()
+	config.Set(configuration.API_URL, "https://api.example")
+
+	input := []string{
+		"SNYK_OAUTH_TOKEN=oauth-from-env",
+		"SNYK_CFG_API=cfg-api-from-env",
+		"SNYK_CFG_ENDPOINT=https://ambient.example",
+		"SNYK_DOCKER_TOKEN=docker-from-env",
+		"SNYK_TOKEN=ambient-token",
+		"SNYK_CFG_ORG=ambient-org",
+	}
+
+	actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacert", config, []string{})
+	require.NoError(t, err)
+
+	assert.Contains(t, actual, "SNYK_OAUTH_TOKEN=oauth-from-env")
+	assert.Contains(t, actual, "SNYK_CFG_API=cfg-api-from-env")
+	assert.Contains(t, actual, "SNYK_CFG_ENDPOINT=https://ambient.example")
+	assert.Contains(t, actual, "SNYK_DOCKER_TOKEN=docker-from-env")
+	assert.Contains(t, actual, "SNYK_TOKEN=ambient-token")
+	assert.Contains(t, actual, "SNYK_CFG_ORG=ambient-org")
 }
 
 func Test_PrepareV1EnvironmentVariables_Fail_DontOverrideExisting(t *testing.T) {
