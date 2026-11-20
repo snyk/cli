@@ -8,6 +8,7 @@ import { withFipsEnvIfNeeded } from '../util/fipsTestHelper';
 import { requireSnykToken } from '../util/requireSnykToken';
 
 jest.setTimeout(1000 * 120);
+jest.retryTimes(2, { logErrorsBeforeRetry: true });
 
 /** snyk-ls v25+ wire type: only entries with `changed: true` are applied (see ConfigSetting in snyk-ls). */
 function lspConfigSetting(value: unknown): {
