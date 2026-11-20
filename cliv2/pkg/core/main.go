@@ -269,6 +269,9 @@ func runWorkflowAndProcessData(ctx context.Context, engine workflow.Engine, logg
 }
 
 func (r *cliRun) defaultCmd(args []string) error {
+	if err := r.refuseLegacyConfigForProfile(args); err != nil {
+		return err
+	}
 	return r.invokeLegacyCLI(args)
 }
 
@@ -288,8 +291,7 @@ func (r *cliRun) invokeLegacyCLI(args []string) error {
 	return err
 }
 
-// runLegacyHelp shows the help of the legacy CLI. Help reads no credentials, so unlike a legacy command it is not refused
-// for a profile.
+// runLegacyHelp shows the help of the legacy CLI. Help reads no credentials, so it is not refused for a profile.
 func (r *cliRun) runLegacyHelp() error {
 	filteredArgs := utils.RemoveSimilar(os.Args[1:], "--")
 	return r.invokeLegacyCLI(append(filteredArgs, "--help"))

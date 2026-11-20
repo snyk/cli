@@ -123,7 +123,7 @@ describe('profiles identity environment variables', () => {
     expect(result.stderr).toContain('SNYK_TOKEN');
   });
 
-  it('legacy woof runs under a named profile (refusal lifted)', async () => {
+  it('legacy woof runs under a named profile', async () => {
     const result = await runSnykCLI('woof --config-profile=work', {
       env: {
         ...baseEnv(),
@@ -133,21 +133,22 @@ describe('profiles identity environment variables', () => {
 
     expect(result.code).toEqual(0);
     expect(result.stdout).toContain('Woof!');
-    expect(result.stderr).not.toContain("doesn't support configuration profiles");
+    expect(result.stderr).not.toContain('not supported yet');
     expect(result.stderr).toContain('SNYK_TOKEN');
   });
 
-  it('legacy config get does not read ambient SNYK_CFG_API under a named profile', async () => {
-    const result = await runSnykCLI('config get api --config-profile=fresh', {
+  it('legacy config get under a named profile is refused', async () => {
+    const result = await runSnykCLI('config get api --config-profile=work', {
       env: {
         ...baseEnv(),
         SNYK_CFG_API: ambientToken,
       },
     });
 
-    expect(result.code).toEqual(0);
+    expect(result.code).not.toEqual(0);
+    expect(result.stderr).toContain(
+      'Config read/write under a named configuration profile is not supported yet.',
+    );
     expect(result.stdout.trim()).toEqual('');
-    expect(result.stderr).toContain('SNYK_CFG_API');
-    expect(result.stderr).not.toContain(ambientToken);
   });
 });

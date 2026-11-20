@@ -5,6 +5,8 @@ import (
 	"os"
 	"strings"
 
+	"github.com/snyk/error-catalog-golang-public/cli"
+
 	"github.com/snyk/go-application-framework/pkg/app"
 	"github.com/snyk/go-application-framework/pkg/configuration/profile"
 	"github.com/snyk/go-application-framework/pkg/workflow"
@@ -62,8 +64,38 @@ func (r *cliRun) warnIgnoredIdentityEnvVars() {
 		return
 	}
 	_, _ = fmt.Fprintf(os.Stderr,
-		"Warning: ignoring identity environment variable(s) %s under config profile %q; credentials come from the profile.\n",
+		"Warning: ignoring identity environment variable(s) %s under config profile %q.\n",
 		strings.Join(ignored, ", "),
 		r.profileName,
 	)
+}
+
+// refuseLegacyConfigForProfile refuses the legacy `config` command family under a named profile. Legacy config
+// get/set/unset/clear still read and write the default configstore, not the profile file, which would be misleading.
+// Other legacy commands are allowed.
+func (r *cliRun) refuseLegacyConfigForProfile(args []string) error {
+	name := r.profileName
+	if name == "" || name == profile.DefaultName {
+		return nil
+	}
+	if !isLegacyConfigCommand(args) {
+		return nil
+	}
+	return cli.NewValidationFailureError(
+		"Config read/write under a named configuration profile is not supported yet.",
+	)
+}
+
+// isLegacyConfigCommand reports whether args select the legacy config command family (config get/set/unset/clear).
+func isLegacyConfigCommand(args []string) bool {
+	for _, arg := range args {
+		if arg == "" || arg == "--" {
+			continue
+		}
+		if strings.HasPrefix(arg, "-") {
+			continue
+		}
+		return arg == "config"
+	}
+	return false
 }

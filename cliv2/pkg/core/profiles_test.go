@@ -249,7 +249,7 @@ func Test_selectProfile_failsWhenTheRegistryIsUnavailable(t *testing.T) {
 	})
 }
 
-// The help of a legacy command and the legacy command itself both reach the legacy workflow under a named profile.
+// Non-config legacy commands reach the legacy workflow under a named profile; legacy config is refused.
 func Test_legacyCommand_runsUnderANamedProfile(t *testing.T) {
 	newRunWithLegacyStub := func(t *testing.T, profileName string) (*cliRun, *int) {
 		t.Helper()
@@ -279,12 +279,35 @@ func Test_legacyCommand_runsUnderANamedProfile(t *testing.T) {
 		assert.Equal(t, 1, *invocations)
 	})
 
-	t.Run("running the legacy command reaches the workflow for another profile", func(t *testing.T) {
+	t.Run("running a non-config legacy command reaches the workflow for another profile", func(t *testing.T) {
 		r, invocations := newRunWithLegacyStub(t, "work")
 
 		require.NoError(t, r.defaultCmd([]string{"legacy-cmd"}))
 		assert.Equal(t, 1, *invocations)
 	})
+
+	t.Run("legacy config is refused for another profile and does not invoke the workflow", func(t *testing.T) {
+		r, invocations := newRunWithLegacyStub(t, "work")
+
+		_ = requireCatalogError(t, r.defaultCmd([]string{"config", "get", "api"}), cli.NewValidationFailureError("").ErrorCode)
+		assert.Equal(t, 0, *invocations)
+	})
+}
+
+func Test_refuseLegacyConfigForProfile(t *testing.T) {
+	r := &cliRun{config: configuration.NewWithOpts()}
+
+	require.NoError(t, r.refuseLegacyConfigForProfile([]string{"config", "get", "api"}), "without a profile config runs")
+	require.NoError(t, r.refuseLegacyConfigForProfile([]string{"woof"}), "non-config is never refused")
+
+	r.profileName = profile.DefaultName
+	require.NoError(t, r.refuseLegacyConfigForProfile([]string{"config", "get", "api"}), "the default profile is not refused")
+
+	r.profileName = "work"
+	require.NoError(t, r.refuseLegacyConfigForProfile([]string{"woof"}), "non-config under a named profile runs")
+	require.NoError(t, r.refuseLegacyConfigForProfile([]string{"--config-profile=work", "woof"}), "flags before a non-config command are ignored")
+	_ = requireCatalogError(t, r.refuseLegacyConfigForProfile([]string{"config", "get", "api"}), cli.NewValidationFailureError("").ErrorCode)
+	_ = requireCatalogError(t, r.refuseLegacyConfigForProfile([]string{"--config-profile=work", "config", "get", "api"}), cli.NewValidationFailureError("").ErrorCode)
 }
 
 // With profile config enrichment, ambient SNYK_TOKEN does not apply to a named profile that holds no token.
@@ -322,6 +345,7 @@ func Test_warnIgnoredIdentityEnvVars(t *testing.T) {
 	assert.Contains(t, stderr, "SNYK_TOKEN")
 	assert.Contains(t, stderr, "SNYK_CFG_API")
 	assert.Contains(t, stderr, `config profile "work"`)
+	assert.NotContains(t, stderr, "credentials come from the profile")
 	assert.NotContains(t, stderr, "secret-must-not-appear")
 	assert.NotContains(t, stderr, "also-secret")
 }
