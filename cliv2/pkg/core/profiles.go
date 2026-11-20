@@ -1,8 +1,11 @@
 package core
 
 import (
-	"github.com/snyk/error-catalog-golang-public/cli"
+	"fmt"
+	"os"
+	"strings"
 
+	"github.com/snyk/go-application-framework/pkg/app"
 	"github.com/snyk/go-application-framework/pkg/configuration/profile"
 	"github.com/snyk/go-application-framework/pkg/workflow"
 )
@@ -22,9 +25,8 @@ const profileDirEnvAlias = "snyk_config_profile_dir"
 // invocations, because it reads the name from its own configuration. When the profile cannot be used the run keeps the
 // default configuration, and profileErr holds the error-catalog error.
 //
-// Known limitation: environment variables such as SNYK_TOKEN, SNYK_API and the organization still apply to every
-// profile, not only to the default one. Test_selectProfile_environmentCredentialsStillApplyToAProfile pins the current
-// behavior.
+// Under a named profile, ambient identity environment variables (SNYK_TOKEN, SNYK_CFG_API, OAuth storage, …) are
+// ignored; proxy, certificate, and SNYK_API still apply. See app.IgnoreIdentityEnvVarsForProfile.
 func (r *cliRun) selectProfile() {
 	name := r.profileName
 	if name == "" || name == profile.DefaultName {
@@ -44,14 +46,24 @@ func (r *cliRun) selectProfile() {
 	r.config = p.Configuration()
 }
 
-// refuseLegacyCommandForProfile refuses the commands of the legacy CLI for a profile other than the default one. The
-// legacy CLI is a separate process that only reads the default configuration file, so it would use the credentials of
-// the default profile. It reads the name the run was started with, because the configuration of a selected profile does
-// not name it.
-func (r *cliRun) refuseLegacyCommandForProfile() error {
-	name := r.profileName
-	if name == "" || name == profile.DefaultName {
-		return nil
+// warnIgnoredIdentityEnvVars prints one stderr warning naming each identity environment variable that is set in the
+// process but ignored under the selected named profile. Values are never printed.
+func (r *cliRun) warnIgnoredIdentityEnvVars() {
+	if r.profileErr != nil || !profile.IsProfile(r.config) {
+		return
 	}
-	return cli.NewValidationFailureError("This command currently doesn't support configuration profiles.")
+	var ignored []string
+	for _, name := range app.IdentityEnvVars() {
+		if _, ok := os.LookupEnv(name); ok {
+			ignored = append(ignored, name)
+		}
+	}
+	if len(ignored) == 0 {
+		return
+	}
+	_, _ = fmt.Fprintf(os.Stderr,
+		"Warning: ignoring identity environment variable(s) %s under config profile %q; credentials come from the profile.\n",
+		strings.Join(ignored, ", "),
+		r.profileName,
+	)
 }

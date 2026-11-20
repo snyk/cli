@@ -269,13 +269,10 @@ func runWorkflowAndProcessData(ctx context.Context, engine workflow.Engine, logg
 }
 
 func (r *cliRun) defaultCmd(args []string) error {
-	if err := r.refuseLegacyCommandForProfile(); err != nil {
-		return err
-	}
 	return r.invokeLegacyCLI(args)
 }
 
-// invokeLegacyCLI runs the legacy CLI with the given args. It does not check the profile, see defaultCmd.
+// invokeLegacyCLI runs the legacy CLI with the given args.
 func (r *cliRun) invokeLegacyCLI(args []string) error {
 	inputDirectory := cliv2.DetermineInputDirectory(args)
 	if len(inputDirectory) > 0 {
@@ -708,8 +705,13 @@ func execute(additionalExts []workflow.ExtensionInit) (*cliRun, int) {
 	r.logger, scrubbedLogger = initDebugLogger(r.config)
 	r.scrubber = scrubbedLogger
 	r.engine = app.CreateAppEngineWithOptions(app.WithZeroLogger(r.logger), app.WithConfiguration(r.config), app.WithRuntimeInfo(rInfo))
+	// Named profiles ignore ambient identity environment variables. Must be set before
+	// selectProfile / GetProfileRegistry so enrichment runs when the profile is derived.
+	if err := workflow.SetProfileConfigEnrichment(r.engine, app.IgnoreIdentityEnvVarsForProfile); err != nil {
+		r.logger.Print("Failed to set profile config enrichment!", err)
+	}
 
-	r.config.AddDefaultValue(configuration.FF_OAUTH_AUTH_FLOW_ENABLED, defaultOAuthFF(r.config))
+	r.config.AddDefaultValue(configuration.FF_OAUTH_AUTH_FLOW_ENABLED, defaultOAuthFF())
 	r.config.AddDefaultValue(configuration.FF_TRANSFORMATION_WORKFLOW, configuration.StandardDefaultValueFunction(true))
 	r.config.AddDefaultValue(configuration.NETWORK_REQUEST_RETRY_ALLOWED_PATHS, defaultNetworkRequestRetryAllowedPaths())
 
@@ -759,6 +761,7 @@ func execute(additionalExts []workflow.ExtensionInit) (*cliRun, int) {
 	if err == nil {
 		r.selectProfile()
 		applyStartupValues(r.config)
+		r.warnIgnoredIdentityEnvVars()
 	}
 
 	// The writer knows the secrets of the default configuration. Add those of the configuration of the run, which is the
