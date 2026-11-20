@@ -19,6 +19,7 @@ import (
 	"github.com/snyk/error-catalog-golang-public/snyk_errors"
 	"github.com/snyk/go-application-framework/pkg/app"
 	"github.com/snyk/go-application-framework/pkg/configuration"
+	"github.com/snyk/go-application-framework/pkg/configuration/profile"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/output_workflow"
 	"github.com/snyk/go-application-framework/pkg/runtimeinfo"
 	"github.com/snyk/go-application-framework/pkg/utils"
@@ -319,6 +320,49 @@ func Test_PrepareV1EnvironmentVariables_RequestConcurrency(t *testing.T) {
 		assert.Contains(t, actual, constants.SNYK_INTERNAL_REQUEST_CONCURRENCY_ENV+"=9")
 		assert.NotContains(t, actual, constants.SNYK_INTERNAL_REQUEST_CONCURRENCY_ENV+"=999")
 	})
+}
+
+func Test_PrepareV1EnvironmentVariables_stripsIdentityEnvUnderNamedProfile(t *testing.T) {
+	config := configuration.NewWithOpts()
+	profile.SetMarker(config, "work")
+	config.Set(configuration.API_URL, "https://api.example")
+
+	input := []string{
+		"SNYK_OAUTH_TOKEN=oauth-from-env",
+		"snyk_docker_token=docker-from-env",
+		"SNYK_CFG_API=cfg-api-from-env",
+		"SNYK_CFG_ENDPOINT=https://ambient.example",
+		"SNYK_TOKEN=ambient-token",
+		"KEEP_ME=1",
+	}
+
+	actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacert", config, []string{})
+	require.NoError(t, err)
+
+	assert.NotContains(t, actual, "SNYK_OAUTH_TOKEN=oauth-from-env")
+	assert.NotContains(t, actual, "snyk_docker_token=docker-from-env")
+	assert.NotContains(t, actual, "SNYK_CFG_API=cfg-api-from-env")
+	assert.NotContains(t, actual, "SNYK_CFG_ENDPOINT=https://ambient.example")
+	assert.Contains(t, actual, "KEEP_ME=1")
+	assert.Contains(t, actual, "SNYK_API=https://api.example")
+}
+
+func Test_PrepareV1EnvironmentVariables_keepsIdentityEnvOnDefaultProfile(t *testing.T) {
+	config := configuration.NewWithOpts()
+	config.Set(configuration.API_URL, "https://api.example")
+
+	input := []string{
+		"SNYK_OAUTH_TOKEN=oauth-from-env",
+		"SNYK_CFG_API=cfg-api-from-env",
+		"SNYK_CFG_ENDPOINT=https://ambient.example",
+	}
+
+	actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacert", config, []string{})
+	require.NoError(t, err)
+
+	assert.Contains(t, actual, "SNYK_OAUTH_TOKEN=oauth-from-env")
+	assert.Contains(t, actual, "SNYK_CFG_API=cfg-api-from-env")
+	assert.Contains(t, actual, "SNYK_CFG_ENDPOINT=https://ambient.example")
 }
 
 func Test_PrepareV1EnvironmentVariables_Fail_DontOverrideExisting(t *testing.T) {
