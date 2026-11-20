@@ -87,16 +87,59 @@ func (r *cliRun) refuseLegacyConfigForProfile(args []string) error {
 	)
 }
 
-// isLegacyConfigCommand reports whether args select the legacy config command family (config get/set/unset/clear).
+// globalFlagsWithValue are global flags that take a following argv token when written as
+// `--flag value` (not `--flag=value`). Skipping their values is required so
+// `snyk --config-profile work config get` is still recognized as the config command.
+var globalFlagsWithValue = map[string]struct{}{
+	"--" + profileFlag:               {},
+	"--org":                          {},
+	"--tenant":                       {},
+	"--" + debug_level_flag:          {},
+	"--" + integrationNameFlag:       {},
+	"--" + maxNetworkRequestAttempts: {},
+}
+
+// isLegacyConfigCommand reports whether args select the legacy config command family
+// (config get/set/unset/clear, including config:get and unique prefixes such as conf).
 func isLegacyConfigCommand(args []string) bool {
+	skipNext := false
 	for _, arg := range args {
+		if skipNext {
+			skipNext = false
+			continue
+		}
 		if arg == "" || arg == "--" {
 			continue
 		}
 		if strings.HasPrefix(arg, "-") {
+			name, hasInlineValue := splitFlagName(arg)
+			if !hasInlineValue {
+				if _, takesValue := globalFlagsWithValue[name]; takesValue {
+					skipNext = true
+				}
+			}
 			continue
 		}
-		return arg == "config"
+		return isLegacyConfigCommandToken(arg)
 	}
 	return false
+}
+
+// splitFlagName returns the flag name and whether the value is inline (--flag=value).
+func splitFlagName(arg string) (name string, hasInlineValue bool) {
+	if i := strings.Index(arg, "="); i >= 0 {
+		return arg[:i], true
+	}
+	return arg, false
+}
+
+// isLegacyConfigCommandToken reports whether a positional token selects the legacy config
+// command. The TypeScript CLI accepts `config`, `config:get` / `config:set` / …, and unique
+// abbrev prefixes of `config` (conf, confi). Prefixes shorter than 4 characters are left alone
+// here so unrelated short tokens are not treated as config while scanning Go argv.
+func isLegacyConfigCommandToken(arg string) bool {
+	if arg == "config" || strings.HasPrefix(arg, "config:") {
+		return true
+	}
+	return len(arg) >= 4 && strings.HasPrefix("config", arg)
 }

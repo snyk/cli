@@ -308,6 +308,38 @@ func Test_refuseLegacyConfigForProfile(t *testing.T) {
 	require.NoError(t, r.refuseLegacyConfigForProfile([]string{"--config-profile=work", "woof"}), "flags before a non-config command are ignored")
 	_ = requireCatalogError(t, r.refuseLegacyConfigForProfile([]string{"config", "get", "api"}), cli.NewValidationFailureError("").ErrorCode)
 	_ = requireCatalogError(t, r.refuseLegacyConfigForProfile([]string{"--config-profile=work", "config", "get", "api"}), cli.NewValidationFailureError("").ErrorCode)
+	_ = requireCatalogError(t, r.refuseLegacyConfigForProfile([]string{"--" + profileFlag, "work", "config", "get", "api"}), cli.NewValidationFailureError("").ErrorCode)
+	_ = requireCatalogError(t, r.refuseLegacyConfigForProfile([]string{"config:get", "api"}), cli.NewValidationFailureError("").ErrorCode)
+	_ = requireCatalogError(t, r.refuseLegacyConfigForProfile([]string{"conf", "get", "api"}), cli.NewValidationFailureError("").ErrorCode)
+}
+
+func Test_isLegacyConfigCommand(t *testing.T) {
+	tests := []struct {
+		name string
+		args []string
+		want bool
+	}{
+		{name: "config get", args: []string{"config", "get", "api"}, want: true},
+		{name: "config:get", args: []string{"config:get", "api"}, want: true},
+		{name: "config:set", args: []string{"config:set", "api=x"}, want: true},
+		{name: "conf prefix", args: []string{"conf", "get", "api"}, want: true},
+		{name: "confi prefix", args: []string{"confi", "get"}, want: true},
+		{name: "inline profile flag then config", args: []string{"--config-profile=work", "config", "get"}, want: true},
+		{name: "space-separated profile flag then config", args: []string{"--config-profile", "work", "config", "get"}, want: true},
+		{name: "space-separated profile then config:get", args: []string{"--config-profile", "work", "config:get"}, want: true},
+		{name: "org value then config", args: []string{"--org", "my-org", "config", "get"}, want: true},
+		{name: "woof allowed", args: []string{"woof"}, want: false},
+		{name: "inline profile then woof", args: []string{"--config-profile=work", "woof"}, want: false},
+		{name: "space-separated profile then woof", args: []string{"--config-profile", "work", "woof"}, want: false},
+		{name: "short prefix con not matched", args: []string{"con", "get"}, want: false},
+		{name: "unrelated command", args: []string{"test"}, want: false},
+		{name: "only flags", args: []string{"--config-profile", "work", "--debug"}, want: false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.want, isLegacyConfigCommand(tt.args))
+		})
+	}
 }
 
 // With profile config enrichment, ambient SNYK_TOKEN does not apply to a named profile that holds no token.
