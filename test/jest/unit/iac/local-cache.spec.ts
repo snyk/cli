@@ -3,12 +3,13 @@ import {
   FailedToInitLocalCacheError,
   LOCAL_POLICY_ENGINE_DIR,
 } from '../../../../src/cli/commands/test/iac/local-execution/local-cache';
+import { IaCErrorCodes } from '../../../../src/cli/commands/test/iac/local-execution/types';
 import * as fileUtilsModule from '../../../../src/cli/commands/test/iac/local-execution/file-utils';
 import { PassThrough } from 'stream';
-import * as rimraf from 'rimraf';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as request from '../../../../src/lib/request/request';
+import * as analytics from '../../../../src/lib/analytics';
 
 describe('initLocalCache - downloads bundle successfully', () => {
   beforeEach(() => {
@@ -81,16 +82,53 @@ describe('initLocalCache - downloads bundle successfully', () => {
     expect(fs.createReadStream).toHaveBeenCalledWith('./path/to/custom.tar.gz');
     expect(extractBundleSpy).toHaveBeenCalledWith(mockReadable);
   });
+});
 
-  it('cleans up the custom folder after finishes', () => {
-    const iacPath: fs.PathLike = path.normalize(LOCAL_POLICY_ENGINE_DIR);
-    const spy = jest.spyOn(rimraf, 'sync');
+describe('cleanLocalCache', () => {
+  const iacPath = path.normalize(LOCAL_POLICY_ENGINE_DIR);
+
+  beforeEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+    fs.rmSync(iacPath, { recursive: true, force: true });
+  });
+
+  it('removes the local cache directory and its contents', () => {
+    fs.mkdirSync(path.join(iacPath, 'nested'), { recursive: true });
+    fs.writeFileSync(path.join(iacPath, 'nested', 'bundle.wasm'), 'data');
+    const analyticsSpy = jest.spyOn(analytics, 'add');
 
     localCacheModule.cleanLocalCache();
 
-    expect(spy).toHaveBeenCalledWith(iacPath);
-    jest.restoreAllMocks();
-    expect(fs.existsSync(iacPath)).toBeFalsy();
+    expect(fs.existsSync(iacPath)).toBe(false);
+    expect(analyticsSpy).not.toHaveBeenCalled();
+  });
+
+  it('does not report an error when the local cache directory does not exist', () => {
+    fs.rmSync(iacPath, { recursive: true, force: true });
+    const analyticsSpy = jest.spyOn(analytics, 'add');
+
+    localCacheModule.cleanLocalCache();
+
+    expect(fs.existsSync(iacPath)).toBe(false);
+    expect(analyticsSpy).not.toHaveBeenCalled();
+  });
+
+  it('reports an error when the local cache directory cannot be removed', () => {
+    const analyticsSpy = jest.spyOn(analytics, 'add');
+    jest.spyOn(fs, 'rmSync').mockImplementation(() => {
+      throw new Error('EACCES');
+    });
+
+    localCacheModule.cleanLocalCache();
+
+    expect(analyticsSpy).toHaveBeenCalledWith(
+      'error-code',
+      IaCErrorCodes.FailedToCleanLocalCacheError,
+    );
   });
 });
 

@@ -1,7 +1,6 @@
 import * as path from 'path';
 import * as fs from 'fs';
 import { EngineType, IaCErrorCodes } from './types';
-import * as rimraf from 'rimraf';
 import { createIacDir, extractBundle, isValidBundle } from './file-utils';
 import * as Debug from 'debug';
 import { CustomError } from '../../../../../lib/errors';
@@ -160,9 +159,13 @@ export function cleanLocalCache() {
   // path to delete is hardcoded for now
   const iacPath: fs.PathLike = path.normalize(LOCAL_POLICY_ENGINE_DIR);
   try {
-    // when we support Node version >= 12.10.0 , we can replace rimraf
-    // with the native fs.rmdirSync(path, {recursive: true})
-    rimraf.sync(iacPath);
+    // Same retry budget as rimraf@2 sync, for Windows releasing file handles late.
+    fs.rmSync(iacPath, {
+      recursive: true,
+      force: true,
+      maxRetries: 100,
+      retryDelay: 0,
+    });
   } catch (e) {
     const err = new FailedToCleanLocalCacheError();
     analytics.add('error-code', err.code);
