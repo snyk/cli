@@ -19,6 +19,11 @@ const (
 	gafModule     = "github.com/snyk/go-application-framework"
 )
 
+type wordEntry struct {
+	word     string
+	isManual bool
+}
+
 var (
 	// Patterns to identify log/error/format function calls
 	logFunctionPatterns = []string{
@@ -55,8 +60,9 @@ var (
 		"default":   true,
 	}
 
-	output  = flag.String("output", "", "Output file path (default: stdout)")
-	gafPath = flag.String("gaf-path", "", "Path to go-application-framework repo (default: clone to temp dir)")
+	output      = flag.String("output", "", "Output file path (default: stdout)")
+	gafPath     = flag.String("gaf-path", "", "Path to go-application-framework repo (default: clone to temp dir)")
+	manualWords = flag.String("manual-words", "", "Path to manual words file (default: manual-words.txt in same dir as tool)")
 )
 
 func main() {
@@ -69,6 +75,20 @@ func main() {
 }
 
 func run() error {
+	// Load manual words
+	manualWordsPath := *manualWords
+	if manualWordsPath == "" {
+		// Default to manual-words.txt in the same directory as this tool
+		manualWordsPath = findManualWordsPath()
+	}
+
+	fmt.Fprintf(os.Stderr, "Loading manual words from %s...\n", manualWordsPath)
+	manualWordsList, err := loadManualWords(manualWordsPath)
+	if err != nil {
+		return fmt.Errorf("failed to load manual words: %w", err)
+	}
+	fmt.Fprintf(os.Stderr, "Loaded %d manual words\n", len(manualWordsList))
+
 	// Determine GAF version from go.mod
 	gafVersion, err := getGAFVersion()
 	if err != nil {
@@ -105,7 +125,7 @@ func run() error {
 	if err != nil {
 		return fmt.Errorf("failed to extract words from CLI: %w", err)
 	}
-	fmt.Fprintf(os.Stderr, "Found %d words from CLI\n", len(cliWords))
+	fmt.Fprintf(os.Stderr, "Found %d scanned words from CLI\n", len(cliWords))
 
 	// Extract words from GAF repo
 	fmt.Fprintf(os.Stderr, "Scanning GAF repo...\n")
@@ -113,20 +133,38 @@ func run() error {
 	if err != nil {
 		return fmt.Errorf("failed to extract words from GAF: %w", err)
 	}
-	fmt.Fprintf(os.Stderr, "Found %d words from GAF\n", len(gafWords))
+	fmt.Fprintf(os.Stderr, "Found %d scanned words from GAF\n", len(gafWords))
 
-	// Merge and sort
-	allWords := mergeWordSets(cliWords, gafWords)
-	sortedWords := make([]string, 0, len(allWords))
-	for word := range allWords {
-		sortedWords = append(sortedWords, word)
+	// Merge scanned words
+	scannedWords := mergeWordSets(cliWords, gafWords)
+
+	// Convert manual words list to set for marking
+	manualWordsSet := make(map[string]bool, len(manualWordsList))
+	for _, word := range manualWordsList {
+		manualWordsSet[word] = true
 	}
-	sort.Strings(sortedWords)
 
-	fmt.Fprintf(os.Stderr, "Total unique words: %d\n", len(sortedWords))
+	// Merge all words (manual + scanned)
+	allWords := mergeWordSets(manualWordsSet, scannedWords)
+
+	// Create sorted list with manual flag
+	entries := make([]wordEntry, 0, len(allWords))
+	for word := range allWords {
+		entries = append(entries, wordEntry{
+			word:     word,
+			isManual: manualWordsSet[word],
+		})
+	}
+
+	sort.Slice(entries, func(i, j int) bool {
+		return entries[i].word < entries[j].word
+	})
+
+	fmt.Fprintf(os.Stderr, "Total words: %d (%d manual + %d scanned)\n",
+		len(allWords), len(manualWordsList), len(allWords)-len(manualWordsList))
 
 	// Generate output
-	content := generateGoFile(sortedWords, gafVersion)
+	content := generateGoFile(entries, gafVersion)
 
 	// Write to output
 	if *output == "" {
@@ -139,6 +177,70 @@ func run() error {
 	}
 
 	return nil
+}
+
+func findManualWordsPath() string {
+	// Try to find manual-words.txt relative to this tool
+	paths := []string{
+		"manual-words.txt", // from tool directory
+		"../tools/gen-allowed-words/manual-words.txt",             // from internal/utils (via go generate)
+		"cliv2/internal/tools/gen-allowed-words/manual-words.txt", // from repo root
+	}
+
+	for _, path := range paths {
+		if _, err := os.Stat(path); err == nil {
+			return path
+		}
+	}
+
+	// Default fallback
+	return "manual-words.txt"
+}
+
+func loadManualWords(filePath string) ([]string, error) {
+	content, err := os.ReadFile(filePath)
+	if err != nil {
+		return nil, err
+	}
+
+	lines := strings.Split(string(content), "\n")
+	words := make([]string, 0)
+
+	for _, line := range lines {
+		// Trim whitespace
+		line = strings.TrimSpace(line)
+
+		// Skip empty lines and comments
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+
+		// Validate word format (manual words can be any length, but must be lowercase alphabetic)
+		if !isValidManualWord(line) {
+			return nil, fmt.Errorf("invalid word in manual list: %q (must be lowercase, alphabetic, 1-20 chars)", line)
+		}
+
+		words = append(words, line)
+	}
+
+	return words, nil
+}
+
+func isValidManualWord(word string) bool {
+	// Manual words can be any length >= 1, but still have reasonable upper bound
+	if len(word) < 1 || len(word) > 20 {
+		return false
+	}
+
+	// Must be lowercase alphanumeric with underscore (for x86_64, etc.)
+	// Manual words are hand-curated so we allow more flexibility
+	for _, c := range word {
+		if !((c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '_') {
+			return false
+		}
+	}
+
+	return true
 }
 
 func findCLIRepoPath() (string, error) {
@@ -406,31 +508,35 @@ func mergeWordSets(sets ...map[string]bool) map[string]bool {
 	return result
 }
 
-func generateGoFile(words []string, gafVersion string) string {
+func generateGoFile(entries []wordEntry, gafVersion string) string {
 	var sb strings.Builder
 
 	sb.WriteString("// Code generated by gen-allowed-words. DO NOT EDIT.\n")
-	sb.WriteString("// This file is generated from log and error messages in the codebase.\n")
-	sb.WriteString(fmt.Sprintf("// Generated from CLI repo and go-application-framework %s\n\n", gafVersion))
+	sb.WriteString("// This file is generated from:\n")
+	sb.WriteString("//   - manual-words.txt (hand-curated words)\n")
+	sb.WriteString(fmt.Sprintf("//   - CLI repo and go-application-framework %s (scanned from log messages)\n\n", gafVersion))
 	sb.WriteString("package utils\n\n")
-	sb.WriteString("// generatedAllowedWords contains common words found in log and error messages\n")
-	sb.WriteString("// that should not be redacted from debug logs.\n")
-	sb.WriteString("// These words are plain English words (lowercase, alphabetic, >= 5 chars)\n")
-	sb.WriteString("// that appear in string literals within the codebase.\n")
-	sb.WriteString("var generatedAllowedWords = map[string]bool{\n")
+	sb.WriteString("// allowedWords contains words that should not be redacted from debug logs.\n")
+	sb.WriteString("// Words marked (manual) are hand-curated from manual-words.txt.\n")
+	sb.WriteString("// Other words are automatically extracted from log and error messages in the codebase.\n")
+	sb.WriteString("var allowedWords = map[string]bool{\n")
 
 	// Calculate max word length for alignment
 	maxLen := 0
-	for _, word := range words {
-		if len(word) > maxLen {
-			maxLen = len(word)
+	for _, entry := range entries {
+		if len(entry.word) > maxLen {
+			maxLen = len(entry.word)
 		}
 	}
 
-	for _, word := range words {
+	for _, entry := range entries {
 		// Add padding to align colons
-		padding := strings.Repeat(" ", maxLen-len(word))
-		sb.WriteString(fmt.Sprintf("\t%q:%s true,\n", word, padding))
+		padding := strings.Repeat(" ", maxLen-len(entry.word))
+		comment := ""
+		if entry.isManual {
+			comment = " // manual"
+		}
+		sb.WriteString(fmt.Sprintf("\t%q:%s true,%s\n", entry.word, padding, comment))
 	}
 
 	sb.WriteString("}\n")

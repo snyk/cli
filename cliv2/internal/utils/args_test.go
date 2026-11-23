@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
@@ -250,6 +251,35 @@ func Test_AllowedWords_SecretsStillRedacted(t *testing.T) {
 			}
 		})
 	}
+}
+
+func Test_AllowedWords_ManualWordsPresent(t *testing.T) {
+	// This test verifies that all words from manual-words.txt are present in allowedWords
+
+	// Read the manual words file
+	manualWordsPath := "../tools/gen-allowed-words/manual-words.txt"
+	content, err := os.ReadFile(manualWordsPath)
+	require.NoError(t, err, "failed to read manual-words.txt")
+
+	lines := strings.Split(string(content), "\n")
+	expectedWords := make([]string, 0)
+
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		// Skip empty lines and comments
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+		expectedWords = append(expectedWords, line)
+	}
+
+	// Verify each manual word is in allowedWords
+	for _, word := range expectedWords {
+		assert.True(t, allowedWords[word],
+			"manual word %q from manual-words.txt is not in allowedWords (did you forget to regenerate?)", word)
+	}
+
+	t.Logf("Verified %d manual words are present in allowedWords", len(expectedWords))
 }
 
 func Test_AllowedWords_GeneratedFileUpToDate(t *testing.T) {
