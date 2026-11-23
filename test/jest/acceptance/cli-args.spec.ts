@@ -1,6 +1,8 @@
+import * as fs from 'fs';
+import * as os from 'os';
 import * as path from 'path';
 import { UnsupportedOptionCombinationError } from '../../../src/lib/errors/unsupported-option-combination-error';
-import { runSnykCLI } from '../util/runSnykCLI';
+import { runSnykCLI, runSnykCLIWithArray } from '../util/runSnykCLI';
 import { fakeServer } from '../../acceptance/fake-server';
 import { createProject } from '../util/createProject';
 import { getServerPort } from '../util/getServerPort';
@@ -326,8 +328,41 @@ describe.each(userJourneyWorkflows)(
           expect(code).toEqual(2);
         });
 
+        test('config --json-file-output without a value is an invalid flag option', async () => {
+          const { code, stdout } = await runSnykCLI(
+            `config --json-file-output`,
+            {
+              env,
+            },
+          );
+          expect(stdout).toContainText('Invalid flag option (SNYK-CLI-0004)');
+          expect(stdout).toContainText(
+            'flag needs an argument: --json-file-output',
+          );
+          expect(code).toEqual(2);
+        });
+
+        test('config not allowed with --json-file-output', async () => {
+          const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'snyk-config-'));
+          const outputFile = path.join(dir, 'output.json');
+          try {
+            const { code, stdout } = await runSnykCLIWithArray(
+              ['config', `--json-file-output=${outputFile}`],
+              {
+                env,
+              },
+            );
+            expect(stdout).toContainText(
+              'The following option combination is not currently supported: config + json-file-output',
+            );
+            expect(code).toEqual(2);
+            expect(fs.existsSync(outputFile)).toBe(false);
+          } finally {
+            fs.rmSync(dir, { recursive: true, force: true });
+          }
+        });
+
         [
-          'config',
           'ignore',
           'modules',
           'monitor',

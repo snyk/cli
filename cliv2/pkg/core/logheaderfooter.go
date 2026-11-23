@@ -21,7 +21,7 @@ import (
 	"github.com/snyk/cli/cliv2/internal/cliv2"
 	"github.com/snyk/cli/cliv2/internal/utils"
 
-	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
+	"github.com/snyk/go-application-framework/pkg/local_workflows/config_workflow"
 	"github.com/snyk/go-application-framework/pkg/networking/fips"
 )
 
@@ -136,7 +136,7 @@ func (r *cliRun) writeLogHeader() {
 	r.tablePrint("Platform", userAgent)
 	r.tablePrint("API", config.GetString(configuration.API_URL))
 
-	region, err := localworkflows.DetermineRegionFromUrl(config.GetString(configuration.API_URL))
+	region, err := config_workflow.DetermineRegionFromUrl(config.GetString(configuration.API_URL))
 	if err == nil {
 		r.tablePrint("Region", region)
 	}

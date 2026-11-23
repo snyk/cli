@@ -90,7 +90,7 @@ The private build (`cliv2-private/`) additionally registers `remy-cli-extension`
 The config reads only the variables allowlisted in `cliv2/pkg/core/main.go`:
 
 ```go
-configuration.WithSupportedEnvVars("NODE_EXTRA_CA_CERTS"),
+configuration.WithSupportedEnvVars("NODE_EXTRA_CA_CERTS", "XDG_CONFIG_HOME"),
 configuration.WithSupportedEnvVarPrefixes("snyk_", "internal_", "test_"),
 ```
 

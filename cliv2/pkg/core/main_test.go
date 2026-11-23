@@ -21,6 +21,7 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/rs/zerolog"
+	"github.com/snyk/error-catalog-golang-public/cli"
 	"github.com/snyk/error-catalog-golang-public/code"
 	"github.com/snyk/error-catalog-golang-public/snyk_errors"
 	"github.com/snyk/go-application-framework/pkg/analytics"
@@ -28,6 +29,7 @@ import (
 	"github.com/snyk/go-application-framework/pkg/app"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
+	"github.com/snyk/go-application-framework/pkg/local_workflows/config_workflow"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/content_type"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/json_schemas"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/local_models"
@@ -579,6 +581,156 @@ func Test_CreateCommandsForWorkflowWithSubcommands(t *testing.T) {
 	assert.True(t, cmd2.HasSubCommands())
 	assert.Equal(t, "cmd2", cmd2.Name())
 	assert.True(t, cmd2.Hidden)
+}
+
+func Test_CreateCommandsForWorkflows_ConfigAcceptsUnknownFlags(t *testing.T) {
+	r := newTestRun()
+	r.config = configuration.New()
+	r.engine = workflow.NewWorkFlowEngine(r.config)
+	require.NoError(t, config_workflow.InitConfigWorkflows(r.engine))
+	_ = r.engine.Init()
+	rootCommand := r.prepareRootCommand(testHelpRouter())
+
+	r.createCommandsForWorkflows(rootCommand)
+
+	for _, command := range [][]string{{"config"}, {"config", "get"}, {"config", "set"}, {"config", "unset"}, {"config", "clear"}} {
+		cmd, _, err := rootCommand.Find(command)
+		require.NoError(t, err)
+		require.Equal(t, command[len(command)-1], cmd.Name())
+		assert.NoError(t, cmd.ParseFlags([]string{"--unknown", "-u"}), command)
+	}
+
+	environment, _, err := rootCommand.Find([]string{"config", "environment"})
+	require.NoError(t, err)
+	assert.NoError(t, environment.ParseFlags([]string{"--no-check"}))
+	assert.Equal(t, handleErrorShowHelp, r.handleError(environment.ParseFlags([]string{"--unknown"})))
+}
+
+func Test_configCommands(t *testing.T) {
+	oldArgs := os.Args
+	t.Cleanup(func() { os.Args = oldArgs })
+	execute := func(t *testing.T, profileName string, args ...string) (*cliRun, []string, error) {
+		t.Helper()
+		r, _ := setupMainWorkflowTestEnv(t)
+		r.profileName = profileName
+		var ran []string
+		for _, name := range []string{"legacycli", "config", "config.get", "config.set", "config.unset", "config.clear", "config.environment"} {
+			_, err := r.engine.Register(workflow.NewWorkflowIdentifier(name), workflow.ConfigurationOptionsFromFlagset(pflag.NewFlagSet(name, pflag.ContinueOnError)),
+				func(workflow.InvocationContext, []workflow.Data) ([]workflow.Data, error) {
+					ran = append(ran, name)
+					return nil, nil
+				})
+			require.NoError(t, err)
+		}
+		outputEngine := workflow.NewWorkFlowEngine(configuration.New())
+		require.NoError(t, localworkflows.InitOutputWorkflow(outputEngine))
+		outputWorkflow, _ := outputEngine.GetWorkflow(localworkflows.WORKFLOWID_OUTPUT_WORKFLOW)
+		rootCommand := r.prepareRootCommand(testHelpRouter())
+		rootCommand.PersistentFlags().AddFlagSet(workflow.FlagsetFromConfigurationOptions(outputWorkflow.GetConfigurationOptions()))
+		r.createCommandsForWorkflows(rootCommand)
+		os.Args = append([]string{"snyk"}, args...)
+		rootCommand.SetArgs(args)
+		err := rootCommand.ExecuteContext(t.Context())
+		return r, ran, err
+	}
+
+	t.Run("config commands run the legacy CLI with the original arguments", func(t *testing.T) {
+		t.Setenv("INTERNAL_SNYK_FF_CONFIG_LEGACY", "true")
+		for _, args := range [][]string{{"config", "--unknown"}, {"config", "get", "a", "--unknown"}, {"config", "set", "k=v"}, {"config", "unset", "k"}, {"config", "clear"}} {
+			r, ran, err := execute(t, "", args...)
+			require.NoError(t, err)
+			assert.Equal(t, []string{"legacycli"}, ran, args)
+			assert.Equal(t, args, r.config.GetStringSlice(configuration.RAW_CMD_ARGS))
+		}
+	})
+
+	t.Run("config environment stays native", func(t *testing.T) {
+		t.Setenv("INTERNAL_SNYK_FF_CONFIG_LEGACY", "true")
+		_, ran, err := execute(t, "", "config", "environment", "default")
+		require.NoError(t, err)
+		assert.Equal(t, []string{"config.environment"}, ran)
+	})
+
+	t.Run("the legacy CLI is refused for a profile", func(t *testing.T) {
+		t.Setenv("INTERNAL_SNYK_FF_CONFIG_LEGACY", "true")
+		_, ran, err := execute(t, "work", "config", "get", "a")
+		_ = requireCatalogError(t, err, cli.NewValidationFailureError("").ErrorCode)
+		assert.Empty(t, ran)
+	})
+
+	t.Run("without the flag config commands are native", func(t *testing.T) {
+		_, ran, err := execute(t, "", "config", "get", "a")
+		require.NoError(t, err)
+		assert.Equal(t, []string{"config.get"}, ran)
+	})
+
+	requireUsageError := func(t *testing.T, err error, detail string) {
+		t.Helper()
+		catalogErr := requireCatalogError(t, err, cli.NewInvalidFlagOptionError("").ErrorCode)
+		assert.Equal(t, "Invalid flag option", catalogErr.Error())
+		assert.Equal(t, detail, catalogErr.Detail)
+		_, outputErr := processError(err, nil)
+		assert.Equal(t, constants.SNYK_EXIT_CODE_ERROR, cliv2.DeriveExitCode(outputErr))
+	}
+
+	t.Run("a flag error on a config command is a usage error", func(t *testing.T) {
+		for args, detail := range map[string]string{
+			"config --json-file-output":           "flag needs an argument: --json-file-output",
+			"config get k --sarif-file-output":    "flag needs an argument: --sarif-file-output",
+			"config set --html-file-output":       "flag needs an argument: --html-file-output",
+			"config unset k --severity-threshold": "flag needs an argument: --severity-threshold",
+			"config clear --json=x":               `invalid argument "x" for "--json" flag: strconv.ParseBool: parsing "x": invalid syntax`,
+		} {
+			r, ran, err := execute(t, "", strings.Fields(args)...)
+			requireUsageError(t, err, detail)
+			assert.Equal(t, handleErrorUnhandled, r.handleError(err), args)
+			assert.Empty(t, ran, args)
+		}
+	})
+
+	t.Run("a flag error on a config command runs the legacy CLI with the flag", func(t *testing.T) {
+		t.Setenv("INTERNAL_SNYK_FF_CONFIG_LEGACY", "true")
+		args := []string{"config", "get", "k", "--json-file-output"}
+		r, ran, err := execute(t, "", args...)
+		require.NoError(t, err)
+		assert.Equal(t, []string{"legacycli"}, ran)
+		assert.Equal(t, args, r.config.GetStringSlice(configuration.RAW_CMD_ARGS))
+	})
+
+	t.Run("a flag error on other commands shows help", func(t *testing.T) {
+		t.Setenv("INTERNAL_SNYK_FF_CONFIG_LEGACY", "true")
+		for _, args := range [][]string{{"config", "environment", "--json-file-output"}, {"command", "--json-file-output"}} {
+			r, ran, err := execute(t, "", args...)
+			assert.EqualError(t, err, "flag needs an argument: --json-file-output")
+			assert.Equal(t, handleErrorShowHelp, r.handleError(err), args)
+			assert.Empty(t, ran, args)
+		}
+	})
+
+	t.Run("config commands reject the output flags legacy rejected", func(t *testing.T) {
+		for args, flag := range map[string]string{
+			"config --json-file-output=x":                 "json-file-output",
+			"config get k --sarif":                        "sarif",
+			"config set k=v --sarif-file-output x":        "sarif-file-output",
+			"config unset k --sarif --json-file-output=x": "json-file-output",
+		} {
+			_, ran, err := execute(t, "", strings.Fields(args)...)
+			requireUsageError(t, err, "The following option combination is not currently supported: config + "+flag)
+			assert.Empty(t, ran, args)
+		}
+	})
+
+	t.Run("config commands accept the output flags legacy accepted", func(t *testing.T) {
+		for args, workflowName := range map[string]string{
+			"config --json":                     "config",
+			"config get k --html":               "config.get",
+			"config clear --html-file-output=x": "config.clear",
+		} {
+			_, ran, err := execute(t, "", strings.Fields(args)...)
+			require.NoError(t, err)
+			assert.Equal(t, []string{workflowName}, ran)
+		}
+	})
 }
 
 // setupMainWorkflowTestEnv wires up the engine and configuration that runMainWorkflow needs and

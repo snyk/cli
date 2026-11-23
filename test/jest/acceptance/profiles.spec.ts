@@ -41,12 +41,14 @@ describe('profiles', () => {
     );
   };
 
-  // The CLI reads settings from SNYK_*, INTERNAL_* and TEST_SNYK* variables. Drop whatever the shell running the
-  // tests has set, so the files in the temporary home are the only source of settings.
+  // The CLI reads settings from SNYK_*, INTERNAL_* and TEST_SNYK* variables, and XDG_CONFIG_HOME moves the default
+  // file. Drop whatever the shell running the tests has set, so the files in the temporary home are the only source of
+  // settings.
   const cleanEnvironment = (): Record<string, string | undefined> =>
     Object.fromEntries(
       Object.entries(process.env).filter(
-        ([name]) => !/^(snyk_|internal_|test_snyk)/i.test(name),
+        ([name]) =>
+          !/^(snyk_|internal_|test_snyk|xdg_config_home$)/i.test(name),
       ),
     );
 
@@ -213,6 +215,74 @@ describe('profiles', () => {
       fs.readFileSync(path.join(profileDir, 'fresh.json'), 'utf8'),
     );
     expect(created.api).toEqual(pat);
+    expect(fs.readFileSync(defaultFile).equals(defaultBefore)).toBe(true);
+  });
+
+  it('config reads and writes only the file of the selected profile', async () => {
+    const defaultFile = path.join(configDir, 'snyk.json');
+    const workFile = path.join(profileDir, 'work.json');
+    const defaultBefore = fs.readFileSync(defaultFile);
+    const config = async (
+      args: string,
+      extraEnv: Record<string, string> = {},
+    ) => {
+      const { code, stdout } = await runCli(`config ${args}`, extraEnv);
+      return { code, stdout };
+    };
+
+    expect(await config('set k=v --config-profile=work')).toEqual({
+      code: 0,
+      stdout: 'k updated\n\n',
+    });
+    expect(await config('get api --config-profile=work')).toEqual({
+      code: 0,
+      stdout: `${workToken}\n`,
+    });
+    expect(await config('--config-profile=work')).toEqual({
+      code: 0,
+      stdout: `api: ${workToken}\nendpoint: ${workEndpoint}\nk: v\norg: ${orgId}\n`,
+    });
+    expect(await config('unset k', { SNYK_CONFIG_PROFILE: 'work' })).toEqual({
+      code: 0,
+      stdout: 'k deleted\n',
+    });
+    expect(JSON.parse(fs.readFileSync(workFile, 'utf8'))).toEqual({
+      api: workToken,
+      endpoint: workEndpoint,
+      org: orgId,
+    });
+    expect(await config('clear', { SNYK_CONFIG_PROFILE: 'work' })).toEqual({
+      code: 0,
+      stdout: 'config cleared\n',
+    });
+    expect(JSON.parse(fs.readFileSync(workFile, 'utf8'))).toEqual({});
+    expect(fs.readFileSync(defaultFile).equals(defaultBefore)).toBe(true);
+  });
+
+  it('config reports a usage error for a profile instead of refusing it', async () => {
+    const defaultFile = path.join(configDir, 'snyk.json');
+    const defaultBefore = fs.readFileSync(defaultFile);
+
+    const result = await runCli('config get --config-profile=work');
+    expect(result.code).toEqual(2);
+    expect(result.stdout).toMatch(
+      /SNYK-CLI-0007[\s\S]*config:get requires an argument/,
+    );
+    expect(result.stdout).not.toContain(
+      "doesn't support configuration profiles",
+    );
+    expect(fs.readFileSync(defaultFile).equals(defaultBefore)).toBe(true);
+  });
+
+  it('refuses the colon form of config, which runs the legacy CLI, for a profile', async () => {
+    const defaultFile = path.join(configDir, 'snyk.json');
+    const defaultBefore = fs.readFileSync(defaultFile);
+
+    const result = await runCli('config:set k=v --config-profile=work');
+    expect(result.code).toEqual(2);
+    expect(result.stdout).toContain(
+      "This command currently doesn't support configuration profiles.",
+    );
     expect(fs.readFileSync(defaultFile).equals(defaultBefore)).toBe(true);
   });
 });
