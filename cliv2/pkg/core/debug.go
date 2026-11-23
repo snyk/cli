@@ -18,8 +18,13 @@ var buildType string = ""
 const WARNING_MESSAGE = "⚠️ WARNING: Potentially Sensitive Information ⚠️\nThese logs may contain sensitive data, including secrets or passwords. Snyk applies automated safeguards to redact commonly recognized secrets; however, full coverage cannot be guaranteed. We strongly recommend that you carefully review the logs before sharing to ensure no confidential or proprietary information is included."
 
 func initDebugLogger(config configuration.Configuration) (*zerolog.Logger, logging.ScrubbingLogWriter) {
+	scrubLogger := logging.NewScrubbingWriter(zerolog.MultiLevelWriter(os.Stderr), logging.GetScrubDictFromConfig(config))
+	scrubWriter := scrubLogger.(logging.ScrubbingLogWriter)
+
+	scrubWriter.AddTerm(`(?i)\b[\w.-]*(?:passw|secret|token|api_?key)[\w.-]*=("(?:[^"\\]|\\.)*"|\S+)`, 1)
+
 	var consoleWriter = zerolog.ConsoleWriter{
-		Out:        os.Stderr,
+		Out:        scrubLogger,
 		TimeFormat: time.RFC3339,
 		NoColor:    true,
 		PartsOrder: []string{
@@ -43,14 +48,12 @@ func initDebugLogger(config configuration.Configuration) (*zerolog.Logger, loggi
 		},
 	}
 
-	scrubLogger := logging.NewScrubbingWriter(zerolog.MultiLevelWriter(consoleWriter), logging.GetScrubDictFromConfig(config))
-
-	localLogger := zerolog.New(scrubLogger).With().Str("ext", "main").Str("separator", "-").Timestamp().Logger()
+	localLogger := zerolog.New(consoleWriter).With().Str("ext", "main").Str("separator", "-").Timestamp().Logger()
 	loglevel := debug_tools.GetDebugLevel(config)
 	debugLogger := localLogger.Level(loglevel)
 	debugLogger.Log().Msg(WARNING_MESSAGE)
 	debugLogger.Log().Msgf("Using log level: %s", loglevel)
-	return &debugLogger, scrubLogger.(logging.ScrubbingLogWriter)
+	return &debugLogger, scrubWriter
 }
 
 func initDebugBuild() {
