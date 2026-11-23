@@ -108,6 +108,12 @@ func TestRootAndBinaryWrapperManifestsHaveDistinctNames(t *testing.T) {
 	}
 }
 
+func TestRootManifestIsNamedSnykLegacy(t *testing.T) {
+	if name := readNpmManifestName(t, repoPath(t, "package.json")); name != "snyk-legacy" {
+		t.Errorf("root package.json name = %q, want %q", name, "snyk-legacy")
+	}
+}
+
 func TestRootManifestIsNotPrivateSoPkgEmbedsSourcesForNoBytecodeBuilds(t *testing.T) {
 	contents, err := os.ReadFile(repoPath(t, "package.json"))
 	if err != nil {
