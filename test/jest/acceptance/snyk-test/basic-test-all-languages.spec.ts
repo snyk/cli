@@ -8,6 +8,7 @@ import { getServerPort } from '../../util/getServerPort';
 import { isDontSkipTestsEnabled } from '../../util/isDontSkipTestsEnabled';
 import { runCommand } from '../../util/runCommand';
 import { runSnykCLI } from '../../util/runSnykCLI';
+import { ForwardProxy, startForwardProxy } from '../../util/startForwardProxy';
 import { isWindowsOperatingSystem, testIf } from '../../../utils';
 
 jest.setTimeout(1000 * 120);
@@ -25,6 +26,7 @@ const getOrgSlug = () => {
 interface Workflow {
   type: string;
   env: { [key: string]: string | undefined };
+  proxyEnvNames?: string[];
 }
 
 const userJourneyWorkflows: Workflow[] = [
@@ -39,18 +41,38 @@ const userJourneyWorkflows: Workflow[] = [
   //   type: 'golang/native',
   //   env: {},
   // },
+  {
+    type: 'typescript behind a proxy set in HTTP_PROXY/HTTPS_PROXY',
+    env: {
+      SNYK_FORCE_LEGACY_CLI: 'true',
+    },
+    proxyEnvNames: ['HTTP_PROXY', 'HTTPS_PROXY'],
+  },
+  // Env names are case-insensitive on Windows, so this run would repeat the one above.
+  ...(isWindowsOperatingSystem()
+    ? []
+    : [
+        {
+          type: 'typescript behind a proxy set in http_proxy/https_proxy',
+          env: {
+            SNYK_FORCE_LEGACY_CLI: 'true',
+          },
+          proxyEnvNames: ['http_proxy', 'https_proxy'],
+        },
+      ]),
 ];
 
 describe.each(userJourneyWorkflows)(
   'user journey',
-  ({ type, env: integrationEnv }) => {
+  ({ type, env: integrationEnv, proxyEnvNames }) => {
     describe(`${type} workflow`, () => {
       describe('`snyk test` of basic projects for each language/ecosystem', () => {
         let server;
+        let proxy: ForwardProxy | undefined;
         let env: Record<string, string>;
         let dontSkip: boolean;
 
-        beforeAll((done) => {
+        beforeAll(async () => {
           const port = getServerPort(process);
           const baseApi = '/api/v1';
           env = {
@@ -61,12 +83,29 @@ describe.each(userJourneyWorkflows)(
             SNYK_TOKEN: '123456789',
             SNYK_DISABLE_ANALYTICS: '1',
           };
+          if (proxyEnvNames) {
+            proxy = await startForwardProxy();
+            for (const name of Object.keys(env)) {
+              if (
+                ['HTTP_PROXY', 'HTTPS_PROXY', 'NO_PROXY', 'ALL_PROXY'].includes(
+                  name.toUpperCase(),
+                )
+              ) {
+                delete env[name];
+              }
+            }
+            for (const name of proxyEnvNames) {
+              env[name] = proxy.url;
+            }
+          }
           server = fakeServer(baseApi, env.SNYK_TOKEN);
-          server.listen(port, () => {
-            done();
-          });
+          await new Promise<void>((resolve) => server.listen(port, resolve));
           dontSkip = isDontSkipTestsEnabled();
           console.debug("Don't skip tests: " + dontSkip);
+        });
+
+        beforeEach(() => {
+          proxy?.reset();
         });
 
         afterEach(() => {
@@ -74,10 +113,9 @@ describe.each(userJourneyWorkflows)(
           server.restore();
         });
 
-        afterAll((done) => {
-          server.close(() => {
-            done();
-          });
+        afterAll(async () => {
+          await new Promise<void>((resolve) => server.close(() => resolve()));
+          await proxy?.close();
         });
 
         test('run `snyk test` on a go project and ensure that required modules are not cached', async () => {
@@ -99,6 +137,9 @@ describe.each(userJourneyWorkflows)(
             env,
           });
           expect(code).toEqual(0);
+          if (proxy) {
+            expect(proxy.requestedHosts().length).toBeGreaterThan(0);
+          }
         });
 
         test.each([
