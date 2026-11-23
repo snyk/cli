@@ -1,5 +1,7 @@
 package utils
 
+//go:generate go run ../tools/gen-allowed-words/main.go -output allowed_words_generated.go
+
 import (
 	"slices"
 	"strings"
@@ -12,7 +14,8 @@ const (
 
 // Static allow list of common words that should not be redacted
 // Only includes words >= MIN_ARG_LENGTH (5 characters) since shorter words are never considered sensitive
-var allowedWords = map[string]bool{
+// This map is manually curated for high-value terms.
+var manualAllowedWords = map[string]bool{
 	"false":   true,
 	"trace":   true,
 	"debug":   true,
@@ -117,6 +120,26 @@ var allowedWords = map[string]bool{
 	"retry":    true,
 	"cache":    true,
 	"proxy":    true,
+}
+
+// allowedWords combines manual and generated allowed words
+var allowedWords = mergeAllowedWords()
+
+// mergeAllowedWords combines manually curated words with generated words from the codebase
+func mergeAllowedWords() map[string]bool {
+	merged := make(map[string]bool, len(manualAllowedWords)+len(generatedAllowedWords))
+
+	// Add manual words
+	for word := range manualAllowedWords {
+		merged[word] = true
+	}
+
+	// Add generated words
+	for word := range generatedAllowedWords {
+		merged[word] = true
+	}
+
+	return merged
 }
 
 func GetUnknownParameters(osArgs []string, envVars []string, knownCommands []string) []string {
