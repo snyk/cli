@@ -6,9 +6,7 @@
 
 ## Description
 
-The `snyk cos gateway update` command updates a gateway.
-
-For a sample configuration file you can copy and adapt, visit [COS target template](cos-target-template.md)
+The `snyk cos gateway update` command renames a gateway. You can change only the name.
 
 For a list of related commands, visit the [Snyk COS](cos.md) help, `snyk cos --help`.
 
@@ -17,7 +15,7 @@ For a list of related commands, visit the [Snyk COS](cos.md) help, `snyk cos --h
 Possible exit codes and their meaning:
 
 **0**: gateway updated successfully\
-**3**: failure, configuration file not found
+**2**: failure, try to re-run the command. Use `-d` to output the debug logs.
 
 ## Configure the Snyk CLI
 
@@ -29,16 +27,20 @@ Use the `-d` option to output the debug logs.
 
 ## Options
 
-### `--gateway-id=<GATEWAY_ID>`&#x20;
+### `--gateway-id=<GATEWAY_ID>`
 
 **Required**. Specify the ID of the gateway.
 
 ### `--name=<NAME>`
 
-**Required**. Specify display name of the gateway.
+**Required**. Specify the display name of the gateway.
 
 Example:
 
 ```bash
 $ snyk cos gateway update --gateway-id=<gateway-id> --name=dc4-singapore
 ```
+
+### `--tenant-id=<TENANT_ID>`
+
+Specify the tenant ID. Auto-discovered if not provided.

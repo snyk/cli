@@ -14,8 +14,8 @@ For a list of related commands, visit the [Snyk COS](cos.md) help, `snyk cos --h
 
 Possible exit codes and their meaning:
 
-**0**: scans retrieved\
-**3**: failure, target ID not found
+**0**: gateways retrieved\
+**2**: failure, try to re-run the command. Use `-d` to output the debug logs.
 
 ## Configure the Snyk CLI
 
@@ -27,8 +27,24 @@ Use the `-d` option to output the debug logs.
 
 ## Options
 
+### `--output=<FORMAT>`, `-o <FORMAT>`
+
+Specify the output format.
+
+Allowed values: `table`, `json`, `yaml`, `ids`
+
+Default: `table`
+
 Example:
 
 ```bash
-$ snyk cos gateway list
+$ snyk cos gateway list --output=json
 ```
+
+### `--json`
+
+Output JSON. Shorthand for `--output=json`.
+
+### `--tenant-id=<TENANT_ID>`
+
+Specify the tenant ID. Auto-discovered if not provided.
