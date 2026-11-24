@@ -244,6 +244,7 @@ export const runDriftCTL = async ({
       DCTL_IS_SNYK: 'true',
     },
     process.env,
+    { restoreProxy: true },
   );
 
   const p = child_process.spawn(path, args, {

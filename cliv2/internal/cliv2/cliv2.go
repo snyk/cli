@@ -345,7 +345,7 @@ func PrepareV1EnvironmentVariables(
 	}
 
 	// The TypeScript side restores these SNYK_SYSTEM_* variables via restoreSystemEnv/cleanSnykEnv
-	// in @snyk/cli-interface (snyk-env.ts, SYSTEM_RESTORES). A variable saved here must be added there too.
+	// in @snyk/cli-interface (snyk-env.ts, PROXY_NAMES and OPENSSL_CONF). A variable saved here must be added there too.
 	// preserve original proxy settings
 	inputAsMap[constants.SNYK_HTTPS_PROXY_ENV_SYSTEM], _ = utils.FindValueCaseInsensitive(inputAsMap, constants.SNYK_HTTPS_PROXY_ENV)
 	inputAsMap[constants.SNYK_HTTP_PROXY_ENV_SYSTEM], _ = utils.FindValueCaseInsensitive(inputAsMap, constants.SNYK_HTTP_PROXY_ENV)

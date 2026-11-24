@@ -1,4 +1,4 @@
-import { restoreSystemEnv } from '@snyk/cli-interface';
+import { cleanSnykEnv } from '@snyk/cli-interface';
 import { CLI } from '@snyk/error-catalog-nodejs-public';
 import * as childProcess from 'child_process';
 import { debug as Debug } from 'debug';
@@ -171,9 +171,13 @@ function goCliEnv(env: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
     delete childEnv.SNYK_TOKEN;
   }
 
-  // The Go CLI overrides the proxy variables, but its proxy uses untrusted
-  // certs, so child processes get the system values back.
-  return restoreSystemEnv(childEnv, process.env);
+  // The Go CLI overrides the proxy and OpenSSL variables, but its proxy uses
+  // untrusted certs, so child processes get the system values back.
+  return cleanSnykEnv(childEnv, process.env, {
+    restoreProxy: true,
+    restoreOpenSSLConf: true,
+    removeSnykVars: false,
+  });
 }
 
 function prefixChunkLines(
