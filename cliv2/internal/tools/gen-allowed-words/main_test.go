@@ -83,3 +83,22 @@ func Test_extractWordsFromRepo_skipsGeneratedOutputAndGenerator(t *testing.T) {
 
 	assertWords(t, words, []string{"productionword"}, []string{"generatedword", "generatorword"})
 }
+
+func Test_resolveGAFModule_findsGAFSourceInModuleCache(t *testing.T) {
+	cliRepoPath, err := filepath.Abs("../../..")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	version, dir, err := resolveGAFModule(cliRepoPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if version == "" {
+		t.Error("expected a GAF version")
+	}
+	if _, err := os.Stat(filepath.Join(dir, "pkg", "logging")); err != nil {
+		t.Errorf("expected GAF source at %q: %v", dir, err)
+	}
+}

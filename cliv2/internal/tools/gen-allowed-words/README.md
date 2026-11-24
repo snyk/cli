@@ -13,7 +13,7 @@ The CLI redacts potentially sensitive information from debug logs by default. Ho
 
 1. **Loads manual words** from `manual-words.txt` (hand-curated list)
 2. **Scans the CLI codebase** (`cliv2/`) for Go source files
-3. **Clones and scans go-application-framework** at the version specified in `cliv2/go.mod`
+3. **Scans go-application-framework** at the version `cliv2/go.mod` resolves to, from the Go module cache (`go list -m -f '{{.Dir}}' github.com/snyk/go-application-framework`)
 4. **Extracts string literals** from logging and error function calls
 5. **Filters scanned words** to include only:
    - Plain lowercase alphabetic characters
@@ -50,7 +50,7 @@ go run main.go -output ../../utils/allowed_words_generated.go
 ### Options
 
 - `-output <path>` - Output file path (default: stdout)
-- `-gaf-path <path>` - Path to a local go-application-framework repo (default: clones to temp dir)
+- `-gaf-path <path>` - Path to go-application-framework source to scan (default: its directory in the Go module cache)
 - `-manual-words <path>` - Path to manual words file (default: `manual-words.txt` in same directory as tool)
 
 ## Manual Words File
@@ -75,11 +75,10 @@ go test -run Test_AllowedWords_GeneratedFileUpToDate
 ```
 
 This test:
+
 1. Runs the generator to a temporary file
 2. Compares the output with the committed `allowed_words_generated.go`
 3. Fails if they differ, indicating the file needs to be regenerated
-
-Use `-short` to skip this test (it requires network access to clone GAF).
 
 ## Design Decisions
 
@@ -110,6 +109,7 @@ Very long "words" are usually concatenated identifiers (e.g., "withcachingenable
 ### Why no runtime merge?
 
 Previous versions merged manual and generated words at runtime. The current design generates a single `allowedWords` map to:
+
 - Eliminate runtime overhead
 - Make the final list easier to inspect
 - Simplify the code (no merge logic in `args.go`)
@@ -123,9 +123,11 @@ The allowed words list is a **tradeoff between usability and security**:
 - **Con**: If a user happens to use an allowed word as a secret, it won't be redacted
 
 This tradeoff is **acceptable** according to [the CLI redaction RFC](https://snyksec.atlassian.net/wiki/spaces/CLI/pages/3621224687):
+
 > Redaction is input-based plus known patterns, and over-redaction is accepted but should be reduced.
 
 The generator is conservative:
+
 - Only includes words that appear in actual log messages (not arbitrary dictionary words)
 - Filters out anything that looks like a token/ID/secret
 - Excludes programming terms that wouldn't appear in user messages
@@ -133,6 +135,7 @@ The generator is conservative:
 ## Maintenance
 
 The allowed words list should be regenerated when:
+
 1. **Manual words are added/changed** - Edit `manual-words.txt` and run `go generate`
 2. **Significant new logging is added** to the CLI or GAF
 3. **The GAF dependency is updated** to a new version
@@ -149,4 +152,4 @@ To add a new word to the manual list:
 5. Verify tests pass: `go test ./...`
 6. Commit both `manual-words.txt` and `allowed_words_generated.go`
 
-The generator is designed to be run as part of the development workflow, not as a CI check, since it requires network access to clone GAF.
+The generator needs no network access if the CLI's modules are already downloaded (`go mod download` in `cliv2/`).
