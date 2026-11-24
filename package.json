@@ -1,5 +1,5 @@
 {
-  "name": "snyk",
+  "name": "snyk-legacy",
   "version": "1.0.0-monorepo",
   "description": "snyk library and cli utility",
   "files": [
@@ -119,9 +119,9 @@
     "snyk-gradle-plugin": "7.1.11",
     "snyk-module": "3.1.0",
     "snyk-mvn-plugin": "4.9.9",
-    "snyk-nodejs-lockfile-parser": "2.10.6",
-    "snyk-nodejs-plugin": "^2.2.1",
-    "snyk-nuget-plugin": "^4.5.10",
+    "snyk-nodejs-lockfile-parser": "2.10.8",
+    "snyk-nodejs-plugin": "^2.2.3",
+    "snyk-nuget-plugin": "^4.5.11",
     "snyk-php-plugin": "1.12.4",
     "snyk-policy": "^4.1.6",
     "snyk-python-plugin": "^3.3.6",
