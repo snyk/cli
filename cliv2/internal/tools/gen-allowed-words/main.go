@@ -11,12 +11,17 @@ import (
 	"path/filepath"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 )
 
 const (
 	minWordLength = 5
 	gafModule     = "github.com/snyk/go-application-framework"
+
+	// Scanning our own output or source would keep stale words alive forever.
+	generatedFileName = "allowed_words_generated.go"
+	generatorDirName  = "gen-allowed-words"
 )
 
 type wordEntry struct {
@@ -348,11 +353,11 @@ func extractWordsFromRepo(repoPath string) (map[string]bool, error) {
 		}
 
 		// Skip vendor, test files, and non-Go files
-		if info.IsDir() && (info.Name() == "vendor" || info.Name() == ".git") {
+		if info.IsDir() && (info.Name() == "vendor" || info.Name() == ".git" || info.Name() == generatorDirName) {
 			return filepath.SkipDir
 		}
 
-		if !strings.HasSuffix(path, ".go") {
+		if !strings.HasSuffix(path, ".go") || info.Name() == generatedFileName {
 			return nil
 		}
 
@@ -388,17 +393,8 @@ func extractWordsFromFile(filePath string) (map[string]bool, error) {
 
 	// Visit all nodes in the AST
 	ast.Inspect(node, func(n ast.Node) bool {
-		switch x := n.(type) {
-		case *ast.CallExpr:
-			// Check if this is a logging or error function call
-			if isLogOrErrorCall(x) {
-				extractWordsFromCall(x, words)
-			}
-		case *ast.BasicLit:
-			// Also extract from any string literal (errors, messages, etc.)
-			if x.Kind == token.STRING {
-				extractWordsFromString(x.Value, words)
-			}
+		if call, ok := n.(*ast.CallExpr); ok && isLogOrErrorCall(call) {
+			extractWordsFromCall(call, words)
 		}
 		return true
 	})
@@ -437,9 +433,11 @@ func extractWordsFromCall(call *ast.CallExpr, words map[string]bool) {
 	}
 }
 
-func extractWordsFromString(s string, words map[string]bool) {
-	// Remove quotes
-	s = strings.Trim(s, "`\"")
+func extractWordsFromString(literal string, words map[string]bool) {
+	s, err := strconv.Unquote(literal)
+	if err != nil {
+		return
+	}
 
 	// Convert to lowercase
 	s = strings.ToLower(s)

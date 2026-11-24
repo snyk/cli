@@ -124,3 +124,6 @@ secure
 strict
 timeout
 version
+
+# Debug log warning header, logged via a constant the scanner cannot see
+sensitive
