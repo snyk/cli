@@ -253,7 +253,7 @@ jobs:
           SNYK_VERSION_DIR: ${{ env.SNYK_VERSION_DIR }}
           METADATA_SUFFIX: ${{ github.job }}
           SOURCE: snyk-images
-          MANIFEST_MODE: experimental
+          MANIFEST_MODE: stable
         run: bash .github/scripts/deployment-monitor/capture-linux-metadata.sh
       - uses: actions/upload-artifact@v4
         with:
