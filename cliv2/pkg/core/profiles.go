@@ -18,9 +18,9 @@ const profileEnvAlias = "snyk_config_profile"
 const profileDirEnvAlias = "snyk_config_profile_dir"
 
 // selectProfile makes the configuration of the profile the configuration of the run. It runs once, in execute, after the
-// engine exists and before engine.Init, so Init-time work (feature flags, organization) uses the profile's credentials.
-// The engine selects the same profile for its invocations, because it reads the name from its own configuration. When
-// the profile cannot be used the run keeps the default configuration, and profileErr holds the error-catalog error.
+// engine is initialized and before anything can time out or report. The engine selects the same profile for its
+// invocations, because it reads the name from its own configuration. When the profile cannot be used the run keeps the
+// default configuration, and profileErr holds the error-catalog error.
 //
 // Known limitation: environment variables such as SNYK_TOKEN, SNYK_API and the organization still apply to every
 // profile, not only to the default one. Test_selectProfile_environmentCredentialsStillApplyToAProfile pins the current
@@ -30,9 +30,7 @@ func (r *cliRun) selectProfile() {
 	if name == "" || name == profile.DefaultName {
 		return
 	}
-	// The engine owns the registry and may rebuild it, so it is asked for here and not kept. Ask while the engine still
-	// holds the default configuration: SetConfiguration of the profile keeps that registry when the profile was derived
-	// from it.
+	// The engine owns the registry and may rebuild it, so it is asked for here and not kept.
 	registry, err := workflow.GetProfileRegistry(r.engine)
 	if err != nil {
 		r.profileErr = err
@@ -44,7 +42,6 @@ func (r *cliRun) selectProfile() {
 		return
 	}
 	r.config = p.Configuration()
-	r.engine.SetConfiguration(r.config)
 }
 
 // refuseLegacyCommandForProfile refuses the commands of the legacy CLI for a profile other than the default one. The

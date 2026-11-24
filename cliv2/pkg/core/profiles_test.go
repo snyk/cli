@@ -425,13 +425,9 @@ func Test_logHeaderAuthorizationInfo_showsTheTokenOfTheProfile(t *testing.T) {
 	assert.NotContains(t, authorization, redactAuthorizationTokens("default-token"))
 }
 
-// initRun selects the profile when one is named, then initializes the engine, matching execute.
+// initRun initializes the engine of a run, which the teardown needs for its cleanup and its reports.
 func initRun(t *testing.T, r *cliRun) {
 	t.Helper()
-	if r.profileName != "" && r.profileName != profile.DefaultName {
-		r.selectProfile()
-		require.NoError(t, r.profileErr)
-	}
 	require.NoError(t, r.engine.Init())
 }
 
@@ -550,7 +546,7 @@ func Test_tearDown_afterTheSelectionDoesNotReportWithTheDefaultCredentials(t *te
 	}
 }
 
-// Init runs after selectProfile. With a non-default profile selected, it must not resolve
+// Init runs before selectProfile. With a non-default profile selected, it must not resolve
 // organization or feature flags with the default configuration's token (FRG-435).
 func Test_engineInit_withAProfile_doesNotCallTheApiWithTheDefaultToken(t *testing.T) {
 	defaultServer, defaultLog := newRequestLog(t)
@@ -667,9 +663,9 @@ func Test_applyStartupValues_setsThePreviewFlagsOfTheSelectedProfile(t *testing.
 	assert.False(t, base.IsSet(utils.FF_FILE_FILTER_METACHARACTER_FIX), "the default configuration is not changed")
 }
 
-// Test_execute_theProfileOfTheRunIsSelected drives the startup of the CLI: the profile is selected after the engine
-// exists and before Init, so Init-time API calls use the profile's credentials. The profile is read from its own
-// directory, and the developer's configuration is not used.
+// Test_execute_theProfileOfTheRunIsSelected drives the startup of the CLI: the profile is selected after the engine is
+// initialized, because the registry of the profiles belongs to the engine. The profile is read from its own directory,
+// and the developer's configuration is not used.
 func Test_execute_theProfileOfTheRunIsSelected(t *testing.T) {
 	profileDir := t.TempDir()
 	writeProfile(t, profileDir, "work", "work-token")
@@ -689,10 +685,9 @@ func Test_execute_theProfileOfTheRunIsSelected(t *testing.T) {
 	assert.Equal(t, "work-token", r.config.GetString(configuration.AUTHENTICATION_TOKEN))
 }
 
-// Test_execute_aFailedEngineInitKeepsTheSelectedProfile: the profile is selected before Init so Init can use its
-// credentials. When Init fails the run is still an engine error, not a profile problem, and the selected configuration
-// remains that of the profile.
-func Test_execute_aFailedEngineInitKeepsTheSelectedProfile(t *testing.T) {
+// Test_execute_aFailedEngineInitDoesNotSelectTheProfile: when the engine fails to initialize, the run is an error about
+// the engine. The profile is not selected, so the run keeps its default configuration and reports no profile problem.
+func Test_execute_aFailedEngineInitDoesNotSelectTheProfile(t *testing.T) {
 	profileDir := t.TempDir()
 	writeProfile(t, profileDir, "work", "work-token")
 	t.Setenv("HOME", t.TempDir())
@@ -711,5 +706,5 @@ func Test_execute_aFailedEngineInitKeepsTheSelectedProfile(t *testing.T) {
 
 	assert.Equal(t, constants.SNYK_EXIT_CODE_ERROR, exitCode)
 	require.NoError(t, r.profileErr, "a failed engine init is not reported as a profile problem")
-	assert.Equal(t, "work-token", r.config.GetString(configuration.AUTHENTICATION_TOKEN), "the profile stays selected")
+	assert.NotEqual(t, "work-token", r.config.GetString(configuration.AUTHENTICATION_TOKEN), "the profile is not selected")
 }
