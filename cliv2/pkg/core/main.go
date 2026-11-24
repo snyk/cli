@@ -747,19 +747,16 @@ func execute(additionalExts []workflow.ExtensionInit) (*cliRun, int) {
 	initExtensions(r.engine, additionalExts)
 	applyStartupValues(r.config)
 
-	// init engine
-	err = r.engine.Init()
-
-	// The profile is selected here and not earlier: a profile is derived from the registrations of the default configuration
-	// (default functions, alternative keys, key dependencies, flag sets, env prefixes) but not from its values. The extensions
-	// register theirs in engine.Init, and the defaults above are added before it, so Init is the earliest point at which that
-	// configuration is complete. The engine's profile registry exists only once the engine does. Keep this before setTimeout,
-	// whose teardown reads the configuration. The startup values are applied again because a derived configuration has none.
-	// A failed Init selects nothing.
-	if err == nil {
-		r.selectProfile()
+	// Select the profile before Init so Init-time API calls use the profile's credentials. Registrations that Init still
+	// adds on the default configuration are forwarded to the derived profile. The registry is built from the default
+	// first; SetConfiguration of the profile keeps it. A failed selection keeps the default configuration for Init.
+	r.selectProfile()
+	if r.profileErr == nil {
 		applyStartupValues(r.config)
 	}
+
+	// init engine
+	err = r.engine.Init()
 
 	// The writer knows the secrets of the default configuration. Add those of the configuration of the run, which is the
 	// one of the profile when one is selected, before anything else is logged.
