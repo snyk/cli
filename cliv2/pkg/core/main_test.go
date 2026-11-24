@@ -1,6 +1,7 @@
 package core
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -452,6 +453,26 @@ func Test_populateRedactionTerms_excludesCanonicalAgentNameAndVersion(t *testing
 
 	assert.NotContains(t, terms, "claude_code", "the canonical agent name reported in persona.agent must not be redacted")
 	assert.NotContains(t, terms, "2.1.310", "the agent version reported in persona.agent_version must not be redacted")
+}
+
+func Test_debugLog_configGetToken_redactsTokenValueButKeepsTheWordToken(t *testing.T) {
+	mockController := gomock.NewController(t)
+	mockEngine := mocks.NewMockEngine(mockController)
+	mockEngine.EXPECT().GetWorkflows().Return(nil)
+
+	oldArgs := os.Args
+	defer func() { os.Args = oldArgs }()
+	os.Args = []string{"snyk", "config", "get", "token", "-d"}
+
+	var out bytes.Buffer
+	config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
+	logger, scrubber := initTestDebugLogger(&out, config)
+	scrubber.AddTermsToReplace(populateRedactionTerms(config, mockEngine))
+
+	logger.Info().Msg("token=foobar")
+
+	assert.Contains(t, out.String(), "token=***")
+	assert.NotContains(t, out.String(), "***=***", "an argument that is literally 'token' must not redact every occurrence of the word")
 }
 
 func Test_initApplicationConfiguration_DisablesAnalytics(t *testing.T) {
