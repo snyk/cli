@@ -294,14 +294,14 @@ func Test_AllowedWords_SecretsStillRedacted(t *testing.T) {
 			command: []string{
 				"test",
 				"--token=(abc123def456)",
-				"--password=secret_key_123!@#",
+				"--password=secret_key_123;",
 			},
 			shouldRedact: []string{
 				"MyS3cr3tK3y,",
 				"MyS3cr3tK3y",
 				"(abc123def456)",
 				"abc123def456",
-				"secret_key_123!@#",
+				"secret_key_123;",
 				"secret_key_123",
 			},
 		},
@@ -318,6 +318,27 @@ func Test_AllowedWords_SecretsStillRedacted(t *testing.T) {
 			}
 		})
 	}
+}
+
+func Test_GetUnknownParameters_ShortWordInsidePunctuation(t *testing.T) {
+	knownCommands := []string{"test"}
+	env := []string{
+		"API_SECRET=Ab1!@#$%",
+		"OTHER_SECRET=#$%^&*()",
+	}
+
+	result := GetUnknownParameters([]string{"test"}, env, knownCommands)
+
+	assert.Contains(t, result, "Ab1!@#$%", "symbols that are not delimiters must stay part of the value")
+	assert.NotContains(t, result, "Ab1", "a short word must not be redacted on its own")
+	assert.Contains(t, result, "#$%^&*()")
+	assert.Contains(t, result, "#$%^&*", "the value without its surrounding delimiters must also be redacted")
+}
+
+func Test_GetUnknownParameters_ShortWordInsideDelimitersIsNotRedacted(t *testing.T) {
+	result := GetUnknownParameters([]string{"test"}, []string{`API_SECRET=Ab1",`}, []string{"test"})
+
+	assert.Empty(t, result, "a value under the minimum length once its delimiters are trimmed is a known gap")
 }
 
 func Test_AllowedWords_ManualWordsPresent(t *testing.T) {

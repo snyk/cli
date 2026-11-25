@@ -6,7 +6,6 @@ package utils
 import (
 	"slices"
 	"strings"
-	"unicode"
 )
 
 const (
@@ -25,7 +24,7 @@ func GetUnknownParameters(osArgs []string, envVars []string, knownCommands []str
 
 	argValues := []string{}
 	for _, arg := range argsSplitAgain {
-		word := strings.TrimFunc(arg, isNotWordRune)
+		word := strings.TrimFunc(arg, isDelimiterRune)
 		isFlag := strings.HasPrefix(arg, FLAG_PREFIX)
 		isKnownCommand := slices.Contains(knownCommands, arg) || slices.Contains(knownCommands, word)
 		isAllowedWord := allowedWords[strings.ToLower(word)]
@@ -42,7 +41,7 @@ func GetUnknownParameters(osArgs []string, envVars []string, knownCommands []str
 	return argValues
 }
 
-// Matches the scrubber's whole-word boundary, so a trimmed word is redacted wherever its untrimmed form would be.
-func isNotWordRune(r rune) bool {
-	return !unicode.IsLetter(r) && !unicode.IsNumber(r) && r != '_'
+// Only prose and JSON delimiters, because other symbols may be part of a secret and must keep it above the minimum length.
+func isDelimiterRune(r rune) bool {
+	return strings.ContainsRune(`"',:;.()[]{}`, r)
 }

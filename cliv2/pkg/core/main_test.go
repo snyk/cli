@@ -495,6 +495,27 @@ func Test_debugLog_envValueWithPunctuatedWords_keepsThoseWordsButRedactsTheSecre
 	assert.Contains(t, out.String(), `X-Snyk-Cli-Version: 1.1300.0 {"ci": true, "request": 1} ***`)
 }
 
+func Test_debugLog_envValueOfShortWordInsidePunctuation_isRedacted(t *testing.T) {
+	mockController := gomock.NewController(t)
+	mockEngine := mocks.NewMockEngine(mockController)
+	mockEngine.EXPECT().GetWorkflows().Return(nil)
+
+	oldArgs := os.Args
+	defer func() { os.Args = oldArgs }()
+	os.Args = []string{"snyk", "whoami", "-d"}
+	t.Setenv("SNYK_TEST_SECRET", "Ab1!@#$%")
+
+	var out bytes.Buffer
+	config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
+	logger, scrubber := initTestDebugLogger(&out, config)
+	scrubber.AddTermsToReplace(populateRedactionTerms(config, mockEngine))
+
+	logger.Info().Msg("secret: Ab1!@#$% end")
+
+	assert.NotContains(t, out.String(), "Ab1!@#$%")
+	assert.Contains(t, out.String(), "secret: *** end")
+}
+
 func Test_initApplicationConfiguration_DisablesAnalytics(t *testing.T) {
 	t.Run("via SNYK_DISABLE_ANALYTICS (true)", func(t *testing.T) {
 		c := configuration.NewWithOpts(configuration.WithAutomaticEnv())
