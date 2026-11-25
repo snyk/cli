@@ -158,6 +158,31 @@ describe('go-bridge', () => {
       jest.restoreAllMocks();
     });
 
+    it('keeps SNYK_* variables and restores the user proxy from SNYK_SYSTEM_* for the Go CLI', async () => {
+      process.env.SNYK_INTERNAL_CLI_EXECUTABLE_PATH = '/usr/local/bin/snyk';
+      process.env.SNYK_TOKEN = 'real-api-token-value';
+      process.env.SNYK_API = 'https://api.snyk.io';
+      process.env.HTTP_PROXY = 'http://go-proxy:9000';
+      process.env.SNYK_SYSTEM_HTTP_PROXY = 'http://user-proxy:8080';
+
+      const mockProc = createMockProcess();
+      const spawnSpy = jest
+        .spyOn(childProcess, 'spawn')
+        .mockReturnValue(mockProc);
+
+      const promise = execGoCommand(['depgraph']);
+
+      mockProc.emit('close', 0);
+      await promise;
+
+      const spawnEnv = spawnSpy.mock.calls[0][2]?.env as NodeJS.ProcessEnv;
+      expect(spawnEnv.SNYK_TOKEN).toBe('real-api-token-value');
+      expect(spawnEnv.SNYK_API).toBe('https://api.snyk.io');
+      expect(spawnEnv.HTTP_PROXY).toBe('http://user-proxy:8080');
+
+      jest.restoreAllMocks();
+    });
+
     it('preserves SNYK_TOKEN when its value is not "random"', async () => {
       process.env.SNYK_INTERNAL_CLI_EXECUTABLE_PATH = '/usr/local/bin/snyk';
       process.env.SNYK_TOKEN = 'real-api-token-value';
