@@ -75,6 +75,7 @@ var allowedWords = map[string]bool{
 	"binpath":              true,
 	"blocked":              true,
 	"blocking":             true,
+	"branch":               true, // manual
 	"browser":              true,
 	"budget":               true,
 	"building":             true,
@@ -93,10 +94,12 @@ var allowedWords = map[string]bool{
 	"chain":                true,
 	"changed":              true,
 	"characters":           true,
+	"charset":              true, // manual
 	"check":                true,
 	"checked":              true,
 	"checking":             true,
 	"checks":               true,
+	"child":                true, // manual
 	"chmod":                true,
 	"circular":             true,
 	"claims":               true,
@@ -177,6 +180,7 @@ var allowedWords = map[string]bool{
 	"dependencies":         true, // manual
 	"dependency":           true, // manual
 	"deprovisioned":        true,
+	"depth":                true, // manual
 	"derive":               true,
 	"derived":              true,
 	"deriving":             true,
@@ -433,6 +437,7 @@ var allowedWords = map[string]bool{
 	"message":              true,
 	"metadata":             true,
 	"method":               true,
+	"metrics":              true, // manual
 	"might":                true,
 	"mimetype":             true,
 	"minimum":              true,
@@ -577,6 +582,7 @@ var allowedWords = map[string]bool{
 	"request":              true, // manual
 	"requested":            true,
 	"requests":             true,
+	"require":              true, // manual
 	"required":             true,
 	"requires":             true,
 	"reset":                true,
@@ -615,6 +621,7 @@ var allowedWords = map[string]bool{
 	"schema":               true,
 	"scheme":               true,
 	"scope":                true,
+	"script":               true, // manual
 	"sealed":               true,
 	"seconds":              true, // manual
 	"secret":               true,

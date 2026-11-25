@@ -475,6 +475,26 @@ func Test_debugLog_configGetToken_redactsTokenValueButKeepsTheWordToken(t *testi
 	assert.NotContains(t, out.String(), "***=***", "an argument that is literally 'token' must not redact every occurrence of the word")
 }
 
+func Test_debugLog_envValueWithPunctuatedWords_keepsThoseWordsButRedactsTheSecret(t *testing.T) {
+	mockController := gomock.NewController(t)
+	mockEngine := mocks.NewMockEngine(mockController)
+	mockEngine.EXPECT().GetWorkflows().Return(nil)
+
+	oldArgs := os.Args
+	defer func() { os.Args = oldArgs }()
+	os.Args = []string{"snyk", "whoami", "-d"}
+	t.Setenv("SNYK_TEST_NOTE", `"ci": true, Version: "request" MyS3cr3tK3y,`)
+
+	var out bytes.Buffer
+	config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
+	logger, scrubber := initTestDebugLogger(&out, config)
+	scrubber.AddTermsToReplace(populateRedactionTerms(config, mockEngine))
+
+	logger.Info().Msg(`X-Snyk-Cli-Version: 1.1300.0 {"ci": true, "request": 1} MyS3cr3tK3y`)
+
+	assert.Contains(t, out.String(), `X-Snyk-Cli-Version: 1.1300.0 {"ci": true, "request": 1} ***`)
+}
+
 func Test_initApplicationConfiguration_DisablesAnalytics(t *testing.T) {
 	t.Run("via SNYK_DISABLE_ANALYTICS (true)", func(t *testing.T) {
 		c := configuration.NewWithOpts(configuration.WithAutomaticEnv())

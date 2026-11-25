@@ -105,9 +105,28 @@ func Test_CaptureAllArgs(t *testing.T) {
 				"super.secret",
 			},
 		},
+		{
+			name:    "env value with punctuation around words and secrets",
+			command: []string{"test"},
+			env: []string{
+				`NOTE="ci": true, Version: "request" (response) MyS3cr3tK3y, "super.secret"`,
+			},
+			expectedResult: []string{
+				"\"super.secret\"",
+				"MyS3cr3tK3y",
+				"MyS3cr3tK3y,",
+				"super.secret",
+			},
+		},
+		{
+			name:           "known value ending in punctuation",
+			command:        []string{"test"},
+			env:            []string{"SNYK_API=https://api.example.invalid/"},
+			expectedResult: []string{},
+		},
 	}
 
-	knownCommands := []string{"test", "iac", "container", "update-exclude-policy"}
+	knownCommands := []string{"test", "iac", "container", "update-exclude-policy", "https://api.example.invalid/"}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
@@ -166,6 +185,33 @@ func Test_AllowedWords_CommonLogTerms(t *testing.T) {
 				"--scan=container",
 			},
 			shouldAllow: []string{"vulnerability", "license", "container"},
+		},
+		{
+			name: "words seen over-redacted in customer debug logs",
+			command: []string{
+				"test",
+				"--a=child",
+				"--b=script",
+				"--c=metrics",
+				"--d=depth",
+				"--e=require",
+				"--f=branch",
+				"--g=charset",
+			},
+			shouldAllow: []string{"child", "script", "metrics", "depth", "require", "branch", "charset"},
+		},
+		{
+			name: "allowed words with leading or trailing punctuation",
+			command: []string{
+				"test",
+				"--ci=true,",
+				"--header=Version:",
+				`--kind="request"`,
+				"--note=(response)",
+				"--summary=result:",
+				"--count=files,",
+			},
+			shouldAllow: []string{"true,", "true", "Version:", "Version", `"request"`, "request", "(response)", "response", "result:", "result", "files,", "files"},
 		},
 	}
 
@@ -238,6 +284,25 @@ func Test_AllowedWords_SecretsStillRedacted(t *testing.T) {
 			shouldRedact: []string{
 				"1234567890abcdefghijklmnopqrstuvwxyz",
 				"MyS3cr3tK3y",
+			},
+		},
+		{
+			name: "secrets with leading or trailing punctuation are also redacted without it",
+			env: []string{
+				"API_SECRET=MyS3cr3tK3y,",
+			},
+			command: []string{
+				"test",
+				"--token=(abc123def456)",
+				"--password=secret_key_123!@#",
+			},
+			shouldRedact: []string{
+				"MyS3cr3tK3y,",
+				"MyS3cr3tK3y",
+				"(abc123def456)",
+				"abc123def456",
+				"secret_key_123!@#",
+				"secret_key_123",
 			},
 		},
 	}

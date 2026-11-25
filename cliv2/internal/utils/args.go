@@ -6,6 +6,7 @@ package utils
 import (
 	"slices"
 	"strings"
+	"unicode"
 )
 
 const (
@@ -24,12 +25,14 @@ func GetUnknownParameters(osArgs []string, envVars []string, knownCommands []str
 
 	argValues := []string{}
 	for _, arg := range argsSplitAgain {
+		word := strings.TrimFunc(arg, isNotWordRune)
 		isFlag := strings.HasPrefix(arg, FLAG_PREFIX)
-		isKnownCommand := slices.Contains(knownCommands, arg)
-		isAllowedWord := allowedWords[strings.ToLower(arg)]
-		isPotentiallySensitive := len(arg) >= MIN_ARG_LENGTH
+		isKnownCommand := slices.Contains(knownCommands, arg) || slices.Contains(knownCommands, word)
+		isAllowedWord := allowedWords[strings.ToLower(word)]
+		isPotentiallySensitive := len(word) >= MIN_ARG_LENGTH
 		if !isFlag && !isKnownCommand && !isAllowedWord && isPotentiallySensitive {
-			argValues = append(argValues, arg)
+			// Both forms, because the log may contain the value with or without its punctuation, and the scrubber applies longer terms first.
+			argValues = append(argValues, arg, word)
 		}
 	}
 
@@ -37,4 +40,9 @@ func GetUnknownParameters(osArgs []string, envVars []string, knownCommands []str
 	argValues = slices.Compact(argValues)
 
 	return argValues
+}
+
+// Matches the scrubber's whole-word boundary, so a trimmed word is redacted wherever its untrimmed form would be.
+func isNotWordRune(r rune) bool {
+	return !unicode.IsLetter(r) && !unicode.IsNumber(r) && r != '_'
 }

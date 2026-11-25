@@ -127,3 +127,12 @@ version
 
 # Debug log warning header, logged via a constant the scanner cannot see
 sensitive
+
+# Words seen over-redacted in customer debug logs
+branch
+charset
+child
+depth
+metrics
+require
+script
