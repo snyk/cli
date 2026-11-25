@@ -1,15 +1,11 @@
 import * as childProcess from 'child_process';
-import { cleanSnykEnv } from '@snyk/cli-interface';
 
 export function execute(
   command: string,
   args: string[],
   options?: { cwd: string | undefined },
 ): Promise<string> {
-  const spawnOptions: childProcess.SpawnOptions = {
-    shell: true,
-    env: cleanSnykEnv(process.env, process.env),
-  };
+  const spawnOptions: childProcess.SpawnOptions = { shell: true };
   if (options && options.cwd) {
     spawnOptions.cwd = options.cwd;
   }

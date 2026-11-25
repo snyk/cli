@@ -1,4 +1,3 @@
-import { restoreSystemEnv } from '@snyk/cli-interface';
 import { CLI } from '@snyk/error-catalog-nodejs-public';
 import * as childProcess from 'child_process';
 import { debug as Debug } from 'debug';
@@ -63,7 +62,9 @@ export function execGoCommand(
 
   debug('executing Go command: %s %s', execPath, args.join(' '));
   const shouldStreamStderr = args.includes('--debug');
-  const commandEnv = goCliEnv(process.env);
+  const commandEnv = restoreSystemEnvironment({
+    ...process.env,
+  });
 
   return new Promise((resolve, reject) => {
     let stdout = '';
@@ -155,25 +156,29 @@ export function execGoCommand(
   });
 }
 
-/**
- * Env for the nested Go CLI process. Restores the user's proxy and OpenSSL
- * settings and keeps SNYK_* variables. Returns a new object and does not
- * modify `env`.
- */
-function goCliEnv(env: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
+function restoreSystemEnvironment(env: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
   // The parent Go process injects a fake SNYK_TOKEN as "random" into the
   // TypeScript CLI environment to bypass legacy auth checks. When re-invoking
   // the Go binary, this token tricks the child cli call into disabling OAuth and
   // attempting API-token auth, which fails. Removing it lets the child cli to
   // authenticate via config/keyring like a normal CLI invocation.
-  const childEnv = { ...env };
-  if (childEnv.SNYK_TOKEN === 'random') {
-    delete childEnv.SNYK_TOKEN;
+  if (env.SNYK_TOKEN === 'random') {
+    delete env.SNYK_TOKEN;
   }
 
-  // The Go CLI overrides the proxy variables, but its proxy uses untrusted
-  // certs, so child processes get the system values back.
-  return restoreSystemEnv(childEnv, process.env);
+  if (process.env.SNYK_SYSTEM_HTTP_PROXY != undefined) {
+    env.HTTP_PROXY = process.env.SNYK_SYSTEM_HTTP_PROXY;
+  }
+  if (process.env.SNYK_SYSTEM_HTTPS_PROXY != undefined) {
+    env.HTTPS_PROXY = process.env.SNYK_SYSTEM_HTTPS_PROXY;
+  }
+  if (process.env.SNYK_SYSTEM_NO_PROXY != undefined) {
+    env.NO_PROXY = process.env.SNYK_SYSTEM_NO_PROXY;
+  }
+  if (process.env.SNYK_SYSTEM_OPENSSL_CONF != undefined) {
+    env.OPENSSL_CONF = process.env.SNYK_SYSTEM_OPENSSL_CONF;
+  }
+  return env;
 }
 
 function prefixChunkLines(
