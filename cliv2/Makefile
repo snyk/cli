@@ -244,13 +244,6 @@ _verify-private-build:
 		BUILD_MODE=$(BUILD_MODE) $(V1_WORKING_DIR)/release-scripts/next-version.sh --verify "$$(cat "$$VERSION_FILE")"; \
 	fi
 
-$(WORKING_DIR)/internal/httpauth/generated/httpauth_generated_mock.go:
-	@$(GOCMD) generate ./internal/httpauth/
-
-$(WORKING_DIR)/internal/httpauth/generated/spnego_generated_mock.go:
-	@$(GOCMD) generate ./internal/httpauth/
-
-
 .PHONY: prepare-3rd-party-licenses
 prepare-3rd-party-licenses:
 	@set -e; \
@@ -276,7 +269,8 @@ prepare-3rd-party-licenses:
 	@echo "$(LOG_PREFIX) 3rd party licenses: ok"
 
 .PHONY: generate
-generate: $(WORKING_DIR)/internal/httpauth/generated/httpauth_generated_mock.go $(WORKING_DIR)/internal/httpauth/generated/spnego_generated_mock.go
+generate:
+	@$(GOCMD) generate ./internal/utils/
 
 .PHONY: openboxtest
 openboxtest:

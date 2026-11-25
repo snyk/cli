@@ -390,7 +390,7 @@ func Test_AllowedWords_GeneratedFileUpToDate(t *testing.T) {
 	actualContent = strings.TrimSpace(actualContent)
 
 	assert.Equal(t, expectedContent, actualContent,
-		"allowed_words_generated.go is out of date. Run 'go generate' to update it.")
+		"allowed_words_generated.go is out of date. Run 'make generate' in cliv2 to update it.")
 }
 
 func readFileContent(t *testing.T, path string) string {

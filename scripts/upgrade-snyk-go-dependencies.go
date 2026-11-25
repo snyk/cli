@@ -110,6 +110,13 @@ func upgradeGoMod(name, commitSHA string) error {
 		return err
 	}
 
+	fmt.Println("🔤 Regenerating allowed words...")
+	cmd = exec.Command("make", "generate")
+	cmd.Dir = "./cliv2"
+	if err := runStep("make generate", cmd); err != nil {
+		return err
+	}
+
 	fmt.Println("🚀 Upgrade successful for:", name)
 	return nil
 }
