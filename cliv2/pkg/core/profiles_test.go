@@ -175,19 +175,23 @@ func Test_selectProfile_theConfigurationOfTheRunIsTheProfile(t *testing.T) {
 	})
 }
 
-func Test_selectProfile_namesTheProfileFileForTheLegacyCLI(t *testing.T) {
+func Test_selectProfile_namesTheProfileForTheLegacyCLI(t *testing.T) {
 	profileDir := t.TempDir()
 	writeProfile(t, profileDir, "work", "work-token")
 	writeCorruptProfile(t, profileDir, "broken")
 
 	tests := []struct {
 		profileName string
-		expected    string
+		expected    map[string]string
 	}{
-		{"", ""},
-		{profile.DefaultName, ""},
-		{"broken", ""},
-		{"work", filepath.Join(profileDir, "work.json")},
+		{"", map[string]string{}},
+		{profile.DefaultName, map[string]string{}},
+		{"broken", map[string]string{}},
+		{"work", map[string]string{
+			cliv2.ConfigKeyProfileName: "work",
+			cliv2.ConfigKeyProfileDir:  profileDir,
+			cliv2.ConfigKeyProfileFile: filepath.Join(profileDir, "work.json"),
+		}},
 	}
 	for _, tc := range tests {
 		t.Run("profile "+tc.profileName, func(t *testing.T) {
@@ -197,7 +201,13 @@ func Test_selectProfile_namesTheProfileFileForTheLegacyCLI(t *testing.T) {
 
 			r.selectProfile()
 
-			assert.Equal(t, tc.expected, r.config.GetString(cliv2.ConfigKeyProfileFile))
+			actual := map[string]string{}
+			for _, key := range []string{cliv2.ConfigKeyProfileName, cliv2.ConfigKeyProfileDir, cliv2.ConfigKeyProfileFile} {
+				if value := r.config.GetString(key); value != "" {
+					actual[key] = value
+				}
+			}
+			assert.Equal(t, tc.expected, actual)
 		})
 	}
 }

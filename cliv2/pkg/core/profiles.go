@@ -27,8 +27,9 @@ const profileDirEnvAlias = "snyk_config_profile_dir"
 // invocations, because it reads the name from its own configuration. When the profile cannot be used the run keeps the
 // default configuration, and profileErr holds the error-catalog error.
 //
-// The legacy CLI is a separate process that gets no configuration, so the absolute path of the profile file is set in
-// its configuration, which the legacy CLI gets in its environment.
+// The legacy CLI is a separate process that gets no configuration, so the name, the directory and the absolute path of
+// the file of the profile are set in its configuration, which the legacy CLI gets in its environment. The Go CLI that
+// the legacy CLI starts for some commands selects the profile from them too, instead of the default profile.
 //
 // Known limitation: environment variables such as SNYK_TOKEN, SNYK_API and the organization still apply to every
 // profile, not only to the default one. Test_selectProfile_environmentCredentialsStillApplyToAProfile pins the current
@@ -49,9 +50,11 @@ func (r *cliRun) selectProfile() {
 		r.profileErr = err
 		return
 	}
-	profileFile := filepath.Join(r.config.GetString(profile.DirKey), name+".json")
+	profileDir := r.config.GetString(profile.DirKey)
 	r.config = p.Configuration()
-	r.config.Set(cliv2.ConfigKeyProfileFile, profileFile)
+	r.config.Set(cliv2.ConfigKeyProfileName, name)
+	r.config.Set(cliv2.ConfigKeyProfileDir, profileDir)
+	r.config.Set(cliv2.ConfigKeyProfileFile, filepath.Join(profileDir, name+".json"))
 }
 
 // refuseLegacyCommandForProfile refuses the commands that run only in the legacy CLI for a profile other than the

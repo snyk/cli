@@ -2,7 +2,11 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import { fakeServer, getFirstIPv4Address } from '../../acceptance/fake-server';
-import { createProjectFromWorkspace } from '../util/createProject';
+import {
+  createProjectFromFixture,
+  createProjectFromWorkspace,
+} from '../util/createProject';
+import { getFixturePath } from '../util/getFixturePath';
 import { runSnykCLI } from '../util/runSnykCLI';
 import { getAvailableServerPort } from '../util/getServerPort';
 
@@ -19,6 +23,8 @@ describe('profiles in the legacy CLI', () => {
   const defaultToken = '11111111-1111-4111-8111-111111111111';
   const workToken = '22222222-2222-4222-8222-222222222222';
   const defaultOrg = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+  // the organization the fake server returns for a profile without one
+  const fakeServerOrg = '55555555-5555-5555-5555-555555555555';
   // the legacy CLI sends its requests to <endpoint>/v1
   const legacyBasePath = '/v1';
 
@@ -69,6 +75,14 @@ describe('profiles in the legacy CLI', () => {
       .getRequests()
       .filter((request) =>
         `${request.url} ${JSON.stringify(request.body)}`.includes(defaultOrg),
+      )
+      .map((request) => `${request.method} ${request.url}`);
+
+  const requestsWithTheDefaultToken = (server: FakeServer) =>
+    server
+      .getRequests()
+      .filter((request) =>
+        `${request.headers.authorization}`.includes(defaultToken),
       )
       .map((request) => `${request.method} ${request.url}`);
 
@@ -141,6 +155,64 @@ describe('profiles in the legacy CLI', () => {
     expect(result.stdout).not.toMatch(/Project path:\s+work/);
     expect(legacyRequests(defaultServer)).toEqual([]);
   });
+
+  it.each([
+    ['with an API token', { api: workToken }],
+    ['without an API token', {}],
+  ])(
+    'the Go CLI that the legacy CLI starts for a uv project uses the profile %s',
+    async (_, credentials) => {
+      writeJson(workFile, { ...credentials, endpoint: workEndpoint });
+      const convertResponse = JSON.parse(
+        fs.readFileSync(
+          path.join(
+            getFixturePath('sbom'),
+            'sbom-convert-response-uv-monitor.json',
+          ),
+          'utf8',
+        ),
+      );
+      for (const server of [defaultServer, workServer]) {
+        server.setFeatureFlag('enableUvCLI', true);
+        for (const org of [defaultOrg, fakeServerOrg]) {
+          server.setEndpointResponse(
+            `/hidden/orgs/${org}/sboms/convert`,
+            convertResponse,
+          );
+        }
+      }
+      const project = await createProjectFromFixture('uv-project');
+
+      const result = await runCli(
+        'monitor --file=uv.lock --config-profile=work',
+        {
+          cwd: project.path(),
+        },
+      );
+
+      expect(result.code).toEqual(0);
+      expect(
+        workServer
+          .getRequests()
+          .some((request) => request.url.includes('/sboms/convert')),
+      ).toBe(true);
+      // TODO(CLI-2138): before it selects the profile, the Go CLI that the legacy CLI starts evaluates feature flags with
+      // the default profile's token and organization, at the profile's endpoint
+      const notAtStartup = (request: string) =>
+        !request.includes('/feature_flags/evaluation');
+      expect(
+        requestsNamingTheDefaultOrg(workServer).filter(notAtStartup),
+      ).toEqual([]);
+      expect(
+        requestsWithTheDefaultToken(workServer).filter(notAtStartup),
+      ).toEqual([]);
+      expect(
+        defaultServer
+          .getRequests()
+          .filter((request) => request.url.includes('/sboms/convert')),
+      ).toEqual([]);
+    },
+  );
 
   describe.each([
     ['an API token', `auth ${workToken}`, {}],

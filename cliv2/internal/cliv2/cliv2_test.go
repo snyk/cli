@@ -321,28 +321,45 @@ func Test_PrepareV1EnvironmentVariables_RequestConcurrency(t *testing.T) {
 	})
 }
 
-func Test_PrepareV1EnvironmentVariables_TheProfileFileComesFromTheConfiguration(t *testing.T) {
-	stale := []string{constants.SNYK_INTERNAL_CONFIG_FILE_ENV + "=/stale/snyk.json"}
+func Test_PrepareV1EnvironmentVariables_TheProfileComesFromTheConfiguration(t *testing.T) {
+	profileKeys := []string{constants.SNYK_INTERNAL_CONFIG_FILE_ENV, constants.SNYK_CONFIG_PROFILE_ENV, constants.SNYK_CONFIG_PROFILE_DIR_ENV}
+	inherited := []string{
+		constants.SNYK_INTERNAL_CONFIG_FILE_ENV + "=/stale/snyk.json",
+		constants.SNYK_CONFIG_PROFILE_ENV + "=stale",
+		constants.SNYK_CONFIG_PROFILE_DIR_ENV + "=/stale",
+	}
 
 	t.Run("a selected profile", func(t *testing.T) {
 		config := configuration.NewWithOpts()
+		config.Set(cliv2.ConfigKeyProfileName, "work")
+		config.Set(cliv2.ConfigKeyProfileDir, "/profiles")
 		config.Set(cliv2.ConfigKeyProfileFile, "/profiles/work.json")
 
-		actual, err := cliv2.PrepareV1EnvironmentVariables(stale, "foo", "bar", "proxy", "cacertlocation", config, []string{})
+		actual, err := cliv2.PrepareV1EnvironmentVariables(inherited, "foo", "bar", "proxy", "cacertlocation", config, []string{})
 
 		assert.Nil(t, err)
-		assert.Contains(t, actual, constants.SNYK_INTERNAL_CONFIG_FILE_ENV+"=/profiles/work.json")
-		assert.NotContains(t, actual, stale[0])
+		assert.Subset(t, actual, []string{
+			constants.SNYK_INTERNAL_CONFIG_FILE_ENV + "=/profiles/work.json",
+			constants.SNYK_CONFIG_PROFILE_ENV + "=work",
+			constants.SNYK_CONFIG_PROFILE_DIR_ENV + "=/profiles",
+		})
+		for _, kv := range inherited {
+			assert.NotContains(t, actual, kv)
+		}
 	})
 
-	t.Run("no profile, also when this process has the variable", func(t *testing.T) {
-		t.Setenv(constants.SNYK_INTERNAL_CONFIG_FILE_ENV, "/workspace/snyk.json")
+	t.Run("no profile, also when this process has the variables", func(t *testing.T) {
+		for _, key := range profileKeys {
+			t.Setenv(key, "/workspace/value")
+		}
 
-		actual, err := cliv2.PrepareV1EnvironmentVariables(stale, "foo", "bar", "proxy", "cacertlocation", configuration.NewWithOpts(), []string{})
+		actual, err := cliv2.PrepareV1EnvironmentVariables(inherited, "foo", "bar", "proxy", "cacertlocation", configuration.NewWithOpts(), []string{})
 
 		assert.Nil(t, err)
 		for _, kv := range actual {
-			assert.NotContains(t, kv, constants.SNYK_INTERNAL_CONFIG_FILE_ENV+"=")
+			for _, key := range profileKeys {
+				assert.False(t, strings.HasPrefix(kv, key+"="), kv)
+			}
 		}
 	})
 }
