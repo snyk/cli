@@ -110,8 +110,8 @@ require (
 	github.com/gertd/go-pluralize v0.2.1 // indirect
 	github.com/getsentry/sentry-go v0.31.1 // indirect
 	github.com/go-git/gcfg v1.5.1-0.20230307220236-3a3c6141e376 // indirect
-	github.com/go-git/go-billy/v5 v5.9.1 // indirect
-	github.com/go-git/go-git/v5 v5.19.2 // indirect
+	github.com/go-git/go-billy/v5 v5.9.2 // indirect
+	github.com/go-git/go-git/v5 v5.19.3 // indirect
 	github.com/go-jose/go-jose/v4 v4.1.6 // indirect
 	github.com/go-json-experiment/json v0.0.0-20260214004413-d219187c3433 // indirect
 	github.com/go-logr/logr v1.4.4 // indirect
@@ -162,7 +162,6 @@ require (
 	github.com/jcmturner/rpc/v2 v2.0.3 // indirect
 	github.com/kevinburke/ssh_config v1.6.0 // indirect
 	github.com/klauspost/compress v1.20.2 // indirect
-	github.com/klauspost/cpuid/v2 v2.4.0 // indirect
 	github.com/lestrrat-go/blackmagic v1.0.4 // indirect
 	github.com/lestrrat-go/dsig v1.4.0 // indirect
 	github.com/lestrrat-go/dsig-secp256k1 v1.0.0 // indirect
@@ -199,7 +198,7 @@ require (
 	github.com/patrickmn/go-cache v2.1.0+incompatible // indirect
 	github.com/pb33f/ordered-map/v2 v2.3.1 // indirect
 	github.com/pelletier/go-toml/v2 v2.4.3 // indirect
-	github.com/pjbgf/sha1cd v0.6.0 // indirect
+	github.com/pjbgf/sha1cd v0.7.0 // indirect
 	github.com/pkg/browser v0.0.0-20240102092130-5ac0b6a4141c // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pkoukk/tiktoken-go v0.1.6 // indirect
@@ -224,15 +223,15 @@ require (
 	github.com/snyk/cli-extension-dep-graph/v2 v2.20.5 // indirect
 	github.com/snyk/cli-extension-iac v0.0.0-20261027152215-16877b8f1f4d // indirect
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20261027152158-1df61a39e801 // indirect
-	github.com/snyk/cli-extension-os-flows v0.0.0-20261111151648-8bc401dd3ae5 // indirect
+	github.com/snyk/cli-extension-os-flows v0.0.0-20261125160755-1214aad95847 // indirect
 	github.com/snyk/cli-extension-sbom v0.0.0-20260818092356-16ee760085f9 // indirect
 	github.com/snyk/cli-extension-secrets v0.0.0-20261102155850-7868999a9c97 // indirect
 	github.com/snyk/code-client-go v1.31.9 // indirect
 	github.com/snyk/container-cli v0.0.0-20260213211631-cd2b2cf8f3ea // indirect
 	github.com/snyk/dep-graph/go v0.0.0-20260127160647-c836da762c62 // indirect
-	github.com/snyk/error-catalog-golang-public v0.0.0-20261109151447-ff0c5a9c0665 // indirect
+	github.com/snyk/error-catalog-golang-public v0.0.0-20261119144155-109f0f29231f // indirect
 	github.com/snyk/farcaster v0.1.1-0.20261105195107-095e254b5ed9 // indirect
-	github.com/snyk/go-application-framework v0.53.0 //indirect
+	github.com/snyk/go-application-framework v0.55.0 //indirect
 	github.com/snyk/go-httpauth v0.0.0-20261007154458-c110eb9b820f // indirect
 	github.com/snyk/policy-engine v1.1.8 // indirect
 	github.com/snyk/snyk-iac-capture v0.6.5 // indirect

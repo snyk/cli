@@ -552,6 +552,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
         'internal_snyk_cli_use_unified_test_api_for_os_cli_test',
       optOutUnifiedTestApiCliRollout:
         'internal_snyk_cli_opt_out_unified_test_api_rollout',
+      'rollout-dfly-os-cli': 'internal_snyk_cli_rollout_dfly_os_cli',
     };
     const evaluations = flags.map((key) => {
       const alias = batchNameToConfigKey[key] ?? key;
