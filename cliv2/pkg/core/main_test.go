@@ -1,6 +1,7 @@
 package core
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -452,6 +453,67 @@ func Test_populateRedactionTerms_excludesCanonicalAgentNameAndVersion(t *testing
 
 	assert.NotContains(t, terms, "claude_code", "the canonical agent name reported in persona.agent must not be redacted")
 	assert.NotContains(t, terms, "2.1.310", "the agent version reported in persona.agent_version must not be redacted")
+}
+
+func Test_debugLog_configGetToken_redactsTokenValueButKeepsTheWordToken(t *testing.T) {
+	mockController := gomock.NewController(t)
+	mockEngine := mocks.NewMockEngine(mockController)
+	mockEngine.EXPECT().GetWorkflows().Return(nil)
+
+	oldArgs := os.Args
+	defer func() { os.Args = oldArgs }()
+	os.Args = []string{"snyk", "config", "get", "token", "-d"}
+
+	var out bytes.Buffer
+	config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
+	logger, scrubber := initTestDebugLogger(&out, config)
+	scrubber.AddTermsToReplace(populateRedactionTerms(config, mockEngine))
+
+	logger.Info().Msg("token=foobar")
+
+	assert.Contains(t, out.String(), "token=***")
+	assert.NotContains(t, out.String(), "***=***", "an argument that is literally 'token' must not redact every occurrence of the word")
+}
+
+func Test_debugLog_envValueWithPunctuatedWords_keepsThoseWordsButRedactsTheSecret(t *testing.T) {
+	mockController := gomock.NewController(t)
+	mockEngine := mocks.NewMockEngine(mockController)
+	mockEngine.EXPECT().GetWorkflows().Return(nil)
+
+	oldArgs := os.Args
+	defer func() { os.Args = oldArgs }()
+	os.Args = []string{"snyk", "whoami", "-d"}
+	t.Setenv("SNYK_TEST_NOTE", `"ci": true, Version: "request" foo42bar,`)
+
+	var out bytes.Buffer
+	config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
+	logger, scrubber := initTestDebugLogger(&out, config)
+	scrubber.AddTermsToReplace(populateRedactionTerms(config, mockEngine))
+
+	logger.Info().Msg(`X-Snyk-Cli-Version: 1.1300.0 {"ci": true, "request": 1} foo42bar`)
+
+	assert.Contains(t, out.String(), `X-Snyk-Cli-Version: 1.1300.0 {"ci": true, "request": 1} ***`)
+}
+
+func Test_debugLog_envValueOfShortWordInsidePunctuation_isRedacted(t *testing.T) {
+	mockController := gomock.NewController(t)
+	mockEngine := mocks.NewMockEngine(mockController)
+	mockEngine.EXPECT().GetWorkflows().Return(nil)
+
+	oldArgs := os.Args
+	defer func() { os.Args = oldArgs }()
+	os.Args = []string{"snyk", "whoami", "-d"}
+	t.Setenv("SNYK_TEST_VALUE", "ab1!@#$%")
+
+	var out bytes.Buffer
+	config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
+	logger, scrubber := initTestDebugLogger(&out, config)
+	scrubber.AddTermsToReplace(populateRedactionTerms(config, mockEngine))
+
+	logger.Info().Msg("value: ab1!@#$% end")
+
+	assert.NotContains(t, out.String(), "ab1!@#$%")
+	assert.Contains(t, out.String(), "value: *** end")
 }
 
 func Test_initApplicationConfiguration_DisablesAnalytics(t *testing.T) {
