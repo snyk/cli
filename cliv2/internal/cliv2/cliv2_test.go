@@ -321,6 +321,32 @@ func Test_PrepareV1EnvironmentVariables_RequestConcurrency(t *testing.T) {
 	})
 }
 
+func Test_PrepareV1EnvironmentVariables_TheProfileFileComesFromTheConfiguration(t *testing.T) {
+	stale := []string{constants.SNYK_INTERNAL_CONFIG_FILE_ENV + "=/stale/snyk.json"}
+
+	t.Run("a selected profile", func(t *testing.T) {
+		config := configuration.NewWithOpts()
+		config.Set(cliv2.ConfigKeyProfileFile, "/profiles/work.json")
+
+		actual, err := cliv2.PrepareV1EnvironmentVariables(stale, "foo", "bar", "proxy", "cacertlocation", config, []string{})
+
+		assert.Nil(t, err)
+		assert.Contains(t, actual, constants.SNYK_INTERNAL_CONFIG_FILE_ENV+"=/profiles/work.json")
+		assert.NotContains(t, actual, stale[0])
+	})
+
+	t.Run("no profile, also when this process has the variable", func(t *testing.T) {
+		t.Setenv(constants.SNYK_INTERNAL_CONFIG_FILE_ENV, "/workspace/snyk.json")
+
+		actual, err := cliv2.PrepareV1EnvironmentVariables(stale, "foo", "bar", "proxy", "cacertlocation", configuration.NewWithOpts(), []string{})
+
+		assert.Nil(t, err)
+		for _, kv := range actual {
+			assert.NotContains(t, kv, constants.SNYK_INTERNAL_CONFIG_FILE_ENV+"=")
+		}
+	})
+}
+
 func Test_PrepareV1EnvironmentVariables_Fail_DontOverrideExisting(t *testing.T) {
 	orgid := "orgid"
 	testapi := "https://api.snyky.io"

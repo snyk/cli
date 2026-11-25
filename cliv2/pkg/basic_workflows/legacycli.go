@@ -9,6 +9,7 @@ import (
 	"os/exec"
 	"runtime"
 	"strconv"
+	"strings"
 
 	"github.com/snyk/cli/cliv2/internal/proxy/interceptor"
 	"github.com/snyk/cli/cliv2/internal/utils"
@@ -32,6 +33,7 @@ var DATATYPEID_LEGACY_CLI_STDOUT workflow.Identifier = workflow.NewTypeIdentifie
 
 const (
 	PROXY_NOAUTH                  string = "proxy-noauth"
+	CONFIG_PROFILE                string = "config-profile"
 	MIN_GLIBC_VERSION_LINUX_AMD64 string = "2.28"
 	MIN_GLIBC_VERSION_LINUX_ARM64 string = "2.31"
 )
@@ -55,7 +57,7 @@ func initLegacycli(engine workflow.Engine) error {
 func finalizeArguments(args []string, unknownArgs []string) []string {
 	// filter args not meant to be forwarded to CLIv1 or an Extensions
 	elementsToFilter := []string{"--" + PROXY_NOAUTH}
-	filteredArgs := args
+	filteredArgs := removeConfigProfile(args)
 	for _, element := range elementsToFilter {
 		filteredArgs = pkg_utils.RemoveSimilar(filteredArgs, element)
 	}
@@ -66,6 +68,25 @@ func finalizeArguments(args []string, unknownArgs []string) []string {
 	}
 
 	return filteredArgs
+}
+
+// removeConfigProfile removes the profile flag and its value, given as "--config-profile=work" or
+// "--config-profile work". The legacy CLI does not know the flag and would take the value of the second form for a
+// path. Arguments after "--" belong to other tools and are kept.
+func removeConfigProfile(args []string) []string {
+	flag := "--" + CONFIG_PROFILE
+	result := make([]string, 0, len(args))
+	for i := 0; i < len(args); i++ {
+		switch {
+		case args[i] == "--":
+			return append(result, args[i:]...)
+		case args[i] == flag:
+			i++
+		case !strings.HasPrefix(args[i], flag+"="):
+			result = append(result, args[i])
+		}
+	}
+	return result
 }
 
 func legacycliWorkflow(

@@ -73,6 +73,9 @@ const (
 	// in main.go via AddAlternativeKeys); the resolved value is forwarded to
 	// the legacy CLI process via constants.SNYK_INTERNAL_REQUEST_CONCURRENCY_ENV.
 	ConfigKeyRequestConcurrency = "internal_request_concurrency"
+	// The file of the selected profile, for the legacy CLI. The key has no supported environment variable prefix, so only
+	// the CLI sets it and the environment cannot.
+	ConfigKeyProfileFile = "cli_profile_file"
 )
 
 var (
@@ -367,6 +370,7 @@ func PrepareV1EnvironmentVariables(
 			constants.SNYK_OPENSSL_CONF,
 			constants.SNYK_INTERNAL_PREVIEW_FEATURES_ENABLED,
 			constants.SNYK_INTERNAL_REQUEST_CONCURRENCY_ENV,
+			constants.SNYK_INTERNAL_CONFIG_FILE_ENV,
 			constants.DEBUG_CONST,
 		}
 
@@ -402,6 +406,10 @@ func fillEnvironmentFromConfig(inputAsMap map[string]string, config configuratio
 	inputAsMap[constants.SNYK_INTERNAL_ORGID_ENV] = config.GetString(configuration.ORGANIZATION)
 	inputAsMap[constants.SNYK_INTERNAL_ERR_FILE] = config.GetString(configKeyErrFile)
 	inputAsMap[constants.SNYK_TEMP_PATH] = config.GetString(configuration.TEMP_DIR_PATH)
+
+	if file := config.GetString(ConfigKeyProfileFile); file != "" {
+		inputAsMap[constants.SNYK_INTERNAL_CONFIG_FILE_ENV] = file
+	}
 
 	// Forward the resolved request concurrency to the legacy CLI when the user
 	// set the value. We can't use config.IsSet here: in GAF, IsSet does not
