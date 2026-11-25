@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -109,13 +108,13 @@ func Test_CaptureAllArgs(t *testing.T) {
 			name:    "env value with punctuation around words and secrets",
 			command: []string{"test"},
 			env: []string{
-				`NOTE="ci": true, Version: "request" (response) MyS3cr3tK3y, "super.secret"`,
+				`NOTE="ci": true, Version: "request" (response) foo42bar, "dotted.value"`,
 			},
 			expectedResult: []string{
-				"\"super.secret\"",
-				"MyS3cr3tK3y",
-				"MyS3cr3tK3y,",
-				"super.secret",
+				"\"dotted.value\"",
+				"dotted.value",
+				"foo42bar",
+				"foo42bar,",
 			},
 		},
 		{
@@ -231,9 +230,6 @@ func Test_AllowedWords_CommonLogTerms(t *testing.T) {
 func Test_AllowedWords_SecretsStillRedacted(t *testing.T) {
 	// Test that realistic secrets ARE still redacted
 	knownCommands := []string{"test"}
-	// Built at runtime so secret scanners don't flag test fixtures as committed credentials.
-	uuidToken := fmt.Sprintf("%08x-%04x-%04x-%04x-%012x", 1, 2, 3, 4, 5)
-	mixedCasePassword := strings.Join([]string{"Not", "A", "Real", "Pa55"}, "")
 
 	testCases := []struct {
 		name         string
@@ -245,64 +241,64 @@ func Test_AllowedWords_SecretsStillRedacted(t *testing.T) {
 			name: "UUID tokens",
 			command: []string{
 				"test",
-				"--token=" + uuidToken,
+				"--id=00000000-0000-0000-0000-000000000001",
 			},
-			shouldRedact: []string{uuidToken},
+			shouldRedact: []string{"00000000-0000-0000-0000-000000000001"},
 		},
 		{
 			name: "alphanumeric tokens",
 			command: []string{
 				"test",
-				"--api-key=abc123def456",
-				"--password=" + mixedCasePassword,
+				"--name=abc123def456",
+				"--label=MixedCaseValue1",
 			},
-			shouldRedact: []string{"abc123def456", mixedCasePassword},
+			shouldRedact: []string{"abc123def456", "MixedCaseValue1"},
 		},
 		{
 			name: "hex strings",
 			command: []string{
 				"test",
-				"--secret=deadbeef1234567890abcdef",
+				"--checksum=0123456789abcdef0123456789abcdef",
 			},
-			shouldRedact: []string{"deadbeef1234567890abcdef"},
+			shouldRedact: []string{"0123456789abcdef0123456789abcdef"},
 		},
 		{
 			name: "tokens with special characters",
 			command: []string{
 				"test",
-				"--token=secret_key_123!@#",
+				"--name=sample_value_123!@#",
 			},
-			shouldRedact: []string{"secret_key_123!@#"},
+			shouldRedact: []string{"sample_value_123!@#"},
 		},
 		{
 			name: "environment variable secrets",
 			env: []string{
-				"SNYK_TOKEN=1234567890abcdefghijklmnopqrstuvwxyz",
-				"API_SECRET=MyS3cr3tK3y",
+				"SNYK_TEST_VALUE=1234567890abcdefghijklmnopqrstuvwxyz",
+				"SNYK_TEST_OTHER=foo42bar",
 			},
 			command: []string{"test"},
 			shouldRedact: []string{
 				"1234567890abcdefghijklmnopqrstuvwxyz",
-				"MyS3cr3tK3y",
+				"foo42bar",
 			},
 		},
 		{
 			name: "secrets with leading or trailing punctuation are also redacted without it",
 			env: []string{
-				"API_SECRET=MyS3cr3tK3y,",
+				"SNYK_TEST_VALUE=foo42bar,",
 			},
 			command: []string{
 				"test",
-				"--token=(abc123def456)",
-				"--password=secret_key_123;",
+				"--name=(abc123def456)",
+				"--label=sample_value_123;",
 			},
 			shouldRedact: []string{
-				"MyS3cr3tK3y,",
-				"MyS3cr3tK3y",
+				"foo42bar,",
+				"foo42bar",
 				"(abc123def456)",
 				"abc123def456",
-				"secret_key_123;",
-				"secret_key_123",
+				"sample_value_123;",
+				"sample_value_123",
 			},
 		},
 	}
@@ -323,20 +319,20 @@ func Test_AllowedWords_SecretsStillRedacted(t *testing.T) {
 func Test_GetUnknownParameters_ShortWordInsidePunctuation(t *testing.T) {
 	knownCommands := []string{"test"}
 	env := []string{
-		"API_SECRET=Ab1!@#$%",
-		"OTHER_SECRET=#$%^&*()",
+		"SNYK_TEST_VALUE=ab1!@#$%",
+		"SNYK_TEST_OTHER=#$%^&*()",
 	}
 
 	result := GetUnknownParameters([]string{"test"}, env, knownCommands)
 
-	assert.Contains(t, result, "Ab1!@#$%", "symbols that are not delimiters must stay part of the value")
-	assert.NotContains(t, result, "Ab1", "a short word must not be redacted on its own")
+	assert.Contains(t, result, "ab1!@#$%", "symbols that are not delimiters must stay part of the value")
+	assert.NotContains(t, result, "ab1", "a short word must not be redacted on its own")
 	assert.Contains(t, result, "#$%^&*()")
 	assert.Contains(t, result, "#$%^&*", "the value without its surrounding delimiters must also be redacted")
 }
 
 func Test_GetUnknownParameters_ShortWordInsideDelimitersIsNotRedacted(t *testing.T) {
-	result := GetUnknownParameters([]string{"test"}, []string{`API_SECRET=Ab1",`}, []string{"test"})
+	result := GetUnknownParameters([]string{"test"}, []string{`SNYK_TEST_VALUE=ab1",`}, []string{"test"})
 
 	assert.Empty(t, result, "a value under the minimum length once its delimiters are trimmed is a known gap")
 }

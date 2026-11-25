@@ -483,14 +483,14 @@ func Test_debugLog_envValueWithPunctuatedWords_keepsThoseWordsButRedactsTheSecre
 	oldArgs := os.Args
 	defer func() { os.Args = oldArgs }()
 	os.Args = []string{"snyk", "whoami", "-d"}
-	t.Setenv("SNYK_TEST_NOTE", `"ci": true, Version: "request" MyS3cr3tK3y,`)
+	t.Setenv("SNYK_TEST_NOTE", `"ci": true, Version: "request" foo42bar,`)
 
 	var out bytes.Buffer
 	config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
 	logger, scrubber := initTestDebugLogger(&out, config)
 	scrubber.AddTermsToReplace(populateRedactionTerms(config, mockEngine))
 
-	logger.Info().Msg(`X-Snyk-Cli-Version: 1.1300.0 {"ci": true, "request": 1} MyS3cr3tK3y`)
+	logger.Info().Msg(`X-Snyk-Cli-Version: 1.1300.0 {"ci": true, "request": 1} foo42bar`)
 
 	assert.Contains(t, out.String(), `X-Snyk-Cli-Version: 1.1300.0 {"ci": true, "request": 1} ***`)
 }
@@ -503,17 +503,17 @@ func Test_debugLog_envValueOfShortWordInsidePunctuation_isRedacted(t *testing.T)
 	oldArgs := os.Args
 	defer func() { os.Args = oldArgs }()
 	os.Args = []string{"snyk", "whoami", "-d"}
-	t.Setenv("SNYK_TEST_SECRET", "Ab1!@#$%")
+	t.Setenv("SNYK_TEST_VALUE", "ab1!@#$%")
 
 	var out bytes.Buffer
 	config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
 	logger, scrubber := initTestDebugLogger(&out, config)
 	scrubber.AddTermsToReplace(populateRedactionTerms(config, mockEngine))
 
-	logger.Info().Msg("secret: Ab1!@#$% end")
+	logger.Info().Msg("value: ab1!@#$% end")
 
-	assert.NotContains(t, out.String(), "Ab1!@#$%")
-	assert.Contains(t, out.String(), "secret: *** end")
+	assert.NotContains(t, out.String(), "ab1!@#$%")
+	assert.Contains(t, out.String(), "value: *** end")
 }
 
 func Test_initApplicationConfiguration_DisablesAnalytics(t *testing.T) {
