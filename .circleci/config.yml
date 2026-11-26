@@ -348,7 +348,7 @@ commands:
           command: |
             .\scripts\windows\install-gradle.ps1
       - run:
-          name: Install .NET SDK 8.0.100 (native)
+          name: Install .NET SDK 8.0.100 and 11.0.100 (native)
           shell: powershell
           command: |
             .\scripts\windows\install-dotnet-sdk.ps1
@@ -1916,6 +1916,29 @@ jobs:
     steps:
       - prepare-workspace
       - install-deps-<< parameters.install_deps_extension >>
+      - when:
+          condition:
+            matches:
+              pattern: '^(docker.*|alpine.*)'
+              value: << parameters.executor >>
+          steps:
+            - run:
+                # The build image gets SDK 11 from .circleci/Dockerfile once it is rebuilt.
+                # Until then, install it here; this is a no-op on an image that has it.
+                name: Install .NET SDK 11 if missing
+                command: |
+                  if dotnet --list-sdks 2>/dev/null | grep -q '^11\.'; then
+                    echo ".NET SDK 11 already installed"
+                  else
+                    # Alpine images have wget but no curl.
+                    if command -v curl >/dev/null; then
+                      curl -sSL https://dot.net/v1/dotnet-install.sh -o /tmp/dotnet-install.sh
+                    else
+                      wget -q https://dot.net/v1/dotnet-install.sh -O /tmp/dotnet-install.sh
+                    fi
+                    bash /tmp/dotnet-install.sh --channel 11.0
+                  fi
+                  dotnet --list-sdks
       - run:
           name: Create Maven cache key
           command: >-

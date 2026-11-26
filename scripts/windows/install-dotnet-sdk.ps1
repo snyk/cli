@@ -13,33 +13,49 @@ if (Test-Path $envScript) {
 }
 
 try {
-  $dotnetVersion = '8.0.100'
-  $installerPath = Join-Path $cacheDir "dotnet-sdk-$dotnetVersion-win-x64.exe"
-  $expectedSha256 = 'd77a87a78264fcfb1703a7064795ccb10938cdfaea64a03cb0f36b1cda379f82'
+  # SDKs install side by side. Projects without a global.json build on the newest one.
+  # Hashes are SHA-256 of the installer, checked against Microsoft's published SHA-512.
+  $sdks = @(
+    @{ Version = '8.0.100'; Sha256 = 'd77a87a78264fcfb1703a7064795ccb10938cdfaea64a03cb0f36b1cda379f82' },
+    @{ Version = '11.0.100'; Sha256 = 'aab5af6e8b57f01a94c036288118b1de768719163e61dd72148b9da2fa39d4cf' }
+  )
 
   if (-not (Test-Path $cacheDir)) {
     New-Item -ItemType Directory -Path $cacheDir | Out-Null
   }
 
-  if (-not (Test-Path $installerPath)) {
-    Write-Host "Downloading .NET SDK $dotnetVersion installer..."
-    $url = "https://builds.dotnet.microsoft.com/dotnet/Sdk/$dotnetVersion/dotnet-sdk-$dotnetVersion-win-x64.exe"
-    curl.exe -L $url -o $installerPath
-  }
+  foreach ($sdk in $sdks) {
+    $dotnetVersion = $sdk.Version
+    $expectedSha256 = $sdk.Sha256
+    $installerPath = Join-Path $cacheDir "dotnet-sdk-$dotnetVersion-win-x64.exe"
 
-  Write-Host 'Verifying .NET SDK installer checksum...'
-  $hash = Get-FileHash -Path $installerPath -Algorithm SHA256
-  if ($hash.Hash.ToLower() -ne $expectedSha256.ToLower()) {
-    throw "Checksum verification failed for $installerPath. Expected $expectedSha256 but got $($hash.Hash.ToLower())."
-  }
+    if (-not (Test-Path $installerPath)) {
+      Write-Host "Downloading .NET SDK $dotnetVersion installer..."
+      $url = "https://builds.dotnet.microsoft.com/dotnet/Sdk/$dotnetVersion/dotnet-sdk-$dotnetVersion-win-x64.exe"
+      curl.exe -L $url -o $installerPath
+    }
 
-  Write-Host "Installing .NET SDK $dotnetVersion..."
-  & $installerPath /install /quiet /norestart /log "$cacheDir\dotnet-sdk-install.log"
+    Write-Host "Verifying .NET SDK $dotnetVersion installer checksum..."
+    $hash = Get-FileHash -Path $installerPath -Algorithm SHA256
+    if ($hash.Hash.ToLower() -ne $expectedSha256.ToLower()) {
+      throw "Checksum verification failed for $installerPath. Expected $expectedSha256 but got $($hash.Hash.ToLower())."
+    }
+
+    # Wait for each installer: the SDK installer is a GUI app, so `&` would return before it
+    # finishes, and a second install can't start while the first holds the Windows Installer.
+    Write-Host "Installing .NET SDK $dotnetVersion..."
+    $installArgs = @('/install', '/quiet', '/norestart', '/log', "$cacheDir\dotnet-sdk-$dotnetVersion-install.log")
+    $process = Start-Process -FilePath $installerPath -ArgumentList $installArgs -Wait -PassThru
+    # 3010 = installed, reboot required.
+    if ($process.ExitCode -ne 0 -and $process.ExitCode -ne 3010) {
+      throw ".NET SDK $dotnetVersion installer exited with code $($process.ExitCode). See $cacheDir\dotnet-sdk-$dotnetVersion-install.log."
+    }
+  }
 
   # Locate installed dotnet.exe using the known default installation path (%ProgramFiles%\dotnet)
   $dotnetExe = "C:\Program Files\dotnet\dotnet.exe"
   if (-not (Test-Path $dotnetExe)) {
-    throw ".NET SDK $dotnetVersion did not install correctly; expected $dotnetExe to exist."
+    throw ".NET SDK did not install correctly; expected $dotnetExe to exist."
   }
 
   $dotnetPath = Split-Path $dotnetExe -Parent
