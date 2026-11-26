@@ -1,14 +1,11 @@
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
-import {
-  fakeServer,
-  getFirstIPv4Address,
-} from '../../../acceptance/fake-server';
-import { createProjectFromWorkspace } from '../../util/createProject';
-import { getAvailableServerPort } from '../../util/getServerPort';
-import { runCommand } from '../../util/runCommand';
-import { runSnykCLI } from '../../util/runSnykCLI';
+import { fakeServer, getFirstIPv4Address } from '../../acceptance/fake-server';
+import { createProjectFromWorkspace } from '../util/createProject';
+import { getAvailableServerPort } from '../util/getServerPort';
+import { runCommand } from '../util/runCommand';
+import { runSnykCLI } from '../util/runSnykCLI';
 
 jest.setTimeout(1000 * 60 * 5);
 
@@ -16,7 +13,7 @@ jest.setTimeout(1000 * 60 * 5);
 // repository, so the rollout flag and a git remote are both required.
 const NEW_TEST_API_FLOW_FF = 'internal_snyk_cli_rollout_dfly_os_cli';
 
-describe('`snyk test` reports the tested commit to the new Test API', () => {
+describe('the tested commit is reported to the new Test API', () => {
   let server;
   let env: Record<string, string>;
   let cleanups: Array<() => Promise<void> | void> = [];
@@ -85,7 +82,7 @@ describe('`snyk test` reports the tested commit to the new Test API', () => {
     return { dir, headCommit: await git(dir, 'rev-parse', 'HEAD') };
   }
 
-  async function runSnykTest(cwd: string, args: string) {
+  async function runSnyk(cwd: string, args: string) {
     // A clean home keeps GAF off any locally stored token that would
     // override SNYK_API; Windows resolves home from USERPROFILE, not HOME.
     const home = fs.mkdtempSync(path.join(os.tmpdir(), 'snyk-commit-ref-'));
@@ -101,37 +98,75 @@ describe('`snyk test` reports the tested commit to the new Test API', () => {
     }
   }
 
-  function submittedScmContexts(): unknown[] {
+  function createTestRequests() {
     return server
       .getRequests()
       .filter(
         (req) =>
           req.method === 'POST' &&
           /^\/rest\/orgs\/[^/]+\/tests$/.test(req.path),
-      )
+      );
+  }
+
+  function submittedScmContexts(): unknown[] {
+    return createTestRequests()
       .flatMap((req) => req.body?.data?.attributes?.resources ?? [])
       .map((item) => item.resource?.scm_context);
   }
 
-  it('tests the HEAD commit of the repository by default', async () => {
-    const { dir, headCommit } = await createGitProject();
+  function submittedMonitorFlags(): unknown[] {
+    return createTestRequests().map(
+      (req) => req.body?.data?.attributes?.config?.monitor,
+    );
+  }
 
-    await runSnykTest(dir, 'test');
+  describe('snyk test', () => {
+    it('tests the HEAD commit of the repository by default', async () => {
+      const { dir, headCommit } = await createGitProject();
 
-    expect(submittedScmContexts()).toEqual([
-      expect.objectContaining({ commit_ref: headCommit }),
-    ]);
+      await runSnyk(dir, 'test');
+
+      expect(submittedScmContexts()).toEqual([
+        expect.objectContaining({ commit_ref: headCommit }),
+      ]);
+    });
+
+    it('tests the commit given with --commit-id instead of HEAD', async () => {
+      const { dir, headCommit } = await createGitProject();
+      const commitId = '0123456789abcdef0123456789abcdef01234567';
+      expect(commitId).not.toEqual(headCommit);
+
+      await runSnyk(dir, `test --commit-id ${commitId}`);
+
+      expect(submittedScmContexts()).toEqual([
+        expect.objectContaining({ commit_ref: commitId }),
+      ]);
+    });
   });
 
-  it('tests the commit given with --commit-id instead of HEAD', async () => {
-    const { dir, headCommit } = await createGitProject();
-    const commitId = '0123456789abcdef0123456789abcdef01234567';
-    expect(commitId).not.toEqual(headCommit);
+  describe('snyk monitor', () => {
+    it('monitors the HEAD commit of the repository by default', async () => {
+      const { dir, headCommit } = await createGitProject();
 
-    await runSnykTest(dir, `test --commit-id ${commitId}`);
+      await runSnyk(dir, 'monitor');
 
-    expect(submittedScmContexts()).toEqual([
-      expect.objectContaining({ commit_ref: commitId }),
-    ]);
+      expect(submittedScmContexts()).toEqual([
+        expect.objectContaining({ commit_ref: headCommit }),
+      ]);
+      expect(submittedMonitorFlags()).toEqual([true]);
+    });
+
+    it('monitors the commit given with --commit-id instead of HEAD', async () => {
+      const { dir, headCommit } = await createGitProject();
+      const commitId = '0123456789abcdef0123456789abcdef01234567';
+      expect(commitId).not.toEqual(headCommit);
+
+      await runSnyk(dir, `monitor --commit-id ${commitId}`);
+
+      expect(submittedScmContexts()).toEqual([
+        expect.objectContaining({ commit_ref: commitId }),
+      ]);
+      expect(submittedMonitorFlags()).toEqual([true]);
+    });
   });
 });
