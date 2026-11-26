@@ -30,6 +30,7 @@ import (
 	"github.com/snyk/go-application-framework/pkg/utils"
 	"github.com/snyk/go-application-framework/pkg/workflow"
 
+	"github.com/snyk/cli/cliv2/internal/cliv2"
 	"github.com/snyk/cli/cliv2/internal/constants"
 	"github.com/snyk/cli/cliv2/pkg/basic_workflows"
 )
@@ -172,6 +173,60 @@ func Test_selectProfile_theConfigurationOfTheRunIsTheProfile(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, corruptProfileContent, string(content), "the corrupt file is not overwritten")
 	})
+}
+
+func Test_selectProfile_namesTheProfileForTheLegacyCLI(t *testing.T) {
+	profileDir := t.TempDir()
+	writeProfile(t, profileDir, "work", "work-token")
+	writeCorruptProfile(t, profileDir, "broken")
+
+	tests := []struct {
+		profileName string
+		expected    map[string]string
+	}{
+		{"", map[string]string{}},
+		{profile.DefaultName, map[string]string{}},
+		{"broken", map[string]string{}},
+		{"work", map[string]string{
+			cliv2.ConfigKeyProfileName: "work",
+			cliv2.ConfigKeyProfileDir:  profileDir,
+			cliv2.ConfigKeyProfileFile: filepath.Join(profileDir, "work.json"),
+		}},
+	}
+	for _, tc := range tests {
+		t.Run("profile "+tc.profileName, func(t *testing.T) {
+			r, _ := newProfileRun(t, profileDir)
+			initRun(t, r)
+			r.profileName = tc.profileName
+
+			r.selectProfile()
+
+			actual := map[string]string{}
+			for _, key := range []string{cliv2.ConfigKeyProfileName, cliv2.ConfigKeyProfileDir, cliv2.ConfigKeyProfileFile} {
+				if value := r.config.GetString(key); value != "" {
+					actual[key] = value
+				}
+			}
+			assert.Equal(t, tc.expected, actual)
+		})
+	}
+}
+
+// The legacy CLI must read and write the file the profile is read from, so the layout of the profile files is pinned
+// against the registry.
+func Test_selectProfile_theLegacyCLIGetsTheFileOfTheProfile(t *testing.T) {
+	profileDir := t.TempDir()
+	r, _ := newProfileRun(t, profileDir)
+	initRun(t, r)
+	file := filepath.Join(profileDir, "work.json")
+	require.NoError(t, os.WriteFile(file, []byte(`{"snyk_token":"work-token"}`), 0o600))
+	r.profileName = "work"
+
+	r.selectProfile()
+
+	require.NoError(t, r.profileErr)
+	assert.Equal(t, "work-token", r.config.GetString(configuration.AUTHENTICATION_TOKEN), "the registry read the profile from the file")
+	assert.Equal(t, file, r.config.GetString(cliv2.ConfigKeyProfileFile))
 }
 
 // A profile without a file is an empty profile. Selecting it creates nothing, and the first persisted write through its

@@ -1,15 +1,20 @@
 package core
 
 import (
+	"path/filepath"
+
 	"github.com/snyk/error-catalog-golang-public/cli"
 
 	"github.com/snyk/go-application-framework/pkg/configuration/profile"
 	"github.com/snyk/go-application-framework/pkg/workflow"
+
+	"github.com/snyk/cli/cliv2/internal/cliv2"
+	"github.com/snyk/cli/cliv2/pkg/basic_workflows"
 )
 
 // profileFlag selects the configuration profile of a command. It is not called "profile": commands such as `snyk mcp`
 // have a flag of that name with another meaning.
-const profileFlag = "config-profile"
+const profileFlag = basic_workflows.CONFIG_PROFILE
 
 // profileEnvAlias is the environment variable that selects the profile when the flag is not given.
 const profileEnvAlias = "snyk_config_profile"
@@ -21,6 +26,10 @@ const profileDirEnvAlias = "snyk_config_profile_dir"
 // engine is initialized and before anything can time out or report. The engine selects the same profile for its
 // invocations, because it reads the name from its own configuration. When the profile cannot be used the run keeps the
 // default configuration, and profileErr holds the error-catalog error.
+//
+// The legacy CLI is a separate process that gets no configuration, so the name, the directory and the absolute path of
+// the file of the profile are set in its configuration, which the legacy CLI gets in its environment. The Go CLI that
+// the legacy CLI starts for some commands selects the profile from them too, instead of the default profile.
 //
 // Known limitation: environment variables such as SNYK_TOKEN, SNYK_API and the organization still apply to every
 // profile, not only to the default one. Test_selectProfile_environmentCredentialsStillApplyToAProfile pins the current
@@ -41,13 +50,16 @@ func (r *cliRun) selectProfile() {
 		r.profileErr = err
 		return
 	}
+	profileDir := r.config.GetString(profile.DirKey)
 	r.config = p.Configuration()
+	r.config.Set(cliv2.ConfigKeyProfileName, name)
+	r.config.Set(cliv2.ConfigKeyProfileDir, profileDir)
+	r.config.Set(cliv2.ConfigKeyProfileFile, filepath.Join(profileDir, name+".json"))
 }
 
-// refuseLegacyCommandForProfile refuses the commands of the legacy CLI for a profile other than the default one. The
-// legacy CLI is a separate process that only reads the default configuration file, so it would use the credentials of
-// the default profile. It reads the name the run was started with, because the configuration of a selected profile does
-// not name it.
+// refuseLegacyCommandForProfile refuses the commands that run only in the legacy CLI for a profile other than the
+// default one. It reads the name the run was started with, because the configuration of a selected profile does not
+// name it.
 func (r *cliRun) refuseLegacyCommandForProfile() error {
 	name := r.profileName
 	if name == "" || name == profile.DefaultName {

@@ -41,6 +41,26 @@ func Test_finalizeArguments_(t *testing.T) {
 	assert.Equal(t, expected, actual)
 }
 
+func Test_finalizeArguments_removesTheProfileFlag(t *testing.T) {
+	tests := []struct {
+		name     string
+		args     []string
+		expected []string
+	}{
+		{"with =", []string{"test", "--config-profile=work", "--all-projects"}, []string{"test", "--all-projects"}},
+		{"with a space", []string{"test", "--config-profile", "work", "--all-projects"}, []string{"test", "--all-projects"}},
+		{"as the last argument", []string{"test", "--config-profile"}, []string{"test"}},
+		{"repeated", []string{"test", "--config-profile=a", "--config-profile", "b", "--all-projects"}, []string{"test", "--all-projects"}},
+		{"kept after --", []string{"test", "--", "--config-profile", "work"}, []string{"test", "--", "--config-profile", "work"}},
+		{"absent", []string{"test", "--org=work"}, []string{"test", "--org=work"}},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			assert.Equal(t, tc.expected, finalizeArguments(tc.args, nil))
+		})
+	}
+}
+
 // Test_proxyWithErrorHandler tests if we correctly either set or do not set the "snyk-terminate" header,
 // which is a signal to the legacy TypeScript CLI that it should stop trying to send HTTP requests.
 func Test_proxyWithErrorHandler(t *testing.T) {
