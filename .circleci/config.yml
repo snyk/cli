@@ -1147,6 +1147,26 @@ workflows:
                 - '/release.*/'
                 - '/.*e2e.*/'
 
+      - binary-composition-check:
+          name: check embedded runtime (Node.js/OpenSSL)
+          context:
+            - team_hammerhead-cli
+            - devex_cli_docker_hub
+          requires:
+            - build linux amd64
+            - build linux arm64
+            - build alpine amd64
+            - build alpine arm64
+            - build macOS amd64
+            - build macOS arm64
+            - build windows amd64
+          filters:
+            branches:
+              only:
+                - main
+                - '/release.*/'
+                - '/.*e2e.*/'
+
       - create_deployment_artifacts:
           name: create deployment artifacts
           go_target_os: linux
@@ -1974,6 +1994,16 @@ jobs:
           path: test/reports
       - store_artifacts:
           path: test/reports
+
+  binary-composition-check:
+    executor: docker-amd64
+    steps:
+      - prepare-workspace
+      - run:
+          name: Check Node.js/OpenSSL embedded in the binaries and test them as an SBOM
+          command: SNYK_TOKEN="${TEST_SNYK_TOKEN}" ./release-scripts/binary-composition-check.sh
+      - store_artifacts:
+          path: binary-releases/sbom
 
   sign:
     parameters:
