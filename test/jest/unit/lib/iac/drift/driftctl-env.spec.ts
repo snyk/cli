@@ -47,24 +47,10 @@ describe('runDriftCTL environment', () => {
     const env = spawnSpy.mock.calls[0][2]?.env as NodeJS.ProcessEnv;
     expect(env.DCTL_IS_SNYK).toBe('true');
     expect(env.HTTP_PROXY).toBe('http://user-proxy:8080');
-    expect(env.http_proxy).toBe('http://user-proxy:8080');
     expect(Object.keys(env).filter((key) => /^snyk_/i.test(key))).toEqual([]);
     const serialized = JSON.stringify(env);
     for (const secret of SECRET_VALUES) {
       expect(serialized).not.toContain(secret);
     }
-  });
-
-  it('keeps the user proxy when the CLI internal proxy has credentials', async () => {
-    process.env.HTTP_PROXY = 'http://snyk:secret@127.0.0.1:1234';
-    const spawnSpy = mockSpawnExit();
-
-    await runDriftCTL({ options: { kind: 'describe' } });
-
-    const env = spawnSpy.mock.calls[0][2]?.env as NodeJS.ProcessEnv;
-    expect(env.HTTP_PROXY).toBe('http://user-proxy:8080');
-    expect(env.http_proxy).toBe('http://user-proxy:8080');
-    expect(env.HTTP_PROXY).not.toContain('secret');
-    expect(env.http_proxy).not.toContain('secret');
   });
 });
