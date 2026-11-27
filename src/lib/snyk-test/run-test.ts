@@ -60,7 +60,11 @@ import {
   SupportedProjectTypes,
   TestOptions,
 } from '../types';
-import { pruneGraph } from '../prune';
+import {
+  pruneGraph,
+  pruneVulnerablePathsGraph,
+  vulnerablePathsExceedThreshold,
+} from '../prune';
 import { getDepsFromPlugin } from '../plugins/get-deps-from-plugin';
 import {
   MultiProjectResultCustom,
@@ -185,6 +189,56 @@ function prepareLanguagesResponseForParsing(payload: Payload) {
     dockerfilePackages,
     hasUnknownVersions: hasUnknownVersions(depGraph),
   };
+}
+
+async function pruneContainerResultGraph(
+  depGraph: depGraphLib.DepGraph,
+  pkgManager: string,
+  res: TestDepGraphResponse,
+  payloadPolicy: string | undefined,
+  options: Options & TestOptions,
+): Promise<depGraphLib.DepGraph> {
+  const affectedPkgs = Object.values(res?.result?.affectedPkgs || {});
+  const vulnerablePkgs = affectedPkgs.map((pkgInfo) => ({
+    pkg: pkgInfo.pkg,
+    issueCount: Object.keys(pkgInfo.issues || {}).length,
+  }));
+  if (
+    vulnerablePkgs.length === 0 ||
+    (!options.pruneRepeatedSubdependencies &&
+      !vulnerablePathsExceedThreshold(depGraph, vulnerablePkgs))
+  ) {
+    return depGraph;
+  }
+
+  // A pruned graph drops repeated paths, so a path-scoped ignore could hide
+  // paths that aren't ignored. Keep every path when one applies.
+  if (!options['ignore-policy']) {
+    const policyText = res?.meta?.policy || payloadPolicy;
+    const issueIds = new Set(
+      affectedPkgs.flatMap((pkgInfo) => Object.keys(pkgInfo.issues || {})),
+    );
+    if (policyText && (await hasPathScopedIgnore(policyText, issueIds))) {
+      debug('Path-scoped ignore found, not pruning container result graph');
+      return depGraph;
+    }
+  }
+
+  const prunedGraph = await pruneVulnerablePathsGraph(depGraph, pkgManager);
+  analytics.add('containerResultGraphPruned', prunedGraph !== depGraph);
+  return prunedGraph;
+}
+
+async function hasPathScopedIgnore(
+  policyText: string,
+  issueIds: Set<string>,
+): Promise<boolean> {
+  const policy = await snykPolicy.loadFromText(policyText);
+  return Object.entries(policy.ignore || {}).some(
+    ([issueId, rules]) =>
+      issueIds.has(issueId) &&
+      rules.some((rule) => Object.keys(rule).some((path) => path !== '*')),
+  );
 }
 
 function isTestDependenciesResponse(
@@ -333,8 +387,21 @@ async function sendAndParseResults(
 
     const legacyRes = convertIssuesToAffectedPkgs(response);
 
+    // Container JSON has one issue entry per dependency path, so prune large
+    // graphs as `snyk test` does. Only the local output changes.
+    const resultDepGraph =
+      ecosystem === 'docker' && depGraph && pkgManager
+        ? await pruneContainerResultGraph(
+            depGraph,
+            pkgManager,
+            legacyRes as TestDepGraphResponse,
+            payloadPolicy,
+            options,
+          )
+        : depGraph;
+
     const result = await parseRes(
-      depGraph,
+      resultDepGraph,
       pkgManager,
       legacyRes as LegacyVulnApiResult,
       options,
@@ -343,6 +410,19 @@ async function sendAndParseResults(
       root,
       dockerfilePackages,
     );
+
+    if (depGraph && resultDepGraph !== depGraph) {
+      // --print-deps and --print-tree write the graph that was tested.
+      if (options['print-deps'] && options['json-file-output']) {
+        result.depGraph = depGraph.toJSON();
+      }
+      if (options['print-tree'] && options['json-file-output']) {
+        result.depTree = await depGraphLib.legacy.graphToDepTree(
+          depGraph,
+          depGraph.pkgManager.name,
+        );
+      }
+    }
 
     results.push({
       ...result,
