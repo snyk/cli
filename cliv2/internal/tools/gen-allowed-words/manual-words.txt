@@ -1,0 +1,138 @@
+# Manual allowed words for CLI debug log redaction
+#
+# This file contains hand-curated words that should NEVER be redacted from debug logs,
+# even if they appear as argument or environment variable values.
+#
+# Format:
+#   - One word per line
+#   - Lines starting with # are comments
+#   - Empty lines are ignored
+#   - Words must be lowercase, alphabetic, >= 5 characters
+#   - Keep this file sorted alphabetically for easy maintenance
+#
+# Guidelines for adding words:
+#   - Only add words that are common, non-sensitive values
+#   - Do NOT add words that could be tokens, IDs, or secrets
+#   - Prefer adding words that appear in multiple contexts
+#   - Consider whether the word would ever be used as a secret
+#
+# Categories below are for documentation only - the generator treats all words equally.
+
+# Log levels and verbosity
+debug
+error
+fatal
+false
+panic
+quiet
+trace
+verbose
+
+# Severity levels (for --severity-threshold parameter)
+critical
+high
+medium
+low
+
+# Common enum values for various parameters
+development
+production
+staging
+
+# Network and protocol
+header
+https
+proxy
+request
+response
+
+# Common architectures/platforms
+amd64
+arm64
+darwin
+linux
+windows
+x86_64
+
+# Action words (not commands, but action descriptions)
+monitoring
+scanning
+testing
+
+# Status and result words
+complete
+completed
+failed
+failure
+paused
+running
+started
+stopped
+success
+successful
+
+# State words
+active
+available
+disabled
+enabled
+inactive
+supported
+unavailable
+unsupported
+
+# Common CLI terms
+container
+dependencies
+dependency
+docker
+infrastructure
+kubernetes
+license
+licenses
+package
+packages
+terraform
+vulnerabilities
+vulnerability
+
+# Time and size units
+bytes
+hours
+minutes
+months
+seconds
+weeks
+years
+
+# Scope and location words
+external
+global
+internal
+local
+private
+public
+remote
+
+# Additional common environment variable values
+cache
+force
+insecure
+loose
+retry
+secure
+strict
+timeout
+version
+
+# Debug log warning header, logged via a constant the scanner cannot see
+sensitive
+
+# Words seen over-redacted in customer debug logs
+branch
+charset
+child
+depth
+metrics
+require
+script

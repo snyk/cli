@@ -68,7 +68,7 @@ executors:
     resource_class: medium
   docker-amd64:
     docker:
-      - image: snyklabs/cli-build-private:20260610-125138
+      - image: snyklabs/cli-build-private:20261105-093551
         auth:
           username: $DOCKER_CLI_BUILD_USERNAME
           password: $DOCKER_CLI_BUILD_PASSWORD
@@ -76,7 +76,7 @@ executors:
     resource_class: large
   docker-amd64-xl:
     docker:
-      - image: snyklabs/cli-build-private:20260610-125138
+      - image: snyklabs/cli-build-private:20261105-093551
         auth:
           username: $DOCKER_CLI_BUILD_USERNAME
           password: $DOCKER_CLI_BUILD_PASSWORD
@@ -84,7 +84,7 @@ executors:
     resource_class: xlarge
   docker-arm64:
     docker:
-      - image: snyklabs/cli-build-private-arm64:20260610-125138
+      - image: snyklabs/cli-build-private-arm64:20261105-093551
         auth:
           username: $DOCKER_CLI_BUILD_USERNAME
           password: $DOCKER_CLI_BUILD_PASSWORD
@@ -92,7 +92,7 @@ executors:
     resource_class: arm.large
   docker-arm64-xl:
     docker:
-      - image: snyklabs/cli-build-private-arm64:20260610-125138
+      - image: snyklabs/cli-build-private-arm64:20261105-093551
         auth:
           username: $DOCKER_CLI_BUILD_USERNAME
           password: $DOCKER_CLI_BUILD_PASSWORD
@@ -100,7 +100,7 @@ executors:
     resource_class: arm.xlarge
   docker-arm64-gen2:
     docker:
-      - image: snyklabs/cli-build-private-arm64:20260610-125138
+      - image: snyklabs/cli-build-private-arm64:20261105-093551
         auth:
           username: $DOCKER_CLI_BUILD_USERNAME
           password: $DOCKER_CLI_BUILD_PASSWORD
@@ -1543,7 +1543,7 @@ jobs:
       - run:
           name: Set version
           command: |
-            make binary-releases/version binary-releases/fips/version BUILD_MODE=private
+            make binary-releases/version binary-releases/fips/version binary-releases/experimental/version BUILD_MODE=private
             make release-validate-version
             make ts-cli-binaries/version BINARY_RELEASES_FOLDER_TS_CLI=ts-cli-binaries BUILD_MODE=private
       - run:
@@ -2036,11 +2036,11 @@ jobs:
           name: Signing all shasums
           command: make binary-releases/sha256sums.txt.asc
       - run:
-          name: Making release.json
-          command: make binary-releases/release.json
+          name: Making release.json files
+          command: make release-jsons
       - run:
           name: Making release notes
-          command: make binary-releases/RELEASE_NOTES.md binary-releases/fips/RELEASE_NOTES.md
+          command: make binary-releases/RELEASE_NOTES.md binary-releases/fips/RELEASE_NOTES.md binary-releases/experimental/RELEASE_NOTES.md
       - run:
           name: Validating artifacts
           command: ./release-scripts/validate-checksums.sh
@@ -2073,6 +2073,8 @@ jobs:
             - binary-releases/experimental/sha256sums.txt.asc
             - binary-releases/experimental/snyk-*.sha256
             - binary-releases/experimental/ls-protocol-version-*
+            - binary-releases/experimental/release.json
+            - binary-releases/experimental/RELEASE_NOTES.md
 
   pre-release:
     executor: docker-amd64

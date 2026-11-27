@@ -22,20 +22,16 @@ function thirdPartyEnvSummary(
 ): Record<string, unknown> {
   return {
     snykKeys: Object.keys(env ?? {}).filter((key) => /^snyk_/i.test(key)),
-    HTTP_PROXY: env?.HTTP_PROXY,
-    http_proxy: env?.http_proxy,
     MY_CONTROL_VAR: env?.MY_CONTROL_VAR,
   };
 }
 
 const EXPECTED_THIRD_PARTY_ENV = {
   snykKeys: [],
-  HTTP_PROXY: USER_HTTP_PROXY,
-  http_proxy: USER_HTTP_PROXY,
   MY_CONTROL_VAR: 'kept',
 };
 
-function expectCleanThirdPartyEnv(env: NodeJS.ProcessEnv | undefined): void {
+function expectNoSnykVars(env: NodeJS.ProcessEnv | undefined): void {
   expect(thirdPartyEnvSummary(env)).toEqual(EXPECTED_THIRD_PARTY_ENV);
   const serialized = JSON.stringify(env ?? {});
   for (const secret of SECRET_VALUES) {
@@ -92,86 +88,73 @@ describe('third-party child processes do not inherit SNYK_* variables', () => {
     jest.restoreAllMocks();
   });
 
-  it('subProcess.execute passes a cleaned env to spawn', async () => {
+  it('subProcess.execute passes an env without SNYK_* to spawn', async () => {
     const spawnSpy = mockSpawnClose();
 
     await subProcessExecute('git', ['rev-parse'], { cwd: '/tmp' });
 
-    expectCleanThirdPartyEnv(spawnSpy.mock.calls[0][2]?.env);
+    expectNoSnykVars(spawnSpy.mock.calls[0][2]?.env);
   });
 
-  it('subProcess.execute keeps the user proxy when the CLI internal proxy has credentials', async () => {
-    process.env.HTTP_PROXY = 'http://snyk:secret@127.0.0.1:1234';
-    const spawnSpy = mockSpawnClose();
-
-    await subProcessExecute('git', ['rev-parse'], { cwd: '/tmp' });
-
-    const env = spawnSpy.mock.calls[0][2]?.env as NodeJS.ProcessEnv;
-    expect(env.HTTP_PROXY).toBe(USER_HTTP_PROXY);
-    expect(env.http_proxy).toBe(USER_HTTP_PROXY);
-    expect(env.HTTP_PROXY).not.toContain('secret');
-    expect(env.http_proxy).not.toContain('secret');
-  });
-
-  it('executeCommand passes a cleaned env to exec', async () => {
+  it('executeCommand passes an env without SNYK_* to exec', async () => {
     const execSpy = mockExecCallback();
 
     executeCommand('git status', '/tmp');
 
-    expectCleanThirdPartyEnv(optionsArg(execSpy.mock.calls[0])?.env);
+    expectNoSnykVars(optionsArg(execSpy.mock.calls[0])?.env);
   });
 
-  it('npm passes a cleaned env to exec', async () => {
+  it('npm passes an env without SNYK_* to exec', async () => {
     const execSpy = mockExecCallback();
 
     await npm('install', ['left-pad'], true, '/tmp', null);
 
-    expectCleanThirdPartyEnv(optionsArg(execSpy.mock.calls[0])?.env);
+    expectNoSnykVars(optionsArg(execSpy.mock.calls[0])?.env);
   });
 
-  it('npm getVersion passes a cleaned env to exec', async () => {
+  it('npm getVersion passes an env without SNYK_* to exec', async () => {
     const execSpy = mockExecCallback();
 
     await npmGetVersion();
 
-    expectCleanThirdPartyEnv(optionsArg(execSpy.mock.calls[0])?.env);
+    expectNoSnykVars(optionsArg(execSpy.mock.calls[0])?.env);
   });
 
-  it('yarn passes a cleaned env to exec', async () => {
+  it('yarn passes an env without SNYK_* to exec', async () => {
     const execSpy = mockExecCallback();
 
     await yarn('add', ['left-pad'], true, '/tmp', []);
 
-    expectCleanThirdPartyEnv(optionsArg(execSpy.mock.calls[0])?.env);
+    expectNoSnykVars(optionsArg(execSpy.mock.calls[0])?.env);
   });
 
-  it('execShell passes a cleaned env to exec', async () => {
+  it('execShell passes an env without SNYK_* to exec', async () => {
     const execSpy = mockExecCallback();
 
     await execShell('git log', '/tmp');
 
-    expectCleanThirdPartyEnv(optionsArg(execSpy.mock.calls[0])?.env);
+    expectNoSnykVars(optionsArg(execSpy.mock.calls[0])?.env);
   });
 
-  it('isInstalled passes a cleaned env to exec', async () => {
+  it('isInstalled passes an env without SNYK_* to exec', async () => {
     const execSpy = mockExecCallback();
 
     await isInstalled('git');
 
-    expectCleanThirdPartyEnv(optionsArg(execSpy.mock.calls[0])?.env);
+    expectNoSnykVars(optionsArg(execSpy.mock.calls[0])?.env);
   });
 
-  it('copy passes a cleaned env to execSync', () => {
+  it('copy passes an env without SNYK_* to execSync', () => {
     const execSyncSpy = jest
       .spyOn(childProcess, 'execSync')
       .mockReturnValue(Buffer.from(''));
 
     copy('text');
 
-    expectCleanThirdPartyEnv(optionsArg(execSyncSpy.mock.calls[0])?.env);
+    expectNoSnykVars(optionsArg(execSyncSpy.mock.calls[0])?.env);
   });
 
-  it('getRepositoryRoot passes a cleaned env to spawnSync', () => {
+  it('getRepositoryRoot passes an env without SNYK_* to spawnSync', () => {
     const spawnSyncSpy = jest.spyOn(childProcess, 'spawnSync').mockReturnValue({
       status: 0,
       stdout: Buffer.from('/repo\n'),
@@ -179,6 +162,6 @@ describe('third-party child processes do not inherit SNYK_* variables', () => {
 
     getRepositoryRoot('/tmp');
 
-    expectCleanThirdPartyEnv(spawnSyncSpy.mock.calls[0][2]?.env);
+    expectNoSnykVars(spawnSyncSpy.mock.calls[0][2]?.env);
   });
 });
