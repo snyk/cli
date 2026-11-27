@@ -8,7 +8,9 @@
 
 The `snyk cos scan start` command starts a new scan on a target. By default, the command returns immediately after starting the scan.
 
-Use the `--wait` option to block until the scan finishes and print the report.
+Use the `--wait` option to poll until the scan completes. With `--wait`, the command writes the report to stdout only when `--json` is also set, or to a file when `--output-file` is set. Otherwise it prints a summary, and you can fetch the report later with [`snyk cos scan report`](cos-scan-report.md).
+
+`--wait` polls for up to 30 minutes. Interrupting it (Ctrl+C) or reaching that limit stops the waiting, not the scan.
 
 For a list of related commands, visit the [Snyk COS](cos.md) help, `snyk cos --help`.
 
@@ -17,8 +19,7 @@ For a list of related commands, visit the [Snyk COS](cos.md) help, `snyk cos --h
 Possible exit codes and their meaning:
 
 **0**: scan started\
-**2**: failure, the target already has a running scan, the target is unreachable, or authentication failed\
-**3**: failure, target ID not found
+**2**: failure, try to re-run the command. Use `-d` to output the debug logs.
 
 ## Configure the Snyk CLI
 
@@ -42,24 +43,12 @@ $ snyk cos scan start --target-id=92b10f07ec07c7b1b73305181398ccf5
 
 ### `--wait`
 
-Wait for the scan to complete and print the report. When set, the command blocks until the scan finishes or the `--timeout` value is reached.
+Wait for the scan to complete. When set, the command blocks until the scan finishes or the 30-minute wait limit is reached.
 
 Example:
 
 ```bash
 $ snyk cos scan start --target-id=92b10f07ec07c7b1b73305181398ccf5 --wait
-```
-
-### `--timeout=<DURATION>`
-
-Specify the maximum time to wait when `--wait` is set. Use the format `<VALUE><UNIT>`, where unit is `s` (seconds), `m` (minutes), or `h` (hours), for example, `30s`, `5m`, or `1h`.
-
-Default: `30m`
-
-Example:
-
-```bash
-$ snyk cos scan start --target-id=92b10f07ec07c7b1b73305181398ccf5 --wait --timeout=60m
 ```
 
 ### `--interval=<DURATION>`
@@ -76,7 +65,7 @@ $ snyk cos scan start --target-id=92b10f07ec07c7b1b73305181398ccf5 --wait --inte
 
 ### `--json`
 
-Print the report on the console as a JSON data structure. Requires `--wait`.
+Output in JSON format. Without `--wait`, prints the created scan. With `--wait`, prints the report.
 
 Example:
 
@@ -86,10 +75,14 @@ $ snyk cos scan start --target-id=92b10f07ec07c7b1b73305181398ccf5 --wait --json
 
 ### `--output-file=<FILE_PATH>`
 
-Write the JSON report to the specified file path. Requires `--wait` and `--json`.
+Write the JSON report to the specified file path. Use with `--wait`. To fetch the report, set `--json` or `--output-file`. You do not need both.
 
 Example:
 
 ```bash
-$ snyk cos scan start --target-id=92b10f07ec07c7b1b73305181398ccf5 --wait --json --output-file=./report.json
+$ snyk cos scan start --target-id=92b10f07ec07c7b1b73305181398ccf5 --wait --output-file=./report.json
 ```
+
+### `--tenant-id=<TENANT_ID>`
+
+Specify the tenant ID. Auto-discovered if not provided.

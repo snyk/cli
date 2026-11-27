@@ -2,7 +2,7 @@
 
 ## Description
 
-Use this sample template file with the [`snyk cos target add`](cos-target-add.md) command.
+Use this sample template file with the [`snyk cos target create`](cos-target-create.md) command.
 
 The configuration file has three sections:
 
