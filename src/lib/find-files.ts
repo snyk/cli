@@ -29,13 +29,14 @@ export async function readDirectory(path: string): Promise<string[]> {
 }
 
 /**
- * Returns file stats object for given file path.
+ * Returns file stats object for given file path. Symbolic links are not
+ * followed, the stats describe the link itself.
  *
  * @param path path to file or directory.
  */
 export async function getStats(path: string): Promise<fs.Stats> {
   return await new Promise((resolve, reject) => {
-    fs.stat(path, (err, stats) => {
+    fs.lstat(path, (err, stats) => {
       if (err) {
         reject(err);
       }
@@ -88,6 +89,15 @@ const defaultFindConfig: DefaultFindConfig = {
  * @param levelsDeep (optional) how many levels deep to search, defaults to two, this path and one sub directory.
  */
 export async function find(findConfig: FindFilesConfig): Promise<FindFilesRes> {
+  return findPath(findConfig, true);
+}
+
+class ScanRootSymlinkError extends Error {}
+
+async function findPath(
+  findConfig: FindFilesConfig,
+  isScanRoot: boolean,
+): Promise<FindFilesRes> {
   const config: DefaultFindConfig = assign({}, defaultFindConfig, findConfig);
   const found: string[] = [];
   const foundAll: string[] = [];
@@ -110,7 +120,19 @@ export async function find(findConfig: FindFilesConfig): Promise<FindFilesRes> {
     } else {
       config.levelsDeep--;
     }
-    const fileStats = await getStats(config.path);
+    // resolve() drops a trailing separator, which would make lstat follow the link
+    const fileStats = await getStats(
+      isScanRoot ? pathLib.resolve(config.path) : config.path,
+    );
+    if (fileStats.isSymbolicLink()) {
+      if (isScanRoot) {
+        throw new ScanRootSymlinkError(
+          `${config.path} is a symbolic link. Snyk does not follow symbolic links; pass the real path instead.`,
+        );
+      }
+      debug('skipping symbolic link: ', config.path);
+      return { files: found, allFilesFound: foundAll };
+    }
     if (fileStats.isDirectory()) {
       const { files, allFilesFound } = await findInDirectory(config);
       found.push(...files);
@@ -135,6 +157,9 @@ export async function find(findConfig: FindFilesConfig): Promise<FindFilesRes> {
       allFilesFound: foundAll,
     };
   } catch (err) {
+    if (err instanceof ScanRootSymlinkError) {
+      throw err;
+    }
     throw new Error(
       `Error finding files in path '${config.path}'.\n${err.message}`,
     );
@@ -167,6 +192,17 @@ function findFile(path: string, filter: string[] = []): string | null {
   return null;
 }
 
+// fs.existsSync follows links, so a dangling link would be reported as missing
+// instead of reaching the symbolic link check in findPath
+function existsWithoutFollowingLinks(path: string): boolean {
+  try {
+    fs.lstatSync(path);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 async function findInDirectory(
   findConfig: FindFilesConfig,
 ): Promise<FindFilesRes> {
@@ -179,11 +215,11 @@ async function findInDirectory(
       (resolvedPath) => !isExcludedPath(resolvedPath, config.excludePaths),
     )
     .map((resolvedPath) => {
-      if (!fs.existsSync(resolvedPath)) {
+      if (!existsWithoutFollowingLinks(resolvedPath)) {
         debug('File does not seem to exist, skipping: ', resolvedPath);
         return { files: [], allFilesFound: [] };
       }
-      return find({ ...config, path: resolvedPath });
+      return findPath({ ...config, path: resolvedPath }, false);
     });
 
   const found = await Promise.all(toFind);
