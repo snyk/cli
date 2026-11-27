@@ -15,7 +15,6 @@ export async function pruneGraph(
   depGraph: DepGraph,
   packageManager: SupportedPackageManagers,
   pruneIsRequired = false,
-  throwOnTooManyPaths = true,
 ): Promise<DepGraph> {
   const prune = shouldPrune(depGraph, pruneIsRequired);
 
@@ -38,7 +37,7 @@ export async function pruneGraph(
     const { completed: postPrunePathsCountCompleted } =
       countPathsToRootEarlyExit(prunedGraph, config.MAX_PATH_COUNT);
 
-    if (!postPrunePathsCountCompleted && throwOnTooManyPaths) {
+    if (!postPrunePathsCountCompleted) {
       debug('Too many paths to process the project');
       //TODO replace the throw below with TooManyPaths we do not calculate vuln paths there
       throw new TooManyVulnPaths();
@@ -76,4 +75,68 @@ function countPathsToRootEarlyExit(
   }
 
   return { completed: true, count: accumulatedPathCount };
+}
+
+/**
+ * Prunes a test result graph before vulnerable paths are expanded, when the
+ * paths to the vulnerable packages exceed PRUNE_DEPS_THRESHOLD (or pruning is
+ * forced). Never fails the test: if pruning throws or loses a package, the
+ * original graph is returned.
+ */
+export async function pruneVulnerablePathsGraph(
+  depGraph: DepGraph,
+  packageManager: string,
+  vulnerablePkgs: { name: string; version?: string }[],
+  pruneIsRequired = false,
+): Promise<DepGraph> {
+  if (
+    !pruneIsRequired &&
+    !exceedsVulnerablePathsThreshold(depGraph, vulnerablePkgs)
+  ) {
+    return depGraph;
+  }
+
+  try {
+    const prunedTree = (await graphToDepTree(depGraph, packageManager, {
+      deduplicateWithinTopLevelDeps: true,
+    })) as DepTree;
+    const prunedGraph = await depTreeToGraph(prunedTree, packageManager);
+
+    const prunedPkgIds = new Set(
+      prunedGraph.getPkgs().map((pkg) => `${pkg.name}@${pkg.version}`),
+    );
+    const lostPkg = depGraph
+      .getPkgs()
+      .find((pkg) => !prunedPkgIds.has(`${pkg.name}@${pkg.version}`));
+    if (lostPkg) {
+      debug(
+        `Pruning dropped ${lostPkg.name}@${lostPkg.version}, using the unpruned graph`,
+      );
+      return depGraph;
+    }
+    return prunedGraph;
+  } catch (err) {
+    debug('Pruning failed, using the unpruned graph', err);
+    return depGraph;
+  }
+}
+
+function exceedsVulnerablePathsThreshold(
+  depGraph: DepGraph,
+  vulnerablePkgs: { name: string; version?: string }[],
+): boolean {
+  const graphPkgIds = new Set(
+    depGraph.getPkgs().map((pkg) => `${pkg.name}@${pkg.version}`),
+  );
+  let remaining = config.PRUNE_DEPS_THRESHOLD;
+  for (const pkg of vulnerablePkgs) {
+    if (!graphPkgIds.has(`${pkg.name}@${pkg.version}`)) {
+      continue;
+    }
+    remaining -= depGraph.countPathsToRoot(pkg, { limit: remaining + 1 });
+    if (remaining < 0) {
+      return true;
+    }
+  }
+  return false;
 }

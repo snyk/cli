@@ -1,3 +1,6 @@
+import * as fs from 'fs';
+import * as os from 'os';
+import * as path from 'path';
 import { runSnykCLI } from '../../util/runSnykCLI';
 import { FakeServer, fakeServer } from '../../../acceptance/fake-server';
 import { getAvailableServerPort } from '../../util/getServerPort';
@@ -6,30 +9,35 @@ jest.setTimeout(1000 * 120);
 
 const IMAGE_TAR =
   'test/fixtures/container-projects/os-app-alpine-and-debug.tar';
-const ISSUE_ID = 'SNYK-TEST-DEEP-1';
+const TEST_CMD = `container test docker-archive:${IMAGE_TAR} --exclude-app-vulns --json`;
 
-// A layered graph where every package in one layer depends on every package
-// in the next, ending in one vulnerable leaf. The leaf has width^depth paths
-// to the root, which mimics high fan-in .NET graphs (System.* packages).
-function fanInDepGraph(width: number, depth: number) {
-  const pkgs = [{ id: 'app@1.0.0', info: { name: 'app', version: '1.0.0' } }];
-  const nodes: { nodeId: string; pkgId: string; deps: { nodeId: string }[] }[] =
-    [];
+type GraphPkg = { id: string; info: { name: string; version: string } };
+type GraphNode = { nodeId: string; pkgId: string; deps: { nodeId: string }[] };
+
+const pkg = (id: string): GraphPkg => {
+  const [name, version] = id.split('@');
+  return { id, info: { name, version } };
+};
+
+// Every package in one layer depends on every package in the next, ending in
+// `deep@1.0.0`, which has width^depth paths to the root. This mimics high
+// fan-in .NET graphs. `extraRootDeps` are leaf packages hung off the root.
+function fanInDepGraph(width: number, depth: number, extraRootDeps: string[]) {
   const layerIds = (layer: number) =>
     Array.from({ length: width }, (_, i) => `l${layer}-p${i}@1.0.0`);
+  const pkgs: GraphPkg[] = [pkg('app@1.0.0')];
+  const nodes: GraphNode[] = [];
 
   for (let layer = 0; layer < depth; layer++) {
-    for (const id of layerIds(layer)) {
-      const [name, version] = id.split('@');
-      pkgs.push({ id, info: { name, version } });
-    }
+    layerIds(layer).forEach((id) => pkgs.push(pkg(id)));
   }
-  pkgs.push({ id: 'deep@1.0.0', info: { name: 'deep', version: '1.0.0' } });
+  pkgs.push(pkg('deep@1.0.0'));
+  extraRootDeps.forEach((id) => pkgs.push(pkg(id)));
 
   nodes.push({
     nodeId: 'root-node',
     pkgId: 'app@1.0.0',
-    deps: layerIds(0).map((nodeId) => ({ nodeId })),
+    deps: [...layerIds(0), ...extraRootDeps].map((nodeId) => ({ nodeId })),
   });
   for (let layer = 0; layer < depth; layer++) {
     const next = layer === depth - 1 ? ['deep@1.0.0'] : layerIds(layer + 1);
@@ -41,7 +49,9 @@ function fanInDepGraph(width: number, depth: number) {
       });
     }
   }
-  nodes.push({ nodeId: 'deep@1.0.0', pkgId: 'deep@1.0.0', deps: [] });
+  for (const id of ['deep@1.0.0', ...extraRootDeps]) {
+    nodes.push({ nodeId: id, pkgId: id, deps: [] });
+  }
 
   return {
     schemaVersion: '1.2.0',
@@ -51,30 +61,41 @@ function fanInDepGraph(width: number, depth: number) {
   };
 }
 
-function testResponse(width: number, depth: number) {
+function testResponse(
+  width: number,
+  depth: number,
+  vulnPkgs: string[] = ['deep@1.0.0'],
+  extraRootDeps: string[] = [],
+) {
+  const issues = vulnPkgs.map((id) => {
+    const [name, version] = id.split('@');
+    return {
+      pkgName: name,
+      pkgVersion: version,
+      issueId: `SNYK-TEST-${id}`,
+      fixInfo: {
+        upgradePaths: [],
+        isPatchable: false,
+        nearestFixedInVersion: '',
+      },
+    };
+  });
+  const issuesData = Object.fromEntries(
+    issues.map((issue) => [
+      issue.issueId,
+      {
+        id: issue.issueId,
+        severity: 'high',
+        title: 'Test vulnerability',
+        packageName: issue.pkgName,
+      },
+    ]),
+  );
   return {
     result: {
-      issues: [
-        {
-          pkgName: 'deep',
-          pkgVersion: '1.0.0',
-          issueId: ISSUE_ID,
-          fixInfo: {
-            upgradePaths: [],
-            isPatchable: false,
-            nearestFixedInVersion: '',
-          },
-        },
-      ],
-      issuesData: {
-        [ISSUE_ID]: {
-          id: ISSUE_ID,
-          severity: 'high',
-          title: 'Test vulnerability',
-          packageName: 'deep',
-        },
-      },
-      depGraphData: fanInDepGraph(width, depth),
+      issues,
+      issuesData,
+      depGraphData: fanInDepGraph(width, depth, extraRootDeps),
     },
     meta: { org: 'test-org', isPublic: false },
   };
@@ -107,49 +128,112 @@ describe('snyk container test: vulnerable path pruning', () => {
     await server.closePromise();
   });
 
-  const vulnEntries = (stdout: string) => {
-    const json = JSON.parse(stdout);
-    return json.vulnerabilities as { id: string; from: string[] }[];
-  };
+  const parse = (stdout: string) =>
+    JSON.parse(stdout) as {
+      uniqueCount: number;
+      vulnerabilities: { id: string; from: string[] }[];
+    };
 
-  it('prunes a graph above the path threshold instead of writing one entry per path', async () => {
-    // 4^8 = 65,536 paths to the vulnerable leaf, above the 40,000 threshold.
+  it('prunes when the paths to vulnerable packages exceed the threshold', async () => {
+    // 4^8 = 65,536 paths to deep@1.0.0, above the 40,000 threshold.
     server.setCustomResponse(testResponse(4, 8));
-    const { code, stdout } = await runSnykCLI(
-      `container test docker-archive:${IMAGE_TAR} --exclude-app-vulns --json`,
-      { env },
-    );
+    const { code, stdout } = await runSnykCLI(TEST_CMD, { env });
 
     expect(code).toEqual(1);
-    const entries = vulnEntries(stdout);
-    expect(entries.length).toBeGreaterThan(0);
-    expect(entries.length).toBeLessThan(1000);
-    expect(entries.every((v) => v.id === ISSUE_ID)).toBe(true);
-    expect(JSON.parse(stdout).uniqueCount).toEqual(1);
+    const json = parse(stdout);
+    expect(json.vulnerabilities).toHaveLength(16);
+    expect(json.uniqueCount).toEqual(1);
+  });
+
+  it('does not prune when only the rest of the graph is large', async () => {
+    // The graph has 65,536 paths to deep@1.0.0, but the vulnerable package
+    // l3-p0 has only 4^3 = 64, so every one of them is kept (pruning the
+    // graph would leave 16).
+    server.setCustomResponse(testResponse(4, 8, ['l3-p0@1.0.0']));
+    const { code, stdout } = await runSnykCLI(TEST_CMD, { env });
+
+    expect(code).toEqual(1);
+    expect(parse(stdout).vulnerabilities).toHaveLength(64);
   });
 
   it('keeps every path for a graph below the threshold', async () => {
     // 3^4 = 81 paths.
     server.setCustomResponse(testResponse(3, 4));
-    const { code, stdout } = await runSnykCLI(
-      `container test docker-archive:${IMAGE_TAR} --exclude-app-vulns --json`,
-      { env },
-    );
+    const { code, stdout } = await runSnykCLI(TEST_CMD, { env });
 
     expect(code).toEqual(1);
-    expect(vulnEntries(stdout)).toHaveLength(81);
+    expect(parse(stdout).vulnerabilities).toHaveLength(81);
   });
 
   it('prunes below the threshold with --prune-repeated-subdependencies', async () => {
     server.setCustomResponse(testResponse(3, 4));
     const { code, stdout } = await runSnykCLI(
-      `container test docker-archive:${IMAGE_TAR} --exclude-app-vulns --json --prune-repeated-subdependencies`,
+      `${TEST_CMD} --prune-repeated-subdependencies`,
       { env },
     );
 
     expect(code).toEqual(1);
-    const entries = vulnEntries(stdout);
-    expect(entries.length).toBeGreaterThan(0);
-    expect(entries.length).toBeLessThan(81);
+    expect(parse(stdout).vulnerabilities).toHaveLength(9);
+  });
+
+  it('falls back to the full graph when pruning would drop a package', async () => {
+    // Two versions of one package under the same parent collapse into one
+    // when the graph is converted to a tree for pruning.
+    server.setCustomResponse(
+      testResponse(
+        3,
+        4,
+        ['kernel@5.14.0-1', 'kernel@5.14.0-2'],
+        ['kernel@5.14.0-1', 'kernel@5.14.0-2'],
+      ),
+    );
+    const { code, stdout } = await runSnykCLI(
+      `${TEST_CMD} --prune-repeated-subdependencies`,
+      { env },
+    );
+
+    expect(code).toEqual(1);
+    const json = parse(stdout);
+    expect(json.uniqueCount).toEqual(2);
+    expect(json.vulnerabilities).toHaveLength(2);
+  });
+
+  it('keeps every path when a path-scoped ignore applies', async () => {
+    const policyDir = fs.mkdtempSync(path.join(os.tmpdir(), 'snyk-policy-'));
+    fs.writeFileSync(
+      path.join(policyDir, '.snyk'),
+      [
+        'version: v1.25.0',
+        'ignore:',
+        '  SNYK-TEST-deep@1.0.0:',
+        "    - 'l0-p0@1.0.0 > l1-p0@1.0.0':",
+        '        reason: test',
+        '',
+      ].join('\n'),
+    );
+    server.setCustomResponse(testResponse(3, 4));
+    const { code, stdout } = await runSnykCLI(
+      `${TEST_CMD} --prune-repeated-subdependencies --policy-path=${policyDir}`,
+      { env },
+    );
+
+    // 81 paths, of which the 3^2 = 9 under l0-p0 > l1-p0 are ignored.
+    expect(code).toEqual(1);
+    expect(parse(stdout).vulnerabilities).toHaveLength(72);
+  });
+
+  it('writes the unpruned graph with --print-deps --json-file-output', async () => {
+    const outDir = fs.mkdtempSync(path.join(os.tmpdir(), 'snyk-out-'));
+    const outFile = path.join(outDir, 'out.json');
+    server.setCustomResponse(testResponse(4, 8));
+    const { code } = await runSnykCLI(
+      `${TEST_CMD} --print-deps --json-file-output=${outFile}`,
+      { env },
+    );
+
+    expect(code).toEqual(1);
+    const written = JSON.parse(fs.readFileSync(outFile, 'utf8'));
+    // root + 32 layer packages + deep, none of them pruned placeholders.
+    expect(written.depGraph.graph.nodes).toHaveLength(34);
   });
 });

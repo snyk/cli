@@ -60,7 +60,7 @@ import {
   SupportedProjectTypes,
   TestOptions,
 } from '../types';
-import { pruneGraph } from '../prune';
+import { pruneGraph, pruneVulnerablePathsGraph } from '../prune';
 import { getDepsFromPlugin } from '../plugins/get-deps-from-plugin';
 import {
   MultiProjectResultCustom,
@@ -86,10 +86,7 @@ import { makeRequest } from '../request';
 import { spinner } from '../spinner';
 import { hasUnknownVersions } from '../dep-graph';
 import { sleep } from '../common';
-import {
-  SUPPORTED_MANIFEST_FILES,
-  SupportedPackageManagers,
-} from '../package-managers';
+import { SUPPORTED_MANIFEST_FILES } from '../package-managers';
 import { PackageExpanded } from 'snyk-resolve-deps/dist/types';
 import { normalizeTargetFile } from '../normalize-target-file';
 import { EXIT_CODES } from '../../cli/exit-codes';
@@ -188,6 +185,51 @@ function prepareLanguagesResponseForParsing(payload: Payload) {
     dockerfilePackages,
     hasUnknownVersions: hasUnknownVersions(depGraph),
   };
+}
+
+async function pruneContainerResultGraph(
+  depGraph: depGraphLib.DepGraph,
+  pkgManager: string,
+  res: TestDepGraphResponse,
+  payloadPolicy: string | undefined,
+  options: Options & TestOptions,
+): Promise<depGraphLib.DepGraph> {
+  const affectedPkgs = Object.values(res?.result?.affectedPkgs || {});
+  if (affectedPkgs.length === 0) {
+    return depGraph;
+  }
+
+  // A pruned graph drops repeated paths, so a path-scoped ignore could hide
+  // paths that aren't ignored. Keep every path when one applies.
+  if (!options['ignore-policy']) {
+    const policyText = res?.meta?.policy || payloadPolicy;
+    const issueIds = new Set(
+      affectedPkgs.flatMap((pkgInfo) => Object.keys(pkgInfo.issues || {})),
+    );
+    if (policyText && (await hasPathScopedIgnore(policyText, issueIds))) {
+      debug('Path-scoped ignore found, not pruning container result graph');
+      return depGraph;
+    }
+  }
+
+  return pruneVulnerablePathsGraph(
+    depGraph,
+    pkgManager,
+    affectedPkgs.map((pkgInfo) => pkgInfo.pkg),
+    options.pruneRepeatedSubdependencies,
+  );
+}
+
+async function hasPathScopedIgnore(
+  policyText: string,
+  issueIds: Set<string>,
+): Promise<boolean> {
+  const policy = await snykPolicy.loadFromText(policyText);
+  return Object.entries(policy.ignore || {}).some(
+    ([issueId, rules]) =>
+      issueIds.has(issueId) &&
+      rules.some((rule) => Object.keys(rule).some((path) => path !== '*')),
+  );
 }
 
 function isTestDependenciesResponse(
@@ -336,17 +378,16 @@ async function sendAndParseResults(
 
     const legacyRes = convertIssuesToAffectedPkgs(response);
 
-    // Container results are expanded to one issue entry per dependency path.
-    // Prune large graphs the same way the language flow does before it sends
-    // them, so high fan-in application graphs don't produce one full issue
-    // copy per path. Only the local output changes; the request is untouched.
+    // Container JSON has one issue entry per dependency path, so prune large
+    // graphs as `snyk test` does. Only the local output changes.
     const resultDepGraph =
       ecosystem === 'docker' && depGraph && pkgManager
-        ? await pruneGraph(
+        ? await pruneContainerResultGraph(
             depGraph,
-            pkgManager as SupportedPackageManagers,
-            options.pruneRepeatedSubdependencies,
-            false,
+            pkgManager,
+            legacyRes as TestDepGraphResponse,
+            payloadPolicy,
+            options,
           )
         : depGraph;
 
@@ -360,6 +401,19 @@ async function sendAndParseResults(
       root,
       dockerfilePackages,
     );
+
+    if (depGraph && resultDepGraph !== depGraph) {
+      // --print-deps and --print-tree write the graph that was tested.
+      if (options['print-deps'] && options['json-file-output']) {
+        result.depGraph = depGraph.toJSON();
+      }
+      if (options['print-tree'] && options['json-file-output']) {
+        result.depTree = await depGraphLib.legacy.graphToDepTree(
+          depGraph,
+          depGraph.pkgManager.name,
+        );
+      }
+    }
 
     results.push({
       ...result,
