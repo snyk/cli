@@ -17,8 +17,7 @@ For a list of related commands, visit the [Snyk COS](cos.md) help, `snyk cos --h
 Possible exit codes and their meaning:
 
 **0**: target created successfully\
-**2**: failure, primary URL unreachable\
-**3**: failure, configuration file not found
+**2**: failure, try to re-run the command. Use `-d` to output the debug logs.
 
 ## Configure the Snyk CLI
 
@@ -39,3 +38,7 @@ Example:
 ```bash
 $ snyk cos target create --config=acme.yaml
 ```
+
+### `--tenant-id=<TENANT_ID>`
+
+Specify the tenant ID. Auto-discovered if not provided.

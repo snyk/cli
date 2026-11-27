@@ -12,12 +12,12 @@ For a list of related commands, visit the [Snyk COS](cos.md) help, `snyk cos --h
 
 ## Commands
 
-- [`snyk cos gateway_create`](cos-gateway-create.md), `snyk cos finding create --help`: create a new gateway
-- [`snyk cos gateway_list`](cos-gateway-list.md), `snyk cos finding list --help`: list all gateways
-- [`snyk cos gateway_get`](cos-gateway-list.md), `snyk cos finding get --help`: show the details of a gateway
-- [`snyk cos gateway_update`](cos-gateway-update.md), `snyk cos finding update --help`: update a gateway
-- [`snyk cos gateway_delete`](cos-gateway-delete.md), `snyk cos finding delete --help`: delete a gateway
-- [`snyk cos gateway_run`](cos-gateway-run.md), `snyk cos finding run --help`: run a gateway
+- [`snyk cos gateway create`](cos-gateway-create.md), `snyk cos gateway create --help`: create a new gateway
+- [`snyk cos gateway list`](cos-gateway-list.md), `snyk cos gateway list --help`: list all gateways
+- [`snyk cos gateway get`](cos-gateway-get.md), `snyk cos gateway get --help`: show the details of a gateway
+- [`snyk cos gateway update`](cos-gateway-update.md), `snyk cos gateway update --help`: update a gateway
+- [`snyk cos gateway delete`](cos-gateway-delete.md), `snyk cos gateway delete --help`: delete a gateway
+- [`snyk cos gateway run`](cos-gateway-run.md), `snyk cos gateway run --help`: run a gateway
 
 ## Configure the Snyk CLI
 
