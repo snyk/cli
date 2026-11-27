@@ -60,7 +60,11 @@ import {
   SupportedProjectTypes,
   TestOptions,
 } from '../types';
-import { pruneGraph, pruneVulnerablePathsGraph } from '../prune';
+import {
+  pruneGraph,
+  pruneVulnerablePathsGraph,
+  vulnerablePathsExceedThreshold,
+} from '../prune';
 import { getDepsFromPlugin } from '../plugins/get-deps-from-plugin';
 import {
   MultiProjectResultCustom,
@@ -195,7 +199,15 @@ async function pruneContainerResultGraph(
   options: Options & TestOptions,
 ): Promise<depGraphLib.DepGraph> {
   const affectedPkgs = Object.values(res?.result?.affectedPkgs || {});
-  if (affectedPkgs.length === 0) {
+  const vulnerablePkgs = affectedPkgs.map((pkgInfo) => ({
+    pkg: pkgInfo.pkg,
+    issueCount: Object.keys(pkgInfo.issues || {}).length,
+  }));
+  if (
+    vulnerablePkgs.length === 0 ||
+    (!options.pruneRepeatedSubdependencies &&
+      !vulnerablePathsExceedThreshold(depGraph, vulnerablePkgs))
+  ) {
     return depGraph;
   }
 
@@ -212,12 +224,9 @@ async function pruneContainerResultGraph(
     }
   }
 
-  return pruneVulnerablePathsGraph(
-    depGraph,
-    pkgManager,
-    affectedPkgs.map((pkgInfo) => pkgInfo.pkg),
-    options.pruneRepeatedSubdependencies,
-  );
+  const prunedGraph = await pruneVulnerablePathsGraph(depGraph, pkgManager);
+  analytics.add('containerResultGraphPruned', prunedGraph !== depGraph);
+  return prunedGraph;
 }
 
 async function hasPathScopedIgnore(
