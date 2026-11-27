@@ -50,6 +50,15 @@ func TestFindMostRelevantError_FindsMaintenanceErrorAmongOthers(t *testing.T) {
 	assert.Equal(t, snyk.NewMaintenanceWindowError("").ErrorCode, actualErrorCatalog.ErrorCode)
 }
 
+func TestHasErrorCode(t *testing.T) {
+	unauthorised := snyk.NewUnauthorisedError("")
+	err := errors.Join(errors.New("joined"), fmt.Errorf("wrapped: %w", unauthorised))
+
+	assert.True(t, HasErrorCode(err, "SNYK-0001", unauthorised.ErrorCode))
+	assert.False(t, HasErrorCode(err, "SNYK-0001"))
+	assert.False(t, HasErrorCode(nil, unauthorised.ErrorCode))
+}
+
 func TestFindMostRelevantError_FindsMaintenanceErrorInJoinedErrors(t *testing.T) {
 	innerError := fmt.Errorf("wrapped: %w", snyk.NewMaintenanceWindowError(""))
 	joinedErr := errors.Join(
