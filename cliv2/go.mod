@@ -3,7 +3,7 @@ module github.com/snyk/cli/cliv2
 go 1.27.4
 
 require (
-	github.com/elazarl/goproxy v1.7.2
+	github.com/elazarl/goproxy v1.9.4
 	github.com/elazarl/goproxy/ext v0.0.0-20230808193330-2592e75ae04a
 	github.com/gofrs/flock v0.13.0
 	github.com/golang/mock v1.6.0
