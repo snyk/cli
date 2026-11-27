@@ -1,6 +1,7 @@
+import { mkdtempSync, rmSync, symlinkSync } from 'fs';
 import { mkdir, rm, writeFile } from 'fs/promises';
 import { tmpdir } from 'os';
-import { join } from 'path';
+import { dirname, join } from 'path';
 import { fakeServer } from '../../../acceptance/fake-server';
 import {
   createProjectFromFixture,
@@ -559,5 +560,63 @@ describe('snyk test --all-projects (mocked server only)', () => {
     expect(stdout).toMatch(join('app2', 'package.json'));
     expect(stdout).toMatch(join('shared', 'package.json'));
     expect(code).toEqual(0);
+  });
+
+  const symlinksSupported = ((): boolean => {
+    const probe = mkdtempSync(join(tmpdir(), 'snyk-symlink-probe-'));
+    try {
+      symlinkSync(probe, join(probe, 'link'), 'junction');
+      return true;
+    } catch {
+      return false;
+    } finally {
+      rmSync(probe, { recursive: true, force: true });
+    }
+  })();
+  const describeWithSymlinks = symlinksSupported ? describe : describe.skip;
+
+  describeWithSymlinks('symbolic links', () => {
+    test('`test --all-projects` does not scan a project reached through a symbolic link', async () => {
+      const project = await createProjectFromWorkspace('ruby-app');
+      const outsideProject = await createProjectFromWorkspace('ruby-app');
+      symlinkSync(
+        outsideProject.path(),
+        project.path('linked-outside-project'),
+        'junction',
+      );
+      server.setCustomResponse(
+        await project.readJSON('test-graph-result.json'),
+      );
+
+      const { stdout } = await runSnykCLI('test --all-projects', {
+        cwd: project.path(),
+        env,
+      });
+
+      expect(stdout).toMatch('Target file:       Gemfile.lock');
+      expect(stdout).not.toMatch('linked-outside-project');
+      expect(stdout.match(/Target file:/g)).toHaveLength(1);
+
+      await outsideProject.remove();
+      await project.remove();
+    });
+
+    test('`test --all-projects` fails when the scan root is a symbolic link', async () => {
+      const project = await createProjectFromWorkspace('ruby-app');
+      const linkedRoot = join(dirname(project.path()), 'linked-root');
+      symlinkSync(project.path(), linkedRoot, 'junction');
+
+      const { code, stdout } = await runSnykCLI(
+        `test ${linkedRoot} --all-projects --json`,
+        { cwd: dirname(project.path()), env },
+      );
+
+      expect(code).not.toEqual(0);
+      expect(JSON.parse(stdout).error).toMatch(
+        `${linkedRoot} is a symbolic link. Snyk does not follow symbolic links; pass the real path instead.`,
+      );
+
+      await project.remove();
+    });
   });
 });
