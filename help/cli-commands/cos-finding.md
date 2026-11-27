@@ -13,7 +13,7 @@ For a list of related commands, visit the [Snyk COS](cos.md) help, `snyk cos --h
 ## Commands
 
 - [`snyk cos finding list`](cos-finding-list.md), `snyk cos finding list --help`: list the findings for a target or scan
-- [`snyk cos finding get`](cos-finding-show.md), `snyk cos finding get --help`: show the details of a finding
+- [`snyk cos finding get`](cos-finding-get.md), `snyk cos finding get --help`: show the details of a finding
 
 ## Configure the Snyk CLI
 

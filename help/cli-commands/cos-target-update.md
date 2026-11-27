@@ -17,8 +17,7 @@ For a list of related commands, visit the [Snyk COS](cos.md) help, `snyk cos --h
 Possible exit codes and their meaning:
 
 **0**: target updated successfully\
-**2**: failure, primary URL unreachable\
-**3**: failure, configuration file not found
+**2**: failure, try to re-run the command. Use `-d` to output the debug logs.
 
 ## Configure the Snyk CLI
 
@@ -30,7 +29,7 @@ Use the `-d` option to output the debug logs.
 
 ## Options
 
-### `--target-id=<TARGET_ID>`&#x20;
+### `--target-id=<TARGET_ID>`
 
 **Required**. Specify the ID of the target.
 
@@ -43,3 +42,7 @@ Example:
 ```bash
 $ snyk cos target update --target-id=<target_id> --config=acme.yaml
 ```
+
+### `--tenant-id=<TENANT_ID>`
+
+Specify the tenant ID. Auto-discovered if not provided.
