@@ -78,6 +78,17 @@ func FindMostRelevantError(errorList []error) error {
 	return nil
 }
 
+// HasErrorCode reports whether err, or an error in its chain, is a snyk error with one of codes.
+func HasErrorCode(err error, codes ...string) bool {
+	maxRecursionDepth := 1000
+	for _, code := range codes {
+		if findSnykErrorByCode(err, code, maxRecursionDepth) != nil {
+			return true
+		}
+	}
+	return false
+}
+
 // findSnykErrorByCode recursively searches for a snyk error with the given error code.
 func findSnykErrorByCode(err error, errorCode string, recursionDepth int) *snyk_errors.Error {
 	if err == nil || recursionDepth <= 0 {

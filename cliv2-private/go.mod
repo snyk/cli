@@ -229,9 +229,9 @@ require (
 	github.com/snyk/code-client-go v1.31.9 // indirect
 	github.com/snyk/container-cli v0.0.0-20260213211631-cd2b2cf8f3ea // indirect
 	github.com/snyk/dep-graph/go v0.0.0-20260127160647-c836da762c62 // indirect
-	github.com/snyk/error-catalog-golang-public v0.0.0-20261119144155-109f0f29231f // indirect
+	github.com/snyk/error-catalog-golang-public v0.0.0-20261126110834-2892d95ba912 // indirect
 	github.com/snyk/farcaster v0.1.1-0.20261105195107-095e254b5ed9 // indirect
-	github.com/snyk/go-application-framework v0.55.1 //indirect
+	github.com/snyk/go-application-framework v0.60.1-0.20261127172009-93dcfccd2d17 //indirect
 	github.com/snyk/go-httpauth v0.0.0-20261007154458-c110eb9b820f // indirect
 	github.com/snyk/policy-engine v1.1.8 // indirect
 	github.com/snyk/snyk-iac-capture v0.6.5 // indirect

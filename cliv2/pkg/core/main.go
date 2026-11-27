@@ -100,6 +100,8 @@ type cliRun struct {
 	// profileErr is the validation error of the profile, when the run could not select it. The run then keeps the default
 	// configuration, and the command fails with the error.
 	profileErr error
+	// configFileErr is SNYK-CLI-0041 when SNYK_CONFIG_FILE names a file that cannot be used. Every command fails with it.
+	configFileErr error
 	// config is assigned in execute: first the default configuration, then once by selectProfile, which runs before the
 	// timeout can fire. The teardown reads it from the goroutine of the timeout, which is started after the selection.
 	config       configuration.Configuration
@@ -216,6 +218,9 @@ func (r *cliRun) runMainWorkflow(cmd *cobra.Command, args []string, rawArgs []st
 		return err
 	}
 
+	if r.configFileErr != nil {
+		return r.configFileErr
+	}
 	if r.profileErr != nil {
 		return r.profileErr
 	}
@@ -269,6 +274,9 @@ func runWorkflowAndProcessData(ctx context.Context, engine workflow.Engine, logg
 }
 
 func (r *cliRun) defaultCmd(args []string) error {
+	if r.configFileErr != nil {
+		return r.configFileErr
+	}
 	if err := r.refuseLegacyCommandForProfile(); err != nil {
 		return err
 	}
@@ -604,6 +612,7 @@ func (r *cliRun) tearDown(ctx context.Context, err error, errorList []error, sta
 
 	if cli_errors.IsFailure(err) {
 		allErrors, outputError = processError(err, errorList)
+		outputError = explainIgnoredConfigFile(r.config, outputError)
 	}
 
 	for _, tempError := range allErrors {
@@ -686,12 +695,15 @@ func execute(additionalExts []workflow.ExtensionInit) (*cliRun, int) {
 	_ = rootCommand.ParseFlags(os.Args[1:])
 
 	// create engine
+	// read before the configuration exists, because it selects the file the configuration reads
+	configFile := os.Getenv(constants.SNYK_CONFIG_FILE_ENV)
 	r.config = configuration.NewWithOpts(
-		configuration.WithFiles("snyk"),
+		configFileOption(configFile),
 		configuration.WithSupportedEnvVars("NODE_EXTRA_CA_CERTS"),
 		configuration.WithSupportedEnvVarPrefixes("snyk_", "internal_", "test_"),
 		configuration.WithCachingEnabled(configuration.NoCacheExpiration),
 	)
+	r.configFileErr = checkConfigFile(r.config, configFile)
 	err = r.config.AddFlagSet(rootCommand.LocalFlags())
 	if err != nil {
 		_, _ = fmt.Fprintln(os.Stderr, "Failed to add flags to root command", err)
