@@ -6,9 +6,9 @@
 
 ## Description
 
-The `snyk cos scan status` command shows the current status of a scan.
+The `snyk cos scan status` command shows the current status of a scan, addressed by `--scan-id`.
 
-Use the `--watch` option to poll until the scan reaches a terminal state.
+Use the `--watch` option to poll until the scan reaches a terminal state. `--watch` polls for up to 30 minutes.
 
 For a list of related commands, visit the [Snyk COS](cos.md) help, `snyk cos --help`.
 
@@ -17,7 +17,7 @@ For a list of related commands, visit the [Snyk COS](cos.md) help, `snyk cos --h
 Possible exit codes and their meaning:
 
 **0**: status retrieved\
-**3**: failure, target ID not found or no scan exists for this target
+**2**: failure, try to re-run the command. Use `-d` to output the debug logs.
 
 ## Configure the Snyk CLI
 
@@ -43,20 +43,30 @@ $ snyk cos scan status --scan-id=92b10f07ec07c7b1b73305181398ccf5
 
 Poll until the scan reaches a terminal state.
 
-Allowed values: `queued`, `completed`, `failed`, `canceled`
-
 Example:
 
 ```bash
 $ snyk cos scan status --scan-id=92b10f07ec07c7b1b73305181398ccf5 --watch
 ```
 
-### `--json`
+### `--output=<FORMAT>`, `-o <FORMAT>`
 
-Print results on the console as a JSON data structure.
+Specify the output format.
+
+Allowed values: `table`, `json`, `yaml`, `ids`
+
+Default: `table`
 
 Example:
 
 ```bash
-$ snyk cos scan status --scan-id=92b10f07ec07c7b1b73305181398ccf5 --json
+$ snyk cos scan status --scan-id=92b10f07ec07c7b1b73305181398ccf5 --output=json
 ```
+
+### `--json`
+
+Output JSON. Shorthand for `--output=json`.
+
+### `--tenant-id=<TENANT_ID>`
+
+Specify the tenant ID. Auto-discovered if not provided.

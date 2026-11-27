@@ -20,6 +20,7 @@ Use the `snyk cos` subcommands to define the applications you want to test, run 
 - [`snyk cos target`](cos-target.md), `snyk cos target --help`: manage your targets
 - [`snyk cos scan`](cos-scan.md), `snyk cos scan --help`: scan your applications for security issues
 - [`snyk cos finding`](cos-finding.md), `snyk cos finding --help`: manage your findings
+- [`snyk cos gateway`](cos-gateway.md), `snyk cos gateway --help`: manage your gateways
 
 ## Configure the Snyk CLI
 
