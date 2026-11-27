@@ -8,7 +8,7 @@
 
 The `snyk cos target dump` command exports a target as apply-compatible YAML.
 
-Use this command to capture the configuration of an existing target, then reuse the exported file with [`snyk cos target add`](cos-target-add.md) to recreate the target.
+Use this command to capture the configuration of an existing target, then reuse the exported file with [`snyk cos target create`](cos-target-create.md) to recreate the target.
 
 For a list of related commands, visit the [Snyk COS](cos.md) help, `snyk cos --help`.
 
@@ -17,7 +17,7 @@ For a list of related commands, visit the [Snyk COS](cos.md) help, `snyk cos --h
 Possible exit codes and their meaning:
 
 **0**: configuration file created successfully\
-**3**: failure, target ID not found
+**2**: failure, try to re-run the command. Use `-d` to output the debug logs.
 
 ## Configure the Snyk CLI
 
@@ -48,3 +48,7 @@ Example:
 ```bash
 $ snyk cos target dump --target-id=92b10f07ec07c7b1b73305181398ccf5 --output-file=output.yaml
 ```
+
+### `--tenant-id=<TENANT_ID>`
+
+Specify the tenant ID. Auto-discovered if not provided.
