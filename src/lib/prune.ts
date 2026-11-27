@@ -15,6 +15,7 @@ export async function pruneGraph(
   depGraph: DepGraph,
   packageManager: SupportedPackageManagers,
   pruneIsRequired = false,
+  throwOnTooManyPaths = true,
 ): Promise<DepGraph> {
   const prune = shouldPrune(depGraph, pruneIsRequired);
 
@@ -37,7 +38,7 @@ export async function pruneGraph(
     const { completed: postPrunePathsCountCompleted } =
       countPathsToRootEarlyExit(prunedGraph, config.MAX_PATH_COUNT);
 
-    if (!postPrunePathsCountCompleted) {
+    if (!postPrunePathsCountCompleted && throwOnTooManyPaths) {
       debug('Too many paths to process the project');
       //TODO replace the throw below with TooManyPaths we do not calculate vuln paths there
       throw new TooManyVulnPaths();

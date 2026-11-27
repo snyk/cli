@@ -86,7 +86,10 @@ import { makeRequest } from '../request';
 import { spinner } from '../spinner';
 import { hasUnknownVersions } from '../dep-graph';
 import { sleep } from '../common';
-import { SUPPORTED_MANIFEST_FILES } from '../package-managers';
+import {
+  SUPPORTED_MANIFEST_FILES,
+  SupportedPackageManagers,
+} from '../package-managers';
 import { PackageExpanded } from 'snyk-resolve-deps/dist/types';
 import { normalizeTargetFile } from '../normalize-target-file';
 import { EXIT_CODES } from '../../cli/exit-codes';
@@ -333,8 +336,22 @@ async function sendAndParseResults(
 
     const legacyRes = convertIssuesToAffectedPkgs(response);
 
+    // Container results are expanded to one issue entry per dependency path.
+    // Prune large graphs the same way the language flow does before it sends
+    // them, so high fan-in application graphs don't produce one full issue
+    // copy per path. Only the local output changes; the request is untouched.
+    const resultDepGraph =
+      ecosystem === 'docker' && depGraph && pkgManager
+        ? await pruneGraph(
+            depGraph,
+            pkgManager as SupportedPackageManagers,
+            options.pruneRepeatedSubdependencies,
+            false,
+          )
+        : depGraph;
+
     const result = await parseRes(
-      depGraph,
+      resultDepGraph,
       pkgManager,
       legacyRes as LegacyVulnApiResult,
       options,
