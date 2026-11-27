@@ -6,7 +6,7 @@
 
 ## Description
 
-The `snyk cos gateway delete` command deletes a gateway.
+The `snyk cos gateway delete` command deletes a gateway and revokes its node token. The command prompts for confirmation unless you pass `--yes`.
 
 For a list of related commands, visit the [Snyk COS](cos.md) help, `snyk cos --help`.
 
@@ -15,7 +15,7 @@ For a list of related commands, visit the [Snyk COS](cos.md) help, `snyk cos --h
 Possible exit codes and their meaning:
 
 **0**: success, gateway successfully deleted\
-**3**: failure, target ID not found
+**2**: failure, try to re-run the command. Use `-d` to output the debug logs.
 
 ## Configure the Snyk CLI
 
@@ -27,7 +27,7 @@ Use the `-d` option to output the debug logs.
 
 ## Options
 
-### `--gateway-id=<GATEWAY_UID>`
+### `--gateway-id=<GATEWAY_ID>`
 
 **Required**. Specify the ID of the gateway.
 
@@ -36,3 +36,17 @@ Example:
 ```bash
 $ snyk cos gateway delete --gateway-id=<gateway-id>
 ```
+
+### `--yes`, `-y`
+
+Skip the confirmation prompt.
+
+Example:
+
+```bash
+$ snyk cos gateway delete --gateway-id=<gateway-id> --yes
+```
+
+### `--tenant-id=<TENANT_ID>`
+
+Specify the tenant ID. Auto-discovered if not provided.

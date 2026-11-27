@@ -6,7 +6,7 @@
 
 ## Description
 
-The `snyk cos gateway get` command shows the details of a gateway.
+The `snyk cos gateway get` command gets the details of a gateway.
 
 For a list of related commands, visit the [Snyk COS](cos.md) help, `snyk cos --help`.
 
@@ -15,7 +15,7 @@ For a list of related commands, visit the [Snyk COS](cos.md) help, `snyk cos --h
 Possible exit codes and their meaning:
 
 **0**: gateway retrieved\
-**3**: failure, finding ID not found
+**2**: failure, try to re-run the command. Use `-d` to output the debug logs.
 
 ## Configure the Snyk CLI
 
@@ -29,10 +29,32 @@ Use the `-d` option to output the debug logs.
 
 ### `--gateway-id=<GATEWAY_ID>`
 
-**Required**. Specify the gateway whose details you want to show.
+**Required**. Specify the gateway whose details you want to get.
 
 Example:
 
 ```bash
 $ snyk cos gateway get --gateway-id=<gateway-id>
 ```
+
+### `--output=<FORMAT>`, `-o <FORMAT>`
+
+Specify the output format.
+
+Allowed values: `table`, `json`, `yaml`, `ids`
+
+Default: `table`
+
+Example:
+
+```bash
+$ snyk cos gateway get --gateway-id=<gateway-id> --output=json
+```
+
+### `--json`
+
+Output JSON. Shorthand for `--output=json`.
+
+### `--tenant-id=<TENANT_ID>`
+
+Specify the tenant ID. Auto-discovered if not provided.

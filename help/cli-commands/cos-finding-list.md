@@ -6,7 +6,7 @@
 
 ## Description
 
-The `snyk cos finding list` command lists the findings for a target or scan.
+The `snyk cos finding list` command lists the findings for a target or scan. At least one of `--target-id` or `--scan-id` is required.
 
 Use the `--target-id`, `--scan-id`, `--severity`, or `--state` options to filter the results.
 
@@ -17,7 +17,7 @@ For a list of related commands, visit the [Snyk COS](cos.md) help, `snyk cos --h
 Possible exit codes and their meaning:
 
 **0**: findings retrieved\
-**3**: failure, target ID or scan ID not found
+**2**: failure, try to re-run the command. Use `-d` to output the debug logs.
 
 ## Configure the Snyk CLI
 
@@ -31,7 +31,7 @@ Use the `-d` option to output the debug logs.
 
 ### `--target-id=<TARGET_ID>`
 
-Specify the target whose findings you want to list.
+Specify the target whose findings you want to list. Optional when `--scan-id` is set.
 
 Example:
 
@@ -41,7 +41,7 @@ $ snyk cos finding list --target-id=92b10f07ec07c7b1b73305181398ccf5
 
 ### `--scan-id=<SCAN_ID>`
 
-Scope the findings to the occurrences in a single scan.
+Specify the scan whose findings you want to list. With `--scan-id` alone, the command resolves the scan's target. With `--target-id`, the command lists only that target's findings from this scan.
 
 Example:
 
@@ -98,3 +98,11 @@ Example:
 ```bash
 $ snyk cos finding list --target-id=92b10f07ec07c7b1b73305181398ccf5 --output=json
 ```
+
+### `--json`
+
+Output JSON. Shorthand for `--output=json`.
+
+### `--tenant-id=<TENANT_ID>`
+
+Specify the tenant ID. Auto-discovered if not provided.
