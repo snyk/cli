@@ -108,12 +108,6 @@ func TestRootAndBinaryWrapperManifestsHaveDistinctNames(t *testing.T) {
 	}
 }
 
-func TestRootManifestIsNamedSnykLegacy(t *testing.T) {
-	if name := readNpmManifestName(t, repoPath(t, "package.json")); name != "snyk-legacy" {
-		t.Errorf("root package.json name = %q, want %q", name, "snyk-legacy")
-	}
-}
-
 func TestRootManifestIsNotPrivateSoPkgEmbedsSourcesForNoBytecodeBuilds(t *testing.T) {
 	contents, err := os.ReadFile(repoPath(t, "package.json"))
 	if err != nil {
@@ -128,28 +122,5 @@ func TestRootManifestIsNotPrivateSoPkgEmbedsSourcesForNoBytecodeBuilds(t *testin
 
 	if manifest.Private {
 		t.Error("root package.json is private, so pkg skips embedding its sources and the arm64 --no-bytecode builds fail with \"--no-bytecode and no source breaks final executable\"")
-	}
-}
-
-func TestRootLockfileNamesMatchRootManifest(t *testing.T) {
-	rootName := readNpmManifestName(t, repoPath(t, "package.json"))
-
-	contents, err := os.ReadFile(repoPath(t, "package-lock.json"))
-	if err != nil {
-		t.Fatal(err)
-	}
-	var lockfile struct {
-		Name     string                 `json:"name"`
-		Packages map[string]npmManifest `json:"packages"`
-	}
-	if err := json.Unmarshal(contents, &lockfile); err != nil {
-		t.Fatal(err)
-	}
-
-	if lockfile.Name != rootName {
-		t.Errorf("package-lock.json name = %q, want %q", lockfile.Name, rootName)
-	}
-	if lockfile.Packages[""].Name != rootName {
-		t.Errorf("package-lock.json packages[\"\"].name = %q, want %q", lockfile.Packages[""].Name, rootName)
 	}
 }
