@@ -109,6 +109,7 @@ ENV PATH=/home/circleci/.sdkman/candidates/maven/current/bin:/home/circleci/.sdk
 
 # install dotnet
 RUN curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --channel 8.0
+RUN curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --channel 11.0
 ENV PATH=/home/circleci/.dotnet:$PATH
 ENV TEMP=/tmp
 ENV TMP=$TEMP
