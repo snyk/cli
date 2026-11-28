@@ -216,3 +216,307 @@ describe('profiles', () => {
     expect(fs.readFileSync(defaultFile).equals(defaultBefore)).toBe(true);
   });
 });
+
+/**
+ * CLI-2138: under `--config-profile`, only the selected profile decides who a run is. The default file (token A, org A,
+ * host A) must not be used during start-up or the run. Analytics stay on and SNYK_ and INTERNAL_ settings are cleared.
+ * The offender is fixed by plan step 3 (the flag is read out of Init). Not observed here: the OAuth path (defaultOAuthFF)
+ * and requests to a third host.
+ * Follow-up refactor: writeConfig, cleanEnvironment, listen and the server setup repeat the first describe above.
+ */
+describe('profiles: the default profile never decides a run under --config-profile [CLI-2138]', () => {
+  const defaultToken = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+  const workToken = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
+  const defaultOrg = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1';
+  const workOrg = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbb1';
+
+  // Paths GAF requests while it starts or ends a run; they mirror GAF.
+  // - /rest/self: the user lookup of whoami.
+  // - /rest/orgs/<id>: the organization slug lookup (defaultFuncOrganizationSlug), read by the CLI teardown
+  //   (populateRedactionTerms). A tenant lookup carries ?expand=tenant and is not counted here.
+  // - /hidden/orgs/<id>/feature_flags/evaluation: the batch evaluation of config_utils.AddFeatureFlagsToConfig.
+  // The flag key mirrors GAF internal/contributors/hook/init.go (flagMap).
+  const selfPath = '/rest/self';
+  const slugPath = (org: string) => `/rest/orgs/${org}`;
+  const flagsPath = (org: string) =>
+    `/hidden/orgs/${org}/feature_flags/evaluation`;
+  const contributorsFlag = 'enable-entity-contributors-publish';
+
+  type Recorded = {
+    server: 'default' | 'profile';
+    method: string;
+    url: string;
+    token: string;
+    headers: Record<string, unknown>;
+    body: unknown;
+  };
+  // Used only in assertion messages.
+  const format = (r: Recorded) =>
+    `${r.server} ${r.method} ${r.url} token=${r.token || '(none)'}`;
+  const pathOf = (r: Recorded) => r.url.split('?')[0];
+  const onDefault = (all: Recorded[]) =>
+    all.filter((r) => r.server === 'default');
+  const onProfile = (all: Recorded[]) =>
+    all.filter((r) => r.server === 'profile');
+  const orgsIn = (url: string) =>
+    Array.from(url.matchAll(/\/orgs\/([0-9a-f-]{36})/gi), (m) => m[1]);
+
+  // Counts the requests of a path; a tenant lookup (?expand=) is not a slug lookup.
+  const countOf = (all: Recorded[], path: string, method?: string) =>
+    all.filter(
+      (r) =>
+        pathOf(r) === path &&
+        !r.url.includes('expand=') &&
+        (!method || r.method === method),
+    ).length;
+  const measuredCounts = (all: Recorded[], org: string) => ({
+    self: countOf(all, selfPath),
+    slug: countOf(all, slugPath(org), 'GET'),
+  });
+
+  let defaultServer: FakeServer;
+  let workServer: FakeServer;
+  let home: string | undefined;
+  let profileDir: string;
+  let shared: { code: number; stderr: string; requests: Recorded[] };
+
+  const writeConfig = (
+    file: string,
+    token: string,
+    endpoint: string,
+    org: string,
+  ) => {
+    fs.mkdirSync(path.dirname(file), { recursive: true });
+    fs.writeFileSync(file, JSON.stringify({ api: token, endpoint, org }));
+  };
+
+  // Proxy variables are dropped too, so a developer proxy cannot make the shared run reach nothing and pass vacuously.
+  const cleanEnvironment = (): Record<string, string | undefined> =>
+    Object.fromEntries(
+      Object.entries(process.env).filter(
+        ([name]) => !/^(snyk_|internal_|test_snyk)|_proxy$/i.test(name),
+      ),
+    );
+
+  // Analytics are not disabled: the analytics send is part of the run under test.
+  const runCli = (
+    command: string,
+    extraEnv: Record<string, string | undefined> = {},
+  ) =>
+    runSnykCLI(command, {
+      env: {
+        ...cleanEnvironment(),
+        HOME: home,
+        USERPROFILE: home,
+        SNYK_CONFIG_PROFILE_DIR: profileDir,
+        SNYK_HTTP_PROTOCOL_UPGRADE: '0',
+        ...extraEnv,
+      },
+    });
+
+  const toRecorded = (
+    server: Recorded['server'],
+    request: {
+      method: string;
+      url: string;
+      headers: Record<string, unknown>;
+      body?: unknown;
+    },
+  ): Recorded => ({
+    server,
+    method: request.method,
+    url: request.url,
+    token: String(request.headers.authorization ?? '').replace(/^token /, ''),
+    headers: request.headers,
+    body: request.body,
+  });
+  const recorded = (): Recorded[] => [
+    ...defaultServer.getRequests().map((r) => toRecorded('default', r)),
+    ...workServer.getRequests().map((r) => toRecorded('profile', r)),
+  ];
+
+  const listen = async (server: FakeServer, port: string) =>
+    new Promise<void>((resolve) => server.listen(Number(port), resolve));
+
+  // Servers are reset before each case. The shared run is captured once, in beforeAll, before any case resets them.
+  const resetServers = () => {
+    for (const server of [defaultServer, workServer]) {
+      server.restore();
+      server.setFeatureFlag(contributorsFlag, true);
+    }
+  };
+
+  beforeAll(async () => {
+    const defaultPort = await getAvailableServerPort(process);
+    defaultServer = fakeServer('/api/v1', defaultToken);
+    await listen(defaultServer, defaultPort);
+    const workPort = await getAvailableServerPort(process);
+    workServer = fakeServer('/api/v1', workToken);
+    await listen(workServer, workPort);
+
+    home = fs.mkdtempSync(path.join(os.tmpdir(), 'snyk-profiles-init-'));
+    profileDir = path.join(home, 'custom-profile-dir');
+    const host = getFirstIPv4Address();
+    writeConfig(
+      path.join(home, '.config', 'configstore', 'snyk.json'),
+      defaultToken,
+      `http://${host}:${defaultPort}`,
+      defaultOrg,
+    );
+    writeConfig(
+      path.join(profileDir, 'work.json'),
+      workToken,
+      `http://${host}:${workPort}`,
+      workOrg,
+    );
+
+    resetServers();
+    const result = await runCli('whoami --experimental --config-profile=work');
+    shared = { code: result.code, stderr: result.stderr, requests: recorded() };
+  });
+
+  afterAll(async () => {
+    await Promise.all(
+      [defaultServer, workServer]
+        .filter(Boolean)
+        .map(
+          (server) =>
+            new Promise<void>((resolve) => server.close(() => resolve())),
+        ),
+    );
+    if (home) {
+      fs.rmSync(home, { recursive: true, force: true });
+    }
+  });
+
+  beforeEach(resetServers);
+
+  describe('with --config-profile=work, the shared run', () => {
+    it('exits with 0', () => {
+      expect({ code: shared.code, stderr: shared.stderr }).toMatchObject({
+        code: 0,
+      });
+    });
+
+    it('leaves the default host without any request', () => {
+      expect(onDefault(shared.requests).map(format)).toEqual([]);
+    });
+
+    it('sends every request to the profile host with token B', () => {
+      expect(
+        onProfile(shared.requests)
+          .filter((r) => r.token !== workToken)
+          .map(format),
+      ).toEqual([]);
+    });
+
+    it('names only the profile organization in the organization paths of the profile host', () => {
+      const profile = onProfile(shared.requests);
+      expect(
+        profile
+          .filter((r) => orgsIn(r.url).some((org) => org !== workOrg))
+          .map(format),
+      ).toEqual([]);
+      expect(profile.flatMap((r) => orgsIn(r.url))).toContain(workOrg);
+    });
+
+    it('sends the analytics to the profile host with token B', () => {
+      const analytics = onProfile(shared.requests).filter((r) =>
+        r.url.includes('/analytics'),
+      );
+      expect(analytics.length).toBeGreaterThan(0);
+      expect(
+        analytics.filter((r) => r.token !== workToken).map(format),
+      ).toEqual([]);
+    });
+
+    it('sends no token A and no org A to the profile host, in url, headers or body', () => {
+      const leaks = onProfile(shared.requests).filter((r) => {
+        const text = JSON.stringify(r);
+        return text.includes(defaultToken) || text.includes(defaultOrg);
+      });
+      expect(leaks.map(format)).toEqual([]);
+    });
+
+    it('makes one request of each measured lookup on the profile host', () => {
+      expect(measuredCounts(onProfile(shared.requests), workOrg)).toEqual({
+        self: 1,
+        slug: 1,
+      });
+    });
+
+    // DERIVED, NOT MEASURED: the flag evaluation count (1) comes from the plan (the flag is read once per process in a
+    // post-invoke hook, with the profile). On main it is 0 on the profile host, because the flag is read with token A.
+    it('makes one flag evaluation on the profile host (derived from the plan, not measured)', () => {
+      expect(countOf(onProfile(shared.requests), flagsPath(workOrg))).toEqual(
+        1,
+      );
+    });
+
+    it('names the contributors flag in every flag evaluation request', () => {
+      const evaluations = shared.requests.filter((r) =>
+        pathOf(r).endsWith('/feature_flags/evaluation'),
+      );
+      expect(evaluations.length).toBeGreaterThan(0);
+      expect(
+        evaluations
+          .filter((r) => !JSON.stringify(r.body).includes(contributorsFlag))
+          .map(format),
+      ).toEqual([]);
+    });
+  });
+
+  it('without --config-profile, the run uses the default file: token A, org A and host A', async () => {
+    const result = await runCli('whoami --experimental');
+    const requests = recorded();
+
+    expect({ code: result.code, stderr: result.stderr }).toMatchObject({
+      code: 0,
+    });
+    expect(onProfile(requests).map(format)).toEqual([]);
+    expect(
+      onDefault(requests)
+        .filter((r) => r.token !== defaultToken)
+        .map(format),
+    ).toEqual([]);
+    expect(measuredCounts(onDefault(requests), defaultOrg)).toEqual({
+      self: 1,
+      slug: 1,
+    });
+    expect(countOf(onDefault(requests), flagsPath(defaultOrg))).toEqual(1);
+  });
+
+  it('a corrupt profile file is a failed selection: exit 2 and no request to either host', async () => {
+    const corrupt = path.join(profileDir, 'broken.json');
+    fs.writeFileSync(corrupt, '{not json');
+
+    let result: Awaited<ReturnType<typeof runCli>>;
+    try {
+      result = await runCli('whoami --experimental --config-profile=broken');
+    } finally {
+      fs.rmSync(corrupt, { force: true });
+    }
+
+    expect({ code: result.code, stderr: result.stderr }).toMatchObject({
+      code: 2,
+    });
+    expect(result.stdout).toContain('SNYK-CLI-0035');
+    expect(recorded().map(format)).toEqual([]);
+  });
+
+  // Skipped: observed red on main, the default host receives the flag evaluation, the slug lookup and the analytics
+  // with token A. Cause not established. Tracked by CLI-2148; un-skip when fixed.
+  it.skip('a run with --help under the profile sends nothing with token A', async () => {
+    const result = await runCli('--help --config-profile=work');
+
+    expect({ code: result.code, stderr: result.stderr }).toMatchObject({
+      code: 0,
+    });
+    expect(onDefault(recorded()).map(format)).toEqual([]);
+    expect(
+      onProfile(recorded())
+        .filter((r) => r.token !== workToken)
+        .map(format),
+    ).toEqual([]);
+  });
+});

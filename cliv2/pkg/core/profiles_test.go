@@ -547,6 +547,24 @@ func Test_tearDown_afterTheSelectionDoesNotReportWithTheDefaultCredentials(t *te
 	}
 }
 
+// Init runs before selectProfile, so only the default host can be reached from Init with a profile selected: the profile
+// endpoint is pinned unreachable for that reason. Init must not use the default token; the flag evaluation (CLI-2138)
+// is fixed by plan step 3.
+func Test_engineInit_withAProfile_doesNotCallTheApiWithTheDefaultToken(t *testing.T) {
+	defaultServer, defaultLog := newRequestLog(t)
+	profileDir := t.TempDir()
+	writeProfileWithEndpoint(t, profileDir, "work", "work-token", "http://127.0.0.1:9")
+	r, base := newProfileRun(t, profileDir)
+	base.Set(configuration.API_URL, defaultServer.URL)
+	base.Set(configuration.ORGANIZATION, testOrgID)
+	base.Set(profile.ConfigKey, "work")
+	r.profileName = "work"
+
+	initRun(t, r)
+
+	assert.Empty(t, defaultLog.all(), "Init must not call the API with the default profile's token (CLI-2138)")
+}
+
 // testOrgID is an organization id, which GAF accepts as it is. A slug would be looked up through the API.
 const testOrgID = "11111111-2222-3333-4444-555555555555"
 
