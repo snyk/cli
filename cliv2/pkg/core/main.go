@@ -97,8 +97,8 @@ type cliRun struct {
 	// profileName is the configuration profile the run was started with. It is read once at startup, before config is
 	// replaced by the configuration of that profile, see selectProfile.
 	profileName string
-	// profileErr is the validation error of the profile, when the run could not select it. The run then keeps the default
-	// configuration, and the command fails with the error.
+	// profileErr is the validation error of the profile, when the run could not select it. The run fails with the error
+	// before any command runs, see execute.
 	profileErr error
 	// config is assigned in execute: first the default configuration, then once by selectProfile, which runs before the
 	// timeout can fire. The teardown reads it from the goroutine of the timeout, which is started after the selection.
@@ -216,10 +216,6 @@ func (r *cliRun) runMainWorkflow(cmd *cobra.Command, args []string, rawArgs []st
 		return err
 	}
 
-	if r.profileErr != nil {
-		return r.profileErr
-	}
-
 	// init UI
 	errorUI := consoleui.WithErrorOutput(os.Stdout)
 	if output_workflow.DefaultOutputIsStructured(r.config) {
@@ -269,13 +265,10 @@ func runWorkflowAndProcessData(ctx context.Context, engine workflow.Engine, logg
 }
 
 func (r *cliRun) defaultCmd(args []string) error {
-	if err := r.refuseLegacyCommandForProfile(); err != nil {
-		return err
-	}
 	return r.invokeLegacyCLI(args)
 }
 
-// invokeLegacyCLI runs the legacy CLI with the given args. It does not check the profile, see defaultCmd.
+// invokeLegacyCLI runs the legacy CLI with the given args.
 func (r *cliRun) invokeLegacyCLI(args []string) error {
 	inputDirectory := cliv2.DetermineInputDirectory(args)
 	if len(inputDirectory) > 0 {
@@ -291,8 +284,7 @@ func (r *cliRun) invokeLegacyCLI(args []string) error {
 	return err
 }
 
-// runLegacyHelp shows the help of the legacy CLI. Help reads no credentials, so unlike a legacy command it is not refused
-// for a profile.
+// runLegacyHelp shows the help of the legacy CLI. Help reads no credentials, so it runs under a profile too.
 func (r *cliRun) runLegacyHelp() error {
 	filteredArgs := utils.RemoveSimilar(os.Args[1:], "--")
 	return r.invokeLegacyCLI(append(filteredArgs, "--help"))
@@ -709,7 +701,7 @@ func execute(additionalExts []workflow.ExtensionInit) (*cliRun, int) {
 	r.scrubber = scrubbedLogger
 	r.engine = app.CreateAppEngineWithOptions(app.WithZeroLogger(r.logger), app.WithConfiguration(r.config), app.WithRuntimeInfo(rInfo))
 
-	r.config.AddDefaultValue(configuration.FF_OAUTH_AUTH_FLOW_ENABLED, defaultOAuthFF(r.config))
+	r.config.AddDefaultValue(configuration.FF_OAUTH_AUTH_FLOW_ENABLED, defaultOAuthFF())
 	r.config.AddDefaultValue(configuration.FF_TRANSFORMATION_WORKFLOW, configuration.StandardDefaultValueFunction(true))
 	r.config.AddDefaultValue(configuration.NETWORK_REQUEST_RETRY_ALLOWED_PATHS, defaultNetworkRequestRetryAllowedPaths())
 
@@ -764,6 +756,13 @@ func execute(additionalExts []workflow.ExtensionInit) (*cliRun, int) {
 	// The writer knows the secrets of the default configuration. Add those of the configuration of the run, which is the
 	// one of the profile when one is selected, before anything else is logged.
 	r.scrubConfigurationSecrets()
+
+	// A profile that cannot be used fails the run before any command runs: not a command, not the legacy CLI, not help,
+	// and not the debug header, which would describe the default configuration. The error is displayed by the teardown,
+	// which cleans up without reporting, as for any failed run. The engine's default user interface shows the error.
+	if r.profileErr != nil {
+		return r, r.tearDown(ctx, r.profileErr, errorList, startTime, ua, r.engine.GetAnalytics())
+	}
 
 	// We want to scrub the debug log of sensitive information. Since we have a list of commands we know can occur, we can intersect that with arguments we don't recognize, and automatically scrub all those from the logs.
 	if debugEnabled {

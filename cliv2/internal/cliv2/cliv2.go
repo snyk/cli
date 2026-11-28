@@ -24,6 +24,7 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/snyk/error-catalog-golang-public/snyk_errors"
 	"github.com/snyk/go-application-framework/pkg/configuration"
+	"github.com/snyk/go-application-framework/pkg/configuration/profile"
 	"github.com/snyk/go-application-framework/pkg/instrumentation"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/output_workflow"
 	"github.com/snyk/go-application-framework/pkg/runtimeinfo"
@@ -35,6 +36,7 @@ import (
 	debug_utils "github.com/snyk/cli/cliv2/internal/debug"
 	"github.com/snyk/cli/cliv2/internal/embedded"
 	"github.com/snyk/cli/cliv2/internal/embedded/cliv1"
+	"github.com/snyk/cli/cliv2/internal/identityenv"
 	"github.com/snyk/cli/cliv2/internal/proxy"
 )
 
@@ -370,6 +372,14 @@ func PrepareV1EnvironmentVariables(
 			constants.DEBUG_CONST,
 		}
 
+		if profile.IsProfile(config) {
+			// Under a named profile the ambient identity env must not reach the legacy CLI. The profile token and org
+			// are injected afterwards by fillEnvironmentFromConfig. SNYK_CFG_ENDPOINT is not listed: API URL is
+			// intentionally ambient (SNYK_API), and SNYK_API from the resolved config wins over SNYK_CFG_ENDPOINT in TS.
+			blackList = append(blackList, identityenv.Vars()...)
+			blackList = append(blackList, constants.SNYK_ORG_ENV)
+		}
+
 		for _, key := range blackList {
 			inputAsMap = utils.Remove(inputAsMap, key)
 		}
@@ -392,6 +402,9 @@ func PrepareV1EnvironmentVariables(
 		}
 
 		result = utils.ToSlice(inputAsMap, "=")
+	} else if profile.IsProfile(config) {
+		// Fail closed: the environment is not filled, so the ambient identity env would reach the legacy CLI unchanged.
+		result = nil
 	}
 
 	return result, err
@@ -421,6 +434,18 @@ func fillEnvironmentFromConfig(inputAsMap map[string]string, config configuratio
 
 	if debug_utils.GetDebugLevel(config) == zerolog.TraceLevel {
 		inputAsMap["DEBUG"] = "*"
+	}
+
+	// Under a named profile the ambient identity env is removed with the blacklist, so the exact-case profile token is
+	// the only SNYK_TOKEN left for the child. A profile without a token (for example an OAuth-only profile) gets the
+	// placeholder that legacycliWorkflow injects for the default profile: the legacy CLI expects some token to be
+	// present and the internal proxy replaces the authentication.
+	if profile.IsProfile(config) {
+		token := config.GetString(configuration.AUTHENTICATION_TOKEN)
+		if token == "" {
+			token = "random"
+		}
+		inputAsMap[constants.SNYK_API_TOKEN_ENV] = token
 	}
 
 	_, orgEnVarExists := inputAsMap[constants.SNYK_ORG_ENV]
@@ -467,6 +492,10 @@ func (c *CLI) executeV1Default(ctx context.Context, proxyInfo *proxy.ProxyInfo, 
 	c.globalConfig.Set(configKeyErrFile, filePath)
 
 	snykCmd, err := c.PrepareV1Command(ctx, c.v1BinaryLocation, passThroughArgs, proxyInfo, c.GetIntegrationName(), GetFullVersion())
+	if err != nil && profile.IsProfile(c.globalConfig) {
+		// Fail closed: the legacy CLI does not run without the environment of the profile.
+		return err
+	}
 
 	if c.DebugLogger.Writer() != io.Discard {
 		c.DebugLogger.Println("Launching: ")
